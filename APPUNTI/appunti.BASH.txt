@@ -1,0 +1,725 @@
+When Linux boots, executes all scripts in dir
+                /etc/rc.d 
+to restore the sys config and set up services.
+____________________________________________________________
+how empty a file (e.g. named log.txt) with no char:
+
+cat /dev/null > log.txt
+____________________________________________________________
+START A SCRIPT
+____________________________________________________________
+
+A shell script is a TXT file starting with
+                  #!
+The #! is actually a two-byte magic number she-bang or sh-bang: 
+concatenation of tokens sharp (#) and bang (!)
+
+then followed by the executable file to launch
+usually it is '#!/bin/bash' but can be 
+
+#!/bin/rm                # Self-deleting script.
+#!/bin/more              # self-listing documentation file. 
+
+#!/bin/sh
+#!/bin/bash
+#!/usr/bin/perl
+#!/usr/bin/tcl
+#!/bin/sed -f
+#!/bin/awk -f
+
+/bin/sh invokes default shell, so /bin/bash in a Linux machine. 
+It makes the script portable to non-Linux machines, though you 
+sacrifice Bash-specific features
+____________________________________________________________
+END A SCRIPT
+____________________________________________________________
+
+use command exit
+
+exit        #The right and proper method of "exiting" from a script.
+
+maybe with a variable to return a value
+
+E_NOTROOT=87   # Non-root exit error.
+  .......
+  exit $E_NOTROOT
+____________________________________________________________
+BUILTIN
+____________________________________________________________
+
+A builtin is a command contained within the Bash tool set, literally built in. 
+This is either for 
+   - performance reasons -- builtins execute faster than external commands, which usually require forking a separate process -- 
+   - builtin needs direct access to the shell internals.
+____________________________________________________________
+SPECIAL CHARACTERS
+____________________________________________________________
+
+;	Permits putting two or more commands on the same line.
+
+.       Equivalent to source. 
+        Invoked from the command-line, executes a script. 
+        Invoked from a script, imports code into the script, appending.
+       (same effect as the C #include). 
+        This is useful when multiple scripts use a common data file:
+
+
+. data_file    # Load a data file.
+               # Same as "source data_file", but more portable.
+
+"    partial quoting [double quote]. 
+     special characters (except $  \ (escape) and ` (backquote)) 
+     are preserved (from interpretation) 
+
+'    full quoting [single quote]. 
+     All of the special characters 
+     are preserved 
+     This is a stronger form of quoting.
+
+        hello="A B  C   D"
+        echo $hello        # A B C D
+        echo "$hello"      # A B  C   D    preserves whitespace.
+        echo '$hello'      # $hello        preserve also $
+
+     N.B. use quoting a variable when whitespace are important 
+     ex.
+                  List="one two three"
+                  
+                  # Splits the variable in parts at whitespace.    # Preserves whitespace in a single variable.
+                  for a in $List                                     for a in "$List"  
+                  do                                                 do #     ^     ^
+                    echo "$a"                                          echo "$a"
+                  done                                               done
+                  # one                                              # one two three
+                  # two
+                  # three
+                  
+     Quoting can also suppress echo's "appetite" for newlines.
+     echo $(ls -l)
+          total 8 -rw-rw-r-- 1 bo bo 13 Aug 21 12:57 t.sh -rw-rw-r-- 1 bo bo 78 Aug 21 12:57 u.sh
+
+     echo "$(ls -l)"
+          total 8
+           -rw-rw-r--  1 bo bo  13 Aug 21 12:57 t.sh
+           -rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh
+
+\    escape [backslash]. To quote a single character:
+     \X has the effect of 'X'. 
+     It may be used to quote " and '
+     
+     It is also used when writing a command that continues on more lines
+
+:    null command ["NOP"] 
+     It may be also considered a synonym for true. 
+
+
+     :   echo $?   # 0         
+     
+     
+     while :
+     do
+        ...          #Endless loop
+     done
+
+     When used with > is the same as cat /dev/null >
+     : > data.xxx   # Same effect as   cat /dev/null >data.xxx
+
+
+!    from the command line triggers an history event. Not inside a script, as history it's disabled.
+!    reverse (or negate) the exit status of the command
+     needs a space after !
+     ex
+       ls | bogus_command     # bash: bogus_command: command not found
+       echo $?                # 127
+       
+       ! ls | bogus_command   # bash: bogus_command: command not found
+       echo $?                # 0
+
+$?   holds the exit status of a command, a function, 
+     or of the script itself.
+
+$$   holds the process ID of the script in which it appears.
+
+()   command group. List commands within parentheses starts a subshell.
+     ex:   (a=hello; echo $a)
+     Var inside () are not visible to the rest of the script, 
+     act like local var.
+
+     - stands also for array initialization.
+     Array=(element1 element2 element3)
+
+Globbing   Filename expansion: means expanding filename containing 
+           special char ex: pippo.??? --> pippo.001 or pippo.txt
+           Only a few char of Regular Expression are understood:
+           ?    1 char
+           *    any char (N.B. not match filenames start with a dot, 
+                ex: .bashrc)
+           []   all char inside
+           ^    for negating        ex. ls -l [^ab]*
+           
+           So Globbing returns a list of names (file-names) and works
+           also if it's not quoted
+
+           ex. echo *   -->  a.1 b.1 c.1 t2.sh test1.txt
+
+{}         Brace Expansion
+           It creates string. The form is 
+                 S1{a,b,c}S2
+           a,b,c is a list of strings separated by a comma ,
+           S1 is an optional string named 'prefix' put before each elem
+           S2 is an optional string named 'suffix' put after each elem
+                 so it comes:   S1aS2  S1bS2 S1cS2
+           ex.
+             echo a{d,c,b}e    #ade ace abe
+             cp file22.{txt,backup}    #cp file22.txt file22.backup
+
+             mkdir /usr/local/src/bash/{old,new,dist,bugs}    # -->
+             
+             mkdir /usr/local/src/bash/old 
+                   /usr/local/src/bash/new 
+                   /usr/local/src/bash/dist 
+                   /usr/local/src/bash/bugs
+             
+            Brace expansion is performed BEFORE any other. It's strictly text:
+            any char (also special) is preserved:
+
+            ex. echo XX{a,*,?.?}Y     # XXaY XX*Y XX?.?Y
+
+{a..z}      Extended Brace expansion. (Form version 3 of Bash).
+
+            echo {a..z} # a b c d e f g h i j k l m n o p q r s t u v w x y z
+            echo {0..3} # 0 1 2 3
+            base64_charset=( {A..Z} {a..z} {0..9} + / = )
+
+{}           Block of code. An anonymous function. 
+             However, unlike in a "standard" function, the variables inside 
+             remain visible outside:
+
+             a=123
+             { a=321; }
+             echo "a = $a"   # a = 321 
+
+             This is usefull on I/O redirection:
+             --------------- < IN
+             File=/etc/fstab
+
+             {
+             read line1
+             read line2
+             } < $File
+             
+             echo "First & Second line in $File are:"
+             echo "$line1"
+             echo "$line2"
+             --------------- > OUT
+             { 
+               echo
+               echo "Archive Description:"
+               rpm -qpi $1       # Query description.
+               echo
+               echo "Archive Listing:"
+               rpm -qpl $1       # Query listing.
+               echo
+               rpm -i --test $1  # Query whether rpm file can be installed.
+               if [ "$?" -eq $SUCCESS ]
+               then
+                 echo "$1 can be installed."
+               else
+                 echo "$1 cannot be installed."
+               fi  
+             } > "$1.test"       # Redirects output of everything.
+             ---------------
+            N.B.  Unlike (), {} will NOT normally launch a subshell
+            only exception is if it's in a pipe: ...| {..}
+
+
+{}   Used in 
+      find  command with the option -exec
+      xargs command
+
+      find   -exec COMMAND \;               # Carries out COMMAND on each found file 
+                                            # ";" is escaped to avoid shell interpreting.
+
+      If COMMAND contains {}, the full file path name is substituted for "{}".
+
+      find ~/ -name 'core*' -exec rm {} \; # Removes all core dump files from user home 
+
+      The same applies in xargs:
+      ls . | xargs -i -t cp ./{} $my_dir   # copy current dir files into $my_dir
+
+
+{}   The shell expands. The command acts upon the result of the expansion.
+
+
+(( ))   integer expansion. Expand and evaluate int expression in (( )).
+     ex. a=$(( 5 + 3 ))  # a=8
+     It replaces the deprecated usage of $[] 
+     a=3; b=7;  echo $[$a+$b]    #10
+
+     It's a mechanism for allowing C-style 
+     (( a++ ))  (( a-- ))   (( ++a ))  (( --a ))
+     (( t = a<45?7:11 ))
+     
+     N.B. If the expression evaluated in (()) = zero -->  exit status = 1 ("false"). 
+     A non-zero expression returns an exit status of 0, or "true". 
+     This is in marked contrast with a C-like behaviour or with using the others
+     construct : test and [ ]
+
+____________________________________________________________
+I/O Redirection
+____________________________________________________________
+                                ----> stdout (screen fd=1)
+     stdin (keyboar fd=0) ----> 
+                                ----> stderr (screen fd=2)
+
+     Other 7 numbers (3-9) are available as fd
+     To list info on open files use lsof
+
+     lsof -a -p $$ -d0,1,2        #look at FD column
+
+     COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+      bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
+      bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
+      bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1
+
+
+     1>filen   # redirect stdout to filen    ex ls 1> pippo
+     1>>filen  # redirect (with append)      
+     2>filen   # the same for stderr         ex ls 2> pippo  (any error is not added on video but redirected to pippo)
+     2>>filen  #   "   "   "   "
+     &>filen   #  redirect both stdout and stderr
+     
+     N.B. the above commnands are automatically "reset" after each line, so stdout, sterr are back to video.
+    
+     i>filen   # create fd i to write       filen. If not set is 1 (stdout). 
+     i<filen   # create fd i to read        filen. If not set is 1 (stdout). 
+     i<>filen  # create fd i to read/write  filen. If not set is 1 (stdout). 
+
+     once a fd i is created to read or write use for each command the specification 
+     <&i when reading and >&i when writing.
+
+     echo 1234567890 > pippo
+     3 <> pippo  
+     read -n 4 <&3             # Read only 4 characters.
+     echo -n . >&3             # Write a decimal point there.
+     exec 3>&-                 # Close fd 3.
+
+     i>&j      # i and j are both fd. If i not set is 1 (stdout). 
+               # operations on i are the same than on j.   
+               # the command act conceptually as i=j 
+
+     ex.  2>&1  redirect stderr to stdout
+
+     N.B. to remember & and >. Only case & is before > (&>) is whene I'm sending out+err to a filename
+          otherwise (>&) in thise case there are only numbers (descriptors)
+
+     fd can be closed. 
+              0<&-   or   <&-       # close stdin
+              1>&-   or   >&-       # close stdout
+
+              i<&-   # close input  fd i 
+              i>&-   # close output fd i
+
+     Child processes inherit open fd. This is why pipes work. 
+     To prevent a fd from being inherited, close it. 
+
+
+
+____________________________________________________________
+VARIABLES
+____________________________________________________________
+     a=some_value   # SET var a to some_value
+     a=             # SET var a but leave it NULL
+     unset a        # delete a var 
+     $a        #the value. A better use is ${a}
+     ${a}      to be used when var & strings must be concatenated:
+                  my_id=${USER}-on-${HOSTNAME}   #stiv-on-stiv-GP60-2PE
+                  PATH=${PATH}:/opt/bin
+  
+   Bash var are UNTYPED, they are just text, even if in case the string is built by only digits 
+   bash undertsang they are 'numbers' and give sense to any related arithmetic operation. 
+   NOTE: that the 'integer' value of a sting is 0.
+   NOTE: usually is 0 also the 'integer' value of UNSET o NOT_EXIXSTING (not declared) var
+
+   Integer in older versions of Bash were signed long (32-bit) integers, [-2147483648  2147483647]. 
+   As of version >= 2.05b, Bash supports 64-bit integers.
+
+   Bash does not understand floating point arithmetic. It treats numbers containing a decimal point as strings.
+
+
+   
+   a=2334                   # Integer.
+   let "a += 1"             # a = 2335
+   b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
+   let "b += 1"             # b = 1    the integer value of 2BB5 is 0
+
+     -------------- DEFAULT:
+     ${a-val}       # return val (if var a is NOT_SET, not exist)
+     ${a:-val}      # return val (if var a is NOT_SET or SET_BUT_NULL) 
+                  ex. a=1;  echo ${a-2}   #1          a set not null
+                      a=;   echo ${a-2}   # nothing   a set but null
+                      a=;   echo ${a:-2}  #2          "      "   
+                            echo ${b-2}   #2          b not set
+                            echo ${b:-2}  #2          "      "
+
+                  defaults are used in script when user omits optional arg
+
+     ${a=val}       # if a is NOT_SET                 set it = val (so if a is null left it null) 
+     ${a:=val}      # if a is NOT_SET or SET_BUT_NULL set it = val 
+     
+     ${a+val}       # return val if a is SET 
+     ${a:+val}      # return val if a is SET + NOT_NULL
+     
+     ${a?err_msg}   # if a NOT_SET         abort script with err_msg
+     ${a:?err_msg}  # if a NOT_SET or NULL abort script with err_msg
+     -------------- 
+     
+     ${#a}        # return len of char for value of a 
+                  # for an array only the len of 1st elem
+                  ex. a=12345ab;    echo ${#a}        #7
+                      a=(e1 e2 e3); echo ${#a}        #2
+
+                  ${#array[*]}    both give the number of elements in the array. 
+                  ${#array[@]} 
+
+                      a=(e1 e2 e3); echo ${#a[*]}        #3
+                      a=(e1 e2 e3); echo ${#a[@]}        #3
+
+Numbers are usually decimal (base 10).
+Prefix 0      is octal (base 8).                   let "oct = 032"   # 26
+Prefix 0x     is hexadecimal (base 16).            let "hex = 0x32"  # 50
+BASE#NUMBER   is any base 
+              # range (2 - 64) : 10 digits + 26 lowercase characters + 26 uppercase characters + @ + _
+
+              let "b64 = 64#@_"      # 4031
+
+
+              #  Using a digit out of range gives error .
+              
+              let "bad_oct = 081"
+              # (Partial) error message output:
+              #  bad_oct = 081: value too great for base (error token is "081")
+              
+              exit $?   # Exit value = 1 (error)
+
+
+
+INDIRECT REFERENCES
+b=${!var}  the new construct ${!var} replace the old less readable eval var1=\$$var2
+and return the value of the variable whose name is the value of var
+e.g.
+                    t=table_cell_3       # var t conatins that string text
+                    table_cell_3=24      # 
+                    echo "t = ${!t}"     # t = 24  that is the value of the variable named by t value
+
+____________________________________________________________
+ENV VARIABLES
+____________________________________________________________
+
+As any unix process, the shell has an "environment", a group of variables that the process may reference. 
+Even if the env-space is limited, you can add ("export") environmental variables. Those var are accessible 
+only to child processes. A script invoked from the command-line cannot export variables back to the 
+command-line, like Child cannot export variables back to the parent.
+
+____________________________________________________________
+POSITIONAL PARAMETERS
+____________________________________________________________
+
+Arguments passed to the script:  $0, $1, $2, $3 . . .
+
+    $0 : the name of the script itself, 
+    $1 : the first argument, ...  after $9, must be enclosed in brackets, ${10}, ${11}, ${12}.
+    $# : the NUMBER of passed parameters              
+    $* : the string with ALL the positional parameters, (seen as a single word)
+    $@ : the same of $* but each parameter is a quoted (each parameter is seen as a separate word).
+
+  ex.
+   args=$#               # Number of args passed.
+   lastarg=${!args}      # Note: This is an *indirect reference*
+
+The shift command reassigns the parameters :
+
+$1 <--- $2 $2 <--- $3                    old $1 disappears. $0 never change.
+ex.
+                until [ -z "$1" ]  
+                do
+                  echo -n "$1 "
+                  shift
+                done
+
+shift can take a numerical parameter indicating how many positions to shift. (ex. shift 3)
+
+____________________________________________________________
+EXIT STATUS
+____________________________________________________________
+     Every command returns an exit status. On success = 0.  On errors = 1-255
+     $? reads the exit status.
+     When a script ends with exit with no parameter:
+            exit
+     the exit status will be the one of the last command in the script.
+
+     Reserved values: 
+          1	general errors	(such as "divide by zero": let "var1 = 1/0")
+          2	Misuse of shell builtins (ex. Missing keyword or permission problem (diff failed on binary file comparison)).
+          126	Permission problem or command not an exe(ex. invoke /dev/null)
+          127	"command not found"	(ex.Possible problem with $PATH or a typo)
+          128	Invalid argument to exit (exit with value out of 0-255)
+          128+n	reserved for signals values (ex. kill -9 $PPID of script  $? returns 137 (128 + 9))
+          130	Script terminated by Control-C	(N.B. signal 2, (130 = 128 + 2)
+
+     Book Author suggest to use values in range: 64 - 113
+____________________________________________________________
+TEST CONSTRUCTS
+____________________________________________________________
+
+When a command is succesfull (exit status = 0) this means a TRUE condition
+An exit status not 0 means FALSE.
+
+Condition can be used in 'if' 'else' statements as
+
+if test condition1       # using a form with the 'test' keyword
+if [ condition1 ]        # usign a form with [ alias for test keyword
+if [[ condition1 ]]      # usign the better [[ ]] than []
+if condition1            # allow to use nothing 
+if (( ))                 # when evaluates arithmetic expression. N.B. (( )) and 'let'
+                          works on arithmetic. If expression gives 0, its exit status = 1 --> FALSE. 
+                          This is in marked contrast to using the test and [ ]
+then
+   command1
+   command2
+   command3
+elif [ condition2 ]    # Same as else if
+then
+   command4
+   command5
+else
+   default-command
+fi
+
+
+Use ; when 'if' and 'then' are on same line
+      if [ -x "$filename" ]; then
+
+
+test is a bash builtin which tests FILE types and compares STRINGS. 
+Therefore, script does not call the external /usr/bin/test binary, (which is part of the sh-utils package)
+Likewise, [ does not call /usr/bin/[, which is linked to /usr/bin/test.
+[ is a short alias for test. 
+A closing ] should not be strictly necessary, however newer versions of Bash require it.
+
+The [[ ]] construct is the more versatile Bash version of [ ]. This is the extended test command, adopted from ksh88.
+No filename expansion or word splitting takes place between [[ ]], but there is parameter expansion and command substitution.
+Using [[ ]] rather than [ ] can prevent many logic errors. For example, && || < and > work in [[ ]] despite giving error in [ ]
+Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]] 
+
+Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary. 
+
+if [ 0 ]  
+then         # 0 is true.
+......
+if [ 1 ]
+then          # 1 is true.
+......
+if [ -1 ]    
+then          # -1 is true.
+......
+if [ ]        # NULL (empty condition)
+then 
+else          # NULL is false.
+......
+xyz=          # Initialized, but set to null value.
+if [ -n "$xyz" ]
+then 
+else          # Null variable is false
+......
+if [ xyz ]    # string
+then          # Random string is true.
+......
+if [ $xyz ]   # $xyz an uninitialized variable.
+then
+else          # Uninitialized variable is false.
+......
+if cmp a b &> /dev/null  
+then echo "Files a and b are identical."
+......
+if grep -q Bash file
+  then echo "File contains at least one occurrence of Bash."
+____________________________________________________________
+____________________________________________________________
+
+(( 0 ))                   # $? = 1
+(( 1 ))                   # $? = 0
+(( 5 > 4 ))               # true # $? = 0
+(( 5 > 9 ))               # false # $? = 1
+(( 5 - 5 ))               # 0 # $? = 1
+(( 5 / 4 ))               # Division o.k.  # $? = 0
+(( 1 / 2 ))               # Division result < 1  # Rounded off to 0.  # $? = 1
+(( 1 / 0 )) 2>/dev/null   # Illegal division by 0.  # $? = 1
+
+____________________________________________________________
+TEST ON FILES
+____________________________________________________________
+
+file=/etc/passwd
+
+if [[ -e $file ]]
+then
+  echo "Password file exists."
+fi
+
+-e        file exists
+-a        file exists (like -e. "deprecated" and its use discouraged).
+-f        file is a regular file (not a directory or device file)
+-s        file is not zero size
+-d        file is a directory
+-b        file is a block device
+-c        file is a character device
+-p        file is a pipe
+-h        file is a symbolic link
+-L        file is a symbolic link
+-S        file is a socket
+-t        file (descriptor) is associated with a terminal device
+          This test option may be used to check whether the stdin [ -t 0 ] or stdout [ -t 1 ] in a given script is a terminal.
+-r        file has read permission    (for the user running the test)
+-w        file has write permission   (for the user running the test)
+-x        file has execute permission (for the user running the test)
+-g        set-group-id (sgid) flag set on file or directory
+          If a directory has the sgid flag set, then a file created within that directory belongs to the group that owns the directory, 
+          not necessarily to the group of the user who created the file. 
+-u        set-user-id (suid) flag set on file    (an s in its permissions)
+          An executable owned by root with set-user-id flag set runs with root privileges, even when an ordinary user invokes it. 
+          This is useful for executables (such as pppd and cdrecord) that need to access system hardware. 
+          Lacking the suid flag, these binaries could not be invoked by a non-root user.
+	      -rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
+
+-k        sticky bit set  (a t in its permissions)
+          the save-text-mode flag permission. 
+             If set on a file: that file will be kept in cache memory, for quicker access. 
+             If set on a directory: restricts write permission. Olny the owner of a file can alter or delete files in that directory.
+	      drwxrwxrwt    7 root         1024 May 19 21:26 tmp/
+          On Linux systems, the sticky bit is no longer used for files, only on directories.
+-O        you are owner of file
+-G        group-id of file same as yours
+-N        file modified since it was last read
+
+f1 -nt f2 file f1 is newer than f2
+f1 -ot f2 file f1 is older than f2
+f1 -ef f2 files f1 and f2 are hard links to the same file
+
+____________________________________________________________
+TEST ON INTEGER
+____________________________________________________________
+
+-eq     is equal to                        if [ "$a" -eq "$b" ]
+-ne     is not equal to                    if [ "$a" -ne "$b" ]
+-gt     is greater than                    if [ "$a" -gt "$b" ]
+-ge     is greater than or equal to        if [ "$a" -ge "$b" ]
+-lt     is less than                       if [ "$a" -lt "$b" ]
+-le     is less than or equal to           if [ "$a" -le "$b" ]
+<       is less than                (within double parentheses)       (("$a" < "$b"))
+<=      is less than or equal to    (within double parentheses)       (("$a" <= "$b"))
+>       is greater than             (within double parentheses)       (("$a" > "$b"))
+>=      is greater than or equal to (within double parentheses)       (("$a" >= "$b"))
+
+____________________________________________________________
+TEST ON STRING
+____________________________________________________________
+
+Using an unquoted string normally works, however, this is an unsafe practice.
+Always quote a string.
+
+=       is equal to       if [ "$a" = "$b" ]    Note the whitespace    if [ "$a"="$b" ] is not equivalent 
+==      is equal to       if [ "$a" == "$b" ]   This is a synonym for =.
+                          The == behaves differently within [[]] []
+                          
+                              [[ $a == z* ]]   # True if $a starts with a "z" (pattern matching).
+                              [[ $a == "z*" ]] # True if $a is equal to z*    (literal matching).
+                          
+                              [ $a == z* ]     # File globbing and word splitting take place.
+                              [ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
+
+!=      is not equal to   if [ "$a" != "$b" ]    This operator uses pattern matching within a [[ ... ]] construct.
+<       is less than, in ASCII alphabetical order 
+         if [[ "$a" < "$b" ]] 
+         if [ "$a" \< "$b" ]            Note that the "<" needs to be escaped within a [ ]
+>       is greater than, in ASCII alphabetical order 
+         if [[ "$a" > "$b" ]] 
+         if [ "$a" \> "$b" ]
+-z      string is null, (zero length)
+
+              String=''   # Zero-length ("null") string variable.
+
+              if [ -z "$String" ]
+              then
+                echo "\$String is null."
+              else
+                echo "\$String is NOT null."
+              fi     # $String is null.
+
+-n      string is not null.
+
+____________________________________________________________
+TEST WITH   AND  OR   -a  -o    &&  ||
+____________________________________________________________
+
+Tests conditions can be chained with boolena opertors NOT (!)   AND   OR
+Remeber once again that what Bash uses for each test condition is its EXIT STATUS 
+
+
+-a      logical and          exp1 -a exp2 returns true if both  are true.
+-o      logical or           exp1 -o exp2 returns true if either is true.
+
+The -o and -a work with test command or within []
+
+It can also be used the form &&   ||
+&& and || work also within [[ ]]       [[ condition1 && condition2 ]]
+
+if [ "$expr1" -a "$expr2" ]
+then
+  echo "Both expr1 and expr2 are true."
+else
+  echo "Either expr1 or expr2 is false."
+fi
+
+     &&   (AND logical operator). 
+           returns 0 (success) only if both conditions are true.
+
+     a=$(( 0 && 1 )) ; echo $a     # 0 
+     (( 0 && 1 )) ;    echo $?     # 1 
+
+
+Caution	:
+
+[ 1 -eq 1 ] && [ -n "`echo true 1>&2`" ]   # true
+[ 1 -eq 2 ] && [ -n "`echo true 1>&2`" ]   # (no output)
+# ^^^^^^^ False condition. So far, everything as expected.
+
+# However ...
+[ 1 -eq 2 -a -n "`echo true 1>&2`" ]       # true
+# ^^^^^^^ False condition. So, why "true" output?
+
+# Is it because both condition clauses within brackets evaluate?
+[[ 1 -eq 2 && -n "`echo true 1>&2`" ]]     # (no output)
+# No, that's not it.
+
+# Apparently && and || "short-circuit" while -a and -o do not.
+
+____________________________________________________________
+INT  OPERATORS
+____________________________________________________________
+
++    plus
+-    minus
+*    multiplication
+/    division
+**   exponential # introduced from Bash version 2.02    let "z=5**3"    # z = 125
+%    modulo        bash$ expr 5 % 3  #2
++=
+-=
+*=
+/=
+%=
+____________________________________________________________
+INT  OPERATORS
+____________________________________________________________
+

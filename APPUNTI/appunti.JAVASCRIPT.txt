@@ -1,0 +1,383 @@
+                        JavaScript is part of the triad of technologies that all Web developers must learn: 
+.HTML        the content of web pages, 
+.CSS         the presentation 
+.JavaScript  the behavior.    (with the advent of Node (http://nodejs.org), 
+                               JavaScript has also become an important programming language for web servers
+
+-UNICODE        JavaScript programs are written in Unicode (a 16.bit superset of ASCII supportings 
+                                                           virtually every written language currently used on the planet)
+-case-sensitive.
+                       Note on string comparisonr: all capital ASCII letters are “less than” all lowercase. 
+                       According to < the string “Zoo” comes before the string “aardvark”
+
+-comments           //  1 line             /*   block  */
+
+-var name        must begin [_$a-zA-Z]
+
+-reserved word:
+                 break  case          catch       continue       debugger      default      delete
+                 do     else          false       finally        for           function     if
+                 in     instanceof    new         null           return        switch       this   
+                 throw  true          try         typeof         var           void         while         
+                 with
+                 ECMAScript 5 reserves :
+                 class  const         enum        export         extends       import       super
+
+-sepate commands:       ';'    (optional if:
+                                            .1 command on 1 line
+                                            .last command of the script
+                                            .last command before }
+
+-primitive types:
+                N.B. JavaScript converts from one type to another. 
+                     (ex. a function expects a string, and you give it a number: it's converted into a string)
+
+-untyped:       you can assign a value of any type to a variable, and you can later assign another
+                J. performs automatic conversion. To perform an explicit conversion the simplest way is to
+                use the Boolean()   Number()   String()   Object() functions:
+                         Number("3")   //  3
+                         String(false) //  "false" Or false.toString()
+                         Boolean([])   //  true
+                         Object(3)     //  new Number(3)
+
+-declare:       Variables are declared with 'var':
+                          var i, sum;                    <--- this var has value 'undefined'
+                          var i = 0, j = 0, k = 0;
+
+                          for(var i = 0, j=10; i < 10; i++,j--) console.log(i*j); <--- Note inside a 'for'
+
+-scope:         In C-like each block of code {} has its own scope, (var are not visible outside)
+                This is called block scope.
+                JavaScript instead, uses function scope: 
+                var are visible in the fun where defined and in any nested fun in that function.
+
+
+-numbers:       There are no int. All numbers are float 64.bit
+                - hexadecimal:   0xff      0X1CA
+                - exponential:   6.02e23   1.47E-32
+                - Infinity -Infinity     (produced ex when dividing for 0. It's not an exception in Javascript)
+                - 0/0 generates a Javscript exception  (indicated by 'NaN')
+                - isNaN()    true if x is Nan
+                - isFinite() true if x is different from NaN and Infinity
+
+                  Math.pow(2,53)      => 9007199254740992: 2 to the power 53
+                  Math.round(.6)      => 1.0: round to the nearest integer
+                  Math.ceil(.6)       => 1.0: round up to an integer
+                  Math.floor(.6)      => 0.0: round down to an integer
+                  Math.abs(-5)        => 5: absolute value
+                  Math.max(x,y,z)     Return the largest argument            
+                  Math.min(x,y,z)     Return the smallest argument           
+                  Math.random()       Pseudo-random number 0 <= x < 1.0
+
+                  Math.PI                   π
+                  Math.E                    e: The base of the natural logarithm
+                  Math.sqrt(3)              The square root of 3
+                  Math.pow(3,1/3)           The cube root of 3 
+                  Math.sin(0)               Trig: also Math.cos, Math.atan, etc.
+                  Math.log(10)              Natural logarithm of 10
+                  Math.log(100)/Math.LN10   Base 10 logarithm of 100
+                  Math.log(512)/Math.LN2    Base 2 logarithm of 512
+                  Math.exp(3)               Math.E cubed
+
+                 var n = 17;
+                    binary_string = n.toString(2);           // "10001"
+                    octal_string  = "0" + n.toString(8);     // "021"
+                    hex_string    = "0x" + n.toString(16);   // "0x11"
+
+                parseInt() parseFloat() 
+                              skip leading whitespace, 
+                              parse as many numeric characters as they can, 
+                              and ignore anything that follows.
+
+                       parseInt("3 blind mice")       //    3
+                       parseFloat(" 3.14 meters")     //    3.14
+                       parseInt("-12.34")             //    -12
+                       parseInt("0xFF")               //    255
+                       parseFloat("$72.47");          //    NaN
+
+                var n = 123456.789;
+                       n.toFixed(2);                  // "123456.79"
+                       n.toExponential(3);            // "1.235e+5"
+                       n.toPrecision(7);              // "123456.8"
+
+
+-Strings:       - array of 16.bit Unicode Char starting from pos.0 to len-1
+                  char must be accessed by s.charAt(). In ECMAScript 5 also as s[0]  or s[s.length-1]
+                - Delimit them with both "" or '' 
+                - s.length  to have the len
+                - '+' to concatenate:   msg = "Hello, " + "world";
+                - usual escape   \n \t \\ 
+
+                  var s = "hello, world"
+                  s.charAt(0)                   => "h": the first character.
+                  s.charAt(s.length-1)          => "d": the last character.
+                  s.substring(1,4)              => "ell": chars 2, 3, and 4
+                  s.slice(1,4)                  => "ell": same thing
+                  s.slice(-3)                   => "rld": last 3 characters
+                  s.indexOf("l")                => 2: position of first l.
+                  s.lastIndexOf("l")            => 10: position of last l.
+                  s.indexOf("l", 3)             => 3: position at or after 3
+                  s.split(", ")                 => ["hello", "world"]
+                  s.replace("h", "H")           => "Hello, world":
+                  s.toUpperCase()               => "HELLO, WORL"
+
+                  Note that any value other than 'null' or 'undefined' has a
+                                 toString() method 
+                  and the result of this method is usually the same as that returned by the 
+                                 String() function
+
+-'+':             + give priority to string concatenation: if either of the operands is a string
+                    or an object that converts to a string, the other operand is converted to a string and 
+                    concatenation is performed. Addition is performed only if neither operand is string-like.
+
+-Boolean:         'true' 'false'  a == 4
+                  As J. is untyped, following value used in Boolean comparison means 'false'
+                           / undefined
+                           | null
+                    false  | 0
+                           | -0
+                           | NaN
+                           \ "" // the empty string
+
+-null / undefined:    - null:  to use when numbers.strings.objects have no value
+                               is a keyword
+                               typeof(null) returns the String 'object'
+                      - undefined: is a J. global variable (not a keyword)
+                               is the value of var never initialized
+                               the return value of fucntions which have no return
+                               the value of varis that do not exist (field of an object, or par of a function)
+                      Despite these differences, null and undefined both indicate an absence of value 
+                      and can often be used interchangeably. The equality operator == considers them to be equal (and 'false')
+                     (Use the strict equality operator === to distinguish them.)
+
+                     Note: In the strict mode of ECMAScript 5, a nonexistent variable throws a ReferenceError
+
+-The Global Object:  A J. program when started has a Global Object (like a unix environment) instantiated. Any
+                     user global var is a field of the Global Object. You can refer in any time to the Global Object
+                     (and to its fields) with the usual keyword 'this'.
+
+-array:              [] // An empty array
+                     [1+2,3+4]
+                     var matrix = [[1,2,3], [4,5,6], [7,8,9]];
+
+
+-Object:             Like array but use  {} instead:
+                     var q = {};              // Empty object; no properties
+                     var p = { x:2, y:1 };    // An object with 2 properties
+                     q.x = 2; q.y = 1;        // Now q has the same props as p
+                     
+                     var rectangle = { upperLeft:  { x: 2, y: 2 },
+                                       lowerRight: { x: 4, y: 5 } };
+                     
+                     property names may be quoted strings (this is useful to use names that are reserved words)
+                     var square = { "ul": { x: p.x, y: p.y },
+                                    'lr': { x: p.x + side, y: p.y + side}};
+                     
+                     Moreover property can be accessed with 2 notations:
+                         object . prop
+                         object [prop]
+                     The [] form is useful when the property name is a reserved word or includes spaces or special cahr.
+
+                     Object Creation:  new Point(2,3)
+                                       new Object()      If no arguments are passed the empty pair of parentheses can
+                                                         be omitted: new Object     new Date
+                     in: returns 'true' if that object-var has a property which that name:
+                         var p = { x:1, y:1 };
+                             "x" in p            //  true: p has a property named "x".
+                             "z" in p            //  false: p has no "z" property.
+                             "toString" in p     //  true: p inherits toString.
+                         var a = [7,8,9];
+                             "0" in a            //  true: a has an element "0"
+                             1 in a              //  true: numbers are converted
+
+                     instanceof:
+                         var d = new Date();
+                             d instanceof Date;        //  true
+                             d instanceof Object;      //  true
+                             d instanceof Number;      //  false
+                         var a = [1, 2, 3];        
+                             a instanceof Array;       //  true
+                             a instanceof Object;      //  true
+
+
+Strict equality ( === )   If both operands have different types                              --> false
+                          If both operands are primitive types and their values are the same --> true
+                          If both operands refer to the same object, array, or function      --> true
+                          If they refer to different objects 
+                             even if both objects have identical properties                  --> false
+                         two arrays that have the same elements in the same order            --> false
+                         NaN not equal to any other value, including itself!
+
+Strict inequality ( !== ) is the exact opposite of the === 
+
+Loose equality ( == )    If the values of the two operands are not the same type, 
+                         it attempts conversions and tries again. 
+                         null ==  undefined  --> true
+                                                                 1     == "1"  \
+                                                                 true  == 1     |
+                                                                 "1"   == true  | <-- all true
+                                                                 false == 0     |
+                                                                 []    == 0    /
+
+&&  ||:     As J. can interpret any type for boolean (according to type conversion) && and || have 
+            deep meaning in J. The rules are:
+                1. As soon as a result can be returned the interpretation is stopped (so following operands of && ||
+                   are not considered)
+                2. The return value is the operands that make the interpretation stopped
+
+                   var o = { x : 1 };
+                   var p = null;
+                   o && o.x // returns 1: o is truthy, so return o.x
+                   p && p.x // returns null: p is falsy, so don't eval p.x which is evaluated would have throws an TypeError
+
+                   var max = max_width || preferences.max_width || 500;    often used to supply default values
+
+                   function copy(o, p) {
+                                        p = p || {};               // If no object passed for p, use a new one
+                                        ...... }
+                                        
+typeof:        it returns a String:
+                                        x                 typeof x
+                                 ----------------------------------------
+                                 undefined                 "undefined"
+                                 null                      "object"
+                                 true or false             "boolean"
+                                 any number or NaN         "number"
+                                 any string                "string"
+                                 any function              "function"
+                                 any nonfunction object    "object"
+
+delete:         attempts to delete the object property or array element
+                     var o = {x:1, y:2}, a = [1,2,3];
+                     delete o.x;      //  Delete a property of o
+                     "x" in o         //  false: the property does not exist
+                     delete a[2];     //  Delete the last element of the array
+                     2 in a           //  false: array element 2 doesn't exist
+
+--------------------------------------------------------------- STATEMENTS
+
+              All the C statements.
+
+for/in        a form of iteration usefull when iteration the properties of an object:
+                      for(var p in o)
+                           console.log(o[p]); // Print each property
+
+              The ECMAScript specification does not describe the order in which the loop 
+              enumerates the properties of an object.  In practice, JavaScript implementations from all major browser 
+              enumerate  the properties of simple objects in the order in which they were defined
+
+throw         The syntax is:    throw expression;        expression may be a value of any type:
+
+                                          - a number (that represents an error code) 
+                                          - a string (that contains a human-readable error message). 
+                                          - an Error() object: used by J. but you can use them as well. Has:
+                                                       . a name property (that specifies the type of error)
+                                                       . a String message property passed to the constructor
+
+               function factorial(x) {
+               if (x < 0) throw new Error("x must not be negative"); <-----------
+               for(var f = 1; x > 1; f *= x, x--) /* empty */ ;
+               return f;
+               }
+
+try/catch/finally
+                   try {                                                    |
+                   // Normally, this code runs from the top of the block    |try {
+                   // to the bottom without problems. But it can            |     var n = Number(prompt("Enter n", ""));
+                   // sometimes throw an exception, either directly, with   |     var f = factorial(n);
+                   // a throw statement, or indirectly, by calling a        |     alert(n + "! = " + f);
+                   // method that throws an exception.                      |}
+                   }                                                        |
+                   catch (e) {                                              |
+                   // The statements in this block are executed if, andp    |  catch (ex) {
+                   // only if, the try block throws an exception. These     |           alert(ex);  
+                   // statements can use the local variable e to refer      |  }
+                   // to the Error object or other value that was thrown.   |
+                   // This block may handle the exception somehow, may      |
+                   // ignore the exception by doing nothing, or may         |
+                   // rethrow the exception with throw.                     |
+                   }                                                        |
+                   finally {                                                |
+                   // This block contains statements that are always        |
+                   // executed, regardless of what happens in the try       |
+                   // block. They are executed when the try block           |
+                   }                                                        |
+
+
+
+--------------------------------------------------------------- OBJECS
+                          Objects are manipulated by reference rather than by value: 
+                          var y = x; y holds a reference to x, not a copy. 
+                          Any modifications through y modifies also x
+
+create:      1.   use the syntax { name_field : value }
+
+                     var empty = {};           // An object with no properties
+                     var point = { x:0, y:0 }; // Two properties
+                     var point2 = {
+                                    x:point.x,
+                                    y:point.y+1
+                                };
+                     var book = {                                 // property names are quoted
+                                    "main title": "JavaScript",   // space in property name
+				    'sub-title': "Pocket Ref",    // punctuation in name
+                                    "for": "all audiences",       // reserved word name
+
+
+             2.  use new
+		     var o  =  new  Object();        // An empty object: same as {}.
+		     var a  =  new  Array();         // An empty array: same as [].
+		     var d  =  new  Date();          // A Date for the current time.
+		     var r  =  new  RegExp("js");    // A pattern matching object.
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		     
+		       
+		       
+		       
+		       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

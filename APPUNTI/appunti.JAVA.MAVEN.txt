@@ -1,0 +1,573 @@
+mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes \
+                       -DarchetypeArtifactId=maven-archetype-quickstart
+
+JAVA based              Maven is a Java-based application and 
+                        requires the Java Development Kit (JDK)
+
+1. download:            http://maven.apache.org/download.html
+2. unzip                ex in ~/maven_inst  unzip create some tree 
+                        ex 'apache-maven-3.2.5/bin' <--- and inside 'mvn' exe
+3. configure env var    M2_HOME   to point to root dir prepared: ~/maven_inst
+                        update also $PATH 
+                        MAVEN_OPTS=-Xmx512m    define JRE heap size
+                                               this size can be incremented
+                                               if you go out of memory with lot of memory errors
+4. mvn -v               ready to go!
+
+5. settings.xml         user-specific configuration. Locate din '~/.m2' dir
+                        .m2 contains also JAR-plugin downloaded from internet
+                        
+                        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                        http://maven.apache.org/xsd/settings-1.0.0.xsd">
+                            <localRepository/>   <--- to select other than  ~/.m2/repository
+                            <interactiveMode/>   
+                            <usePluginRegistry/>
+                            <offline/>           default: false    
+                            <pluginGroups/>
+                            <servers/>           specify user:pswd to connect to Apache/Subversions/... servers
+                            <mirrors/>
+                            <proxies/>           ex.   <proxies>    <proxy>
+                            <profiles/>                   <id>companyProxy</id>
+                            <activeProfiles/>             <active>true</active>
+                        </settings>                       <protocol>http</protocol>
+                                                          <host>proxy.company.com</host>
+                                                          <port>8080</port>
+                                                          <username>proxyusername</username>
+                                                          <password>proxypassword</password>
+                                                          <nonProxyHosts />
+                                                       </proxy>     </proxies>     
+                      
+---------------------------------------------- MAVEN Dependency
+the problem:            if your application relys on external JARs, where each relys on other JARs
+                        insteda of download all, keep them up-to-date each time 1 changes, and 
+                        inlude by hand in the application. You can use Maven
+                        which manage all the dependecies in  pom.xml 
+
+          Note   Information can be provided in settings.xml or pom.xml. 
+                 There are pros and cons to each approach. 
+                       pom.xml:  make your builds portable. Developers download projects
+                                 and simply build them without any further modifications 
+                                 to their local settings.xml.
+                                 Information like ex repository URL are hard coded there. 
+                                 If URLs ever change, consumers of these artifacts will run into errors 
+                                 due to broken paths. 
+                        So settings.xml is typically recommended to put repository URL
+
+remote Maven            Main remote repository are  repo.maven.apache.org / uk.maven.org.
+                        there are also
+                            - Spring repository
+                            - JBoss  repository
+                        a 'Repository Manager' in Maven acts as a proxy from the local corporate
+                        to outside internet servers. Some Open Source 'Repository Manager' are:
+                             Sonatype Nexus       www.sonatype.com/nexus
+                             Apache Archiva       http://archiva.apache.org/
+                             Artifactory          www.jfrog.com/open-source/
+                      
+                        ex. repository in settings.xml:
+
+                               <profiles>     <profile>
+                                     <id>your_company</id>
+                                     <repositories>
+                                     <repository>
+                                     <id>spring_repo</id>
+                                     <url>http://repo.spring.io/release/</url>
+                                     </repository>
+                                     <repository>
+                                     <id>jboss_repo</id>
+                                     <url>https://repository.jboss.org/</url>
+                                     </repository>
+                                     </repositories>
+                               </profile>    </profiles>
+
+Depend. Indentification: Depend. are usually ZIP, JAR, WAR or also EAR (entreprise archive) 
+                         Are identified by:
+                             groupId:    the organization (Ex org.hibernate, log4j, org.springframework.boot.
+                             artifactId: Id (unique) among the proj (same groupId). Ex hibernate-tools, log4j, spring-core,
+                             version:    Ex 1.0.0, 2.3.1-SNAPSHOT, 4.3.6.Final.
+                             type:       the packing generated. Ex JAR, WAR, EAR.
+                      
+Direct and Transitive Dep:     Transitive are the Indirect Dep.which can comes from the Direct 
+                               Direct:     A B C D E
+                               Transitive: F G F H H I F B I
+
+                               if there are more (ex B B or F F F)
+                               rule 1: it's taken the closest: B  0.0.8
+                               rule 2: if still on the same level there are more is taken the 1st: F  0.1.3
+
+                               it can cause problems and unpredictable side effects, as you might include unwanted JAR 
+                               or older versions. Always analyze your dependency tree and make sure you are bundling the
+                               dependencies you need
+                      
+                                        Proj ver.1.0.0
+                 ____________________________________________________________
+                 |              |              |              |              |       
+                 A              B              C              D              E       
+               2.3.3          0.0.8          1.4.3          1.0.1          1.0.0
+             ________                      ________                     _________________
+             |       |                     |       |                    |       |       |    
+             F       G                     F       H                    H       I       F    
+           0.1.3   4.1.0                 1.0.0   0.9.9                1.0.0   2.0.0   2.2.0 
+                                                                   ________
+                                                                   |       |   
+                                                                   B       I   
+                                                                 1.0.0   1.2.3 
+
+Dep. Scope:      allows to specify when and where you need a particular dependency. (Ex JUinit only for testing
+                 not include them in the final Build)
+                 6 scopes:
+                         1    compile:  Dep are available in the class path in all phases: build, test, run.
+                                        This is the default scope.
+                         2    provided: (build test) Ex. Servlet api, JSP api,
+                         3    runtime:  only run
+                         4    test:     only test Ex. JUnit and TestNG
+                         5    system:   like provided: except that  are not retrieved from the repository. 
+                                        Instead, a hard-coded path (in the file system)
+                         6    import:   only in Maven 2.0.9 or later. Is applicable for .pom Dep only. 
+                                        It allows to include Dep info rom a remote .pom file.
+
+Install plug-in: allows to install a local JAR till the administrator put it somewhere in the Central Repo
+                 ex. mvn install:install-file -DgroupId=com.apress.gswmbook 
+                                              -DartifactId=test 
+                                              -Dversion=1.0.0 
+                                              -Dfile=C:\apress\gswm-book\chapter3\test.jar 
+                                              -Dpackaging=jar   
+                                              -DgeneratePom=true
+                
+---------------------------------------------- MAVEN Basics
+
+standrad dir tree:                proj_name
+                                   |
+                                   |--- pom.xml
+                                   |
+                                   |--- src
+                                   |     |---main
+                                   |     |    |---- java
+                                   |      ---test
+                                   |          |---- java
+                                   |
+                                    ---- target  <--- here .class
+
+
+                                    src/main/resources    such as Spring config and velocity templates
+                                    src/main/config       config files, such as Tomcat, James Server
+                                    src/main/scripts      any administrator script 
+                                    src/test/resources    config files testing.
+                                    src/main/webapp       web assets such as .jsp files, style sheets, and images.
+                                    src/it                integratio ntests for the application.
+                                    src/main/db           database files, such as SQL scripts.
+                                    src/site              files required during the generation of the project site.
+
+pom.xml       the only required acrtifact
+
+              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi=
+                             "http://www.w3.org/2001/XMLSchema-instance"
+                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+               <modelVersion>4.0.0</modelVersion>
+               
+               <groupId>com.apress.gswmbook</groupId>
+               <artifactId>gswm</artifactId>            <---- here the proj name
+               <version>1.0.0-SNAPSHOT</version>  
+               <packaging>jar</packaging>
+                
+                <name>Getting Started with Maven</name>
+                <url>http://apress.com</url>
+                 
+                 <developers>
+                     <developer>
+                         <id>balaji</id>
+                         <name>Balaji Varanasi</name>
+                         <email>balaji@inflinx.com</email>
+                         <properties>
+                             <active>true</active>
+                         </properties>
+                     </developer>
+                     <developer>
+                         <id>sudha</id>
+                         <name>Sudha Belida</name>
+                         <email>sudha@inflinx.com</email>
+                         <properties>
+                             <active>true</active>
+                         </properties>
+                     </developer>
+                 </developers>
+              </project>                                                _____ RC, alpha, beta, SNAPSHOT
+                                                                        |
+version:      <major-version>.<minor-version>.<incremental-version>-qualifier   ex  1.0.0
+                    |              |                 |                              2.4.5-SNAPSHOT
+                    |______________|_________________|___(numbers)                  3.1.1-RC1
+
+
+> mvn package       to build the project (executed from project dir, the one with pom.xml)
+                    So at the end there is a JAR file in 'target' dir
+
+JUnit:         .........      add a <dependencies>   section in the pom
+               </developers>
+               <dependencies>
+                   <dependency>
+                       <groupId>junit</groupId>
+                       <artifactId>junit</artifactId>
+                       <version>4.11</version>
+                       <scope>test</scope>     <--- scope test: JUnit.jar is needed only for test
+                   </dependency>
+               </dependencies>
+            </project>
+
+> mvn dependency:tree     to compile the dependecies
+
+<properties> and $()  : through the <prop..> tag you can define a value and then call it with  $()
+               ex. instead of the previous <version>4.11</version> we can write
+                   ......
+               <properties>
+               <junit.version>4.11</junit.version>
+               </properties>
+                   ......
+                   <version>${junit.version}</version>
+exclusion:    to not build some dependency after the <scope..> put this:
+                   <exclusions>
+                        <exclusion>
+                             <groupId> org.hamcrest</groupId>
+                             <artifactId>hamcrest</artifactId> 
+                        </exclusion>
+                   </exclusions>
+
+---------------------------------------------- MAVEN Life Cycle
+plug-in         int the following the args to mvn are in the form plugin:goal
+                ex. plugin: compile or clean    goal: compile or clean
+
+>  mvn compiler:compile            to compile a .java and get its .class
+
+>  mvn clean:clean                 to remove tmp files
+
+                plugin are configured in pom.
+                ex you want to compile with Java 1.5 instead of Java 1.6
+                after <depen ...> section put the <build &  <plugin
+
+                    </dependencies>
+                    <build>                         (*)
+                       <plugins>
+                          <plugin>
+                             <groupId>org.apache.maven.plugins</groupId>
+                             <artifactId>maven-compiler-plugin</artifactId>
+                             <version>3.1</version>
+                             <configuration>
+                                <source>1.5</source>
+                                <target>1.5</target>
+                             </configuration>
+                          </plugin>
+                       </plugins>
+                    </build>
+                </project>
+
+                (*) <build>   can have a son  <finalName>new_name</finalName>
+                              if I want the output artifact named differenly from the default
+
+3 phases:   independent of the artifact being produced, Maven follows 3 phases:
+                  Default: compile package, install & store the project
+                  Clean:   deletion of temp files
+                  Site:    generation of documentation and site generation.
+
+                    1  Validate: Runs checks that all dependencies are downloaded and available.
+                    2  Compile: Compiles 
+                    3  Test:    Runs unit tests using frameworks. 
+                    4  Package: Assembles compiled code into a distributable JAR or WAR.
+                    5  Install: Installs the package into a local repo for use on that machine.
+                    6  Deploy:  archive into a remote repo
+                 
+                 if you run 'mvn package' maven executes only 1 2 3 4
+                 if you want to skip test:  mvn package –Dmaven.test.skip=true  
+
+Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk about plug-in development, 
+                  we are essentially talking about developing goals. 
+                  These goals are implemented using MOJOs, (Maven Old Java Object) so a .java file
+                      ex. plugin name: gswm-plugin
+                          is a class: HelloMojo.Java 
+                          package:    com.apress.plugins
+
+                  the tree is:  gswm-plugin/src/main/java/com/apress/plugins/HelloMojo.java
+                  and a pom in gswm-plugin/
+
+                          <?xml version="1.0" encoding="UTF-8"?><project>
+                             <modelVersion>4.0.0</modelVersion>
+                             <groupId>com.apress.plugins</groupId>
+                             <artifactId>gswm-plugin</artifactId>
+                             <version>1.0.0</version>
+                             <packaging>maven-plugin</packaging>
+                             <name>Simple Hello Plugin</name>
+                             <dependencies>
+                             <dependency>
+                                 <groupId>org.apache.maven</groupId>
+                                 <artifactId>maven-plugin-api</artifactId>
+                                 <version>3.2.3</version>
+                             </dependency>
+                             </dependencies>
+                          </project>
+
+--------------------------------------------- MAVEN Archetypes 
+
+                  Maven archetypes are project templates that allow users to generate new projects easily.
+                  Have tree dir build for free, and required plugin (ex approved Javascript classe to be
+                  downloaded in the proper place already)
+archetype plugin:  > 'mvn archetype:generate'  to see hundreads available
+                      mvn archetype:generate -DarchetypeCatalog=local     to see only the local catalog
+
+           ex. to generate a web app:  
+               mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp
+
+                Then in the generated pom, add 
+
+                     <plugin>
+                     <groupId>org.apache.tomcat.maven</groupId>
+                     <artifactId>tomcat7-maven-plugin</artifactId>
+                     <version>2.2</version>
+                     </plugin>
+
+                Yes. Maven has embedded web servers, Tomcat or Jetty. Above we have loade plugin for Tomcat
+                So no lunch as:
+                                mvn tomcat7:run
+                and open you browser: http://localhost:8080/xxxxxxx/.
+                xxxxxxx is tne name you called you artifact.
+
+multi-modules:  if a project is split in more child modules heach with its pom, and 1 father pom the 
+                the tree should be something like
+
+                         proj_dir                          the father pom has a section
+                            |____ pom                        <modules>
+                            |                                <module>Mod1</module>
+                            |---- Mod1                       <module>Mod2</module>
+                            |      |___ pom                  <module>Mod3</module>
+                            |                                </modules>
+                            |---- Mod2                     </project>
+                            |      |___ pom                
+                            |                              while each son pom addres back with this section
+                            |---- Mod3                      <parent>
+                                   |___ pom                 <groupId>com.apress.gswmbook</groupId>
+                                                            <artifactId>proj_dir</artifactId>
+                                                            <version>1.0.0-SNAPSHOT</version>
+                                                            </parent>
+
+
+mvn archetype:create-from-project       if I have a tree with a proj I can freeze that into a template
+                                        and create an archetype with that command.
+                                        
+                                        The ouput is stored in: .../target/generated-sources/archetype.
+                                        modified the pom if needed
+                                        then execute      mvn clean install
+
+--------------------------------------------- MAVEN Documentation
+
+mvn site           create an html documentation, applaying the default skin and CSS.
+                   It uses the information provided in the pom.
+                   You will notice that pages such as About, Mailing Lists, and Project License 
+                   are missing. Let’s modify the pom:
+
+                               <description>
+                               This project acts as a starter project for the Introducing Maven book
+                               (http://www.apress.com/9781484208427) published by Apress.
+                               </description>
+                                
+                                <mailingLists>
+                                <mailingList>
+                                <name>GSWM Developer List</name>
+                                <subscribe>gswm-dev-subscribe@apress.com</subscribe>
+                                <unsubscribe>gswm-dev-unsubscribe@apress.com</unsubscribe>
+                                <post>developer@apress.com</post>
+                                </mailingList>
+                                </mailingLists>
+                                 
+                                 <licenses>
+                                 <license>
+                                 <name>Apache License, Version 2.0</name>
+                                 <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                                 </license>
+                                 </licenses>
+
+                   now rebuild:  mvn clean site
+
+advanced site:     another way to configure the html instead inside pom is:
+
+                                          site
+                                           |____ site.xml
+                                           |
+                                           |____ apt                  The apt dir contains site content written in 
+                                                  |____ index.apt     Almost Plain Text (APT) format.
+                   A way to have that tree
+                   mvn archetype:create -DarchetypeArtifactId=maven-archetype-site-simple
+                   (to execute from dir where is pom)
+
+
+APT format        http://maven.apache.org/doxia/references/apt-format.html
+                  Maven supports other formats, such as FML, Xdoc, and Markdown.
+                  ex. of index.apt
+                        1  -----
+                        2  Title Here
+                        3  -----
+                        4  Author Here
+                        5  -----
+                        6  Date Here
+                        7  -----
+                        8 
+                        9 Maven Site for your project
+                       10 
+                       11  Congratulations! If you are looking at this page then you have successfully generated a
+                       12  template site employing the site archetype and you have run:
+                       13   
+                       14 +-----+
+                       15 
+                       16 mvn site
+                       17 
+                       18 +-----+
+
+site.xml        http://maven.apache.org/doxia/references/apt-format.html
+                  <?xml version="1.0" encoding="ISO-8859-1"?>
+                   
+                   <project xmlns="http://maven.apache.org/DECORATION/1.6.0" xmlns:xsi=
+                                  "http://www.w3.org/2001/XMLSchema-instance"
+                                  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0
+                                  http://maven.apache.org/xsd/decoration-1.6.0.xsd"
+                                  name="Getting Started With Maven" >
+                    
+                    <bannerLeft>
+                    <name>Apress</name>
+                    <src>images/company.png</src>   <--- put an image in .../src/site/resources/images
+                    <href>http://apress.com</href>
+                    </bannerLeft>
+                    <body>
+                        <links>
+                            <item name="Maven" href="http://maven.apache.org/"/>
+                        </links>
+                            <menu name="Project Information">
+                            <item name="Introduction" href="index.html"/>
+                            <item name="Plugin Management" href="plugin-management.html"/>
+                            <item name="Dependency Information" href="dependency-info.html"/>
+                            <item name="Source Repository" href="source-repository.html"/>
+                            <item name="Mailing Lists" href="mail-lists.html"/>
+                            <item name="Issue Tracking" href="issue-tracking.html"/>
+                            <item name="Continuous Integration" href="integration.html"/>
+                            <item name="Project Plugins" href="plugins.html"/>
+                            <item name="Project License" href="license.html"/>
+                            <item name="Project Team" href="team-list.html"/>
+                            <item name="Project Summary" href="project-summary.html"/>
+                            <item name="Dependencies" href="dependencies.html"/>
+                        </menu>
+                            <menu name="Reports">
+                        </menu>
+                    </body>
+                    </project>
+
+Java doc        Maven has a Java Doc plugin
+                use <reporting  in pom
+                
+                 <project>
+                    ......
+                    <reporting>
+                    <plugins>
+                    <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.1</version>
+                    </plugin>
+                    </plugins>
+                    </reporting>
+                 </project>
+
+                   now build:  mvn clean site     --> .../target/site/apidocs/index.html
+
+JUnit           Test-driven development has become the norm in enterprises today. Unit tests provide
+                immediate feedback to developers and allow them to build quality code. Considering
+                how important tests are, Maven executes all of the tests for each build. Any test failures
+                result in a failed build.
+                Maven offers the Surefire plug-in that provides a uniform interface for running tests
+                created by frameworks such as JUnit or TestNG. It also generates execution results in
+                various formats such as XML and HTML. 
+                The Surefire plug-in is configured in the same way as the Javadoc plug-in in the
+                reporting section of pom:
+
+                    <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-report-plugin</artifactId>
+                    <version>2.17</version>
+                    </plugin>
+
+                   now build:  mvn clean site     --> .../target/site/surefire-report.html
+                                                            |
+                                                            |____ *.txt *.xml
+
+
+Test Coverage      Emma and Cobertura are two popular open source code coverage tools for Java. They report
+                   how much your test are good to cover your code:
+
+                   <plugin>
+                   <groupId>org.codehaus.mojo</groupId>
+                   <artifactId>cobertura-maven-plugin</artifactId>
+                   <version>2.6</version>
+                   </plugin>
+
+                   now build:  mvn clean site     --> .../target/site/index.html
+
+Find Bug           FindBugs is a tool for detecting defects in Java code. It uses static analysis to detect bug
+                   such as infinite recursive loops and null pointer
+
+                   <plugin>
+                   <groupId>org.codehaus.mojo</groupId>
+                   <artifactId>findbugs-maven-plugin</artifactId>
+                   <version>3.0.0</version>
+                   </plugin>
+
+                   now build:  mvn clean site     --> .../target/site/findbugs.html
+
+--------------------------------------------- MAVEN Releases
+
+Nexus:      open source Repository Manager  (www.sonatype.org/nexus/go/)
+            Nexus 2.10 requires JRE 1.7
+
+            1.  download and unzip
+            2.  nexus install  
+            3.  nexus start
+            4.  By default, Nexus runs on port 8081: http://localhost:8081/nexus.
+                                                     user:admin  pswd: admin123
+
+            Add Nexus in Marven  (here pom:
+
+                      <distributionManagement>
+                      <repository>         <-------   in this section will be store proj 'stable' release
+                          <id>nexusReleases</id>
+                          <name>Releases</name>
+                          <url>http://localhost:8081/nexus/content/repositories/releases</url>
+                      </repository>
+                      <snapshotRepository>       <-------   in this section will be store snapshot
+                          <id>nexusSnapshots</id>
+                          <name>Snapshots</name>
+                          <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
+                      </snapshotRepository>
+                      </distributionManagement>
+                      
+            while user & password for servers are store in Settings.xml:
+
+                               <servers>
+                                    <server>
+                                         <id>nexusReleases</id>
+                                         <username>deployment</username>
+                                         <password>deployment123</password>
+                                    </server>
+                                    <server>
+                                         <id>nexusSnapshots</id>
+                                         <username>deployment</username>
+                                         <password>deployment123</password>
+                                    </server>
+                               </servers>
+
+                   
+            now build:  mvn deploy
+
+SVN        :Maven has a release plug-in that provides a standard mechanism for Version Control.
+            Ex.  Subversion (SVN) 
+
+
+
+
+
+

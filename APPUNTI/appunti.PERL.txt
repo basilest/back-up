@@ -1,0 +1,265 @@
+--------------------------------------------------- HASH
+   keys:    are always STRING
+   values:  are SCALAR (: string or numbers)
+
+   %some_hash = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
+                 'wilma', 1.72e30, 'betty', "bye\n");
+
+   
+   $family_name{'foo'}    = 36; #modify a key already present
+
+   $family_name{'fred'}   = 'flintstone';  # add 2 keys new ...
+   $family_name{'barney'} = 'rubble';      # ... not present before
+
+
+   $foo = 'bar';
+   print $family_name{ $foo . 'ney' }; # prints 'rubble'
+
+undef:   accessing a key that not exits or accessing outside 
+         the hash gives  'undef'
+
+array:   @any_array = %some_hash;     (just put the list (2 entry for each 
+                                       pair) in a long array
+                               N.B. no order is assured
+
+reverse: %inverse_hash = reverse %any_hash;  
+                                       create a new has were the keys are
+                               the values of the first, and the values
+                               are the old keys.
+                               N.B. as keys must be unique, il old hash
+                               had equal value for different keys, they overwrite
+                               each others(: the later items in the list
+                               overwrite any earlier ones).
+            %ip_address = reverse %host_name;
+
+           my %last_name                                my %last_name
+         'fred'   =>   'flintstone'                   fred   =>   'flintstone'
+         'dino'   =>   undef,                         dino   =>   undef,
+         'barney' =>   'rubble',                      barney =>   'rubble',
+         'betty'  =>   'rubble'                       betty  =>   'rubble'
+         );                                           );
+
+         # define a hash with =>                      # define omitting '' for keys
+      
+      
+keys / values:
+                 my %hash = ('a' => 1, 'b' => 2, 'c' => 3);
+             my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
+             my @v = values %hash;                   
+
+while / foreach:
+                while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) { 
+                     print "$key => $value\n";           |  print "$key => $hash{$key}\n";
+            }                                            | }
+
+exist:                                       Test if such a key is presnt
+          if (exists $books{"dino"}) {
+        print "Hey, there's a library card for dino!\n";
+        }
+delete:                                       Remove that pair key / value
+          $person = "betty";        
+        delete $books{$person};
+         
+%ENV :                                       The HASH where Perl stores the environment
+         print "PATH is $ENV{PATH}\n"        # PATH is /usr/local/bin:/usr/bin:/sbin:/usr/sbin
+
+--------------------------------------------------  MODULES
+                       The CGI.pm module comes with Perl, so you should be able to read its documentation:
+                                $ perldoc CGI
+
+ExtUtils::MakeMake:      comes with Perl. It handles a module instalation by:
+                     $ perl Makefile.PL
+                 $ make install
+
+                 $ perl Makefile.PL INSTALL_BASE=/Users/fred/lib        # option INSTALL_BASE for another dir
+
+Module::Build:      another way to install a module:
+                 $ perl Build.PL
+                 $ ./Build install
+                 
+                 $ perl Build.PL --install_base=/Users/fred/lib
+
+CPAN.pm:            come with Perl to manage when modules depends on others.
+                     $ perl -MCPAN -e shell
+
+                    It can be a little complicated, so a while ago was written a little script 'cpan'
+
+
+cpan:      The cpan command that comes with Perl can create an autobundle, (a list of everything you 
+           have installed, along with the version numbers:
+                                                             $ cpan -a
+
+                                               $ cpan Module::CoreList LWP CGI::Prototype
+
+bundle :   A file that some CPAN clients can use to reinstall everything you already have installed, 
+           either on the same machine or a different machine
+
+cpanm:     it doesn’t come with Perl  (download from http://xrl.us/cpanm)
+           Once you have cpanm, you simply tell it which module to install:
+              $ cpanm DBI WWW::Mechanize\
+               
+local::lib:  to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
+             (download from CPAN as doesn’t come with Perl)
+              $ perl  -Mlocal::lib
+            export  PERL_LOCAL_LIB_ROOT="/Users/fred/perl5";
+            export  PERL_MB_OPT="--install_base /Users/fred/perl5";
+            export  PERL_MM_OPT="INSTALL_BASE=/Users/fred/perl5";
+            export  PERL5LIB="...";
+            export  PATH="/Users/brian/perl5/bin:$PATH";
+
+
+            $ cpan -I Set::Crossproduct     <---- option -I  for cpan   when used the above dir settings
+
+            $ cpanm --local-lib HTML::Parser  <--  with the cpanm way
+
+      set this in your CPAN.pm configuration, it adds them every time it tries to install a module.
+            $ cpan
+            cpan> o conf makepl_arg INSTALL_BASE=/Users/fred/perl5
+            cpan> o conf mbuild_arg "--install_base /Users/fred/perl5"
+            cpan> o conf commit
+            
+            
+      use local::lib;            # to write inside your Perl program so that it finds local modules.
+                                 # During compilation, Perl sees that line and loads the module
+            
+perldoc:   perldoc File::Basename       # to see information on what the module does.
+use ....:
+           use File::Basename                 # import and load some functions 
+                                                use 'perldoc File::Basename' to see which.
+           use File::Basename qw/ /;          # import without loading ....
+           use File::Basename ();             # ... ALL the functions
+
+           use File::Basename qw/ basename /; # import and load only 1 function (here 'basename'
+
+           my $dirname = File::Basename::dirname $name; # call here a fucntion ('dirname') with full name.
+
+File::Spec
+            use File::Spec;
+            
+            my $new_name = File::Spec->catfile($dirname, $basename); # use od -> as it's a CLASS
+           
+CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what it's tested and debugged)
+
+            use CGI qw(:all);                             <------ load all functions from CGI module
+            print header(),
+            start_html("This is the page title"),
+            h1( "Input parameters" );
+            my $list_items;
+            foreach my $param ( param() ) {
+               $list_items .= li( "$param: " . param($param) );
+            }
+            print ul( $list_items );
+            print end_html();
+           
+DBI.pm      Once you install DBI , you also have to install a DBD (Database Driver, from the long
+            list on CPAN [the version ok for your server]).
+
+            use DBI;
+            $dbh = DBI->connect($data_source, $username, $password);
+            
+            my $sth = $dbh->prepare("SELECT * FROM foo WHERE bla");
+            $sth->execute();
+            my @row_ary = $sth->fetchrow_array;
+            $sth->finish;
+            
+            $dbh->disconnect();
+           
+Dates and Times
+            my $dt = DateTime−>from_epoch( epoch => time );
+            
+            print $dt−>ymd;            # 2011−04−23 
+            print $dt−>ymd('/');       # 2011/04/23
+            print $dt->ymd('');        # 20010423
+
+            y $dt1 = DateTime->new(
+               year => 1987,
+               month => 12,
+               day => 18,
+            );
+            my $dt2 = DateTime->new(
+               year => 2011,
+               month => 5,
+               day => 1,
+            );
+            my $duration = $dt2 - $dt1;
+
+            my @units = $duration->in_units( qw(year month day) );
+            printf '%d years, %d months, and %d days', @units;       # 23 years, 4 months, and 14 days
+            
+--------------------------------------------------  DEBUGGERS
+            perl5db.pl
+
+
+strict / warnings:    use use use  use them:                % perl -Mstrict -Mwarnings program
+
+print:
+       print "The value of var before is [$var]\n"     # use braces to limit values of a var (to see also spaces)
+
+       warn "The value of var after is [$var]";        # use var to have also line no
+                                                       # The value of var before is [...] at program.pl line 123
+
+       Carp                                            # alternative warn and die for modules 
+
+       use Data::Dumper qw(Dumper);                    # use Data::Dumper to print Objects and limit with < .. >
+       warn "The value of the hash is <\n" . Dumper( \%hash ) . "\n>";
+
+PERL5LIB :    Every time I wanted to investigate a new module, copy into a temp dir. Set PERL5LIB environment variable 
+              so Perl finds temp dir first. After all clear PERL5LIB to use the original.
+
+       % export PERL5LIB=~/my_debug_lib
+       % mkdir -p ~/my_debug_lib/Net/
+       % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
+       % vi ~/my_debug_lib/Net/SMTP.pm
+
+Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to inspect args and ret val.
+      
+       use Hook::LexWrap qw(wrap);
+       my $n = shift @ARGV;
+       my $m = $ARGV[0];
+       wrap add,
+           pre  => sub { print "I got the arguments: [@_]\n" },
+           post => sub { print "The return value is going to be $_[-1]\n" 
+       ;
+       print "The sum of $n and $m is " . add( $n, $n ) . "\n";    # <----- this is the error ( passing 2 n)
+       sub add {
+                  my( $n, $m ) = @_;
+                  my $sum = $n + $m;
+                  return $sum;
+       }
+
+perl -d :    normal perl debugger (% perl -d add_numbers.pl 5 6)
+      
+
+Alternative Debuggers :    Are all under Devel::
+                        - Devel::Trace                % perl -d:Trace program.pl
+                        - Devel::ptkdb  <--- GREAT    % perl -d:ptkdb program.pl
+                        - Devel::ebug                 % perl -d:ebug  program.pl
+                        - Devel::hdb    mini web server (its web interface, lets me debug on a remote server)
+
+IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Eclipse.
+           -  Komodo     (started on Microsoft. Now available on Solaris, Linux, and Mac)
+                          handles Perl as well as other languages, (Tcl, Ruby, PHP, Python)
+      
+
+
+--------------------------------------------------- OBJECTS
+         
+
+
+         
+
+            
+           
+               
+
+      
+      
+      
+      
+      
+
+
+         
+         
+-------------------------------------------------- avconv
+--------------------------------------------------- masscan

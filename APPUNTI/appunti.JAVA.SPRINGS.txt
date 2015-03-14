@@ -1,0 +1,1107 @@
+------------------------------------------------------------- SPRING
+
+Eclipse tree
+        |_____ Sping_1_Demo
+                |_____ src
+                |     |___  *.java
+                |     |___ spring.xml
+                |     |___ org.basilest.... package
+                |
+                |_____ JRE System Library
+                |_____ SpringLib   <--- downloaded jar files in a dir. Then added the subdir
+                                        containing the JARs, with project > properties -> add ext Library
+
+
+3 STEPs:
+
+         --------------------------    1 of 3:   write a Triangle class with a method 'draw()'
+         package org.basilest;
+
+         public class Triangle {
+               public void draw () {
+                      System.out.println("Triangle");
+               }
+         }
+         --------------------------   2 of 3: write a xml file (the bean factory) where 1 bean = 1 class
+       spring.xml:                                   with the association bean-'id' <--> 'class' path
+                  <?xml version="1.0" encoding="UTF-8"?>                                             |
+                                                                                                     |
+                        <beans xmlns="http://www.springframework.org/schema/beans"                   |
+                               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                 |
+                               xsi:schemaLocation="http://www.springframework.org/schema/beans       |
+                               http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">    |
+                                                                                                     |
+                            <bean id="triangle" class="org.basilest.Triangle"/>  <-------------------|
+
+                        </beans>
+
+         --------------------------  3 of 3 in java code you then can
+         package org.basilest;                                       1. 'open' the xml file
+                                                                     2. get a class through it's bean-'id'
+         import org.springframework.context.ApplicationContext;      3. use the class ex. triangle.draw()
+         import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
+         public class DrawDemo {
+
+            public static void main(String[] args) {
+                   ApplicationContext context =  new ClassPathXmlApplicationContext("spring.xml"); // 2 of 3  creat Bean factory
+                   Triangle triangle = (Triangle) context.getBean("triangle");
+                   triangle.draw();
+            }
+         }
+         --------------------------
+
+spring.xml more fatures:
+           -------------------------------------------------------------<property
+           1. add some values to Triangle var, at CREATION.
+
+                       ex. add in Triangle a String var 'type'   (ex possible values: "Equilateral", ...)
+
+                           private String type;
+
+           2. add setter / getter method so that SPRING can operate for us on that var
+
+           3. add in the relate bean in spring.xml a <property  "name" / "value")
+
+                           <property name="type" value="Equilateral" />
+           -------------------------------------------------------------<constructor-arg
+            with the above approach SPRING set the 'type' var through its setter method (setter-injection)
+            another way is (constructor-injecton that make SPRING call a constructor of Triangle:
+
+            1. add a constructor to Triangle:
+
+                 public Triangle(String type) {
+                         this.type = type;
+                 }
+
+            2. in xml file instead of <property> use:
+
+                 <constructor-arg value="Equilateral" />      Note
+                                                              If there are 2 constructors ex 1 receiv int, the
+                                                              other String, to disambiguate use attr "type"
+                                                              <constructor-arg type="int" value="20" />
+                                                              types are i.e.
+                                                                 java.lang.String
+
+                                                              <constructor-arg type="java.lang.String" value="Equil" />
+
+                                                              If there are more parm in 1 cosntructor use "index"
+
+                                                              <constructor-arg index="0" value="Equil" />
+                                                              <constructor-arg index="1" value="20" />
+           ------------------------------------------------------------- ref=
+           In case one bean must address another bean in the same xml use 'ref'
+                                                                                     2nd way: move out from <property tag
+                      <bean id="triangle" class="org.basilest.Triangle">      |      itself a tag named <idref
+                                <property name="var_Point1" ref="point_A">    |   <property name=....>
+                                  ....                             |          |        <idref="point_A">
+                      </bean>       _______________________________|          |
+                                   |                                          |
+                      <bean id="point_A" class="org.basilest.Point">          |
+                                <property name="var_x" value="20">            |
+                                <property name="var_y" value="0">             |
+                      </bean>
+           -------------------------------------------------------------inner bean
+           In the above case a bean refer ex 'external' bean, which can be addressed by also other beans.
+           If instead you move one inside the other
+
+                      <bean id="triangle" class="org.basilest.Triangle">
+                                <property name="var_Point1"> <--------------------- I could remove ref=
+                                        <bean class="org.basilest.Point"> <-------- also id=  here
+                                                  <property name="var_x" value="20">
+                                                  <property name="var_y" value="0">
+                                        </bean>
+                                  ....                             |
+                      </bean>
+           ------------------------------------------------------------- <alias
+           STRING syntax for xml file allows aliases
+              <alias name="triangle"  alias="bla bla bla">
+           ------------------------------------------------------------- <bean autowire
+           To avoid some typing I can skip some <property tags in XML configurations
+
+              a.  <bean id="triangle" ................  autowire="byName">    As here I marked autowire byName
+                          ------------------------------------------------- <-- here I can skip the
+                  </bean>                                                       <property tags and SPRING will search
+                                                                                for any var of my java class
+                                                                                (ex. PointA, pointB, pointC)
+                                                                                a bean with the
+                                                                                same 'id'  (<bean id="PointA")
+
+              b.  <bean id="triangle" ................  autowire="byType">
+                          SPRING instead of searching a match java-var <---> java bean    which has same name
+                          (Java name var = bean 'id'=)  search unique match on Type
+                          (Java TYPE var = bean 'class')
+                          This match is quite risky, as the could be more Java class var of that Type.
+                          So SPRING cannot match
+
+              c.  <bean id="triangle" ................  autowire="constructor">
+                          Same as b. If JAVA class has a constructor receiving for instance 3 var of 3 types
+                          and there are in the XML 3 bean of those 3 type, SPRING will use those values.
+
+
+
+           ------------------------------------------------------------- <list
+            A list in *-java maps is a list in xml    (the same works for Set and Map   Java data-type)
+
+                    This is JAVA code     |      This is XML code
+                                          |
+              private List<Point> points; | <bean id="triangle" class="org.basilest.Triangle">
+                                          |     <property name="points">
+                                          |             <list>
+                                          |                  <ref bean="     "/> <---- tag <ref  with attr. "bean" = a certain bean-id
+                                          |                  <ref bean="     "/>
+                                          |                  <ref bean="     "/>
+                                          |             </list>
+                                          |       ....                             |
+                                          | </bean>
+
+           ------------------------------------------------------------- scope
+
+           <bean id....... scope= ...>     5 possible 'scope' values:
+
+          1. singleton(default)    Only 1 objcet is created: any getbean calls get the same object
+          2. prototype             For each getbean calls, SPRING creates a new object.
+          3. request               A new one crated and alive limited to the lifecycle of a single HTTP request;
+          4. session               Idem for HTTP Session
+          5. global session        Idem for global HTTP Session.
+           -------------------------------------------------------------
+
+BE AWARW of:   a class can be aware of xml info like bean name) as well as the context itself.
+               To have this, you most implement the propare aware interface. Ex with
+
+           ApplicationContextAware    - wihcih return context
+           BeanNameAware              - returns the name of Bean
+            ..........
+            ..........
+                           public class Triangle implements ApplicationContextAware, BeanNameAware {
+
+                           @Override
+                           public void setBeanName(String arg0) {
+
+                           }
+
+                           @Override
+                           public void setApplicationContext(ApplicationContext arg0)
+                           throws BeansException {
+                           this.context = arg0;
+                           }
+           ------------------------------------------------------------- <bean ... parent=
+
+           to define a bean somewhere in xml and the adding 'parent' attr. in another bean I can link or inheritate
+           the 1st one, specifying paret=bean_id
+
+           <bean      abstartc="true">                to use in a bean (inheritated somewhere else) to specify it is
+                                                      only used as abstarct and will never be instancied.
+
+           <list      merge="true">                   to use in a list, whene inheriting from another list
+                                                      the elements msut be added  into a longer list
+
+           -------------------------------------------------------------
+IMPROVEMENTS:
+           1. Instaed of ApplicationContext, use Abstart..... which add features. The most important allow
+              to register the context to the shutown, so that when the last instruction of my main() ends
+              all the beans, will be deleted.
+
+                public static void main(String[] args) {                this remains the same.
+                                                                            |
+                       AbstractApplicationContext context =  new ClassPathXmlApplicationContext("spring.xml");
+                        ^^^^^^
+                        Triangle triangle = (Triangle) context.getBean("triangle");
+                        context.registerShutdownHook();
+
+           2. Sprint can call init and closing functions for each bean/obect. Here are the ways:
+
+              2.1 register the class to the 2 interface
+
+                  public class Triangle implements InitializingBean, DisposableBean {
+
+                                  @Override
+                                  public void afterPropertiesSet() throws Exception {
+                                           .....
+                                  }
+                                  @Override
+                                  public void destroy() throws Exception {
+                                           .....
+                                  }
+
+              2.2 create my personal methods ex. MyInit()  MyDestroy()
+                  and link in the xml with attributes
+                       <bean id="triangle" class="org.basilest.Triangle" init-method="MyInit"  dyyestry-method="MyDestroy">
+
+
+              2.3 The 2.2. approach can be extended to ALL the beans, specifyng 2 attr. at the <beans> root tag.
+              Only remember to use in all the *.java class the same name for that fun.
+
+              <beans  .....
+                      default-init-method="MyInit"   default-destroy-method="MyDestroy">
+
+           3. Sprint can call init ALL the beans of xml with a BeanPostProcessor
+
+              3.1 the java code where you put this code must implement the interface BeanPostProcessor
+                  public class ..... impements BeanPostProcessor {   <----- suppose this class is org.basilest.X
+
+                  }
+
+              3.2 Implements the 2 interface methods  ....After...     ....Before.....
+                    @Override
+                    public Object postProcessAfterInitialization(Object bean, String beanName) -----
+                                    throws BeansException {                                    |
+                                           .....;  return bean;                                | both have 2 args
+                    }                                                                          | the object and the String
+                                                                                               | with its Bena name
+                    @Override                                                                  |
+                    public Object postProcessBeforeInitialization(Object bean, String beanName) ----
+                                    throws BeansException {
+                                           ....;  return bean;
+                     }
+
+              3.3 Add in XML the 'bean' with no 'id' and class = org.basilest.X
+
+                  <bean class="org.basilest.X"/>    <------ N.B. there is no 'id'
+
+              3.4  The sequence of calls (if we have 3 bean A B C) is
+                             Before on A
+                             After on A
+                             Before on B     So NOT all the 'Before' and then 'all the 'After'
+                             After on B
+                             Before on C
+                             After on C
+
+              3.5  Instead of  BeanPostProcessor and its 2 interfaces I can implement BeanFactoryPostProcessor
+                                                                                          ^^^^^^
+                   and implement its only 1 method:
+
+                    @Override
+                    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+                                throws BeansException {
+                                    ....
+                    }
+
+                   then add in XML the usual name of the class X, which implements the interface
+
+                   The ADVANTAGE of this ....Factory.... version is the 'place holder' mechanism which allow
+                   to have values for my XML file out of the XML, and stored in a certain file ex. pippo.properties
+                   (written in a sytax as it was Java code)
+                   ex. instead of this in the XML
+                                <property name="var_x" value="20">
+                                <property name="var_y" value="0">
+
+                   a. write in the pippo.properties:
+                                pointA.var_x=20
+                                pointA.var_y=0
+                                <property name="var_y" value="0">
+
+                   b. substitute in the XML with a 'place holder' so a reference to pippo.properties:
+                                <property name="var_x" value="${pointA.var_x}">
+                                <property name="var_y" value="${pointA.var_y}">
+
+              3.6  Instead of mine BeanFactoryPostProcessor I can use of the already out-of-the-box
+                   provided with SPRING. So I have to write NO JAVA CODE. In the XML the line is
+
+                    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+                            <property name="locations"  value"pippo.properties" />    N.B. pippo.pro.. is suppse to be
+                    </bean>                                                                in the same XML dir. If not
+                                                                                           locate it with a path relative
+                                                                                           to PATHVAR: value:"classpath:...."/>
+
+
+           ------------------------------------------------------------- interfaces
+INTERFACES:   they allow the real advantage. Look at the 2 options below, where the Cicle and Triangle code con
+              be collapsed:
+
+              --------------------------------------------------  here 2 var and specific cast
+              Circle circle = (Circle) context.getBean ("circle");
+              circle.draw();
+
+              Triangle triangle = (triangle) context.getBean ("triangle");
+              triangle.draw();
+
+              -------------------------------------------------- here 1 only var type xxxxxxx  (here called Shape)
+              Shape shape = (Shape) context.getBean ("circle");         a.  define xxxxx is an interface
+              shape.draw();                                             b.  update class Circle / Triangle to implement
+              Shape shape = (Shape) context.getBean ("triangle");           that interface
+              shape.draw();
+                                       N.B. No bean 'shape' must be added in XML. in the 1st call it's required
+                                            a bean 'circle' in the 2nd a bean 'triangle'
+           ------------------------------------------------------------- ANNOTATIONS
+
+SPRINGS has many annotations. They help on different tasks.
+
+@Required
+                 @Required                      <---- SPRING assure that during the 1st phase, during
+                 public void Set_xxxx () {            initialization, it will check that I called this method
+                 }                                    from somewhere in my code. So if I ask to SPRING to check me
+                                                      on this, I'm sure that I start with var xxxxx initialized
+
+                 A bean in the XML must be added to call the SPRING annotation required check.
+
+                 <bean class=" org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+                 (*1)
+
+                 If you go in Eclips to search the above, so in
+                     org.springframework.beans.factory.annotation.
+                 you also see all the other annotations (
+
+
+@Autowired
+                 @Autowired                     <---- SPRING will inject data to the functions labelled
+                 public void Set_xxxx () {            with @Autowired with the values retrieved
+                 }                                    from XML according to <......  autowire mechanism
+
+                 A bean in the XML must be added to call the SPRING annotation required check.
+
+                 <bean class=" org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+                 (*2)
+
+                 If the autowire mechanism doesn't work because there are more beans that can match
+                 It can be added  @Qualifier("xxxxx")   where xxxxx a name for ex. = circleRelated
+                 in the XML add a tag for that bean:
+                     <bean id="..........>
+                        <qualifier value="xxxxx" />
+
+(*1) (*2)       instead of using the complete link for each annotation method of SPRINGS
+                just add 1 single line for all:
+
+                         <context:annotation-config/>
+
+@Resource
+                 @Resource("bean_id")           <---- bean_id is the value of an 'id' bean in XML
+                 public void Set_xxxx (param) {       SPRING will inject that value as that param
+                 }
+
+@PostConstruct
+@PreDestroy
+                 @PostConstruct
+                 @PreDestroy                    <----   SPRING will iject that value as that param
+                 public void Set_xxxx (param) {     
+                 }
+
+@Component
+                 @Component                     <---- It'n not for a method, but at CLASS level
+                 public class Circle {                With this tag, that Object is trated by SPRING
+                 }                                    as it was a bean in XML (so the XML can not have
+                                                      any line for that bean.
+                 With this approach some bean are in XML, someothers are sperad among the JAVA code as 
+                 @Componente Classes. To instruct SPRING that he must search both IN XML as in JAVA code
+                 put in XML this:
+                                    <context:component-scan base-package="org.basilest"/>
+                 Where the value of base-package is the up-most root level all the JAVA code can be found.
+
+           ------------------------------------------------------------- ApplicationContext
+
+              1. kkkeeeyyy="Hello!"  <---- create a text file in src (ex. messages.properties)
+                                           of type key="String"
+                 drawing.Circle=I'm drawing a Cirle         N.B. there are neither " not ' to manage spaces
+                 keeeexxx=Here received some args {0} {1}   
+                 
+
+              2.     Link to these files in XML
+
+                     <bean id="MessageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+                         <property name="basename">
+                             <list>
+                                 <value>mymessages</value> <--- here they properties files
+                             </list>                            there could be many.
+                         </property>
+                     </bean>
+
+              3. st = context.getMessage ("kkkeeeyyy", null, "Default Msg", null); <-- in main method
+                                                                                       where I have the context
+                                                                                       use method getMessage which 
+                                                                                       return a String that can
+                                                                                       be printed.
+                       2nd arg (here null) whould be a list of args if the printf is custom
+                                ex. write:   new Object[] {centre.getX(), centre.getY()}
+                       3rd arg (here Default Msg")  is a back-up text to display in case the key finds no match
+                       4th arg (here null)
+              --------------------------
+
+              If you are not in main() accessing the context you can define a variable of type 'MessageSource'
+              which is a TYPE of the SPRING framework.
+                  MessageSource is an Interface. It has the method getMessage. 
+              It's implemented both by ApplicationContext (that's why the above code has that getMessage())
+              and by in the bean (by the class in 2. above: ResourceBundle.....)
+
+              1. define the local var:      @Autowired
+                                            private MessageSource msg;
+              2. add Getter / Setter for that var (so through the Setter SPRING can iject the bean 2. above)
+
+              3. As the var 1. is 'autowired' I can inject the bean 2. above in the Setter.
+
+              4. access the mesage from messages.properties with key as in the main:
+
+                  st = this.msg.getMessage(.....)
+
+           ------------------------------------------------------------- EVENTS
+           here how to register and manage all the Events that SPRING publishes.
+
+           1. define a new class. This implemnents 'ApplicationListener' interface
+              The class defines itself as a bean of SPRING factory (with @Component)
+              which means to remember to update the XML <context:annotation-config/>
+
+              @Component
+              public class MyEventListener implemenyts ApplicationListener {
+                   @Override
+                   public void onApplicationEvent (ApplicationEvent arg0) {
+                   }
+              }
+
+           2. define a new class. This extends 'ApplicationEvent'
+              
+              public class MyAppEvent extends ApplicationEvent {
+                   public MyApEvent (ApplicationEvent arg0) {  <--- Constructor (which calls super(()
+                          super(arg0))
+                   }
+              
+                   public String toString (){                  <--- overwrite toString()
+                   }
+              }
+
+           3. where you want to 'publish' an event:
+              3.1. define a var of type 'ApplicationEventPublisher'    private ApplicationEventPublisher p;
+              3.2  add in the class where you are the:                 implements 'ApplicationEventPublisherAware'
+                   @Override
+                   public void setApplicationEventPublisher (ApplicationEventPublsher p){
+                               this.p = p;
+                   }
+              3.3  call its proper method                              p.publishEvent(arg0);
+                   where arg0 is of type ApplicationEvent
+                                            MyAppEvent evt = new MyAppEvent (this); <-- 2. above
+                                            p.publishEvent (evt); <----- this will go to call the 2.toString above
+
+
+           ------------------------------------------------------------- EVENTS
+FUNCTIONAL PROGRAMMING:    C like  (a set of functions  chaining together in a call sequence)
+
+OBJECT     PROGRAMMIN:     a 1st way to exit the mess.  Still Supppose Object A, B, C, has some common task (ex. logging messages)
+                           you can move out the common code of log() method into a new external object L. Still there is 1 (or more) lines of
+                           code in A, B, C, to declare each a var of type L, and then call its L.log method. 
+
+ASPECT ORIENTED PROGRAMMIN:   'Aspects'can be considered classe (the L above) that can be (externally) linked to othet classes (A, B, C) 
+                           through the usual XML configuration.
+
+A NEW ECLIPSE JAVA PROJECT SPRING AOP:
+                           1. New Java Projectà
+                           2. Add fro 'Properties' / Build Path / User Lib :  the already present 'Spring' library
+                           3. Donwload ASPECT JARs with Maven:
+                              pom.xml:
+                               <dependencies>
+                                  <dependency>
+                                  │   <groupId>org.springframework</groupId>
+                                  │   <artifactId>spring-context</artifactId>
+                                  │   <version>4.1.5.RELEASE</version>
+                                  </dependency>
+                                  <dependency>
+                                  │   <groupId>org.springframework</groupId>
+                                  │   <artifactId>spring-aop</artifactId>  <--- here download AOP
+                                  │   <version>4.1.5.RELEASE</version>
+                                  </dependency>
+                                  <dependency>
+                                  │   <groupId>org.springframework</groupId>
+                                  │   <artifactId>spring-aspects</artifactId>
+                                  │   <version>4.1.5.RELEASE</version>
+                                  </dependency>
+                                  <dependency>
+                                  │   <groupId>org.springframework</groupId>
+                                  │   <artifactId>spring-core</artifactId>
+                                  │   <version>4.1.5.RELEASE</version>
+                                </dependency>
+                                <dependency>
+                                  │   <groupId>cglib</groupId>
+                                  │   <artifactId>cglib</artifactId>
+                                  │   <version>3.1</version>
+                                </dependency>
+                                <dependency>
+                                  │ <groupId>cglib</groupId>
+                                  │ <artifactId>cglib-asm</artifactId>
+                                  │ <version>1.0</version>
+                                </dependency>
+                              </dependencies>
+
+
+                           4. Add a new User Lib (call ex. AspectJ) linking to the unzipped package
+                           5. start writing the spring.xml (in src dir)
+                              <beans xmlns="http://www.springframework.org/schema/beans"
+                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                                  xmlns:aop="http://www.springframework.org/schema/aop" <----- Name Space 'aop' is added
+
+                                     ....
+                                 <aop:aspectj-autoproxy />         <--- this activate the SPRING on AOP
+
+                           6. Define a New -> Java-class (remember an Aspect is a class)  where you move
+                              the logging code that you want common to all the classes (ex. common to function getName()
+                              present both on a 'Triangle' and a 'Circle')
+
+                              The class becomes and aspect taggin it with @Aspect
+                              while its methos (in AOP terminologi called 'Advices') must be tgged with @Before (....)
+
+                              @Aspect
+                              public class LoggingAspect {
+
+                                @Before ("execution(public String getName())")  <---- Any Class with a method like this will be 
+                                                                                      linked to this 'Advice' which will be called 'Before'
+                                    public void LoggingAdvcice () {
+                                            System.out.println("Called Advice Method in 'Aspect'");
+                                 }
+
+
+
+                                Giving the full path, it will be call ONLY for functon of that Class:
+
+                                @Before ("execution(public String org.basilest.module.Circle.getName())")  
+
+                                @Before ("execution(public String get*())")   <--- here any function with name starting with 'get'
+                                                                                   and returning a String
+
+                                @Before ("execution(public * get*())")   <--- here any function with name starting with 'get'
+                                                                                   and returning anything
+
+                                @Before ("execution(public * get*(..))")   <--- here any function with name starting with 'get'
+                                                                               and returning anything and receiving any kind of args
+                                                                               (..) <--- N.B. not (*)
+
+@Pointcut                       If the same tag @Before is on 2 up to many functions, instead of repeating it on each
+                                you can move that tag on a 'dummy' function (called PointCut) and the refer that name in
+                                the other fun():
+
+                                   @Aspect
+                                   public class LoggingAspect {
+                                   
+                                       @Before ("allGetters()")                                    <--------   1nd call
+                                       public void LoggingAdvcice () {
+                                           System.out.println("Called Advice Method in 'Aspect'");
+                                       }
+                                       
+                                       @Before ("allGetters()")                                    <--------   2nd call
+                                       public void secondAdvice () {
+                                           System.out.println("Called secondAdvice in 'Aspect'");
+                                       }
+                                   
+                                       
+                                       @Pointcut ("execution(* get*(*))")         <---------- here dummy fun with tag @Pointcut
+                                       public void allGetters () {}
+                                       
+                                   }                                                                               
+
+                                   @Pointcut ("within(org.basilest.module.Circle)") <-- 'within' allow to specify 
+                                                                                        ANY method of that Class
+
+                                   @Pointcut ("within(org.basilest.module.*)") <-- any methos of any Class inside that pkg
+                                   @Pointcut ("args(Circle)")                  <-- 'args' allow to specify hor parameters must be
+
+                                   @Before ("allGetters() && allCircleMethods()")  <-- combine 2 Poincut with &&
+
+
+@Joincut                        to pass args to an Advice, to let figure out from which fun() the call is coming:
+
+                                    @Before ("allCircleMethods()")
+                                    public void LoggingAdvcice (JoinPoint joinpoint) {
+                                               Circle circle = (Circle) joinpoint.getTarget();
+
+                                    @Before ("args( name)")
+                                    public void LoggingAdvcice2 (String name) {
+                                               System.out.println("Aspect with arg String="+name );
+
+@After  ....                    To see other Advices, in Eclipse start writing
+                                           import org.aspectj.lang.annotation.  and will see all the possibilities.
+                                @After               will be triggered at the exit from the function
+                                @AfterReturning      like @After but it's not triggered if the fun ix exited for any Exception
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------- JDBC
+
+JDBC              With the advent of JDBC, accessing data from a Java application has become relatively
+                  easy. Not only do we have independence from database vendor lock-in, but we also
+                  have a standard API to access multitude of databases.
+
+                  The Spring data access framework is specifically created to address
+                  these problems. It is a beautiful framework that promotes Dependency Injection
+
+              JdbcTemplate  <--- If you understand the class JdbcTemplate, you’ve conquered most of Spring
+        SimpleJdbcTemplate
+NamedParameterJdbcTemplate
+
+
+          JDBC example:
+
+                 public class JdbcPlainTest {
+                        private String DB_URL="jdbc:mysql://localhost:3306/JSDATA";
+                        private final String USER_NAME = "XXXX";
+                        private final String PASSWORD = "XXXX";
+                   ---- private Connection createConnection() {
+                   |          Connection conn = null;
+                   |          try {
+                   |                Class.forName("com.mysql.jdbc.Driver");
+                   |                conn =
+                   |                DriverManager.getConnection(DB_URL, USER_NAME,PASSWORD);
+                   |          } catch (ClassNotFoundException e) {
+                   |                e.printStackTrace();
+           2 time  |          } catch (SQLException e) { <-----------------------------
+                   |                e.printStackTrace();                              |
+                   |          }                                                       |
+                   |          return conn;                                            |
+                   |    }                                                             |
+                   |    private void query() {                                        |
+                   |          ResultSet rs = null;                                    |
+                   |          Statement stmt = null;                                  | 2 times
+                   ---------- Connection conn = createConnection();                   |
+                              try {                                                   |
+                                    stmt = conn.createStatement();                    |
+                                    rs = stmt.executeQuery("SELECT * FROM TRADES");   |
+                                    while (rs.next())                                 |
+                                    System.out.println(rs.getString(1));              |
+                              } catch (SQLException e) {  <----------------------------
+                                    e.printStackTrace();
+                              } finally {
+                                          try {
+                                                rs.close();
+                                                stmt.close();
+                                                conn.close();
+                                          } catch (SQLException ex) {
+                                                e.printStackTrace();
+                                          }
+                              }
+                        }
+                  }
+                  public static void main(String args[]) {
+                  JdbcPlainTest t = new JdbcPlainTest();
+                  t.query();
+                  }
+
+      If there’s already a framework that does this work, why reinvent the wheel?
+
+
+datasource-beans.xm:      Is a bean xml file to communicate with the DB. It content dependes from DB type (ex for MySQL:
+
+                             this is the driver we use (download it from http://commons.apache.org/dbcp/)
+                                                       |
+                                                       |
+                  |  <bean id="mySqlDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+         this     |  destroy-method="close">
+         part     |  <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+                  |  <property name="url" value="jdbc:mysql://localhost:3306/JSDATA" />
+           goes   |  ....
+                  |  </bean>
+                       |            <?xml version="1.0" encoding="UTF-8"?>    <-------- this is the file datasources-beans.xml"
+                       |            <beans xmlns="http://www.springframework.org/schema/beans"
+                       |                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 here  |                      xmlns:context="http://www.springframework.org/schema/context"
+                       |                      xsi:schemaLocation="http://www.springframework.org/schema/beans
+                       |                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                       |                      http://www.springframework.org/schema/context
+                       |                      http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+                       |                      <!-- MySql DataSource -->
+                       -------------------------------> ...........
+                                    </beans>
+
+                      Each provider has its own implementation of the class javax.sql.DataSource
+
+                                   If you use Maven update pom:
+                                                                   <!-- pom.xml -->
+                                                                    <dependency>
+                                                                        <groupId>commons-dbcp</groupId>
+                                                                        <artifactId>commons-dbcp</artifactId>
+                                                                        <version>1.4</version>
+                                                                    </dependency>
+                                                                    <dependency>
+                                                                        <groupId>mysql</groupId>
+                                                                        <artifactId>mysql-connector-java</artifactId>
+                                                                        <version>5.1.18</version>
+                                                                        </dependency>
+                                                                    </dependency>
+
+
+JdbcTemplate          It is the fundamental class in the framework. Utilized for queries, inserts, deletes.
+                      (N.B. has more than 100 methods that give varied access to data sets!)
+                      is thread safe: it can be easily shared across threads.
+
+
+                      Make it run now:
+
+                      public class JdbcTemplateTest {
+                          private ApplicationContext ctx = null;
+                          private JdbcTemplate template = null;
+                          private DataSource datasource = null;
+                          public JdbcTemplateTest() {
+                             // Create a container forming the beans from datasource XML file
+                             ctx = new ClassPathXmlApplicationContext("datasources-beans.xml"); <--- here the link to ext xml
+                             // DataSource bean has been fetched from the container
+                             datasource = ctx.getBean("mySqlDataSource",DataSource.class);
+                          }
+                          // Instantiate the template with the datasource
+                          template = new JdbcTemplate(datasource);
+                          public static void main(String[] args) {
+                                JdbcTemplateTest t = new JdbcTemplateTest();
+                                // execute the data access methods from here
+                          ....
+                          }
+                      }
+
+                     here some of the main methos of 'JdbcTemplate'
+
+                     1. Querying for Single and Multiple Rows:
+                                    int numOfTrades = template.queryForInt("select count(*) from TRADES");
+                                                              .queryForString(...
+                                                              .queryForLong  (...
+                                                              .queryForMap   (...
+                                                              .queryForObject(...
+
+                                    int numOfTrades = template.queryForObject("select count(*) from TRADES", Integer.class);
+                                    int maxId       = template.queryForObject("select max(id)  from TRADES", Integer.class);
+
+                                    Map<String,Object> tradeAsMap = template.queryForMap("select * from TRADES where id=1");
+
+
+                                    the 'queryForList' is a bit different as it can return multiple rows.
+
+                                    List<Map<String,Object>> trades = template.queryForList("select * from TRADES");
+                                    System.out.println("All Trades:"+trades);
+
+                                                    All Trades:
+                                                    [{ID=1, ACCOUNT=1234AAA, ... STATUS=NEW, DIRECTION=BUY},
+                                                    ...,
+                                                    {ID=5, ACCOUNT=452SEVE, ... STATUS=NEW, DIRECTION=SELL}]
+
+                     2. Querying with 'where'
+                                   String status = template.queryForObject("select STATUS from TRADES where id= ?",
+                                                                           new Object[]{id}, String.class);
+
+                                   String status = template.queryForObject("select STATUS from TRADES where id = ? and security=?",
+                                                                           new Object[]{id,security}, String.class);
+
+                     3. Retrieving row and converted them to my Class  ex 'Trade'
+                        3.1  to do this, first implement the interface 'RowMapper' with a Class that has only 1 method mapRow:
+
+                                   private static final class TradeMapper implements RowMapper<Trade>{ ---------------
+                                        @Override                                                                    |
+                                        public Trade mapRow(ResultSet rs, int rowNum) throws SQLException {          |
+                                                            Trade t = new Trade();                                   |
+                                                            // set the values by use ResultSet's getXXX methods      |
+                                                            t.setId(rs.getInt("ID"));                                |
+                                                            ....                                                     |
+                                   }                                                                                 |
+                        3.2  Now we can fetch a row and have it mapped in a 'Trade' object:                          |
+                                                                                                                     |
+                                  public Trade getMappedTrade(int id){                                               |
+                                       Trade trade = template.queryForObject("select * from TRADES where id = ?",    |
+                                                                              new Object[]{id} ,                     |
+                                                                              new TradeMapper()); --------------------
+                                       return trade;
+                                  }
+                        3.2  If we want not      1 row <--> 1 Class  but      N rows <--> array of N Class
+
+                                  List<Trade> trades = template.query("select * from TRADES", new TradeMapper());
+
+                     4. Insert Update Delete
+                                  int rowsUpdated = template.update("insert into TRADES values(?,?,?,?,?,?)",
+                                                                     61,"JSDATA","REV",500000,"NEW","SELL");
+
+                                  int rowsUpdated = template.update("update TRADES set status='"+status+"' where id="+id+"");
+                                  int rowsUpdated = template.update("update TRADES set status=? where id=?",status, id);
+
+                     5. Execute SQL statements (syntax DDl: Data Definition Language)
+                                  template.execute("drop table PERSON");
+                                  template.execute("create table PERSON
+                                                   (FIRST_NAME varchar(50) not null, LAST_NAME varchar(50) not null)");
+
+______________________________________________________________  NamedParameterJdbcTemplate
+
+                     basically encapsulates the JdbcTemplate by providing an easy way to pass var.
+
+                        BEFORE                                             AFTER
+
+                     select count(*) from TRADES            |     select count(*) from TRADES
+                     where account = ? and security = ?     |     where account = :account and security = :security
+
+
+                  1  Using Map:
+
+                       public int getTradesCount(String s, String a){
+                         Map bindValues = new HashMap();
+                         bindValues.put("status", s);     <----  here we define right keys
+                         bindValues.put("account", a);
+                         int numOfTrades = template.queryForInt ("select count(*) from TRADES
+                                                                 where account=:account and status=:status", <--- here we use them
+                                                                 bindValues);
+
+                  2  Using SqlParameterSource:   (returned by MapSqlParameterSource ())
+
+                       public int getTradesCountUsingSqlParameterSource(String s, String a){
+                         SqlParameterSource bindValues =
+                         new MapSqlParameterSource().addValue("status", s).addValue("account", a);
+                         int numOfTrades = template.queryForInt
+                         ("select count(*) from TRADES
+                         where account=:account and status=:status", bindValues);
+
+                  3  Using BeanPropertySqlParameterSource:
+
+                         public static void main(String[] args) {
+                         NamedParameterJdbcTemplateTest t = new NamedParameterJdbcTemplateTest();
+                         Trade trade = new Trade();
+                         trade.setAccount("1234AAA");
+                         trade.setId(1234);
+                         trade.setStatus("NEW");
+                         int count = t.getTradesCountUsingBeanSqlParameterSource(trade);
+                         }                                 |
+                                                           |
+                                           | public int getTradesCountUsingBeanSqlParameterSource(Trade t){
+                                           | SqlParameterSource bindValues = new BeanPropertySqlParameterSource(t);
+                                           | int numOfTrades = template.queryForInt
+                                           | ("select count(*) from TRADES where account=:account and status=:status",
+                                           | bindValues);
+                                           | }
+
+Jdbc Batching:     To use when you group more execute statements, and process 1 big time, instead on many little single.
+
+
+                  1  Using SqlParameterSourceUtils:
+
+                        private int[] insertTradesList(final List<Trade> trades) {
+                              SqlParameterSource[] tradesList =
+                              SqlParameterSourceUtils.createBatch(trades.toArray());
+                              int[] updatesCount = namedTemplate.batchUpdate(
+                                                "insert into TRADES values
+                                                (:id,:account,:security,:quantity,:status,:direction)",
+                              tradesList);
+                              return updatesCount;
+                        }
+                  2  Using BatchPreparedStatementSetter:
+
+                       private int[] insertTrades(final List<Trade> trades) {
+                              int[] updatesCount = template.batchUpdate(
+                              "insert into TRADES values(?,?,?,?,?,?)",
+                              new BatchPreparedStatementSetter() {
+                                     @Override
+                                     public void setValues(PreparedStatement ps, int i) throws SQLException {
+                                            Trade t = trades.get(i);
+                                            ps.setInt(1, t.getId());
+                                            ...
+                                     }
+                                     @Override
+                                     public int getBatchSize() {
+                                            return 10;
+                                            }
+                              });
+                              }
+                       return updatesCount;
+
+
+No SQL AT all:     A Further improvements:
+                      1.    private SimpleJdbcInsert jdbcInsert = null;
+                            datasource = ctx.getBean("mySqlDataSource", DataSource.class);
+                            jdbcInsert = new SimpleJdbcInsert(datasource).withTableName("TRADES");
+
+                      2.    public void insertTrade(Trade t) {
+                                Map tradeMap = new HashMap();
+                                tradeMap.put("id", t.getId());
+                                tradeMap.put("account", t.getAccount());
+                                ...
+                                jdbcInsert.execute(tradeMap);
+                                }
+                       3.A                                                                      3.B
+              jdbcInsert =                                        | public void insertTradeUsingSqlParameterSource(Trade t) {
+              new SimpleJdbcInsert(datasource)                    | SqlParameterSource source =
+             .withTableName("TRADES")                             |        new BeanPropertySqlParameterSource(t);
+             .usingColumns("id","account","security","quantity"); | }
+                                                                  | jdbcInsert.execute(source);
+
+JAVA DB / Derby: Instaed of MySQL, Java DB is manatined by Java itself (Oracle), while Derby by Apache
+                 anyhow both are In-memory databases. To enable speedy application develop ment.
+                 Spring framework provides good support.
+
+______________________________________________________________  Hibernate
+     .  You can load your objects on start up using lazy=false
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+     .  Y
+______________________________________________________________  Hibernate
+
+Hibernate:   Hibernate is a framework that takes the burden of object persistence in a relational
+             database.
+
+                 .  Configuring the Session Factory and Datasources  (the file hibernate.properties) available in the classpath
+                 .  Setting the Hibernate properties                 (file hibernate.cfg.xml.) other way to set properties above
+                 .  Creating the POJO and relevant mappings POJO: Plain Old Java Object
+
+hibernate.properties:
+                hibernate.dialect org.hibernate.dialect.MySQL5Dialect
+                hibernate.connection.driver_class com.mysql.jdbc.Driver      <---- DRIVER
+                hibernate.connection.url jdbc:mysql://localhost:3306/JSDATA  <---- URL
+                hibernate.connection.username user
+                hibernate.connection.password password
+                hibernate.current_session_context_class thread
+                hibernate.show_sql false
+
+                Note that you can define the same properties using a XML file, usually called as
+                hibernate.cfg.xml.
+hibernate.cfg.xml:
+                <?xml version='1.0' encoding='utf-8'?>
+                <lt;!DOCTYPE hibernate-configuration PUBLIC
+                "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+                <hibernate-configuration>
+                <session-factory>
+                <!-- Database connection settings -->
+                <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+                <property name="connection.url">jdbc:mysql://localhost:3306/techfaqdb</property>
+                <property name="connection.username">techfaq</property>
+                <property name="connection.password">techfaq</property>
+                <!-- JDBC connection pool (use the built-in) -->
+                <property name="hibernate.c3p0.min_size">1</property>
+                <property name="hibernate.c3p0.max_size">4</property>
+                <property name="hibernate.c3p0.timeout">1800</property>
+                <property name="hibernate.c3p0.max_statements">50</property>
+                <!-- MySQL dialect//different for different Database -->
+                <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+                <!-- Enable Hibernate's automatic session context management -->
+                <property name="current_session_context_class">thread</property>
+                <!-- Disable the second-level cache -->
+                <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+                <!-- Echo all executed SQL to stdout -->
+                <property name="show_sql">true</property>
+                <property name="hbm2ddl.auto">update</property>
+                <mapping resource="Emp.hbm.xml"/>
+                </session-factory>
+                </hibernate-configuration>
+
+mapping:
+                <?xml version="1.0"?>                                           ----------
+                <!DOCTYPE hibernate-mapping PUBLIC                                       |
+                          "-//Hibernate/Hibernate Mapping DTD//EN"                       |
+                          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">  |
+                <hibernate-mapping>                                                      |
+                <class name="com.madhusudhan.jsd.domain.Trade" table="TRADES">   <----- here map the Class (the object) <--> with the Table
+                <id name="id" column="ID">                                               |
+                          <generator class="assigned" />  <-- the key                    |
+                </id>                                                                    |
+                <property name="account" column="ACCOUNT" />                             |
+                <property name="security" column="SECURITY" />                           |
+                <property name="direction" column="DIRECTION" />                         |-----
+                <property name="status" column="STATUS" />                               |    |
+                <property name="quantity" column="QUANTITY" />                           |    |
+                </class>                                                                 |    |
+                </hibernate-mapping>                                           -----------    |
+                                                                                              |
+no go:                                                                                        |
+                public class PlainHibernateTest {                                             |
+                     private SessionFactory factory = null;                                   |
+                     private Configuration configuration = null;                              |
+                     public PlainHibernateTest() {                                            |
+                            configuration = new Configuration();                              |
+                            configuration.addFile("Trade.hbm.xml");  --------------------------
+                            factory = configuration.buildSessionFactory();
+                     }
+                     private void testInsert(Trade t) {
+                            Session session = factory.getCurrentSession();  <----- here from SessionFactory I have a Session
+                            session.beginTransaction();
+                            session.save(t);                                <----- here I save to DB
+                            session.getTransaction().commit();
+                            System.out.println("Inserted Trade"+t.getId());
+                     }
+                }
+                public static void main(String[] args) {
+                    Trade t = DomainUtil.createDummyTrade();
+                    PlainHibernateTest test = new PlainHibernateTest();
+                    test.testInsert(t);
+                }
+
+               so. Hibernate’s SessionFactory is the key class that must be created before start working with Hibernate.
+
+
+------------------------------------------------------  E X A M   I t e m s
+
+                     Container Basics - Dependency injection,
+                                        Scopes for Spring beans,
+                                        Spring Beans Lifecycle,
+                                        Annotations,
+                                        JavaConfig and Testing.
+                     AOP - Pointcuts, Advices,
+                                        Configuration and Proxies.
+                     Data Access & Transaction - Definition of a DataSource,
+                                        Usage of the JdbcTemplate,
+                                        with regards to exception handling,
+                                        querying,
+                                        resultset.Hibernate Configuration of a SessionFactoryBean in xml.Local transaction manager,
+                                        JTA transaction manager,
+                                        TransactionTemplate,
+                                        default rollback policy.Propagation modes.
+                     Spring MVC and REST - ViewResolver,
+                                        HandlerMapping,
+                                        DispatcherServlet.Controllers,
+                                        WebApplicationContext,
+                                        ContextLoaderListenerGeneral usage of the @Controller and @RequestMapping annotations.REST: Usage of the @PathVariable annotation,
+                                        HTTP Methods and RestTemplate.
+                     Advanced Topics - Remote: RMI Service Exporte,
+                                        RMI Proxy Generato,
+                                        HttpInvoker,
+                                        Security: Security filter chain,
+                                        method level securit and security tag libraryJMS: JmsTemplate,
+                                        JMS ListenerJMX: MBeanExporter,
+                                        MBean and MBeanServer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

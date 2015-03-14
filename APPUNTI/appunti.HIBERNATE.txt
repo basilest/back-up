@@ -1,0 +1,200 @@
+JDBC            Java Database Connectivity     (a set of API that allow Java to operate on DataBases)
+
+                1. create a DB Conection    (ex with a MySQL DB)
+                      public class VanillaMovieManager {
+                      private Connection connection = null;
+                      private String url = "jdbc:mysql://localhost:3307/JH";
+                      private String driverClass = "com.mysql.jdbc.Driver";
+                      private String username = "mkonda";
+                      private String password = "mypass";
+                      ...
+                      private Connection getConnection() {
+                      try {
+                      Class.forName(driverClass).newInstance();
+                      connection = DriverManager.getConnection(url, username, password); <-------
+                      } catch (Exception ex) {
+                      System.err.println("Exception:"+ ex.getMessage());
+                      }
+                      return connection;
+                      }
+                      }
+
+                2. prepare a SQL cmd and execute it
+                   public class VanillaMovieManager {
+                   private String insertSql = "INSERT INTO MOVIES VALUES (?,?,?,?)";
+                   private String selectSql = "SELECT * FROM MOVIES";
+                   ...
+                   private void persistMovie() {
+                   try {
+                   PreparedStatement pst = getConnection().prepareStatement(insertSql); <-----
+                   pst.setInt(1, 1001);
+                   pst.setString(2, "Top Gun");
+                   pst.setString(3, "Action Film");
+                   pst.setString(4, "Tony Scott");
+                   // Execute the statement
+                   pst.execute();                                                       <-----
+                   System.out.println("Movie persisted successfully!");
+                   } catch (SQLException ex) {
+                   System.err.println(ex.getMessage());
+                   ex.printStackTrace();
+                   }
+                   }
+                   private void queryMovies() {
+                   try {
+                   Statement st = getConnection().createStatement();                   <----
+                   ResultSet rs = st.executeQuery("SELECT * FROM MOVIES");             <----
+                   while (rs.next()) {
+                   System.out.println("Movie Found: "
+                   + rs.getInt("ID")
+                   + ", Title:"
+                   + rs.getString("TITLE"));
+                   }
+                   } catch (SQLException ex) {
+                   System.err.println(ex.getMessage());
+                   }
+                   }
+                   }
+
+Hibernate            
+          public class Movie {                     |public class BasicMovieManager {
+               private int id = 0;                 |private void persistMovie(Movie movie) {
+               private String title = null;        |Session session = sessionFactory.getCurrentSession();
+               private String synopsis = null;     |...
+               private String director = null;     |session.save(movie);
+               ...                                 |}
+               // Setters and getters omitted      |...
+          }                                        |}
+           
+          1/3 Configure the DB connection:
+              the details are put in one of these files:
+                      - XML file hibernate.cfg.xml
+                      - a txt    filehibernate.properties
+
+
+                      XML: 
+
+                      <hibernate-configuration>
+                        <session-factory>
+                          <property name="connection.url">
+                                    jdbc:mysql://localhost:3307/JH
+                          </property>
+                          <property name="connection.driver_class">
+                                    com.mysql.jdbc.Driver
+                          </property>
+                          <property name="connection.username">
+                                    mkonda
+                          </property>
+                          <property name="connection.password">
+                                    password
+                          </property>
+                          <property name="dialect">
+                                    org.hibernate.dialect.MySQL5Dialect
+                          </property>
+                          <mapping resource="Movie.hbm.xml" />
+                        </session-factory>
+                      </hibernate-configuration>
+
+                     TXT fiie
+
+                     hibernate.connection.driver_class = com.mysql.jdbc.Driver
+                     hibernate.connection.url = jdbc:mysql://localhost:3307/JH
+                     hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
+
+          2/3  define how map   (Objcet fields)  <--->  (Table columns)
+              
+               .This is done in a file ending with .hbm.xml (ex. Movie.hbm.xml).
+               .The link to this file is added in 1/3
+
+                      <hibernate-configuration>
+                      <session-factory>
+                      ...
+                           <mapping resource="Movie.hbm.xml" />
+                      </session-factory>
+                      </hibernate-configuration>
+
+
+                      ex. of file:
+                                 <hibernate-mapping>
+                                 <class name="com.madhusudhan.jh.domain.Movie" table="MOVIES">
+                                 <id name="id" column="ID">
+                                 <generator class="native"/>
+                                 </id>
+                                 <property name="title" column="TITLE"/>
+                                 <property name="director" column="DIRECTOR"/>
+                                 <property name="synopsis" column="SYNOPSIS"/>
+                                 </class>
+                                 </hibernate-mapping>
+
+          3/3  .Hibernate creates 
+                  -a class 'SessionFactory' (is a thread-safe class and can be shared in your app: 
+                                             so 1 only for 1 MySQL DB). Then
+                creates Session obects. Session ob. take care of all database operations:
+                                             saving, loading, retrieving records 
+                                            (not thread-safe class --> NOT share in your app)
+
+                      
+                As all information are stored in extrnal XML files (starting from
+                hibernate.cfg.xml which Hibernate load by default) no other specific reference is
+                written in Java code which would like:
+
+                     public class BasicMovieManager {
+                       private SessionFactory sessionFactory = null;
+                       // Creating SessionFactory using 4.2 version of Hibernate
+                       private void initSessionFactory(){
+                       Configuration config = new Configuration().configure();
+                       ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(
+                                                         config.getProperties()).buildServiceRegistry();
+                       // create the session factory
+                       sessionFactory = config.buildSessionFactory(serviceRegistry);
+                       }
+                       ...
+                     }
+
+                     now that we have the factory we can pass it on, and creare Session objects:
+
+                     private void persistMovie(Movie movie) {
+                             Session session = sessionFactory.getCurrentSession();   1
+                             session.beginTransaction();                             2
+                             session.save(movie);                                    3
+                             session.getTransaction().commit();                      4
+                     }
+
+                     also to read them back:
+
+                     private void findMovie(int movieId) {
+                            Session session = sessionFactory.getCurrentSession();   1
+                            session.beginTransaction();                             2
+                            Movie movie = (Movie)session.load(Movie.class, movieId); <----- 3
+
+MAVEN:
+               to compile with Maven, modify 'pom.xml'  (the Maven compile file)
+
+               <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+               http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+               <modelVersion>4.0.0</modelVersion>
+               <groupId>com.madhusudhan</groupId>
+               <artifactId>just-hibernate</artifactId>
+               <version>0.0.1-SNAPSHOT</version>
+               <dependencies>
+               <dependency>
+               <groupId>org.hibernate</groupId>
+               <artifactId>hibernate-core</artifactId>
+               <version>4.2.3.Final</version>
+               </dependency>
+               <dependency>
+               <groupId>mysql</groupId>
+               <artifactId>mysql-connector-java</artifactId>
+               <version>5.1.18</version>
+               </dependency>
+               ...
+               </project>
+
+
+
+
+
+
+

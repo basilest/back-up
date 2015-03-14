@@ -1,0 +1,461 @@
+--------------------------------------------------- /tmp
+    1. Capture video with Recordmydesktop (ogv fotmat)
+    2. convet ogv to gif (Use mplayer and imagemagik)
+    mplayer -ao null <video file name> -vo jpeg:outdir=output
+    convert output/* output.gif
+    convert output.gif -fuzz 10% -layers Optimize optimised.gif
+
+--------------------------------------------------- /tmp
+   
+
+The cleaning of /tmp is done by the upstart script 
+                 /etc/init/mounted-tmp.conf. 
+ The script is run by upstart everytime /tmp is mounted. 
+ Practically that means at every boot.
+
+The script does roughly the following: 
+        if a file in /tmp is older than $TMPTIME days it will be deleted.
+
+$TMPTIME is an environment variable defined in /etc/default/rcS.
+The default value of $TMPTIME is 0, which means every file and directory in /tmp gets deleted. 
+$TMPTIME=7 means 1 week   $TMPTIME=-1 means never
+
+useful commands are 'tmpreaper'  which is based on 'tmpwatch'
+but both are not by default installed.
+-------------------------------------------------- avconv
+avconv -i Simple_Man.mp4 -acodec copy -ss 00:00:07 -t 00:00:25 Simple_Man.07-34.aac
+--------------------------------------------------- masscan
+This is the fastest Internet port scanner. 
+It can scan the entire Internet in under 6 minutes, transmitting 10 million packets per second.
+
+It produces results similar to nmap, the most famous port scanner. 
+Internally, it operates more like scanrand, unicornscan, and ZMap, using asynchronous transmission. 
+The major difference is that it's faster than these other scanners. 
+In addition, it's more flexible, allowing arbitrary address ranges and port ranges.
+--------------------------------------------------- concat more pdf files
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged.pdf 10.Bristol.Londra 10.Londra.Stansted 16.Londra.Bristol
+
+use gostrscript that is available everywhere.
+Other options are:
+    pdftk:   also comes with Ghostrscipt but can be not installed
+             lot of option, fast, good compression
+    pdfjam:  cames with LaTeX
+             lot of option as well
+    pdfunite: no options
+
+pdftk    input1.pdf input2.pdf input3.pdf cat output output.pdf
+pdfjam   input1.pdf input2.pdf input3.pdf        -o  output.pdf
+pdfunite input1.pdf input2.pdf input3.pdf            output.pdf
+
+
+--------------------------------------------------- xinput  &  xev
+
+command to see and configure keyboard / mouse
+
+   xinput list   (providdes a list of devices and their id= )
+                  e.g 
+                  -----> USB Optical Mouse     id=11	[slave  pointer  (2)]
+   xinput test 11
+                 to test what appens cliking and scrolling. ex:
+
+                                  button press   1  
+                                  button release 1    <--- left click
+                                  button press   3 
+                                  button release 3    <--- right
+                                  button press   4 
+                                  button release 4    <--- wheel forward
+                                  button press   5 
+                                  button release 5    <--- wheel backward
+
+  instead of xinput test    it can also be used   xev
+--------------------------------------------------- xorg.conf
+typically located in /etc/X11/xorg.conf
+but
+does not exist by default any more.  
+Recent releases of Ubuntu haven't required a xorg.conf file. 
+You can generate one pretty easily though:
+
+               sudo Xorg -configure
+               or
+               sudo X -configure
+
+if above commands are executed once X server is already running (usually it is already running
+on display or port 0) so you open on first available display; in most cases 1 :
+
+                 X :1 -configure 
+
+this command produce a file    "xorg.conf.new"  in the user home
+and can be renamed and moved in /etc/X11/xorg.conf
+
+All the settings of the new xorg.conf file are overwritten by the already present X.conf files
+usually located in dir /usr/share/X11/xorg.conf.d
+
+--------------------------------------------------- xmodmap
+The set of physical keys of a keyboard can be functionally groupped as:
+         - alphanumeric keys (the only to print char, numbers or symbols)
+         - navigation keys for moving 
+         - function keys (Fn, Esc, Del, Break)
+         - modifier keys (Shift, AltGr), Control): to be added to alphanumeric keys to modify 
+                                                   the behaviour and allow more symbols.
+
+So through the modifiers keys, 1 single physical keys (e.g. n) can produces MORE symbols, ex.: 
+
+          n    (when pressed alone)
+          N    (when pressed with Shift)
+          ñ    (when pressed with AltGr)
+          Ñ    (when pressed with Shift+AltGr)
+
+X identifies :
+               - the physical key by a number (keycode) 
+               - all the possible system printing symbols in the file /usr/include/X11/keysymdef.h (removing the XK_ )  
+ex.:
+        grep -wi xk_n /usr/include/X11/keysymdef.h
+
+        #define XK_N                             0x004e  /* U+004E LATIN CAPITAL LETTER N */
+        #define XK_n                             0x006e  /* U+006E LATIN SMALL LETTER N */
+
+        grep -i _ntilde /usr/include/X11/keysymdef.h
+
+        #define XK_Ntilde                        0x00d1  /* U+00D1 LATIN CAPITAL LETTER N WITH TILDE */
+        #define XK_ntilde                        0x00f1  /* U+00F1 LATIN SMALL LETTER N WITH TILDE */
+
+Whenever a key is pressed or released, X server generates an event that contains the keycode of the pressed key 
+and the mask with the pressed modifiers.
+
+Try to see with xev:
+
+------------------------------------- press n
+
+KeyRelease event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16015893, (48,46), root:(670,624),
+    state 0x0, keycode 57 (keysym 0x6e, n), same_screen YES, <-----   here the KEYCODE: dec 57
+    XLookupString gives 1 bytes: (6e) "n"                                  the symbol:  hex 6e
+    XFilterEvent returns: False
+
+------------------------------------- press Shift + n
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16023348, (48,46), root:(670,624),
+    state 0x0, keycode 50 (keysym 0xffe1, Shift_L), same_screen YES,  <--- here the KEYCODE: dec 50
+    XLookupString gives 0 bytes:                                       /* no symbol as it's Shift 
+    XmbLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16024067, (48,46), root:(670,624),
+    state 0x1, keycode 57 (keysym 0x4e, N), same_screen YES, <-----   here the KEYCODE: again dec 57
+    XLookupString gives 1 bytes: (4e) "N"                                  the symbol:  hex 4e
+    XmbLookupString gives 1 bytes: (4e) "N"
+    XFilterEvent returns: False
+
+------------------------------------- press AltGr + n
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16034738, (48,46), root:(670,624),
+    state 0x0, keycode 108 (keysym 0xfe03, ISO_Level3_Shift), same_screen YES, <--- here the KEYCODE: dec 108
+    XKeysymToKeycode returns keycode: 92                                        /* no symbol as it's AltGr
+    XLookupString gives 0 bytes:                                                   AltGr is also called ISO_Level3_Shift 
+    XmbLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16035091, (48,46), root:(670,624),
+    state 0x80, keycode 57 (keysym 0xf1, ntilde), same_screen YES,  <-----   here the KEYCODE: again dec 57
+    XLookupString gives 2 bytes: (c3 b1) "ñ"                                      the symbol: ñ
+    XmbLookupString gives 2 bytes: (c3 b1) "ñ"
+    XFilterEvent returns: False
+
+------------------------------------- press AltGr + Shift + n
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16038178, (48,46), root:(670,624),
+    state 0x0, keycode 108 (keysym 0xfe03, ISO_Level3_Shift), same_screen YES,
+    XKeysymToKeycode returns keycode: 92
+    XLookupString gives 0 bytes: 
+    XmbLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16039344, (48,46), root:(670,624),
+    state 0x80, keycode 50 (keysym 0xffe1, Shift_L), same_screen YES,
+    XLookupString gives 0 bytes: 
+    XmbLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+KeyPress event, serial 37, synthetic NO, window 0x3c00001,
+    root 0x9c, subw 0x3c00002, time 16039645, (48,46), root:(670,624),
+    state 0x81, keycode 57 (keysym 0xd1, Ntilde), same_screen YES,
+    XLookupString gives 2 bytes: (c3 91) "Ñ"
+    XmbLookupString gives 2 bytes: (c3 91) "Ñ"
+    XFilterEvent returns: False
+
+X has 8 bit mask reserved to identify (one bit each) a modifier. 3 are Shift, Lock (the CapsLock), Control.
+The others are called Mod1 ... Mod5.
+To see you current X modifiers configuration, use xmodmap -pm ex.:
+
+                   shift       Shift_L (0x32),  Shift_R (0x3e)
+                   lock        Caps_Lock (0x42)
+                   control     Control_L (0x25),  Control_R (0x69)
+                   mod1        Alt_L (0x40),  Meta_L (0xcd)
+                   mod2        Num_Lock (0x4d)
+                   mod3      
+                   mod4        Super_L (0x85),  Super_R (0x86),  Super_L (0xce),  Hyper_L (0xcf)
+                   mod5        ISO_Level3_Shift (0x5c),  Mode_switch (0xcb)
+
+
+While Shift-Lock-Control are modifiers with a physical key, mod1 ... mod5 even if defined (e.g. the above 
+output from xmodmap -pm list some values for them) can be really submitted only if the keycode is a physical key.
+
+
+The association between the physical key and list of the symbols that can be generated from that key with the modifiers,  
+is a table that is managed by the command xmodmap.
+
+                xmodmap -pke
+                                -pk    print the keyboard  (-pke print in a format that can be then submitted again as input)
+                                -pp    print the mouse
+                                -pm    print the modifiers
+                                -e     to execute a command
+
+ex. 
+                xmodmap -pke | grep -w N      --->    keycode  57 = n N n N ntilde Ntilde
+
+Whichever is the list of symbols associated to a key (the above report 6 symbols) X foresees the standard  behaviour 
+for the 1st 2nd 3th 4th and they can be obtained as:
+
+1. 1st : pressing the key alone
+2. 2nd : pressing Shift + key
+3. 3th : pressing Mode_switch + key
+4. 4th : pressing Shift + Mode_switch + key
+
+Mode_switch is a builint X-keyword to identify that through that modifier you can add 2 more symbols to that key. 
+Ok, so we have a scheme to have at leat 4 symbols for each alphanumeric keys, but which is the physical key for Mode_switch ?
+Mode_switch comes by default with a high keycode value (0xCB, 203) outside the physical keycodes space, so
+you cannot print symbols 3th and 4th.
+
+Anyhow most X installation comes with 6 symbols in the list. The standard 4 and 2 more:      ex. keycode  57 = n N n N ntilde Ntilde
+
+   1. Key                          : the key alone: n     
+   2. Shift+Key                    : N
+   3. mode_switch+Key              : as Mode_switch is usually not mapped to a physcal key you cannot generate this
+   4. mode_switch+Shift+Key        : as Mode_switch is usually not mapped to a physcal key you cannot generate this 
+   5. ISO_Level3_Shift+Key         : ñ
+   6. ISO_Level3_Shift+Shift+Key   : Ñ
+
+ISO_Level3_Shift modifier comes both already associated to a Mod1 ... Mod5, as mapped onto the physycal AltGr key.
+So the above it's:
+        
+   5. AltGr+Key                : ñ
+   6. AltGr+Shift+Key          : Ñ
+
+Thus in most all clean X system you should have for free the keysym table reported by 
+                           xmodmap -pke
+where there are 6 symbols and you can submit the 1st 2nf 5th 6th with proper Shift / AltGr combination
+but not the 3th and 4th. That is really more than enough for all the symbols you must require,
+anyhow just to see that mode_switch works you can asscoiate to some physical key:
+  - Fn keys do not generate X events, and so are totally dead. You can't use it. 
+  - maybe we can free NmLock and take it
+
+xmodmap -pm :
+
+                   shift       Shift_L (0x32),  Shift_R (0x3e)
+                   lock        Caps_Lock (0x42)
+                   control     Control_L (0x25),  Control_R (0x69)
+                   mod1        Alt_L (0x40),  Meta_L (0xcd)
+                   mod2        Num_Lock (0x4d)
+                   mod3      
+                   mod4        Super_L (0x85),  Super_R (0x86),  Super_L (0xce),  Hyper_L (0xcf)
+                   mod5        ISO_Level3_Shift (0x5c),  Mode_switch (0xcb)
+
+
+free the physical key 77 (NumLock) to map onto it the Mode_switch:    xmodmap -e 'remove mod2 = Num_Lock'
+remove Mode_switch from mod5 (where there is also AltGr):             xmodmap -e 'remove mod5 = Mode_switch'
+add Mode_switch to physical key 77 (NumLock)                          xmodmap -e 'keycode 77 = Mode_switch'
+
+so now you can print all the 6 symbols from the table ex.:
+                                xmodmap -pke | grep 47
+                                keycode  47 = ograve ccedilla semicolon colon at dead_cedilla
+
+                      1. Key               :  ò
+                      2. Shift+Key         :  ç
+                      3. NumLock+Key       :  ;
+                      4. NumLock+Shift+Key :  :
+                      5. AltGr+Key         :  @
+                      6. AltGr+Shift+Key   :  ¸
+
+
+
+To configure your own mapping, you can try:
+
+                xmodmap -pke > ~/my_map_file
+
+                then change something as you like in the my_map_file
+
+                and resource it:  xmodmap ~/my_map_file
+
+                To have it sourced at boot write the above command in your own xinitrc  (~/.xinitrc) 
+                or in the common one /etc/X11/xinit/xinitrc
+
+
+--------------------------------------------------- 
+
+BOOT:
+              1. BIOS search 'OS loader'  (Limux Loader: LILO)
+                 following any sequence specified (1st CD, 2nd HD, ...)
+
+/proc          list info like
+
+               cat /proc/interrupts 
+                       CPU0    CPU1    CPU2    CPU3    CPU4    CPU5    CPU6    CPU7       
+                 0:      18       0       0       0       0       0       0       0  IR-IO-APIC-edge      timer
+                 1:   25529    1004     807     884    1470    1138    1023     851  IR-IO-APIC-edge      i8042
+                 7:       8       0       0       0       0       0       0       0  IR-IO-APIC-edge    
+                 8:       0       0       0       1       0       0       0       0  IR-IO-APIC-edge      rtc0
+                 9:   13528    6556    4940    4684    5402    3156    2419    2306  IR-IO-APIC-fasteoi   acpi
+
+                cat /proc/dma
+                 4: cascade
+
+                cat /proc/ioports 
+                0000-0cf7 : PCI Bus 0000:00
+                  0000-001f : dma1
+                  0020-0021 : pic1
+                  0040-0043 : timer0
+                  0050-0053 : timer1
+                  0060-0060 : keyboard
+                  0062-0062 : PNP0C09:00
+                    0062-0062 : EC data
+
+USB             
+
+
+                 # lsusb -t             (to show devices physically USB attached)
+                                Bus# 4
+                                '-Dev#    1 Vendor 0x0000 Product 0x0000
+                                Bus# 3   
+                                '-Dev#    1 Vendor 0x046d Product 0xc501
+                                |-Dev#    2 Vendor 0x0781 Product 0x0002
+                                '-Dev#    3 Vendor 0x0000 Product 0x0000
+                                Bus# 2    
+                                '-Dev#    1 Vendor 0x04b8 Product 0x0005
+
+                 # types of USB host controllers
+
+                   OHCI  - USB1.1   12 Mbps   Open      Host Controller Interface
+                   UHCI  - USB1.1   12 Mbps   Universal Host Controller Interface
+                   EHCI  - USB2.0  480 Mbps   Enhanced  Host Controller Interface
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
