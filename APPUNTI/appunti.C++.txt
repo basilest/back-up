@@ -1,0 +1,165 @@
+___________________________ vim plugin for C\C++
+               1. clang_complete 
+               2. map <F8> :!g++ % && ./a.out <CR>
+               3. garbas/vim-snipmate
+
+--------------------------------------------------------
+g++ -std=c++0x example.cpp -o example_program
+--------------------------------------------------------
+
+"case sensitive"
+
+
+Comment:   // line comment
+           /* block comment */ 
+
+
+:: namespaces:
+
+       #include <iostream>                   | #include <iostream>
+                                             | using namespace std;
+                                             | 
+       int main ()                           | int main ()
+       {                                     | {
+         std::cout << "Hello World! ";       |   cout << "Hello World! ";
+         std::cout << "I'm a C++ program";   |   cout << "I'm a C++ program";
+       }                                     | }
+
+-------------------------------------------------------- auto
+auto:   
+             int foo = 0;
+             auto bar = foo;  // the same as: int bar = foo; 
+
+                
+decltype     int foo = 0;
+             decltype(foo) bar;  // the same as: int bar; 
+
+-------------------------------------------------------- strings
+
+string mystring = "This is a string";
+string mystring ("This is a string");
+string mystring {"This is a string"};
+
+    // n.b. can change its value during execution:
+
+    s = "This is the initial string content";
+    cout << s << endl;
+    s = "This is a different string content";
+
+-------------------------------------------------------- const keywords
+
+    bool foo = true;        'true' is a keyword
+    bool bar = false;                   idem
+    int* p   = nullptr;                 idem
+
+-------------------------------------------------------- comma ','
+
+a = (b=3, b+2);              execute both, and returns the 2'
+                             so at the end:  b=3, a=5
+
+    
+-------------------------------------------------------- Basic In / Out
+
+    cin     keyboard               int i;
+    cout    video                  cout << "Please enter an integer value: ";
+    cerr    error                  cin >> i;
+    clog    log
+
+>>          insertion   operatior (<<) 
+            extraction  operatior (>>) 
+            
+  
+  
+  
+multiple insertion operations (<<) may be chained in a single statement:
+also mix string and var
+
+    cout << "This " << " is a " << "single C++ statement";
+    cout << "I am " << age << " years old and my zipcode is " << zipcode;
+
+
+    cin >> a >> b;         equivalent to:    cin >> a;  Any kind of space is used 
+                                             cin >> b;  to separate 2 consecutive inputs; 
+                                                        this may either be a 
+                                                        space, a tab, or a new-line. 
+       
+    string s;       
+    cin >> s;       could not work as expected as instead of a phrase
+                    the 1st 'blank' would load in s only the 1st word.
+                    better:   getline (cin, s);
+
+
+stringstream        #include <sstream>
+                    allows a string to be treated as a stream, 
+                    thus allowing extraction or insertion
+                    in the same way as they are performed on cin and cout.
+                    This feature is most useful to convert strings <--> num
+
+                    string s ("1204");
+                    int i;
+                    stringstream(s) >> i;
+
+                        
+        
+       
+                                             
+
+\n 
+enfl          cout << "First sentence.\n";
+              cout << "First sentence." << endl;
+
+
+
+        
+-------------------------------------------------------- comma ','
+-------------------------------------------------------- comma ','
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -32,6 +32,67 @@ let g:indentLine_fileTypeExclude = ['text', 'sh']
 "<NERDTREE>
 Plugin 'scrooloose/nerdtree.git'
 "</NERDTREE>
+"<LIGHTLINE>
+Plugin 'itchyny/lightline.vim'
+set laststatus=2
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \}
+if !has('gui_running')
+      set t_Co=256
+endif
+"</LIGHTLINE>
+"<PYTHON-MODE>   plugin for Python
+" Python-Mode ---------------------- {{{
+Plugin 'klen/python-mode'
+ " Keys:
+ " K             Show python docs
+ " <Ctrl-Space>  Rope autocomplete
+ " <Ctrl-c>g     Rope goto definition
+ " <Ctrl-c>d     Rope show documentation
+ " <Ctrl-c>f     Rope find occurrences
+ " <Leader>b     Set, unset breakpoint (g:pymode_breakpoint enabled)
+ " <Leader>r     run
+ " [[            Jump on previous class or function (normal, visual, operator modes)
+ " ]]            Jump on next class or function (normal, visual, operator modes)
+ " [M            Jump on previous class or method (normal, visual, operator modes)
+ " ]M            Jump on next class or method (normal, visual, operator modes)
+ let g:pymode_rope = 1
+"let g:pymode_rope_complete_on_dot = 0 when working with YouCompleteMe plugin
+"let g:pymode_rope_completion = 0  to cancel the pymode completion totally.
+ let g:pymode_rope_complete_on_dot = 0
+
+ " Documentation
+ let g:pymode_doc = 1
+ let g:pymode_doc_key = 'K'
+
+ "Linting
+ let g:pymode_lint = 1
+ let g:pymode_lint_checker = "pyflakes,pep8"
+ " Auto check on save
+ let g:pymode_lint_write = 1
+
+ " Support virtualenv
+ let g:pymode_virtualenv = 1
+
+ " Enable breakpoints plugin
+ let g:pymode_breakpoint = 1
+ let g:pymode_breakpoint_bind = '<leader>b'
+
+ " syntax highlighting
+ let g:pymode_syntax = 1
+ let g:pymode_syntax_all = 1
+ let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+ let g:pymode_syntax_space_errors = g:pymode_syntax_all
+
+ " Don't autofold code
+ let g:pymode_folding = 0
+
+"</PYTHON-MODE>
+" }}}
+"<FUGITIVE>   plugin for Git
+"Plugin 'tpope/vim-fugitive'
+"</FUGITIVE>
 "
 " A plugin can be installed referencing with its name
 " Plugin 'Buffergator'
@@ -46,7 +107,7 @@ filetype plugin indent on
 "      :PluginUpdate         to update installed plugin
 "      :PluginInstall!                idem
 "      
-"      :Plugins              to serach for plugins on vim site
+"      :Plugins              to search for plugins on vim site
 "      :PluginSearch!
 "
 "      :PluginList           to listed my installed plugins
@@ -58,6 +119,21 @@ filetype plugin indent on
 "                            and call :PluginClean
 "
 " </VUNDLE> 
+" </COLOR SCEHEME
+" use Wombat - Dark gray
+" put related .vim in ~/.vim/colors and type :colo wombat
+set t_Co=256
+:color wombat
+" </COLOR SCEHEME
+" P
+" <SETTINGS FOR C/C++>
+"Plugin 'Valloric/YouCompleteMe'
+"let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+" augroup project
+"       autocmd!
+"       autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
+" augroup END
+" </SETTINGS FOR C/C++>
 "
 "
 " Vimscript MY FUNCTIONS ---------------------- {{{
@@ -87,13 +163,17 @@ endfunction
 " Vimscript MY file settings MAIN ---------------------- {{{
 set mouse=a
 set nu
+set relativenumber
 set autoindent 
 filetype plugin indent on
 set tabstop=4
 set shiftwidth=4
 set expandtab
-set relativenumber
 set hlsearch
+
+    
+"set colorcolumn=80
+"highlight ColorColumn ctermbg=darkgray
 
 :let mapleader=","
 :nnoremap <leader>ev :split $MYVIMRC<cr>
@@ -112,8 +192,7 @@ set hlsearch
 " }}}
 
 " <SYNTAX> Here setting for syntax stuff 
-" syntax=on
+":syntax=on
 "
 "
-" </SYNTAX>
-
+" </SYNTAX> 

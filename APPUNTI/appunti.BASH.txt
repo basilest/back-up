@@ -1,3 +1,28 @@
+$?              exit status
+$$              PID 
+$a              better to use ${a}
+${a/23/BB}      substitue in $a 23 with BB
+$(cmd)          better than `cmd`       $(ls -l)
+$((5+3))        better than $[5+3]
+${#a}           len of char of a (as a string)
+${#array[*]}    len of array $a
+${#array[@]}         idem
+
+$0              name of script
+$1              1st arg ...  after $9, ${10}, ${11}, ${12}.
+$#              NUMBER of args
+$*              string with ALL args (seen as a single word)
+$@              same as $* but each arg is quoted 
+
+${a-val}      ${a:-val}
+${a=val}      ${a:=val}
+${a+val}      ${a:+val}
+${a?err_msg}  ${a:?err_msgl}
+
+
+
+
+
 When Linux boots, executes all scripts in dir
                 /etc/rc.d 
 to restore the sys config and set up services.
@@ -49,7 +74,8 @@ ____________________________________________________________
 
 A builtin is a command contained within the Bash tool set, literally built in. 
 This is either for 
-   - performance reasons -- builtins execute faster than external commands, which usually require forking a separate process -- 
+   - performance reasons -- builtins execute faster than external commands, 
+     which usually require forking a separate process -- 
    - builtin needs direct access to the shell internals.
 ____________________________________________________________
 SPECIAL CHARACTERS
@@ -85,7 +111,8 @@ ____________________________________________________________
      ex.
                   List="one two three"
                   
-                  # Splits the variable in parts at whitespace.    # Preserves whitespace in a single variable.
+                  # Splits the variable in parts at whitespace.    
+                  # Preserves whitespace in a single variable.
                   for a in $List                                     for a in "$List"  
                   do                                                 do #     ^     ^
                     echo "$a"                                          echo "$a"
@@ -285,11 +312,14 @@ ____________________________________________________________
 
      1>filen   # redirect stdout to filen    ex ls 1> pippo
      1>>filen  # redirect (with append)      
-     2>filen   # the same for stderr         ex ls 2> pippo  (any error is not added on video but redirected to pippo)
+     2>filen   # the same for stderr         ex ls 2> pippo  
+                                                     (any error is not added on video 
+                                                     but redirected to pippo)
      2>>filen  #   "   "   "   "
      &>filen   #  redirect both stdout and stderr
      
-     N.B. the above commnands are automatically "reset" after each line, so stdout, sterr are back to video.
+     N.B. the above commnands are automatically "reset" after each line, so stdout, 
+          sterr are back to video.
     
      i>filen   # create fd i to write       filen. If not set is 1 (stdout). 
      i<filen   # create fd i to read        filen. If not set is 1 (stdout). 
@@ -310,8 +340,9 @@ ____________________________________________________________
 
      ex.  2>&1  redirect stderr to stdout
 
-     N.B. to remember & and >. Only case & is before > (&>) is whene I'm sending out+err to a filename
-          otherwise (>&) in thise case there are only numbers (descriptors)
+     N.B. to remember & and >. Only case & is before > (&>) 
+          is whene I'm sending out+err to a filename
+          otherwise (>&) in this case there are only numbers (descriptors)
 
      fd can be closed. 
               0<&-   or   <&-       # close stdin
@@ -344,7 +375,8 @@ ____________________________________________________________
    Integer in older versions of Bash were signed long (32-bit) integers, [-2147483648  2147483647]. 
    As of version >= 2.05b, Bash supports 64-bit integers.
 
-   Bash does not understand floating point arithmetic. It treats numbers containing a decimal point as strings.
+   Bash does not understand floating point arithmetic. It treats numbers containing 
+   a decimal point as strings.
 
 
    
@@ -389,7 +421,8 @@ Numbers are usually decimal (base 10).
 Prefix 0      is octal (base 8).                   let "oct = 032"   # 26
 Prefix 0x     is hexadecimal (base 16).            let "hex = 0x32"  # 50
 BASE#NUMBER   is any base 
-              # range (2 - 64) : 10 digits + 26 lowercase characters + 26 uppercase characters + @ + _
+              # range (2 - 64) : 10 digits + 26 lowercase characters 
+                                           + 26 uppercase characters + @ + _
 
               let "b64 = 64#@_"      # 4031
 
@@ -410,16 +443,20 @@ and return the value of the variable whose name is the value of var
 e.g.
                     t=table_cell_3       # var t conatins that string text
                     table_cell_3=24      # 
-                    echo "t = ${!t}"     # t = 24  that is the value of the variable named by t value
+                    echo "t = ${!t}"     # t = 24  that is the value of the variable 
+                                                   named by t value
 
 ____________________________________________________________
 ENV VARIABLES
 ____________________________________________________________
 
-As any unix process, the shell has an "environment", a group of variables that the process may reference. 
-Even if the env-space is limited, you can add ("export") environmental variables. Those var are accessible 
-only to child processes. A script invoked from the command-line cannot export variables back to the 
-command-line, like Child cannot export variables back to the parent.
+As any unix process, the shell has an "environment", a group of variables 
+that the process may reference. 
+Even if the env-space is limited, you can add ("export") environmental variables. 
+Those var are accessible 
+only to child processes. A script invoked from the command-line 
+cannot export variables back to the command-line, 
+like Child cannot export variables back to the parent.
 
 ____________________________________________________________
 POSITIONAL PARAMETERS
@@ -460,7 +497,8 @@ ____________________________________________________________
 
      Reserved values: 
           1	general errors	(such as "divide by zero": let "var1 = 1/0")
-          2	Misuse of shell builtins (ex. Missing keyword or permission problem (diff failed on binary file comparison)).
+          2	Misuse of shell builtins (ex. Missing keyword or permission problem 
+                                     (diff failed on binary file comparison)).
           126	Permission problem or command not an exe(ex. invoke /dev/null)
           127	"command not found"	(ex.Possible problem with $PATH or a typo)
           128	Invalid argument to exit (exit with value out of 0-255)
@@ -502,14 +540,18 @@ Use ; when 'if' and 'then' are on same line
 
 
 test is a bash builtin which tests FILE types and compares STRINGS. 
-Therefore, script does not call the external /usr/bin/test binary, (which is part of the sh-utils package)
+Therefore, script does not call the external /usr/bin/test binary, 
+(which is part of the sh-utils package)
 Likewise, [ does not call /usr/bin/[, which is linked to /usr/bin/test.
 [ is a short alias for test. 
 A closing ] should not be strictly necessary, however newer versions of Bash require it.
 
-The [[ ]] construct is the more versatile Bash version of [ ]. This is the extended test command, adopted from ksh88.
-No filename expansion or word splitting takes place between [[ ]], but there is parameter expansion and command substitution.
-Using [[ ]] rather than [ ] can prevent many logic errors. For example, && || < and > work in [[ ]] despite giving error in [ ]
+The [[ ]] construct is the more versatile Bash version of [ ]. 
+This is the extended test command, adopted from ksh88.
+No filename expansion or word splitting takes place between [[ ]], 
+but there is parameter expansion and command substitution.
+Using [[ ]] rather than [ ] can prevent many logic errors. 
+For example, && || < and > work in [[ ]] despite giving error in [ ]
 Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]] 
 
 Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary. 
@@ -579,23 +621,28 @@ fi
 -L        file is a symbolic link
 -S        file is a socket
 -t        file (descriptor) is associated with a terminal device
-          This test option may be used to check whether the stdin [ -t 0 ] or stdout [ -t 1 ] in a given script is a terminal.
+          This test option may be used to check whether the stdin [ -t 0 ] 
+          or stdout [ -t 1 ] in a given script is a terminal.
 -r        file has read permission    (for the user running the test)
 -w        file has write permission   (for the user running the test)
 -x        file has execute permission (for the user running the test)
 -g        set-group-id (sgid) flag set on file or directory
-          If a directory has the sgid flag set, then a file created within that directory belongs to the group that owns the directory, 
+          If a directory has the sgid flag set, then a file created within that directory 
+          belongs to the group that owns the directory, 
           not necessarily to the group of the user who created the file. 
 -u        set-user-id (suid) flag set on file    (an s in its permissions)
-          An executable owned by root with set-user-id flag set runs with root privileges, even when an ordinary user invokes it. 
-          This is useful for executables (such as pppd and cdrecord) that need to access system hardware. 
+          An executable owned by root with set-user-id flag set runs with 
+          root privileges, even when an ordinary user invokes it. 
+          This is useful for executables (such as pppd and cdrecord) 
+          that need to access system hardware. 
           Lacking the suid flag, these binaries could not be invoked by a non-root user.
 	      -rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
 
 -k        sticky bit set  (a t in its permissions)
           the save-text-mode flag permission. 
              If set on a file: that file will be kept in cache memory, for quicker access. 
-             If set on a directory: restricts write permission. Olny the owner of a file can alter or delete files in that directory.
+             If set on a directory: restricts write permission. 
+             Olny the owner of a file can alter or delete files in that directory.
 	      drwxrwxrwt    7 root         1024 May 19 21:26 tmp/
           On Linux systems, the sticky bit is no longer used for files, only on directories.
 -O        you are owner of file
@@ -628,7 +675,8 @@ ____________________________________________________________
 Using an unquoted string normally works, however, this is an unsafe practice.
 Always quote a string.
 
-=       is equal to       if [ "$a" = "$b" ]    Note the whitespace    if [ "$a"="$b" ] is not equivalent 
+=       is equal to       if [ "$a" = "$b" ]   
+                          Note the whitespace    if [ "$a"="$b" ] is not equivalent 
 ==      is equal to       if [ "$a" == "$b" ]   This is a synonym for =.
                           The == behaves differently within [[]] []
                           
@@ -638,7 +686,8 @@ Always quote a string.
                               [ $a == z* ]     # File globbing and word splitting take place.
                               [ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
 
-!=      is not equal to   if [ "$a" != "$b" ]    This operator uses pattern matching within a [[ ... ]] construct.
+!=      is not equal to   if [ "$a" != "$b" ]    
+        This operator uses pattern matching within a [[ ... ]] construct.
 <       is less than, in ASCII alphabetical order 
          if [[ "$a" < "$b" ]] 
          if [ "$a" \< "$b" ]            Note that the "<" needs to be escaped within a [ ]
