@@ -6,10 +6,18 @@ if - is in place of a input file, means stdin
 --------------------------------------------------- help
 
     man ls
-    man -k aaaa    
+    man -a aaaa    open one after the others, all the man pages containing aaaa
+    man -k aaaa    search manages with the given string (here aaaa)
+    man -d ...     usual man, but at the 'exit', print debug info
+    man -w ...     not open man page. Just link where it is on disk
     info ls
     cmd --help
     /usr/share/doc
+
+
+    $ man -wa mkfifo
+    /usr/share/man/man1/mkfifo.1
+    /usr/share/man/man3/mkfifo.3   <---- then open this: man 3 mkfifo
 --------------------------------------------------- X
      more complex graphical env (GNOME, KDE) are built on X
 
@@ -53,10 +61,11 @@ if - is in place of a input file, means stdin
 --------------------------------------------------- /
 --------------------------------------------------- /
 --------------------------------------------------- /
-To konw Ubuntu version
+To know Ubuntu version
     cat /etc/issue 
 or otherwise
-    lsb_release -a
+    lsb_release -a    # part of pkg 'lsb': Linux Standard Base support for Debian
+
 --------------------------------------------------- /tmp
     1. Capture video with Recordmydesktop (ogv fotmat)
     2. convet ogv to gif (Use mplayer and imagemagik)
@@ -92,7 +101,8 @@ Internally, it operates more like scanrand, unicornscan, and ZMap, using asynchr
 The major difference is that it's faster than these other scanners. 
 In addition, it's more flexible, allowing arbitrary address ranges and port ranges.
 --------------------------------------------------- concat more pdf files
-gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=merged.pdf 10.Bristol.Londra 10.Londra.Stansted 16.Londra.Bristol
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress 
+              -sOutputFile=merged.pdf 10.Bristol.Londra 10.Londra.Stansted 16.Londra.Bristol
 
 use gostrscript that is available everywhere.
 Other options are:
@@ -178,8 +188,9 @@ ex.:
         #define XK_Ntilde                        0x00d1  /* U+00D1 LATIN CAPITAL LETTER N WITH TILDE */
         #define XK_ntilde                        0x00f1  /* U+00F1 LATIN SMALL LETTER N WITH TILDE */
 
-Whenever a key is pressed or released, X server generates an event that contains the keycode of the pressed key 
-and the mask with the pressed modifiers.
+Whenever a key is pressed or released, X server generates an event that contains 
+       the 'keycode' of the pressed key 
+       the 'mask' with the pressed modifiers.
 
 Try to see with xev:
 
@@ -310,7 +321,7 @@ Thus in most all clean X system you should have for free the keysym table report
                            xmodmap -pke
 where there are 6 symbols and you can submit the 1st 2nf 5th 6th with proper Shift / AltGr combination
 but not the 3th and 4th. That is really more than enough for all the symbols you must require,
-anyhow just to see that mode_switch works you can asscoiate to some physical key:
+anyhow just to see that mode_switch works you can associate to some physical key:
   - Fn keys do not generate X events, and so are totally dead. You can't use it. 
   - maybe we can free NmLock and take it
 
@@ -355,152 +366,372 @@ To configure your own mapping, you can try:
                 or in the common one /etc/X11/xinit/xinitrc
 
 
---------------------------------------------------- 
+____________________________________________________________
 
 BOOT:
-              1. BIOS search 'OS loader'  (Limux Loader: LILO)
-                 following any sequence specified (1st CD, 2nd HD, ...)
-
-/proc          list info like
-
-               cat /proc/interrupts 
-                       CPU0    CPU1    CPU2    CPU3    CPU4    CPU5    CPU6    CPU7       
-                 0:      18       0       0       0       0       0       0       0  IR-IO-APIC-edge      timer
-                 1:   25529    1004     807     884    1470    1138    1023     851  IR-IO-APIC-edge      i8042
-                 7:       8       0       0       0       0       0       0       0  IR-IO-APIC-edge    
-                 8:       0       0       0       1       0       0       0       0  IR-IO-APIC-edge      rtc0
-                 9:   13528    6556    4940    4684    5402    3156    2419    2306  IR-IO-APIC-fasteoi   acpi
-
-                cat /proc/dma
-                 4: cascade
-
-                cat /proc/ioports 
-                0000-0cf7 : PCI Bus 0000:00
-                  0000-001f : dma1
-                  0020-0021 : pic1
-                  0040-0043 : timer0
-                  0050-0053 : timer1
-                  0060-0060 : keyboard
-                  0062-0062 : PNP0C09:00
-                    0062-0062 : EC data
-
-USB             
-
-
-                 # lsusb -t             (to show devices physically USB attached)
-                                Bus# 4
-                                '-Dev#    1 Vendor 0x0000 Product 0x0000
-                                Bus# 3   
-                                '-Dev#    1 Vendor 0x046d Product 0xc501
-                                |-Dev#    2 Vendor 0x0781 Product 0x0002
-                                '-Dev#    3 Vendor 0x0000 Product 0x0000
-                                Bus# 2    
-                                '-Dev#    1 Vendor 0x04b8 Product 0x0005
-
-                 # types of USB host controllers
-
-                   OHCI  - USB1.1   12 Mbps   Open      Host Controller Interface
-                   UHCI  - USB1.1   12 Mbps   Universal Host Controller Interface
-                   EHCI  - USB2.0  480 Mbps   Enhanced  Host Controller Interface
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      1. BIOS search 'OS loader'  (LILO, GRUB, ..) 
+         which can be in any device (also external USB, CD)
+         following any sequence specified (1st CD, 2nd HD, ...)
+
+       . boot-loader finds the proper kernel to load, 
+         with configurations stored in its config file 
+                            (ex /etc/lilo.conf
+                                /boot/grub/menu.lst 
+                                /grub/grub.conf)
+
+         this default can be interrupted submitting a command line list of args
+         ex. LILO: linux root=/dev/hda9
+         where the kernel loaded is that with label 'linux' and the root filesystem
+         is taken from partition /dev/hda9
+         So kernel-options are passed through those file or even at command line
+
+       . the config for kernel modules are not passed on command line
+         but they are loaded from file  /etc/modules.conf 
+         So module-options are passed only through conf file 
+ 
+dmsg     print the messages that were fast displayed through the boot
+         so usually you inspect as dmsh | vi -
+         These data are stored in a fixed size kernel buffer (ring buffer)
+         so to inspect them, do after the boot, as the kernel during runtime
+         output msgs, they will overwrite the buffer.
+         Other info are instead written in syslog files, and they are
+         not overwritten.
+
+runlevels   from 0 (shutdown) to 6 (reboot)
+            1,s,S  Single-user (no network) filesystem maintenance. Most daemons are down
+                   The best way is add 1 or 'single' at the grub command line
+                        kernel /vmlinuz ....... 1
+                        kernel /vmlinuz ....... single
+                   The worst is run 'init 1'
+
+            2      Multi-user with no X win system / NFS (Debian default)
+            3      Multi-user with no X  (Red Hat default)
+            4      not used
+            5      Multi-user with X.
+
+            the above levels are just for a rough idea. The real important things
+            is the 
+                       init
+            process, that runs a series of script, usually in /etc
+
+            /etc/init.d     stores most scripts to run different daemons
+                            ex /etc/init.d/httpd  (for Apache server) 
+                               /etc/init.d/httpd start       (stop, restart, reload)
+
+            /etc/rc0.d ...  /etc/rc6.d contains sym (soft) links 
+            to the scripts in the /etc/init.d   (0...6 as the init level)
+            So runlevel 3 is completed once all the script of /etc/rc3.d
+            have been executed.
+            The names are usually in the form  KNNname SNNname
+            NN is a number, which specifies which script is called first than another
+            K  refers that the script contains daemnons to Kill (stop)
+            S  refers               idem                to Start
+            First are called all K files (any service is stopped) then all S.
+
+     default runlevel: in file etc/inittab the line 
+                           id:3:initdefault:                  (in case of 3)
+            
+     runlevel    to know in which runlevel I am. ex. it shows 3 5 is I passed
+           from 3 to 5 with a 'init' cmd, or shows N 5   in case a normal boot in 5
+         
+     init n    to change inite level to n.  (exec init 0   shutdown)
+
+     shutdown  to perform a init 0 or init 6 specifying when, and optionally
+            sending a msg.
+
+                shutdown [options] time [warning_message]
+
+               -r    reboot after shutdown  (same as init 6)
+               -h    halt     "      "      (same as init 0)
+               -k    don't really shutdown but send a msg to all user
+               -f    on next reboot skip filesystem check
+               -F           "       do       "        "   
+
+               time:    (now, +minutes_from_now, hh:mm)o
+                     shutdown -r +5 System maintenance is required
+                     shutdown –h 23:59
+                     shutdown –h now
+         
+____________________________________________________________ partitions
+partition the dist to allocate various filesystems
+
+
+/boot    (partition to store most of the kernel) this is the partition
+         that LILO or GRUB go to address
+         usually 50 / 100 MB
+         below the 1024-cylinder limit for older kernels and BIOS
+/        (root partition)  500/850 MB
+swap     usually double of the RAM size
+/usr     4 GB    for exec shared through NFS
+/var     2 GB    log files, mails, spools
+/tmp     500 MB  for temp files
+/home    90  GB
+
+
+/etc/fstab    is the table which specifyc where and how
+              the different filesystem partition have been mounted
+
+sfdisk        to manage the partition layout
+              sfdisk -d /dev/hda > partition_backup.txt     to dump a bakup
+              sfdisk /dev/hda < partition_backup.txt        to restore later
+
+superblock    the linux equivalent of Windows FAT.
+              Stores metadata info for disk and filesystem (size,blocks ...)
+
+MBR           A small program in 1 sector (--> 512 B) of disk. It launches OS
+              To backup:  
+                    dd if=/dev/hda of=~/mbr.txt count=1 bs=512     #count 1 means 1 copy
+              To restore:
+                    dd if=~/mbr.txt of=/dev/hda count=1 bs=512
+
+backup        use dd.   You can backup copy a partition (ex. /dev/hdx) to another partition
+              on the same disk, or into another disk:  dd if=/dev/hdx of=/dev/hdy
+
+____________________________________________________________ boot loaders
+ LILO: a 1st part of this utility is in MBR and only has instructions
+       to launch a 2nd part (normally stored in the boot partition on disk) 
+       that provides the prompt with the list of options to launch.
+
+       LILO map installer, is the utility that installs LILO (in MBR) and 
+       thus allows to configure the prompt options and so on, normally store
+       in file /etc/lilo.conf:
+
+       boot = /dev/hda                 partition containing boot sector 
+       timeout = 50                    timeout on prompt  
+       prompt                          wait for user  
+       read-only                       the kernel will in case convert then in write  
+       map = /boot/map                 default path for map file  
+       install = /boot/boot.b            
+
+       image=/boot/bzImage-2.6.0       1 kernel image to offer
+          label=test-2.6.0             any text to present on menu
+          root=/dev/hda1               root partition
+
+ GRUB: is much flexible to manage different kernel and OS.
+       It address partitions on disks as 
+                       (hd0)        first hard disk 1st partition 
+                       (hd0,1)      first hard disk, 2nd partition 
+                       (fd0)        floppy disk, 1st partition
+
+       To install grub launch the script grub-install '(hd0)'
+       or do interactively through cmd:
+                  grub
+
+____________________________________________________________ shared library
+
+  The libraries shared among different programs (ex the printf) 
+  allow program exe to have less size. The common code,
+  stored in a 'shared library' is linked dynamically to each of them.
+
+  If an exe has not the libraries it needs, it fails to run.
+
+ldd:   is the prog that allow to know which libraries are required
+       by an exe.
+               ex.  ldd /bin/bash
+                linux-vdso.so.1 =>  (0x00007fff5613c000)
+                libtinfo.so.5 => /lib/x86_64-linux-gnu/libtinfo.so.5 (0x00007ff4d1282000)
+                libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007ff4d107e000)
+                libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff4d0cb9000)
+                /lib64/ld-linux-x86-64.so.2 (0x00007ff4d14d0000)
+
+ld.so   it's the dynamic lynker. Search each library in 
+        1. $LD_LIBRARY_PATH  that like $PATH, lists the dir to search separated by ':'
+        2. the file '/etc/ld.so.cache'  which is a bin file (fast to read) generated
+           by 'ldconfig' cmd
+               ldconfig -p        list what is inside the cache
+ldconfig       ldconfig dirs...   add new dir in the cache.
+
+ 
+____________________________________________________________ packegs
+  
+  ------------
+  .deb     (Debian). They are in the form
+                
+                name_vvv-rrr_aaa.deb
+
+                vvv   version      (major id)
+                rrr   revision     (minor id)
+                aaa   architecture (patch level)
+
+           they are managed by the tools:
+
+         . dpkg        command line
+         . apt-get     command line
+         . dselect     interactive fron-end for dpkg
+
+         . alien   can create .deb pkg or also 
+                   convert non deb pkg like (rpm)
+
+                   -i   install the pkg and remove the converted pkg   
+                   -r   convert pkg in rpm
+                   -t     "      "     tgz
+
+                   ex.  alien -i package.rpm
+
+   
+         . /var/lib/dpkg/  contains text files (ex status / available) and dirs
+                           with the information of installed pkg, what to remove, ...
+                           This dir is used by both dpkg and apt-get
+
+         . dpkg:
+               -i       pkg    install pkg
+               --purge  pkg    remove  pkg
+               -r       pkg    remove  pkg but not the .conf files
+               -E              not overwrite prev installed pkg (with same  version)
+               -G                        idem                   (..   older   ..   )
+               -L       pkg    list files installed from pkg
+               -s       pkg    display status info for pkg
+               -S   pattern    Search for files with that patter in all pkgs
+               -l  [pattern]   list info for all pkg names that match pattern
+                               if pattern is not specified list info for all pkgs
+               --unpack pkg    unpack but not install
+               -R              recursively on subdir (ex to add at option -i, ..)
+               --print-avail pkg   extract info for pkg from /var/lib/dpkg/available
+               --configure   pkg   Configure an unpacked pkg. Requires setup of conf files.
+
+
+               ex.  # dpkg -S apt-get
+                      apt: /usr/share/man/man8/apt-get.8.gz
+                      apt: /usr/bin/apt-get
+
+               ex.  # dpkg -l 'ap*'
+||/ Name                    Version          Architecture     Description
++++-=======================-================-================-============================
+un  apache2.2-bin           <none>           <none>           (no description available)
+ii  apg                     2.2.3.dfsg.1-2ub amd64            Automated Password Generator 
+un  apmd                    <none>           <none>           (no description available)
+ii  app-install-data        14.10            all              Ubuntu applications (data files)
+                    ...     ...     ...     ...     ...     
+
+  ------------
+  apt-get      Advanced Package Tool (APT), not only specific for .deb
+
+               -d   download only not install (to prevent install errors if download stops)
+    options    -s   simulate the changes, but do nothing
+               -y   answer yes automatically to all prompts
+
+               install pkg  install / upgrade 
+    commands   remove  pkg  
+               upgrade pkg  upgrade only if dep are ok with no conflicts. 
+               update  pkg  fetch a list of currently available pkg
+               dist-upgrade   upgrade the debian distribution
+
+               list the pkg to obtain in 
+                                        /etc/apt/sources.list
+
+
+
+  apt-get      Advanced Package Tool (APT), not only specific for .deb
+
+
+  ------------
+  rpm     
+        -i  
+            -v        verbose
+            -vv       super "
+            -h        display hash (#) as progression bar during install
+            --test    not install, only test
+            --force   replacement (allow an old pkg to replace a newer!)
+
+        -U  upgrade   upgrade also if there wasn't a previous version
+                      so it acts like the install (-i)
+            --test    not upgrade, only test
+
+        -e  remove
+            --test    not remove, only test
+
+        -q  query
+            -a        list all pkgs                      rpm -qa
+            -l pkg    list all files inside pkg          rpm -ql kernel-source
+            -c        list only conf files               rpm -qc at
+            -d        list only doc  files               rpm -qd at
+            -i pkg    list info of pkg                   rpm -qi kernel-source
+            -f xxx    list any pkg containing file xxx   rpm -qf /etc/aliases
+            -R        list the Required pkg by this pkg
+            -p        to specify a pkg (ex. I can write rpm -qi pkg / or rpm -qi -p pkg)
+
+        -V  Verify
+  ------------
+  yum   (Yellowdog Updater Modified)
+        is configured through the /etc/yum.conf
+
+        yum install        yum install samba
+        yum erase          yum erase   httpd  # remove only if ok with dep
+        yum remove         yum remove  httpd  # remove without check dep (caution!)
+        yum check-update
+        yum update
+        yum list           list all pkg in the system
+        yum info           ex. yum info samba
+        yum search
+____________________________________________________________
+____________________________________________________________
+____________________________________________________________
+____________________________________________________________
+
+/proc  list info like
+
+       cat /proc/interrupts 
+               CPU0    CPU1    CPU2    CPU3    CPU4    CPU5    CPU6    CPU7       
+         0:      18       0       0       0       0       0       0       0  IR-IO-APIC-edge      timer
+         1:   25529    1004     807     884    1470    1138    1023     851  IR-IO-APIC-edge      i8042
+         7:       8       0       0       0       0       0       0       0  IR-IO-APIC-edge    
+         8:       0       0       0       1       0       0       0       0  IR-IO-APIC-edge      rtc0
+         9:   13528    6556    4940    4684    5402    3156    2419    2306  IR-IO-APIC-fasteoi   acpi
+
+        cat /proc/dma
+         4: cascade
+
+        cat /proc/ioports 
+        0000-0cf7 : PCI Bus 0000:00
+          0000-001f : dma1
+          0020-0021 : pic1
+          0040-0043 : timer0
+          0050-0053 : timer1
+          0060-0060 : keyboard
+          0062-0062 : PNP0C09:00
+            0062-0062 : EC data
+____________________________________________________________
+
+USB     # lsusb -t             (to show devices physically USB attached)
+                        Bus# 4
+                        '-Dev#    1 Vendor 0x0000 Product 0x0000
+                        Bus# 3   
+                        '-Dev#    1 Vendor 0x046d Product 0xc501
+                        |-Dev#    2 Vendor 0x0781 Product 0x0002
+                        '-Dev#    3 Vendor 0x0000 Product 0x0000
+                        Bus# 2    
+                        '-Dev#    1 Vendor 0x04b8 Product 0x0005
+
+        # types of USB host controllers
+
+          OHCI  - USB1.1   12 Mbps   Open      Host Controller Interface
+          UHCI  - USB1.1   12 Mbps   Universal Host Controller Interface
+          EHCI  - USB2.0  480 Mbps   Enhanced  Host Controller Interface
+____________________________________________________________
+
+MODULES:       cat -n /proc/modules     to see which is running
+                                        'lsmod' is a trivial prog to make that cat
+                                        better presented.
+
+               modinfo                  list info on a module (ex. author)
+
+               lspci                    list the PCI bus, and the device attached
+                        -t              displays in a tree form
+                        -vv             very verbose
+
+               insmod                   to insert a new module in the running kernel
+                                        ex. insmod fat
+                        -s              output to syslog instead of stdout
+                        -v              verbose
+
+               rmmod                    to remove a module
+                        -a              remove all unsude mod
+                        -s              syslog
+
+               modprobe                 Act as a wrapped arounf both insmod and rmmod
+                                        taking care of dependency.
+                                        So modprobe add mods
+                        -r              modprobe -r remove mods
 
 
 

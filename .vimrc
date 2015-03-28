@@ -5,6 +5,7 @@
 "  File:         .vimrc
 "
 "
+"  wget  https://github.com/basilest/back-up/raw/master/.vimrc
 "
 "
 "

@@ -1,3 +1,8 @@
+
+
+
+
+
 $?              exit status
 $$              PID 
 $a              better to use ${a}
@@ -14,6 +19,9 @@ $#              NUMBER of args
 $*              string with ALL args (seen as a single word)
 $@              same as $* but each arg is quoted 
 
+$_              last cmd name or if it had options last option
+
+----- default 'val':
 ${a-val}      ${a:-val}
 ${a=val}      ${a:=val}
 ${a+val}      ${a:+val}
@@ -55,6 +63,38 @@ usually it is '#!/bin/bash' but can be
 /bin/sh invokes default shell, so /bin/bash in a Linux machine. 
 It makes the script portable to non-Linux machines, though you 
 sacrifice Bash-specific features
+
+
+A shell is launched as 
+               bash
+
+there are many options, each with a short symbol, or its long name.
+To use the long name, the syntax is 
+                bash -o  ....long name ,,,,
+
+                ex.  
+                    bash -v          (short)
+                    bash -o verbose  (long form)
+       nb.
+       bash -v      prints also each cmd before executing it.
+       bash -x      (xtrace) an expanded form of bash -v
+
+       bash -p      run as root  (privileged)
+       bash -t      run only 1st cmd and exit
+       bash -s      run cmd from (stdin)
+       bash -n      like make -n    goes through all the script cmds 
+                    without executing them (it is used for making 
+                    syntax check of the script....'compiling')
+       bash -i      run the script (intercatively)
+
+
+____________________________________________________________
+~      $HOME 
+~+     $PWD      (current dir)
+~-     $OLDPWD   (previous wd)
+
+Ctrl-A    start of line
+Ctrl-E    end   of line
 ____________________________________________________________
 END A SCRIPT
 ____________________________________________________________
@@ -81,7 +121,7 @@ ____________________________________________________________
 SPECIAL CHARACTERS
 ____________________________________________________________
 
-;	Permits putting two or more commands on the same line.
+;  Permits putting two or more commands on the same line.
 
 .       Equivalent to source. 
         Invoked from the command-line, executes a script. 
@@ -130,6 +170,12 @@ ____________________________________________________________
            -rw-rw-r--  1 bo bo  13 Aug 21 12:57 t.sh
            -rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh
 
+`    (backquote)  can be used a pair of ` like                  # it's better to use $(cmd)
+                          a=`cmd` 
+     to assign to a var the result of a command.
+     ` .. `  is also called (command substitution) 
+
+
 \    escape [backslash]. To quote a single character:
      \X has the effect of 'X'. 
      It may be used to quote " and '
@@ -152,7 +198,23 @@ ____________________________________________________________
      : > data.xxx   # Same effect as   cat /dev/null >data.xxx
 
 
-!    from the command line triggers an history event. Not inside a script, as history it's disabled.
+!    from the command line triggers an history event. 
+     Not inside a script, as history it's disabled.
+                  useful cmd for history
+                         !!                repeat last 
+                         !15                  "   15th (absolute)
+                         !-15                 "   15th (relative, back from now)
+                         !stef                "   last starting with 'stef'
+                         !?stef               "        containing    'stef'
+                         ^stef^stefano        "   last, modifing stef with stefano
+
+                  $HISTSIZE:  1000                  (<-- default)
+                  $HISTFILE:  ~/.bash_history       (<-- default)
+
+                  to have the 'vi'-like setting while editing bash cmd
+                  use: set -o vi
+
+         
 !    reverse (or negate) the exit status of the command
      needs a space after !
      ex
@@ -166,6 +228,12 @@ $?   holds the exit status of a command, a function,
      or of the script itself.
 
 $$   holds the process ID of the script in which it appears.
+
+$_   is the last arg passed to the last executed cmd
+     or if the last executed cmd had no args, its the name of the cmd itself
+     du     > /dev/null;  echo $_    # du
+     ls -al > /dev/null;  echo $_    # -al
+
 
 ()   command group. List commands within parentheses starts a subshell.
      ex:   (a=hello; echo $a)
@@ -189,7 +257,8 @@ Globbing   Filename expansion: means expanding filename containing
 
            ex. echo *   -->  a.1 b.1 c.1 t2.sh test1.txt
 
-{}         Brace Expansion
+{}         (brace expansion)       # default is ON (like call bash -B
+                                                         with bash +B    is OFF)
            It creates string. The form is 
                  S1{a,b,c}S2
            a,b,c is a list of strings separated by a comma ,
@@ -211,6 +280,8 @@ Globbing   Filename expansion: means expanding filename containing
             any char (also special) is preserved:
 
             ex. echo XX{a,*,?.?}Y     # XXaY XX*Y XX?.?Y
+
+            echo \"{These,words,are,quoted}\"   # "These" "words" "are" "quoted"
 
 {a..z}      Extended Brace expansion. (Form version 3 of Bash).
 
@@ -261,21 +332,20 @@ Globbing   Filename expansion: means expanding filename containing
 
 
 {}   Used in 
-      find  command with the option -exec
-      xargs command
+      find  with option -exec
+      xargs with option -i  
+
+      as a 'place holder', the full file path name is substituted for "{}".
+
 
       find   -exec COMMAND \;               # Carries out COMMAND on each found file 
                                             # ";" is escaped to avoid shell interpreting.
 
-      If COMMAND contains {}, the full file path name is substituted for "{}".
-
       find ~/ -name 'core*' -exec rm {} \; # Removes all core dump files from user home 
 
-      The same applies in xargs:
       ls . | xargs -i -t cp ./{} $my_dir   # copy current dir files into $my_dir
 
 
-{}   The shell expands. The command acts upon the result of the expansion.
 
 
 (( ))   integer expansion. Expand and evaluate int expression in (( )).
@@ -285,7 +355,7 @@ Globbing   Filename expansion: means expanding filename containing
 
      It's a mechanism for allowing C-style 
      (( a++ ))  (( a-- ))   (( ++a ))  (( --a ))
-     (( t = a<45?7:11 ))
+     (( t = a<45?7:11 )<--------------------------------- nb use of ?)
      
      N.B. If the expression evaluated in (()) = zero -->  exit status = 1 ("false"). 
      A non-zero expression returns an exit status of 0, or "true". 
@@ -355,7 +425,33 @@ ____________________________________________________________
      To prevent a fd from being inherited, close it. 
 
 
+     >|  force redirection: forcibly overwrite an existing file.
+         When bash is called as 
+                          bash -C        (said 'noclobber') 
+         it means it's prevented file overwrite.
+         Still, even if called as bash -C, the >| will overwrite !!!
 
+     -   redirection 
+
+         ex1. 
+         # move a tree of dirs  tar -p (preserves file permissions)
+         (cd /source/directory && tar cf - . ) | (cd /dest/directory && tar xpvf -)
+         other ways:
+             cp -a /source/directory/* /dest/directory
+             #or to wok also with .hidden files:
+             cp -a /source/directory/* /source/directory/.[^.]* /dest/directory  
+
+         ex2. 
+         #if tar has not builtin the bunzip2 option:
+         bunzip2 -c linux-2.6.16.tar.bz2 | tar xvf -
+
+         ex3. back up of files
+         find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
+                
+                -mtime -1: mod in the last day
+                -type f  : regular file
+                -print0  : print filename ending with 'null char' instaed of '\n'
+                           this can so be processed with the -0 opt f xargs
 ____________________________________________________________
 VARIABLES
 ____________________________________________________________
@@ -458,6 +554,25 @@ only to child processes. A script invoked from the command-line
 cannot export variables back to the command-line, 
 like Child cannot export variables back to the parent.
 
+                W R O N G                  R I G H T
+                
+               MYVAR="hello"           MYVAR="hello"
+               echo $MYVAR             echo $MYVAR;  export MYVAR
+               hello                   hello
+               bash                    bash
+               echo $MYVAR             echo $MYVAR
+                                       hello
+
+  export    # write this cmd alone to have ALL the env vars
+  env       # the same (with a different output)
+  printenv  # the same (with a different output)
+
+To see ALL the bash var (not only the env) use:
+
+    (set -o posix; set)
+
+
+
 ____________________________________________________________
 POSITIONAL PARAMETERS
 ____________________________________________________________
@@ -486,6 +601,29 @@ ex.
 
 shift can take a numerical parameter indicating how many positions to shift. (ex. shift 3)
 
+     To go through an array $a is
+     for i in $a        
+     do ...
+     done
+
+     the simple: 
+                    for i            (omitting 'in $a')
+                    do  ...          means I'm cycling through the args of the script
+                    done
+
+set       the set fun. allow to overwrite what was the args to the script.
+          ex. a="1 2 3 4 5"; set $a         will set $1=1 $2=2 ....
+          nb.  the better way when setting through a variable (like here $a) instead
+               a normal text, is with '--'
+               set -- $a
+          
+          the most used form is however with the (command substitution) form
+          set `.... cmd .....`   (ex.  set `uname -a`)
+          
+          set           (alone, with neither args or options)
+                        list the env vars 
+          
+unset     to delete a var. (it sets it as NULL)
 ____________________________________________________________
 EXIT STATUS
 ____________________________________________________________
@@ -769,6 +907,239 @@ ____________________________________________________________
 /=
 %=
 ____________________________________________________________
-INT  OPERATORS
+BLOCK STATEMENTS
 ____________________________________________________________
+
+           if ....       while :    until ...    for a in [list]
+           then :        do         do           do
+           else            ...        ...         ...
+           elif          done       done         done 
+           fi: 
+
+
+
+
+
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+
+   cat                            (the opposite is tac print from last line up to the 1st)
+       -s    group + more blank lines in only 1
+       -n    print line nume
+       -v    show-nonprinting
+       -E    print $  at end of lines
+       -T    print ^I for tabs
+       -A    equivalent to -vET
+
+   cut     cut vertical slice identified as
+        -f2     print 2nd field (fields are separated by tab
+                                 to use a different separator use -d
+                ex cut -d: -f1 /etc/passwd
+        -c  only these columns
+                ex cut -b "1 2 3 4"   /etc/passwd
+         
+   join     with 2 files f1 f2 which have the same values in each line
+            (like the same key) join produce a file where each line is 
+            obtained from the line of f1 and f2 (appended) 
+             with the same value for the key
+
+   paste    like join but work on line without any key
+            so 1 outpute line is line f1 + append line f2
+            
+   expand     tab into spaces (default 8)        (the opposite is unexpand -a -t)
+        -t4   to define another values instead of 8
+        -i    only first tab on a line
+
+   split    creates more files each containing n lines 
+        -n  num of lines (default 1000)
+
+   tr  s1 s2     changes string s1 with corresponding char fo s2 (s1 len = s2  len)
+            It doesn't operate on files, and it's usually chained in a pipe
+            So s1, comes from the pipe.
+
+        -c  complement (all the char different from s2)
+        -d  deletes the char indicated in s2
+        -s  compress to 1 any sequance of more chars
+
+         $ cat file1 | tr a-z A-Z               convert to UPPERCASE
+         $ cat file1 | tr -s '[:blank:]'        more spaces are zipped into 1
+         $ cat file1 | tr -dc '[:print:]\n'     delete all non printing char (preserve only \n)
+____________________________________________________________
+OPERATE ON FILES
+____________________________________________________________
+
+   bzip2    
+        -d   decompress
+        -1 .. -9  100k ... 900k (block size) 
+                  -1 fast (larger size)
+
+   cpio     creates archives .cpio (with no compression) 
+            It uses -o with > to create the archive
+
+               cpio < [filenames ...] > [archive]
+               ls | cpio –ov > /tmp/archive.cpio
+
+            It uses -i with < to extract the archive
+               cpio –i < [archive]
+               cpio –iv < /tmp/archive.cpio 
+
+   dd
+        one of the few cmd that operates on disk without filesystem
+        copy files
+        -if=file
+        -ibs=n    block size to read if
+        -of=file
+        -obs=m    block size to write of
+        -conv=list   perform the conversion specified in 'list'
+
+        dd if=/tmp/file of=/tmp/file2 conv=lcase
+
+   tee
+        write both on stndio and in a file specified
+        so that in a pipe:
+        
+        cmd1 | cmd2 | cmd3 > file1
+
+        I can intercept some output and store in a file
+
+        cmd1 | tee file_cmd1 | cmd2 | cmd3 > file1  
+
+        The output of cmd1 still travels through the pipe, but
+        it's also saved in file_cmd1
+
+____________________________________________________________
+TO MANIPULATE PROC
+____________________________________________________________
+
+  both ps and top allow to see the column PRI (the priority)
+  to use for nice and renice
+
+
+   ps 
+       -f  to see also the args passed to a cmd  (anoher way strings -1 /proc/$pid/cmdline)
+       -x  to see also daemons
+
+   pstree     show the tree of proc (parent / childs)
+       -a  show args of each proc
+       -p  include PID in the output
+       -n  sort by PID (instead alphabetically)
+
+   top     uses var $TERM  (if this var is not set top not works)
+       -d  delays between screen refresh
+       -n  display n refresh then exit (do not go forevere)
+       -i  ignore idle proc  (they do not use sys resources)
+       -b  batch (useful with -n, to pass the output in a file)
+
+       k  kill the process (I must specify PID)
+       q  quit
+       r  renice the proc (change priority)
+       s  change delays
+
+       top –bi -n 5 -d 1 > file1
+
+   free      show the RAM usage
+       -m, -g, -h to see in Mega, Giga, human readable
+
+   uptime  info on how long sys is running / logged users / 
+       average of blocked proc (waiting for resouces) (average on last 1,5,15 min)
+       A system relatively busy (web server) presents somehing as:
+
+       1:20pm up 3 days 15:49, 1 user, load average: 1.47, 1.10, 0.83
+
+       high value there means there is a problem to investigate
+
+   kill
+       signals     (to see the names run kill -l 2   -->  INT)
+
+                 2  INT   stop  (sent with ^C)
+                15  TERM  stop nicely
+                 9  KILL  stop badly
+                20  TSTP  suspend (sent with ^Z)
+                18  CONT  resume  (sent with fg, bg)
+                 1  HUP   used by many daemon to reread conf file
+                          kill -HUP `cat /var/run/httpd.pid`
+
+                          if you want to run a cmd that will never respond to HUP
+                          run as
+                          nohup [options] [command] [args...]
+
+   jobs  show proc (indication if they are active or zombie)
+       -l  list also PID
+
+   nice   a proc is nice with respect to the other procs if it decreases its priority
+          Thus the term nice to indicate with positive num (more niceness) I want
+          less priority. Negative num, increment the priority (only superuser can do)
+         
+          nice -n val cmd     val -20 +19  (each proc start with 0. default value is 10)
+          nice -val   cmd     -n can be omitted and give only the value with a -
+
+              nice -n -10 vi /etc/hosts.deny     
+              nice --10 vi /etc/hosts.deny    nb. -- (1st to not have -n, 2nd is the minus)
+
+          nice is used only when the cmd is launched. When a proc is already running
+          the cmd is 'renice'.
+              renice [+-]n -p PID / -u user   (I can renice a single PID
+                                               or any proc of user)
+
+____________________________________________________________
+GREP / SED
+____________________________________________________________
+   
+   grep -E   or egrep    (GNU extensions of grep)
+                          grep            egrep
+                          \?                ?
+                          \+                +
+                          \{n,m}           {n,m}
+                          \|                |
+                          \(regex\)        (regex)   to catch vars \1 .. \9
+
+   sed  
+       -e  'cmd'                      sed '3,5d' file
+       -f  file_with_sed_cmds         sed '1~2d' file      n~m  is a GNU extension for addressing lines
+                                                                it means start at line n and go at step m
+       s/pat/replace/[flags]                                    so 1~2 are any odd lines
+                        ^
+                        g       all inst not just the 1st
+                        n       only inst nth  (default 1)
+                        p       print
+                        w file  save to file
+                        y       translate (similar tr)
+
+
+      nb. cmds are executed 1 AFTER the other (so operates on output of previous)
+          if I write a script like
+          1,10{                   to replace 3th and 4th " in first 10 lines with ( and )
+          s/"/(/3                 it wouldn't work as expected, as 
+          s/"/)/4                 once the 3th " has been changed to (
+          }                       what was the 4th " is now the 3th!!!
+         
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+____________________________________________________________
+TO MANIPULATE TXT FILES
+____________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
 
