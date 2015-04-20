@@ -1,3 +1,43 @@
+--------------------------------------------------- kermit
+   to manage in 1 tool all these
+
+     minicom, cu, tip, seyon, pcomm, telnet, or rlogin.
+     Zmodem, FTP, rcp
+     Expect, Runscript, Perl, Tcl
+     ssh, scp, ktelnet, srp-telnet
+
+the linux implementation of kermit is ckermit
+
+
+--------------------------------------------------- term
+echo $TERM      to see which terminal (ex. xterm)
+infocmp         to display 'terminfo' info used by my terminal
+/usr/share/terminfo      may be in another loaction. It's the repository 
+                for terminfo files.
+                This value can be also set in var $TERMINFO
+                which so can be $TERMINFO= /usr/share/terminfo/
+ tic            to 'compile' modifications done in terminfo file
+
+
+ tput colors    if display 8: not good
+
+ -->   sudo apt-get install ncurses-term          
+       vim ~/.bashrc                          | or also:~/.profile:           
+                                              |
+       add line:   export TERM=xterm-256color |   if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+                                              |           export TERM='xterm-256color'
+                                              |   else
+                                              |           export TERM='xterm-color'
+                                                 fi
+
+
+
+
+
+
+
+
+ redo tput colors  --> 256
 --------------------------------------------------- (dash) -
 if - is in place of a input file, means stdin
       idem            output            stdout (video)
@@ -663,7 +703,14 @@ ii  app-install-data        14.10            all              Ubuntu application
         yum list           list all pkg in the system
         yum info           ex. yum info samba
         yum search
-____________________________________________________________
+____________________________________________________________ network
+  ipconfig     (can be an alias for   nmcli dev list iface eth0 | grep IP4)
+  ip route     (to get default gateway)
+  ip addr      (to get my addr)
+  route -n     (overbiew where traffic is going)
+  cat /et/resol.conf  (dns info)
+  cat /etc/hosts      (preloaded hostnames)
+
 ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________

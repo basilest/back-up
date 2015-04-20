@@ -96,6 +96,24 @@ ____________________________________________________________
 Ctrl-A    start of line
 Ctrl-E    end   of line
 ____________________________________________________________
+14 HISTORY TRICKS
+    1. export HISTTIMEFORMAT='%F %T ':   timestamp in front of each cmd 2008-08-05 19:02:39 ls
+    2. Ctrl R   Ctrl R and then arrows <--  -->   to modify the command
+    3. last cmd:  (1) !!   (2) !-1    (3)  Ctrl P
+    4. !4   to execute  num 4      !-4   to execute back of 4
+    5. !ps  execute last cmd starting with ps
+    6. HISTSIZE=450  HISTFILESIZE=450    to set history to 450
+    7. export HISTSIZE=0    to make bash nt recording anything (no history)
+    8. history -c   to clear all the previous history
+    9. export HISTCONTROL=ignoredups         remember only 1 inst. of many consecutive = cmd
+   11. export HISTCONTROL=erasedups          remember only 1 inst. of many also non consecutive = cmd 
+   12. export HISTCONTROL=ignorespace        ignore (not remember) cmd that start with a space
+   13. export HISTIGNORE="pwd:ls:ls -ltr:"   ignore (not remember) this list of cmds
+   14.  vi !!:$  execut a cmd (here vi) taking the arg of the last cmd
+        vi  !^      "                  "           1st  arg     "
+        vi !cp:2    "                  "           2nd  arg     "     starting with cp
+        vi !cp:$    "                  "           last arg     "     starting with cp
+____________________________________________________________
 END A SCRIPT
 ____________________________________________________________
 

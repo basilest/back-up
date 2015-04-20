@@ -64,6 +64,8 @@ delete:                                       Remove that pair key / value
          print "PATH is $ENV{PATH}\n"        # PATH is /usr/local/bin:/usr/bin:/sbin:/usr/sbin
 
 --------------------------------------------------  MODULES
+CPAN: Comprehensive Perl Archive Network
+
                        The CGI.pm module comes with Perl, so you should be able to read its documentation:
                                 $ perldoc CGI
 
@@ -243,23 +245,25 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
 
 --------------------------------------------------- OBJECTS
-         
+1st prog:
+
+       for portability (not sure where perl is located) 
+                   #!/usr/bin/env perl
+       as normally env is always in /usr/bin/env 
+               ________________________________
+               |                              |
+       #!/usr/bin/perl                  #!/usr/bin/perl                  
+       print "Hello, world!\n";         use 5.010;     <-----------
+                                        say "Hello World!";   <------ say put '\n'
 
 
-         
-
-            
-           
-               
-
-      
-      
-      
-      
-      
 
 
-         
-         
--------------------------------------------------- avconv
---------------------------------------------------- masscan
+
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS
+--------------------------------------------------- OBJECTS

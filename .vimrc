@@ -10,9 +10,10 @@
 "
 "
 "
+set t_Co=256
 " <VUNDLE> I added .vimrc modification to use vundle 
 set nocompatible
-filetype off
+"filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
@@ -23,8 +24,8 @@ Plugin 'gmarik/vundle'
 "  To ident code with |
 "<INDENT LINE>
 Plugin 'Yggdroot/indentLine'
-"let g:indentLine_color_term = 239
-"let g:indentLine_color_gui = '#09AA08'
+let g:indentLine_color_term = 239
+let g:indentLine_color_gui = '#09AA08'
 let g:indentLine_char = '│'
 let g:indentLine_fileTypeExclude = ['text', 'sh']
 :set list lcs=tab:\|\ 
@@ -39,9 +40,10 @@ set laststatus=2
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \}
-if !has('gui_running')
-      set t_Co=256
-endif
+"if !has('gui_running')
+"      set t_Co=256
+"endif
+
 "</LIGHTLINE>
 "<PYTHON-MODE>   plugin for Python
 " Python-Mode ---------------------- {{{
@@ -98,7 +100,6 @@ Plugin 'klen/python-mode'
 " A plugin can be installed referencing with its name
 " Plugin 'Buffergator'
 "
-filetype plugin indent on
 "
 "      ----------------  HERE COMMON COMMANDs TO USE VINDLE:
 "
@@ -120,21 +121,20 @@ filetype plugin indent on
 "                            and call :PluginClean
 "
 " </VUNDLE> 
-" </COLOR SCEHEME
+" <COLOR SCEHEME>
 " use Wombat - Dark gray
 " put related .vim in ~/.vim/colors and type :colo wombat
-set t_Co=256
 :color wombat
-" </COLOR SCEHEME
-" P
+" </COLOR SCEHEME>
+"
 " <SETTINGS FOR C/C++>
-"Plugin 'Valloric/YouCompleteMe'
-"let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
-" augroup project
-"       autocmd!
-"       autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
-" augroup END
-" </SETTINGS FOR C/C++>
+Plugin 'Valloric/YouCompleteMe'
+let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+augroup project
+      autocmd!
+      autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
+augroup END
+"</SETTINGS FOR C/C++>
 "
 "
 " Vimscript MY FUNCTIONS ---------------------- {{{
@@ -165,12 +165,14 @@ endfunction
 set mouse=a
 set nu
 set relativenumber
-set autoindent 
-filetype plugin indent on
+set hlsearch
+
 set tabstop=4
 set shiftwidth=4
 set expandtab
-set hlsearch
+set autoindent 
+filetype plugin indent on
+filetype on
 
     
 "set colorcolumn=80
@@ -193,7 +195,7 @@ set hlsearch
 " }}}
 
 " <SYNTAX> Here setting for syntax stuff 
-":syntax=on
+"syntax=on
 "
 "
 " </SYNTAX> 
