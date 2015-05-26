@@ -1,0 +1,966 @@
+----------------------------------------------------------------------------------------------------
+XML:
+Widely used for the representation of arbitrary data structures such as those used in web services.
+
+Several schema systems exist
+
+The oldest schema language for XML is the Document Type Definition (DTD), inherited from SGML.
+In addition to being well-formed, a XML document may be (valid). This means that it contains a reference to a
+schema.
+
+XML Schema a newer schema language, described by the W3C as the successor of DTD
+----------------------------------------------------------------------------------------------------
+    Lezione 1  - Introduzione ad XML   (eXtensible Markup Language) 
+    Lezione 2  - XML e HTML 
+    Lezione 3  - DTD - Document Type Definition 
+    Lezione 4  - I tag di XML 
+    Lezione 5  - Gli elementi di XML 
+    Lezione 6  - Gli attributi di XML 
+    Lezione 7  - Le regole sintattiche di XML 
+    Lezione 8  - La famiglia di XML 
+    Lezione 9  - I namespaces 
+    Lezione 10 - Stylesheet
+
+----------------------------------------------------------------------------------------------------
+    Lezione 1  - Introduzione ad XML   (eXtensible Markup Language) 
+       - linguaggio di marcatura estensibile. 
+
+                <?xml version="1.0"?>
+                <Libro>
+                    <Titolo>Cent'anni di solitudine</Titolo>
+                    <Autore>Gabriel Garcia Marquez</Autore>
+                    <Editore>Mondadori</Editore>
+                </Libro>
+
+       - XML è per la descrizione SEMANTICA dei dati, per
+                       - strutturare 
+                       - memorizzare 
+                       - scambiare 
+         informazioni.
+
+----------------------------------------------------------------------------------------------------
+    Lezione 2  - XML e HTML 
+XML e HTML sono stati progettati per svolgere compiti diversi:
+
+    XML per descrivere i dati 
+    HTML (Hyper Text Markup Language) per visualizzare i dati 
+
+XML è estensibile, è un metalinguaggio 
+HTML no
+
+XML separa la STRUTTURA del documento dalle regole di VISUALIZZAZIONE; 
+HTML no
+
+XML al 1' errore un SW che legge un file XML deve fare STOP
+HTML no, si va sempre piu' avanti che si puo', in teoria tutto il file HTML
+
+Rispettare la sintassi in un documento XML lo rende  BEN FORMATO  (well formed)
+----------------------------------------------------------------------------------------------------
+    Lezione 3  - DTD - Document Type Definition 
+
+regole grammaticali, o vincoli, alle quali gli elementi devono attenersi.
+
+un documento XML BEN FORMATO + rispetta le regole del DTD 
+si dice che è un documento XML VALIDO.
+
+
+Le regole DTD possono essere nello stesso file XML (DTD interno) o in un file DTD separato (DTD esterno)
+
+forma 1/3
+
+un generico tag XML (ex. qui Rubrica)
+                                       <Rubrica>DISPOSIZIONI GENERALI</Rubrica>
+
+puo' definirsi a livello DTD con la regola: 
+                                            <!ELEMENT Rubrica (#PCDATA)>
+dove (#PCDATA) e' la keyword per indicate qualsiasi stringa testo
+
+forma 2/3
+
+un generico tag XML semplice (senza tag di chiusura, e che hanno sempre almeno 1 attributo, qui 'Num') 
+                                            <Articolo Num="1">
+puo' definirsi a livello DTD con la regola: 
+                                            <!ELEMENT Articolo  EMPTY>
+forma 3/3
+
+Quando tra i tag XML esiste una gerarchia, 
+cioe' un tag (qui Legge) ha al suo interno dei tag inclusi (figli) (qui TitoloLegge e Articolato)
+                                       <Legge>
+                                         <TitoloLegge>Disciplina delle associazioni a scopo benefico</TitoloLegge>
+                                         <Articolato>
+                                         ...
+                                         </Articolato>
+                                       </Legge>
+
+puo' definirsi a livello DTD con la regola: 
+                                            <!ELEMENT Legge (TitoloLegge, Articolato)>
+
+le parentesi () listano i figli richiesti, 
+si possono usare i soliti simboli ? e + per specificare le occorrenze (vedi esempio sotto)
+
+Per indicare la regola di cio' che e' richiesto (mandatorio) si usa il costrutto
+              <!ATTLIST ........ CDATA #REQUIRED>
+Esempio:
+
+<?xml version="1.0"?>                                    |
+<!DOCTYPE Legge [                                        | questa e' la parte DTD.
+    <!ELEMENT Legge (TitoloLegge,Articolato) >           | e' messa nello stesso file XML
+    <!ELEMENT TitoloLegge (#PCDATA)>                     | quindi questo e' un DTD interno
+    <!ELEMENT Articolato (Capo+)>                        |
+    <!ELEMENT Capo (Rubrica?,Articolo+)>                 | potevo mettere questo estratto in un file 
+    <!ELEMENT Rubrica (#PCDATA)>                         | esterno 'legge.dtd'
+    <!ELEMENT Articolo (Rubrica?,Comma+)>                | e qui lasciare solo 1 riga
+    <!ELEMENT Comma (#PCDATA)>                           | <!DOCTYPE Legge SYSTEM "legge.dtd">
+    <!ATTLIST Capo Num CDATA #REQUIRED>                  |
+    <!ATTLIST Articolo Num CDATA #REQUIRED>              |
+    <!ATTLIST Comma Num CDATA #REQUIRED>                 |
+]>                                                       |
+
+<Legge>
+    <TitoloLegge>Disciplina delle associazioni a scopo benefico</TitoloLegge>
+        <Articolato>
+        <Capo Num="I">
+        <Rubrica>DISPOSIZIONI GENERALI</Rubrica>
+        <Articolo Num="1">
+        <Rubrica>Finalità e oggetto della legge</Rubrica>
+        <Comma Num="1">La Repubblica riconosce il valore sociale...</Comma>
+        ...
+</Legge>
+----------------------------------------------------------------------------------------------------
+    Lezione 4  - I tag di XML 
+    
+XML e' case sensitive: <nota> è diverso da <Nota>
+
+Il primo tag di un file e' il tag root:
+                 <?xml version="1.0"?>
+                 <nota> <------------------------------------------------ root
+                     <a>Luca</a>
+                     <da>Carlo</da>
+                     <titolo>Appuntamento</titolo>
+                     <testo>Ricordati la riunione di oggi</testo>
+                 </nota>
+
+ci sono 3 tag: 
+   di apertura: <nota>
+   di chiusura: </nota>
+   vuoti:  <nota/>
+----------------------------------------------------------------------------------------------------
+    Lezione 5  - Gli elementi di XML 
+    
+Sono i tag.
+In XML l'ordine di chiusura dei tag deve essere inverso all' apertura; 
+
+<Mittente><Destinatario> ......... </Destinatario></Mittente>
+
+Cio' non è richiesto in HTML
+----------------------------------------------------------------------------------------------------
+    Lezione 6  - Gli attributi di XML 
+    
+Sono come nell'HTML le coppie att=valore aggiunte nel tag di apertura di un ELEMENTO.
+Si possono usare sia " che '
+L'attributo piu' usato e' di solito un identificativo ID per l'ELEMENTO.
+----------------------------------------------------------------------------------------------------
+    Lezione 7  - Le regole sintattiche di XML 
+    
+le abbiamo gia' viste riguardiamole:
+- case sensitive
+- tag aperti e chiusi (stesso ordine)
+- 1 solo tag root
+- 1 commento e':  <!-- ...... -->
+- un altro modo per schermare del testo dall'interpretazione e' racchiuderlo dal seguente keyword construct.
+                       <![CDATA[
+                           Questo testo non viene elaborato e 
+                           <questo> non è un tag
+                       ]]>
+----------------------------------------------------------------------------------------------------
+    Lezione 8  - La famiglia di XML 
+    
+Visto che XML di per se' e' un meta linguaggio, cioe' non ha nulla di definito, i linguaggi con 
+tag riservati (tipo HTML) che derivano dall'XML ma sono 'chiusi' sono:
+    - Xml Schema: sostituto e miglioramento rispetto al DTD, indicato anche come 
+                   XSD (XML Schema Definition) sono file XML con estensione .xsd
+                   
+    - XPath: e' possibile indirizzare parti di un documento XML; 
+             ideato per operare all'interno di altre tecnologie XML quali XSL e XPointer
+             ha una sintassi non XML. 
+             il documento XML, e' modellato con una struttura ad albero ed XPath definisce 
+             una sintassi per accedere ai nodi di tale albero, e manipolarli  (con una serie di funzioni 
+             per le stringhe, numeri e booleani)
+             XPath, e' usato dai  restanti: XLink, Xpointer, XQuery, oltre che essere indispensabile
+             per scrivere documenti XSLT
+                   
+    - XLink: linguaggio basato su XML.
+             per definire dei link (collegamenti) tra risorse; 
+             il link in HTML, (tag <a>) risente di alcune limitazioni, XLink nasce con l'intento di ovviare 
+             ai tali limitazioni, e' in grado di definire link 
+                          multipli, 
+                          multidirezionali 
+                          caratterizzarli anche dal punto di vista semantico.
+                   
+    - XPointer: XML Pointer language, linguaggio per indirizzare parti di un documento XML; 
+                usa la sintassi XPath, con qualche estensione
+                   
+    - XQuery: XML Query language, linguaggio per recuperare le informazioni da un documento XML 
+              non è basato su XML 
+              sintassi semplice per formulare le query sui dati; 
+              il working group del W3C ha sviluppato anche una versione di XQuery con sintassi XML, chiamata XQueryX.
+
+    - XSL: eXtensible Stylesheet Language, serve a "trasformare" un file XML in formato adatto alla 
+           presentazione su diversi supporti (per esempio, la sua trasformazione in HTML)
+                   
+Canonical Xml:  rappresentazione canonica di un documento XML;
+XML Encryption: protezione di una parte o dell'intero documento XML;
+XML Signature:  firmare un documento XML;
+XForms:         un linguaggio basato su XML per la definizione delle form all'interno di documenti XML;
+RDF:            lo strumento proposto dal W3C per descrivere i metadati relativi ad una risorsa.
+----------------------------------------------------------------------------------------------------
+    Lezione 9  - I namespaces 
+    
+Perche'  i nomi degli ELEMENTI (dei <tag>) siano univoci, problema che puo' presentarsi quando
+si usano piu' file XML dove esistono tag con uguale nome (ex. <table>) un metodo e' anteporre
+al nome un prefisso con i due punti
+                xxxxxx:
+
+
+          <root>
+          
+          <h:table xmlns:h="http://www.w3.org/TR/html4/">    <------ l'attributo xmlns:xxxxx="ssssssssssss"
+            <h:tr>
+              <h:td>Apples</h:td>
+              <h:td>Bananas</h:td>
+            </h:tr>
+          </h:table>
+          
+          <f:table xmlns:f="http://www.w3schools.com/furniture">
+            <f:name>African Coffee Table</f:name>
+            <f:width>80</f:width>
+            <f:length>120</f:length>
+          </f:table>
+          
+          </root> 
+
+L'attributo xmlns e' messo in un certo ELEMENTO. La forma e' xmlns:xxxxxx="ssssssss"
+    dove xmlns:   e' la keyword
+         xxxxxx   e' il prefisso che si vuole usare
+         sssssss  e' una stringa che permette di rendere quel prefisso distinguibile dagli altri.
+                  ssssss e' una qualsiasi stringa di puro testo che permette come un hash di rendere
+                  univoco quel prefisso. Si usa spesso un URL, ma nessun compilatore interpreta ssssss
+                  quindi quell'URL non verra' usata da nulla per accedere a qualche file.
+
+
+Tutti i figli di quell'elemento ereditano il namespace.
+
+Un metodo e' mettere tutti i namespace in <root> quindi il pezzo sopra diventa
+
+
+
+              <root xmlns:h="http://www.w3.org/TR/html4/"
+                    xmlns:f="http://www.w3schools.com/furniture">
+              
+              <h:table>
+                <h:tr>
+                  <h:td>Apples</h:td>
+                  <h:td>Bananas</h:td>
+                </h:tr>
+              </h:table>
+              
+              <f:table>
+----------------------------------------------------------------------------------------------------
+    Lezione 10  - Stylesheet
+
+Estraggono informazione dal file XML per portarle in una pagina HTML.
+
+XSL: utilizza i pattern (definiti mediante espressioni XPath) 
+     per specificare gli elementi XML a cui viene applicato un certo template.
+     Un template e' del tipo:
+                                 <xsl:template match="PATTERN">
+                                        REGOLE DI ELEBORAZIONE
+                                 </xsl:template> 
+
+
+La sintassi permette di sottoporre comandi di for, if, sort, .....
+in modo che prese le info dall'XML vengano trasformate come si vuole.
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------
+XPath        XPath became a W3C Recommendation 16. November 1999.
+----------------------------------------------------------------------------------------------------
+
+Today XPath expressions can also be used in 
+          JavaScript, Java, XML Schema, PHP, Python, C and C++, and lots of other languages.
+
+XPath has over 100 built-in functions (for strings, number, ....)
+
+XPath expressions look like path in a FILE SYSTEM (e.g. /bookstore/book[1]) where the 'nodes' 
+are the tree-nodes into which the XML file has been converted.
+
+XML file are mapped onto a tree of nodes, where the terminology is as usual:
+there are 'parent' 'child' nodes, and also: 
+
+        'sibling'   : brothers nodes with same parent
+        'ancestor'  : all the nodes 'above' (parent, parent's parent ...)
+        'descendant': all the nodes 'below' (child, child's child, ...) 
+
+The XML 
+<title lang="en">
+will be converted into tree-nodes. 
+There will be an 'element'-NODE  <title>
+and an 'attribute'-NODE (lang="en")
+So also attributes become separate nodes in the tree.
+
+Example take this XML file of books
+
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  
+                  <bookstore>
+                  
+                  <book category="COOKING">
+                    <title lang="en">Everyday Italian</title>
+                    <author>Giada De Laurentiis</author>
+                    <year>2005</year>
+                    <price>30.00</price>
+                  </book>
+                  
+                  <book category="CHILDREN">
+                    <title lang="en">Harry Potter</title>
+                    <author>J K. Rowling</author>
+                    <year>2005</year>
+                    <price>29.99</price>
+                  </book>
+                  
+                  <book category="WEB">
+                    <title lang="en">XQuery Kick Start</title>
+                    <author>James McGovern</author>
+                    <author>Per Bothner</author>
+                    <author>Kurt Cagle</author>
+                    <author>James Linn</author>
+                    <author>Vaidyanathan Nagarajan</author>
+                    <year>2003</year>
+                    <price>49.99</price>
+                  </book>
+                  
+                  <book category="WEB">
+                    <title lang="en">Learning XML</title>
+                    <author>Erik T. Ray</author>
+                    <year>2003</year>
+                    <price>39.95</price>
+                  </book>
+                  
+                  </bookstore>
+
+the following XPath commands are self-explained:
+
+            /bookstore/book[1]                      1st book
+            /bookstore/book[last()]                 last
+            /bookstore/book[last()-1]               last-1
+            /bookstore/book[position()<3]           1st and 2nd books
+            //title[@lang]                          all titles with an attribute named 'lang'
+            //title[@lang='eng']                    all titles with an attribute named 'lang' and value 'eng'
+            /bookstore/book[price>35.00]            all books with price > 35.00
+            /bookstore/book[price>35.00]/title      all titles of books with price > 35.00
+
+/*
+   the above > operators is one from the set:
+                 +     Addition                          6 + 4
+                 -     Subtraction                       6 - 4
+                 *     Multiplication                    6 * 4
+                 div   Division                          8 div 4 <----------- N.B. the symbol used
+                 =     Equal                             price=9.80
+                 !=    Not equal                         price!=9.80
+                 <     Less than                         price<9.80
+                 <=    Less than or equal to             price<=9.80
+                 >     Greater than                      price>9.80
+                 >=    Greater than or equal to          price>=9.80
+                 or    or                                price=9.80 or price=9.70
+                 and   and                               price>9.00 and price<9.90
+                 mod   Modulus (division remainder)      5 mod 2
+*/
+
+There is the 'path' (the part with /.../)  and the 'predicate' (the part with [ ])
+
+path:   
+    /          nodes with path from root
+    //         nodes no matter where they are  (ex. bookstore//book : all books 'descendant' bookstore)
+    .          current node
+    ..         parent node
+    @          to refer to attributes        (e.g. //@lang   :  all attributes that are named lang)
+    *          any node
+    @*         any attribute node
+    node()     any node (both element or attribute)
+    
+    With the | more paths can be specified:
+               //book/title | //book/price
+               //title | //price
+               /bookstore/book/title | //price
+
+general structure:   
+   is in the form   ..../step/step/ ....
+   where each step is the path + [predicate] and an 'axis' part before:
+
+   step = axisname::nodetest[predicate] 
+  
+axisnames:
+
+     ancestor                 all ancestors 
+     ancestor-or-self         all ancestors + node itself
+     attribute                all attributes of the current node
+     child                    all children 
+     descendant               all descendants 
+     descendant-or-self       all descendants  + node itself
+     following                everything in the document after the closing tag of the current node
+     following-sibling        all siblings after the current node
+     namespace                all namespace nodes of the current node
+     parent                   the parent 
+     preceding                all nodes that appear before in the document, except ancestors 
+     preceding-sibling        all siblings before the current node
+     self                     the current node
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------
+XQuery                    XQuery 1.0 became a W3C Recommendation January 23, 2007.
+----------------------------------------------------------------------------------------------------
+
+XQuery for XML is like SQL for databases.
+
+With a XML file (ex. books.xml) open it 
+
+      doc("books.xml")
+
+then use the XPath selection
+      doc("books.xml")/bookstore/book[price>30]/title 
+
+or use language-like commands
+      for $x in doc("books.xml")/bookstore/book 
+      where $x/price>30
+      return $x/title 
+
+the commands permits better control (ex. add ordering:
+     for $x in doc("books.xml")/bookstore/book
+     where $x/price>30
+     order by $x/title
+     return $x/title 
+
+The above commands could generate something like
+    <title lang="en">Learning XML</title>
+    <title lang="en">XQuery Kick Start</title> 
+
+To generate an output formatted HTML, we can insert HTML tags and remove XML tags mantaining only the data:
+
+          <ul>     <---------- some HTML tags
+          {
+          for $x in doc("books.xml")/bookstore/book/title
+          order by $x
+          return <li>{data($x)}</li> <------ some HTML tags + data() funtion from XQuery 
+          }
+          </ul> 
+
+which could produce something like:
+                            <ul>
+                            <li>Everyday Italian</li>
+                            <li>Harry Potter</li>
+                            <li>Learning XML</li>
+                            <li>XQuery Kick Start</li>
+                            </ul> 
+
+another example:
+      return <li class="{data($x/@category)}">{data($x/title)}</li>
+
+                           <ul>
+                           <li class="COOKING">Everyday Italian</li>
+                           <li class="CHILDREN">Harry Potter</li>
+                           <li class="WEB">Learning XML</li>
+                           <li class="WEB">XQuery Kick Start</li>
+                           </ul>
+
+
+XQuery allows If-Then-Else" :
+
+        for $x in doc("books.xml")/bookstore/book
+        return if ($x/@category="CHILDREN")
+        then <child>{data($x/title)}</child>
+        else <adult>{data($x/title)}</adult> 
+
+
+The FOR-LET-WHERE-ORDER-RETURN construct is called:  FLWOR 
+
+FOR:
+        for $x in (1 to 5)
+        return <test>{$x}</test> 
+
+        <test>1</test>
+        <test>2</test>
+        <test>3</test>
+        <test>4</test>
+        <test>5</test> 
+        
+        
+        for $x at $i in doc("books.xml")/bookstore/book/title   <---- at keyword to count iteration
+        return <book>{$i}. {data($x)}</book> 
+        
+        <book>1. Everyday Italian</book>
+        <book>2. Harry Potter</book>
+        <book>3. XQuery Kick Start</book>
+        <book>4. Learning XML</book> 
+        
+        
+        for $x in (10,20), $y in (100,200)
+        return <test>x={$x} and y={$y}</test> 
+        
+        <test>x=10 and y=100</test>
+        <test>x=10 and y=200</test>
+        <test>x=20 and y=100</test>
+        <test>x=20 and y=200</test> 
+
+LET:
+       let allows variable assignments and it avoids repeating the same expression many times. 
+       It does not result in iteration.
+                                           let $x := (1 to 5)
+                                           return <test>{$x}</test>
+                                           
+                                           <test>1 2 3 4 5</test> 
+
+WHERE:
+       where $x/price>30 and $x/price<100 
+
+
+ORDER:
+      for $x in doc("books.xml")/bookstore/book
+      order by $x/@category, $x/title
+      return $x/title 
+
+
+RETURN:
+      return $x/title 
+
+
+Functions:
+XQuery and XPath funtions (more than 100) are accessible at http://www.w3.org/2005/02/xpath-functions
+The official prefix is 
+             fn: 
+such as fn:string(). However, since fn: is the default prefix of the namespace, 
+the function names do not need to be prefixed when called.
+
+Examples: 
+              <name>{upper-case($booktitle)}</name>   <------ Called upper-case function 
+              
+              doc("books.xml")/bookstore/book[substring(title,1,5)='Harry']
+              
+              let $name := (substring($booktitle,1,4))
+
+
+
+XQuery allows to declare User-Defined Functions:
+Syntax
+       Use the declare function keyword
+       The name of the function must be prefixed
+       The data type of the parameters are mostly the same as the data types defined in XML Schema
+       The body of the function must be surrounded by curly braces
+
+       declare function prefix:function_name($parameter as datatype)
+       as returnDatatype
+       {
+        ...function code here...
+       };
+       
+       
+       declare function local:minPrice($p as xs:decimal?,$d as xs:decimal?)
+       as xs:decimal?
+       {
+       let $disc := ($p * $d) div 100
+       return ($p - $disc)
+       };
+       
+       to call the function above:
+       
+       <minPrice>{local:minPrice($book/price,$book/discount)}</minPrice> 
+
+----------------------------------------------------------------------------------------------------
+XLink                      is a W3C Recommendation  (namespace is: "http://www.w3.org/1999/xlink")
+----------------------------------------------------------------------------------------------------
+
+defines methods for creating links in XML doc
+
+In HTML only tag <a> can be a link. in XML any tag (ex. <description>)
+
+<?xml version="1.0" encoding="UTF-8"?>
+<bookstore xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<book title="Harry Potter">
+  <description
+  xlink:type="simple"
+  xlink:href="/images/HPotter.gif"  <---- specifies the URL to link to (in this case - an image)
+  xlink:show="new">                 <---- specifies that the link should open in a new window
+  As his fifth year at Hogwarts School of Witchcraft and
+  Wizardry approaches, 15-year-old Harry Potter is.......
+  </description>
+</book>
+
+xlink:show="embed" : inline within the page.
+
+You can also specify WHEN the resource should appear, with the xlink:actuate attribute.
+
+
+xlink:actuate     onLoad         when the document loads
+                  onRequest      when link is clicked
+                  other
+                  none
+
+xlink:href        URL            the URL to link to
+
+xlink:show        embed          where to open the link. Default is "replace"
+                  new
+                  replace
+                  other
+                  none
+
+xlink:type        simple
+                  extended
+                  locator
+                  arc
+                  resource
+                  title
+                  none
+
+----------------------------------------------------------------------------------------------------
+XPointer                         is a W3C Recommendation  
+----------------------------------------------------------------------------------------------------
+
+In a document (1) XPointer allows you to link to specific parts of the document (2)
+
+doc (2) is :
+
+<dogbreeds>
+
+<dog breed="Rottweiler" id="Rottweiler">  <----------   there is an 'id' attribute for elements <dog>
+  <picture url="http://dog.com/rottweiler.gif" />
+  <history>The Rottweiler's ancestors were probably Roman
+  drover dogs.....</history>
+  <temperament>Confident, bold, alert and imposing, the Rottweiler
+  is a popular choice for its ability to protect....</temperament>
+</dog>
+
+doc (1) is :
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mydogs xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<mydog>
+  <description>
+  Anton is my favorite dog. He has won a lot of.....
+  </description>
+  <fact xlink:type="simple" xlink:href="http://dog.com/dogbreeds.xml#Rottweiler">   <---- # + 'id'
+  Fact about Rottweiler
+  </fact>
+</mydog>
+
+The # + value of id, is a shorthand. The 'long' formula is   # + xpointer(id('Rottweiler'))"
+
+xlink:href="http://dog.com/dogbreeds.xml#xpointer(id('Rottweiler'))"
+
+
+----------------------------------------------------------------------------------------------------
+XSLT                         is a W3C Recommendation (16. November 1999) 
+----------------------------------------------------------------------------------------------------
+
+HTML has CSS for Style Sheet, and it's easy to format/colour any part.
+
+XML has XSL for Style Sheet, which consists of 3 parts:
+                     1. XSLT - a language for transforming XML documents
+                     2. XPath 
+                     3. XSL-FO - a language for formatting XML documents
+
+XSLT is used to transform an XML into another XML, that is recognized by a browser.
+Normally into an HTML / XHTML
+
+Start declaring with <xsl:stylesheet> or <xsl:transform> (completely synonymous and either can be used)
+
+ex.
+<xsl:stylesheet version="1.0"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"> 
+ 
+----------------------------------------------------------------------------------------------------
+Schema                          XML-based alternative to DTD.  a W3C Recommendation 02. May 2001.
+----------------------------------------------------------------------------------------------------
+Schema is also referred to XML Schema Definition (XSD).
+
+XML file (linking to an external xsd):
+
+<?xml version="1.0"?>
+
+<note
+xmlns="http://www.w3schools.com"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.w3schools.com note.xsd"> ------+
+  <to>Tove</to>                                                      |
+  <from>Jani</from>                                                  |
+  <heading>Reminder</heading>                                        |
+  <body>Don't forget me this weekend!</body>                         |
+</note>                                                              |
+                                                                     |
+  note.xsd: <--------------------------------------------------------+
+    <?xml version="1.0"?>           <?xml version="1.0"?>
+                                    
+    <xs:schema>                     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  <---  namespace for data and types
+    ...                             targetNamespace="http://www.w3schools.com" <--- namespace for elements that will be defined
+    ...                             xmlns="http://www.w3schools.com"          <--- default namespace
+    </xs:schema>                    elementFormDefault="qualified">           <--- any element must be namespace qualified
+                                    ...
+                                    ...
+                                    </xs:schema> 
+    
+
+SIMPLE TYPES: 
+                       xs:string
+                       xs:decimal
+                       xs:integer
+                       xs:boolean
+                       xs:date
+                       xs:time
+
+SIMPLE ELEMENTS: (<xs:element .....                  <xs:element name="xxx" type="yyy"/> 
+
+                  yyy is a SIMPLE TYPE
+
+                 XML                                          XSD
+         <lastname>Refsnes</lastname>            <xs:element name="lastname" type="xs:string"/>
+         <age>36</age>                           <xs:element name="age"      type="xs:integer"/>
+         <dateborn>1970-03-27</dateborn>         <xs:element name="dateborn" type="xs:date"/>
+
+   DEFAULT:
+                                                 <xs:element name="color" type="xs:string" default="red"/>
+                                                
+   FIXED: A fixed value is automatically assigned, and cannot specify another value.
+                                                
+                                                <xs:element name="color" type="xs:string" fixed="red"/> 
+
+
+ATTRIBUTES: (<xs:attribute .....                  <xs:attribute name="xxx" type="yyy"/> 
+
+                  yyy is a SIMPLE TYPE
+
+                 XML                                          XSD
+        <lastname lang="EN">Smith</lastname>     <xs:attribute name="lang" type="xs:string"/> 
+                                                 <xs:attribute name="lang" type="xs:string" default="EN"/> 
+                                                 <xs:attribute name="lang" type="xs:string" fixed="EN"/> 
+                                                 <xs:attribute name="lang" type="xs:string" use="required"/> <--Mandatory
+
+
+        An attribute is normally optional, with use="required" you specify it as MANDATORY.
+
+
+RESTRICTIONS: 
+                       <xs:element name="age">
+                         <xs:simpleType>
+                           <xs:restriction base="xs:integer">
+                             <xs:minInclusive value="0"/>              to set a value [0-120]
+                             <xs:maxInclusive value="120"/>
+                           </xs:restriction>
+                         </xs:simpleType>
+                       </xs:element> 
+
+                       <xs:element name="car">
+                         <xs:simpleType>
+                           <xs:restriction base="xs:string">
+                             <xs:enumeration value="Audi"/>
+                             <xs:enumeration value="Golf"/>
+                             <xs:enumeration value="BMW"/>
+                           </xs:restriction>
+                         </xs:simpleType>
+                       </xs:element> 
+                       
+                       <xs:element name="letter">
+                         <xs:simpleType>
+                           <xs:restriction base="xs:string">
+                             <xs:pattern value="[a-z]"/>
+                           </xs:restriction>
+                         </xs:simpleType>
+                       </xs:element>   
+                       
+                       <xs:restriction base="xs:string">
+                             <xs:pattern value="[A-Z][A-Z][A-Z]"/>
+                             <xs:pattern value="[a-zA-Z][a-zA-Z][a-zA-Z]"/>
+                             <xs:pattern value="[xyz]"/>
+                             <xs:pattern value="[0-9][0-9][0-9][0-9][0-9]"/>
+                             <xs:pattern value="([a-z])*"/>
+                             <xs:pattern value="([a-z][A-Z])+"/>
+                             <xs:pattern value="male|female"/>
+                             <xs:pattern value="[a-zA-Z0-9]{8}"/>         exactly 8 char
+                             
+                             <xs:whiteSpace value="preserve"/>       all spaces (tab, carriage returns.... ) are preserved
+                             <xs:whiteSpace value="replace"/>        each spaces type is conveted into 1 normal space
+                             <xs:whiteSpace value="collapse"/>       all the spaces becomes 1 single space
+                             
+                             <xs:length value="8"/>
+                             
+                             <xs:minLength value="5"/>
+                             <xs:maxLength value="8"/>
+                       </xs:restriction>
+
+COMPLEX ELEMENTS: (<xs:complexType> .....                  <xs:complexType name="xxxx">
+
+
+            1. define a complex type:                           2. use it:
+
+            <xs:complexType name="personinfo">                 <xs:element name="employee" type="personinfo"/>
+              ......
+            </xs:complexType> 
+            
+
+            <xs:sequence>
+              <xs:element name="firstname" type="xs:string"/>
+              <xs:element name="lastname"  type="xs:string"/>
+            </xs:sequence>
+    
+        COMPLEX ELEM can be made by 
+               1/3 ONLY SUB-ELEMENTS
+               2/3 TEXT ONLY
+               3/3 MIXED
+
+           1/3 ONLY SUB-ELEMENTS
+               <person>                              XML                                       XSD
+                 <firstname>John</firstname>                             <xs:sequence>
+                 <lastname>Smith</lastname>
+               </person> 
+
+           2/3 TEXT ONLY
+               <shoesize country="france">35</shoesize>                  <xs:attribute name="country" type="xs:string" />
+
+           3/3 MIXED
+            
+               <letter>                                                  <xs:complexType mixed="true">
+                 Dear Mr.<name>John Smith</name>.
+                 Your order <orderid>1032</orderid>
+                 will be shipped on <shipdate>2001-07-13</shipdate>.
+               </letter> 
+               
+        INDICATORS
+            <xs:complexType name="xxx">  
+                               ......
+                 <xs:sequence>
+                       <xs:element name="firstname" type="xs:string"/>    must appear in order
+                       <xs:element name="lastname" type="xs:string"/>
+                 </xs:sequence>
+                               ......
+                               ......
+                 <xs:all>
+                       <xs:element name="firstname" type="xs:string"/>    can appear in any order
+                       <xs:element name="lastname"  type="xs:string"/>
+                 </xs:all>
+                               ......
+                               ......
+                 <xs:choice>
+                       <xs:element name="employee" type="employee"/>      1 only 
+                       <xs:element name="member"   type="member"/>
+                 </xs:choice>
+                               ......
+                               ......
+                 <xs:sequence>
+                       <xs:element name="full_name" type="xs:string"/>
+                       <xs:element name="child_name" type="xs:string"
+                                                     maxOccurs="10"    min 0 MAX 10
+                                                     minOccurs="0"/>   maxOccurs="unbounded" for unlimited MAX
+                 </xs:sequence>
+                               ......
+                               ......
+            </xs:complexType> 
+
+        GROUPS:
+            <xs:group name="persongroup">                       <------  define a GROUP of elem here
+              <xs:sequence>
+                <xs:element name="firstname" type="xs:string"/>
+                <xs:element name="lastname"  type="xs:string"/>
+                <xs:element name="birthday"  type="xs:date"/>
+              </xs:sequence>
+            </xs:group>
+            
+            <xs:element name="person" type="personinfo"/>
+            
+            <xs:complexType name="personinfo">
+              <xs:sequence>
+                <xs:group ref="persongroup"/>                  <-------  reuse it here
+                <xs:element name="country" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType> 
+
+
+           The same works for attributes:
+                <xs:attributeGroup name="groupname">
+                ...                                               <xs:attributeGroup ref="personattrgroup"/>
+                </xs:attributeGroup>                         
+
+        ANY:
+              <xs:sequence>
+                    <xs:element name="firstname" type="xs:string"/>
+                    <xs:element name="lastname"  type="xs:string"/>
+                    <xs:any minOccurs="0"/>  <-------  this allows to EXTEND during the XML file with any optional elem
+              </xs:sequence>
+              
+              ex. XML:
+                           <firstname>Hege</firstname>
+                           <lastname>Refsnes</lastname>
+                             <children>
+                               <childname>Cecilie</childname>
+                             </children>
+
+             The same works for attributes:     <xs:anyAttribute/>
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
