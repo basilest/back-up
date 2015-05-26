@@ -13,9 +13,9 @@
 set t_Co=256
 " <VUNDLE> I added .vimrc modification to use vundle 
 set nocompatible
-"filetype off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 " First point on GitHub to Vundle itself (so it can be autoapdated
 " from vi)
@@ -124,16 +124,18 @@ Plugin 'klen/python-mode'
 " <COLOR SCEHEME>
 " use Wombat - Dark gray
 " put related .vim in ~/.vim/colors and type :colo wombat
-:color wombat
+":color wombat
 " </COLOR SCEHEME>
 "
 " <SETTINGS FOR C/C++>
-Plugin 'Valloric/YouCompleteMe'
+"Plugin 'Valloric/YouCompleteMe'
 let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
 augroup project
       autocmd!
       autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
 augroup END
+call vundle#end()
+filetype plugin indent on
 "</SETTINGS FOR C/C++>
 "
 "
@@ -160,12 +162,32 @@ function! My_Menu_Item(num_item)
     echom menu_item
 
 endfunction
+function! My_DocPerl(word)
+    let user = system ("tr -d '\n' <<< \"${USER}\"")
+    let time = system ("date +\"%s\" | tr -d '\n'")
+    let tmp_file = "/tmp/" . user . time
+    let clean_path = substitute(a:word, "^qw(", "", "")   "nb. no nedd to remove spaces as cWORD does not return any
+    let clean_path = substitute(clean_path, "[(;)]", "", "g")
+    let cmd = "perl ~/bin/docpl.pl " . clean_path . "> ". tmp_file
+    "echom cmd
+    let a = system (cmd)
+    :exe "split " . tmp_file
+endfunction
+function! My_Jump_to_file(word)    
+    let clean_path = substitute(a:word, "^qw(", "", "")   "nb. no nedd to remove spaces as cWORD does not return any
+    let clean_path = substitute(clean_path, "[(;)]", "", "g")
+    let cmd = "perl -I ~/bin -MpathConversion -e 'pathConversion::main(\"" . clean_path . "\")'"
+    echom cmd
+    let file_path = system (cmd)
+    :exe "split " . file_path
+endfunction
 " }}}
 " Vimscript MY file settings MAIN ---------------------- {{{
 set mouse=a
 set nu
 set relativenumber
 set hlsearch
+set ic
 
 set tabstop=4
 set shiftwidth=4
@@ -183,7 +205,9 @@ filetype on
 :nnoremap <leader>sv :source $MYVIMRC<cr>
 :nnoremap <leader>a  ea'<esc>hbi'<esc>
 ":nnoremap <leader>d  :exe ":normal A" . strftime("%A %F")<cr>
-:nnoremap <leader>d  :call My_Date()<cr>
+:nnoremap <leader>d   :call My_DocPerl(expand("<cWORD>"))<cr>
+:nnoremap <leader>f   :call My_Jump_to_file(expand("<cWORD>"))<cr>
+":nnoremap <leader>d  :call My_Date()<cr>
 :nnoremap <leader>m  :call My_Menu_Item(2)<cr>
 " }}}
 
@@ -199,3 +223,4 @@ filetype on
 "
 "
 " </SYNTAX> 
+:set tags=./tags;~/legislative2015/

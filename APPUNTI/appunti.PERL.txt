@@ -1,3 +1,18 @@
+@ARGV      built-in array for arg to the script
+@_         built-in array for arg to the funct
+           nb. the array name is '_' so its elem 0
+           is $_[0] 
+$_         built-in iterator used instead of normal $i in a for / foreach ...
+           Warning! Many built-in functions (ex. print) can be called with no arguments, 
+           causing them to operate on $_ instead:
+
+           ex1        print foreach @array;
+
+           ex2        foreach ( @array ) {
+                          next unless defined;
+                      }
+$!         built-in message on errors (to use ex on die )
+
 --------------------------------------------------- HASH
    keys:    are always STRING
    values:  are SCALAR (: string or numbers)
@@ -63,7 +78,612 @@ delete:                                       Remove that pair key / value
 %ENV :                                       The HASH where Perl stores the environment
          print "PATH is $ENV{PATH}\n"        # PATH is /usr/local/bin:/usr/bin:/sbin:/usr/sbin
 
---------------------------------------------------  MODULES
+--------------------------
+START A SCRIPT
+--------------------------
+
+       for portability (not sure where perl is located) 
+                   #!/usr/bin/env perl
+       as normally env is always in /usr/bin/env 
+               ________________________________
+               |                              |
+       #!/usr/bin/perl                  #!/usr/bin/perl                  
+       print "Hello, world!\n";         use 5.010;     <-----------
+                                        say "Hello World!";   <------ say put '\n'
+
+
+--------------------------
+SCALAR VARIABLES
+--------------------------
+            can contain
+                1. undef
+                2. a number
+                3. a string  (concatenated with '.')
+                4. a reference
+                5. a file handle
+                
+        It is impossible to determine whether 
+        a scalar contains a "number" or a "string"
+        Perl treats it as one or the other depending
+        on the operator, and in the case add a warning
+
+    Operators are:
+        # Numerical operators:  <,  >, <=, >=, ==, !=, <=>, +, *
+        # String operators:    lt, gt, le, ge, eq, ne, cmp, ., x
+        nb. x for string.
+
+        my $str1 = "4G";
+        my $str2 = "4H";
+
+        print $str1 .  $str2; # "4G4H"
+        print $str1 +  $str2; # "8" with two warnings
+        print $str1 eq $str2; # "" (empty string, i.e. false)
+        print $str1 == $str2; # "1" with two warnings
+        print "yes" == "no";  # "1" with two warnings; 
+                                    both values evaluate to 0 
+                                    when used as numbers
+    string with " and ':
+        as in bash ' is STRONG quote:
+        print "Hello \$string"; # "Hello $string"
+        print 'Hello $string';  # "Hello $string"
+
+--------------------------
+BOOLEAN VARIABLES
+--------------------------
+            Perl has no boolean data type.
+            A scalar is 'false' only when:
+
+            1. undef
+            2. number 0
+            3. string ""
+            4. string "0".
+                
+--------------------------
+ARRAY
+--------------------------
+            my @array = (
+                "print",
+                "A",
+                "B", # <-- last comma is ok
+            );
+
+            print $array[0]; # "print"
+            print $array[1]; # "A"
+            print $array[2]; # "B"
+            print $array[3]; # returns undef, prints "" and raises a warning
+
+
+    - negative indices to retrieve from the end
+
+            print $array[-1]; # "B"
+            print $array[-2]; # "A"
+            print $array[-3]; # "print"
+            print $array[-4]; # returns undef, prints "" and raises a warning
+
+    - len
+            scalar @array
+            $#array
+
+    - print 
+            it's interpolated into strings
+            print "@array";        # "print A B"
+                
+--------------------------
+HASH
+--------------------------
+            a list of scalars indexed by strings. 
+
+            my %scientists = (
+                "Newton"   => "Isaac",
+                "Einstein" => "Albert",
+                "Darwin"   => "Charles",
+            );
+                
+            => is called a "fat comma"    
+
+            print $scientists{"Newton"};   # "Isaac"
+            print $scientists{"Einstein"}; # "Albert"
+            print $scientists{"Darwin"};   # "Charles"
+            print $scientists{"Dyson"};    # returns undef, prints "" and raises a warning
+
+            Sometimes people omit quotes around hash keys, writing $hash{key} instead of $hash{"key"}.
+--------------------------
+ARRAY & HASH
+--------------------------
+            [ ]: square brackets to retrieve from an array. 
+                 they are effectively a numerical operator 
+            { }: braces to retrieve from a hash. 
+                 they are effectively a string operator. 
+            
+           The fact that the index supplied is a number or a string 
+           is of absolutely no significance:
+
+               my $data = "orange";
+               my @data = ("purple");
+               my %data = ( "0" => "blue");
+
+               print $data;      # "orange"
+               print $data[0];   # "purple"
+               print $data["0"]; # "purple"
+               print $data{0};   # "blue"
+               print $data{"0"}; # "blue"
+
+           Hash is just an array with an even pair of elements, separated
+           in pairs with the comma ',' and inside the pair with the fat comma '=>'
+           
+           So you can convert a hash to an array with twice as many entries, 
+
+                my @scientists = %scientists;
+           
+           nb.  The order is not guaranted. 
+                They will be returned in whatever order is more efficient.
+                It's only guaranted that each key comes before its value. 
+--------------------------
+LIST
+--------------------------
+            Is a sequence of values separated by  
+                  , 
+            or
+                  =>           #Remember that => is just , (fat comma)
+            enclosed in ( )
+            That are the braces not used 
+            neither by the array [] nor by the hash {}.
+            A list is not a variable. 
+            A list is an ephemeral value which can be assigned to 
+            an array or a hash variable. This is why the syntax 
+            for array and hash is identical. 
+
+            The following are just lists. Identical lists.
+            ("one",   1, "three",   3, "five", 5)
+            ("one" => 1, "three" => 3, "five" => 5)
+
+     empty list:  ()
+             can be used to declare an empty array or an empty hash 
+
+     List values cannot be nested.            |Perl has no way of knowing so 
+             my @array = (                    |it manages it as a single long list.
+                           "apples",          |
+                           "bananas",         |print $array[0]; # "apples"
+                           (                  |print $array[1]; # "bananas"
+                               "inner",       |print $array[2]; # "inner"
+                               "list",        |print $array[3]; # "list"
+                               "several",     |print $array[4]; # "several"
+                               "entries",     |print $array[5]; # "entries"
+                           ),                 |print $array[6]; # "cherries" 
+                           "cherries",        |
+                        );                    |
+
+             The same is true whether the fat comma is used or not:
+
+                    my %hash = (
+                        "beer" => "good",           raises a warning because the hash 
+                        "bananas" => (              was declared using a 7-element list 
+                            "green"  => "wait",
+                            "yellow" => "eat",
+                        ),
+                    ); 
+             this makes it easy to concatenate multiple arrays together:
+
+                my @bones   = ("humerus", ("jaw", "skull"), "tibia");
+                my @fingers = ("thumb", "index", "middle", "ring", "little");
+                my @parts   = (@bones, @fingers, ("foot", "toes"), "eyeball", "knuckle");
+
+--------------------------
+CONTEXT
+--------------------------
+            Perl code is context-sensitive. 
+            Every expression is evaluated in scalar or list context, 
+            depending on whether it is expected to produce a scalar or a list. 
+
+            A scalar assignment 
+                     my $scalar = 
+            evaluates in scalar context. 
+
+            An array or hash assignment 
+                     my @array = 
+                     my %hash  = 
+            evaluates in list context. 
+
+            A scalar evaluated in list context 
+            is silently converted into a 1-element list:
+
+               my @array = "Mendeleev"; 
+               # same as 'my @array = ("Mendeleev");'
+
+            An array evaluated in scalar context 
+            returns the len:
+
+               my @array = ("Alpha", "Beta", "Gamma", "Pie");
+               my $scalar = @array;
+               print $scalar; # "4"
+
+            A list expression (a list is different from an array, remember?) 
+            evaluated in scalar context returns 
+                    not the len of the list 
+            but 
+                    the final scalar in the list:
+
+            my $scalar = ("Alpha", "Beta", "Gamma", "Pie");
+            print $scalar; # "Pie"
+
+            ------- example with nested array
+            ARRAY and HASH, as depend on list, cannot be nested.
+            my @outer = ("......, ....); 
+            my @inner = ("Earth", "Moon");
+
+            $outer[3] = @inner; <-- an array evaluated in scalar context
+                                    so returns its len.
+            print $outer[3]; # "2"
+
+--------------------------
+REFERENCES
+--------------------------
+            Perl uses references to allow building complex data struct.
+            (nesting scalar array and hash in whatever order)
+            A ref is a scalar.
+
+        CREATE a ref:  use '\' before the var you want to refer
+
+            my $colour        = ....;
+            my @colours       = (...);
+            my %atomicWeights = (...);
+
+            my $scalarRef = \$colour;
+            my $arrayRef  = \@colours;
+            my $hashRef   = \%atomicWeights;
+
+        ACCESS its value: use {} around
+                          if it's not ambiguous, you can omit {}
+                          while for array and hash you can also use -> 
+
+            print ${ $scalarRef };   or only        print $$scalarRef;
+
+            print $colours[0];       # direct array access
+            print ${ $arrayRef }[0]; or only        print $arrayRef->[0];   
+
+            print $atomicWeights{"Helium"}; # direct hash access
+            print ${ $hashRef }{"Helium"};  or only print $hashRef->{"Helium"};    
+
+      ----------------------------------------------------------------------------------------------
+             declaration                                         retrieve back
+      ----------------------------------------------------------------------------------------------
+           my %o1 = (                     |                                   |               |            
+               "name" => "Santa Claus",   |           (6 instruct.)           |  (5 instr.)   |  (3 instr.)
+               "DOB"  => "1882-12-25",    |                                   |               |
+           );                             |   my $r    = $account{"owners"};  |  ...          |  -
+                                          |   my @o    = @{ $r  };            |  -            |  = @{ $account{"owners"} };
+           my %o2 = (                     |   my $r1   = $o[0];               |  = $r->[0];   |  -
+               "name" => "Mickey Mouse",  |   my $r2   = $o[1];               |  = $r->[1];   |  .
+               "DOB"  => "1928-11-18",    |   my %o1    = %{ $r1 };           |  ...          | = %{ $o[0] };  
+           );                             |   my %o2    = %{ $r2 };           |  ...          | = %{ $o[1] };  
+                                          |                                   |               |
+           my @o = ( \%o1, \%o2 );        |   $account{"number"}              |               |
+                                          |   $account{"opened"}              |               |
+           my %account = (                |                                   |               |
+               "number" => "12345678",    |   $o1{"name"}   $o1{"DOB"}|       |
+               "opened" => "2000-01-01",  |   $o2{"name"}   $o2{"DOB"}|       |
+               "owners" => \@o,           |                                   |               |
+           );      ^
+                   |    
+                 %account is the first 'struct' that we see.
+                 HASH comes ready to define a C-like-struct
+                 the 'members' are the key names and the values are their type.
+
+            
+        ANONYMOUS ARRAY and HASH
+
+            Use [ ] for an anonymous ARRAY and 
+                { } for an anonymous HASH. 
+            The value returned in each case is a REFERENCE:
+
+      ----------------------------------------------------------------------------------------------
+             long form                                           short
+      ----------------------------------------------------------------------------------------------
+      my $owner1Ref = {                              |  my %account = (
+          "name" => "Santa Claus",                   |      "number" => "31415926",
+          "DOB"  => "1882-12-25",                    |      "opened" => "3000-01-01",
+      };                                             |      "owners" => [
+                                                     |          {
+      my $owner2Ref = {                              |              "name" => "Philip Fry",
+          "name" => "Mickey Mouse",                  |              "DOB"  => "1974-08-06",
+          "DOB"  => "1928-11-18",                    |          },
+      };                                             |          {
+                                                     |              "name" => "Hubert Farnsworth",
+      my $ownersRef = [ $owner1Ref, $owner2Ref ];    |              "DOB"  => "2841-04-09",
+                                                     |          },
+      my %account = (                                |      ],
+          "number" => "12345678",                    |  );
+          "opened" => "2000-01-01",                  
+          "owners" => $ownersRef,
+      );
+--------------------------
+LOOPS
+--------------------------
+            the C-style 'for' is considered old-fashion.
+            Where possible use the 'foreach' which can iterate over an ARRAY.
+
+            foreach my $i ( @array ) { print $i; }
+
+      range operator '..':
+
+            foreach my $i ( 0 .. $#array ) { print $i, ": ", $array[$i]; }
+
+            It's NOT possible to iterate over an HASH, 
+            BUT the way it's to use the 'keys' fun which return the ARRAY of keys
+            and iterate on that.
+            
+            foreach my $k (keys %hash) { print $k, ": ", $hash{$k}; }
+                            ^
+
+            SORT:  Since a hash has no underlying order, 
+            the keys may be returned in any order. Use the sort 
+
+            foreach my $k (sort keys %hash) { print $k, ": ", $hash{$k}; }
+                            ^
+
+      $_  (default iterator):  is the first of the built-in variables. Allows
+                               to not used a var (usual $i) as iterator in the loop
+
+                                       foreach ( @array ) { print $_; }
+
+            which can also be written 
+
+                                       print $_ foreach @array;
+
+      while  () {}
+      untill () {}
+      do {} while ();
+--------------------------
+CONDITIONALS
+--------------------------
+      if () {cmd}
+      cmd  if ()
+      if  - elsif  - else 
+      unless (A) - else         try to avoid 'unless' block as it's the same as 
+                                if (not A)  - else
+      ? a : b
+
+  LABEL: ....                   we can use   next LABEL        (like the C 'continue')
+                                             last              (like the C 'break')
+--------------------------
+ARRAY FUNCTIONS
+--------------------------
+            pop      : pop     @stack;    returns the last  
+            push     : push    @stack;    append a new el at last pos
+            shift    : shift   @stack;    returns the 1' el
+            unshift  : unshift @stack;    insert a new el in 1' pos
+
+            splice   : splice(@stack, index, len, "a", "b", ...)    returns the subarray in @stack
+                                                                    of len elements starting at index (included)
+                                                                    if there are other arguments (here "a", "b", ...)
+                                                                    that LIST is also substituted inside @stack 
+                                                                    which thus, 'loses' a slice but in its place
+                                                                    gets another subarray.
+
+                     all pop/.../unshift are 4 simple cases of splice
+ 
+            join     : join("..", @a)   concat el of @a with the separator provided (1' string arg)
+            reverse  : - in list-  context   returns a list in revers order. reverse ("a1","b2") -> (b2, a1)
+                       - in scalar-context   first concat all the list as 1 single string 
+                                             then returns the reversed string. scalar reverse "  -> "2b1a" 
+            map      : map { .. $_ } @a;     returns an array from @a where each el (_$) has been
+                                             modified by the instruct inside the {}
+                                             ex map { uc $_ } @a;   convert any el in UPPERCASE
+            grep     : grep { ..$_ } @a;     returns an array from @a where each el (_$) is added or not
+                                             depending if the test on it { ..$_} is true or false
+                                             It can be used to test if an el is present in @a
+                                             scalar grep { $_ eq "..." } @a   #"1"/true
+            sort     : sort @a               returns an array sorting @a alphabetically
+                       sort { $a .. $b } @a  sort @a according to the instruct inside {} that operate
+                                             on the built-in var named really $a and $b!!!!!!!!
+                                             If I need more code the function can be somewhere else:
+                                              sort comparator @a;
+                                             anyhow it must always return -1 / 0 / +1
+--------------------------
+SUB
+--------------------------
+            sub func {
+            }
+
+            - subroutines always accept a LIST of scalars. 
+                         - that LIST may of course have a single element, or be empty
+                         - a single scalar is taken as a LIST with a single element. 
+                         - a hash with N elements is taken as a LIST with 2N elements.
+
+            - arg are passed by ref. (so a change is on the original)
+            - func (..)  but also fun ..      brackets are optional, 
+              anyhow it should ALWAYS be invoked 
+              using brackets, even when called with no arguments
+            - args are accessible using the built-in array variable @_
+
+              sub func {             |            |              |
+                                     |            |              |
+                  my $a = shift @_;  | = shift ;  |    = $_[0];  |   multiple scalar assignment                        
+                  my $b = shift @_;  | = shift ;  |    = $_[1];  |   my ($a, $b, $c) = @_;                         
+                  my $c = shift @_;  | = shift ;  |    = $_[2];  |                            
+                        ...
+            - It's possible to call passing an HASH, as it's always a list
+              but allow the most similar 'parameter' name convenition
+
+              func ("oldString" => "pod", "width" => 10, "padChar" => "+");
+
+              and then 'unpack' the HASH as a double size array where keys are the arg names:
+
+              sub left_pad {
+                my %args = @_;
+                   ^
+                my $newString = ($args{"padChar"} x ($args{"width"} - length $args{"oldString"})) . $args{"oldString"};
+              return $newString;
+              }
+
+--------------------------
+FILE
+--------------------------
+            As said it's the last possible value for a SCALAR.
+            It's the value retrived with function 'open'
+            my $result = open my $fh, "<", "pippo.txt";     $result is FALSE on errors
+            close $fh  # to close
+
+        readline    read a line of text (use chomp $line to del the '\n')
+            (ex $line = readline $fh)
+                    returns 'undef' on end of file;
+
+        < >         like readline     (ex $line = <$fh>)
+
+        eof         TRUE on eof
+
+               while(1) {                       |  while(!eof $fh) {         | while(<$fh>) {       |
+                   $line = readline $fh;        |      $line = readline $fh; |     # process $_...  |
+                   last unless defined $line;   |      ....                  | }                    |
+                   ....                         |  }                         |                      |
+               }                                |                            |                      |
+
+        STDIN / STDOUT / STDERR  (global constants)       print     is short for print STDOUT
+                                                          <>        is short for <STDIN>
+        -e "pippo.txt"           TRUE if file exists
+        -d                            if a dir
+        -f                            if a file
+
+--------------------------
+REG EX
+--------------------------
+        to TEST a match  =~ m//      m//g (to find another match after the previous one)
+                                           in SCALAR context is 1 at a time
+                                           in LIST   context are all together
+            if ($string =~ m/(\w+)\s+(\w+)/) {         # values in $1, $2, 
+
+                                     SCALAR context                      LIST context
+                               --------------------------------------------------------------------
+                               while($string =~ m/(\w+)/g) {          @all = $string =~ m/(\w+)/g;
+                                 print "'".$1."'\n";
+                                 }
+
+        to SUBSTITUTE    =~ s///    s///g  (to subst. all. RETURNS the num of subst!)
+            $string =~ s/[aeiou]//;       #del all vowels
+
+        /i     case-insensitive
+        /x     to contain whitespace \n comments :
+                                                   "Hello world" =~ m/
+                                                          (\w+) # one or more word characters
+                                                          [ ]   # single literal space, stored inside a character class
+                                                          world # literal "world"
+                                                         /x;
+        {}     instead of // as delimiters. 
+               Useful when there are a lot of slashes, (to avoid to escape each). 
+               ex. =~ m{///}              matches three literal forward slashes, 
+                   =~ s{^https?://}{}     removes the protocol part of a URL.
+--------------------------
+MODULEs / PACKAGEs
+--------------------------
+        MODULE:  a normal perl code file like .pl but .pm 
+                 It's intended to be included in another file, thus as it's read from top to bottom
+                 it's required a return TRUE (so they end as "1;")
+
+              require  AAA::BBB      'require' it's the keyword to include a file AAA/BBB.pm
+
+              PERL5LIB : perl uses this var to know the list of dir to search into.
+                         (usually so in .bashrc there is    export PERL5LIB=- : - : ...)
+                         'relative' to each of them perl searches a file ./AAA/BBB.pm
+
+        THE PROBLEM: having now a way to include files inside others, there is a problem as any included file
+                     can have 1 or more other 'require', so when calling a function 
+                                       WHERE is it? 
+                     There could be even more with the same name, so 
+                                       WHICH is it?
+         
+        PACKAGE: it's a namespace.
+
+                 each line of code written belongs to 1 package. At the beginnig of execution the package starts
+                 in the 'main' pack. but each 'package' cmd changes it
+
+              package  AAA::BBB     switch to a namespace AAA::BBB. Unfortunately it's used the same
+                                    :: as separator, but here AAA::BBB must not be a file AAA/BBB somewhere!!!
+                                    It only says all the code from now on belong to namspace AAA::BBB.
+                                    So if a fun() is defined now, in any other place it will be called
+                                    as AAA::BBB::fun(). Perl will open the file (whichever was the name)
+                                    and executes fun().
+
+        THE SOLUTION: to avoid possible mess, perl programmers use these 2 rules:
+                      1. a 'package' cmd must never be in a .pl file
+                      2. a  module.pm must always have 1 and only 1 'package' cmd with exactly its 
+                         relative pathname
+        
+--------------------------
+OO
+--------------------------
+                  "Perl is not a great language for OO programming. 
+                   Perl's OO capabilities were grafted on after the fact, and this shows."
+
+        object: is a reference. To use it as a refence to a class "CLASSNAME" use 'bless'
+                bless $o "CLASSNAME";  (it's like a cast in C)
+
+        method: an object-method is a fun whose 1' arg is an object    (and can be called as $o-> fun()
+                a  class -method is a fun whose 1' arg is a  pack name (            "       ex Package::Name-> fun())
+                in both cases it ends as     '-> fun()'
+                Perl has no private methods. Usually a method intended for private use is named with a leading '_'
+
+        class:  is a package containing methods
+
+        constructor: a class-method returning a new obj. It can have any name even if usually it's 'new'
+                sub new {
+                    my $class = shift @_;     <----- receiving a string like ex "CLASSNAME"
+                    return bless { "legs" => 4, "colour" => "brown" }, $class;
+                 }               ^                                
+                                 here an anomym. ref to an HASH casted to "CLASSNAME"
+
+                 ex.  $o = new Package::Name -> new();
+
+        INHERITANCE:   use parent ("Animal"); <---------- to add in the son file (ex Koala.pm)
+                       nb.  use parent accepts a list of parent class names, so Perl supports multiple inheritance, 
+                       (with all the benefits and horrors this entails).
+
+--------------------------
+BEGIN
+--------------------------
+        BEGIN blocks are ignored at execution time. They are executed during the 1st parsing of the 
+        file before parsing the rest. Even if they can be any number and anywhere in the file, put 
+        only 1 at the beginnng.
+
+--------------------------
+USE
+--------------------------
+
+         are respectively equivalent:
+         ----------------------------------------|----------------------------|-------------------
+         use Caterpillar ("crawl", "pup");       |   use Caterpillar ();      |   use Caterpillar;
+         ----------------------------------------|----------------------------|-------------------
+         BEGIN {                                 |   BEGIN {                  |   BEGIN {
+             require Caterpillar;                |       require Caterpillar; |       require Caterpillar;
+             Caterpillar->import("crawl", "pup");|   }                        |       Caterpillar->import();
+         }                                       |                            |   }
+         ----------------------------------------|----------------------------|-------------------
+
+            nb. require Caterpillar      : loads a 'module' (a file named Caterpillar.pm)
+                Carterpillar-> imnport() : calls a class-method ('package' Caterpillar)
+                   
+                  so it works only if module and package respects the rule
+            
+            import: is not a built-in fun. It's a method that must be defined by the user
+                    which any args and doing whatever.
+                    The most common way to define an import() method is to inherit it from Exporter.pm
+                    Exporter is a Perl core module.
+
+--------------------------
+EXPORTER
+--------------------------
+        import() In Exporter's implementation of import(), the list of arguments 
+                 is interpreted as a list of subroutine names
+                 Those subs besides their original pack, become available also in the current pack
+                 this means I can call them shortly as subx() instead the "longhand" AAA::BBB::subx()
+
+        @EXPORT  it's a var in Exporter that can also contain a list of sub names
+                                 our @EXPORT = ("crawl", "eat", "pup");
+                 they are exported if import is called with no args:    import()
+       
+
+--------------------------
+USEFUL MODULES
+--------------------------
 CPAN: Comprehensive Perl Archive Network
 
                        The CGI.pm module comes with Perl, so you should be able to read its documentation:
@@ -188,7 +808,10 @@ Dates and Times
             my @units = $duration->in_units( qw(year month day) );
             printf '%d years, %d months, and %d days', @units;       # 23 years, 4 months, and 14 days
             
---------------------------------------------------  DEBUGGERS
+--------------------------
+DEBUGGERS
+--------------------------
+
             perl5db.pl
 
 
@@ -244,26 +867,3 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
       
 
 
---------------------------------------------------- OBJECTS
-1st prog:
-
-       for portability (not sure where perl is located) 
-                   #!/usr/bin/env perl
-       as normally env is always in /usr/bin/env 
-               ________________________________
-               |                              |
-       #!/usr/bin/perl                  #!/usr/bin/perl                  
-       print "Hello, world!\n";         use 5.010;     <-----------
-                                        say "Hello World!";   <------ say put '\n'
-
-
-
-
-
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
---------------------------------------------------- OBJECTS
