@@ -16,6 +16,12 @@ git fsck           # to check integrity (of the pack)
 git show-ref       # lists all references
 
 
+
+
+
+git --version
+
+
 ______________________________________________
 HISTORY
 ______________________________________________
@@ -80,22 +86,25 @@ Committed: means that the data is safely stored in your local database.
 Modified:  means that you have changed the file but have not committed it to your database yet. 
 Staged:    means that you have marked a modified file in its current version to go into your next commit snapshot.
 
-The [Git directory] is where Git stores. 
-Where is cloned a repository from another computer.
+The [Git directory] is where Git stores the files and 
+where it is cloned a repository (from another computer (remotely) or even (locally))
 
-The [working directory] is where you modify files.
+The wd [working directory] is where you modify files.
 
-The [staging area] is a file, generally contained in your Git directory, 
+The [staging area or "index"] is a 'file', generally contained in your Git directory, 
 that stores information about what will go into your next commit. 
-It’s sometimes referred to as the “index”.
 
-The basic Git workflow goes something like this:
 
-    You modify/edit files in your working directory. 
+         -------    add     -------  commit  --------
+           WD     ------>    index   ----->    REPO
+         -------            -------          --------
+
+The basic Git workflow is:
+
+    You modify/edit files in your wd. 
 
     You stage the files, adding snapshots of them to your staging area. 
     (accumulate changes in your index)
-
 
     You do 1 commit, which takes the files as they are in the staging area and 
     stores that snapshot permanently to your Git directory. 
@@ -115,7 +124,7 @@ git    help --all       # list al possible commands
 git init                # create directory .git (the 'Git repository') 
                           in the directory where you are (considered thus your 'working dir'.
                           .git dir start empty. If you whant add some files:
-git add a.txt           # add file a.txt  (not yet committed: it's staged)
+git add a.txt           # add file a.txt  (not yet committed: it's staged) (work regex: git add *.p[lm])
 git add .               # add this dir and any sub-dir
 
 git status              # SHOW INDEX: shows what is staged and is going to be committed.
@@ -140,6 +149,12 @@ git show --pretty=fuller        #to see additional details about a given commit.
 git diff 9da581d910c9c4ac93557ca4859e767f5caf5169 \
          ec232cddfb94e0dfd5b5855af8ded7f5eb5c90d6   # show the diff between 2 commit
 
+                      -------    add     -------  commit  --------
+                        WD     ------>    index   ----->    REPO
+                      -------            -------          --------
+                                diff           diff --cached
+
+
                     diff can display 2 different sets of changes:
 git diff            wd / INDEX: displays the changes that remain in your working directory and are not staged;
 git diff --cached   INDEX / COMMIT: shows changes that are staged and will therefore contribute to your next commit.
@@ -150,32 +165,32 @@ git diff --cached   INDEX / COMMIT: shows changes that are staged and will there
                     the --cached will be full and git diff will show nothing.
 
 
-git rm a.txt                    # remove a file both from the INDEX & wd (N.B. it's really lost)
-git commit -m "Removed a.txt"   # committing it also repository gets aligned.
+git rm a.txt                    # remove a file both from the INDEX & wd 
+                                 (N.B. it's really lost, so normally must be forced: git rm -f a.txt)
+git commit -m "Removed a.txt"   # committing, also the repository gets aligned.
 
-1.3   mv 1.txt 2.txt   # 3 steps to rename a file (remove and add) or 
-2.3   git rm   1.txt   # 1 step only : git mv 1.txt 2.txt
-3.3   git add  2.txt  
+1.3   mv 1.txt   2.txt   # 3 steps to rename a file (remove and add) or 
+2.3   git rm -f  1.txt   # 1 step only : git mv 1.txt 2.txt
+3.3   git add    2.txt  
 
-git rm                    removes the file from both INDEX & wd
+git log  2.txt               # show the story of 2.txt, so I miss the story of 1.txt before the rename!
+                               git log --follow 2.tx can go back on 1.txt !!!!  (option --follow)
+
+
 git rm --cached           removes the file from the INDEX but leaves it in wd
 
                     Also a committed file can be removed (with the usual git rm) only in case the repository file
                     (called the HEAD) is the same of what present in the wd
                     In this case a rm thus remove from the wd, till to the repository (the HEAD) of that file.
                     and seems that the last version of the file has gone forever. Still Git can recovery:
-                    directory, git rm removes the file from both the index and the wd.
-$ git add pippo.txt
-fatal: pathspec 'pippo.txt' did not match any files
-Darn! Git removed the working copy, too! But don’t worry. VCSs are good at recovering
-old versions of files:
-$ git checkout HEAD -- pippo.txt
+                                                                                             |
+$ git add pippo.txt                                                                          |
+fatal: pathspec 'pippo.txt' did not match any files                                          |
+Darn! Git removed the working copy, too! But don’t worry. VCSs are good at recovering        |
+old versions of files:                                                                       |
+$ git checkout HEAD -- pippo.txt <-----------------------------------------------------------'
 $ cat pippo.txt
    bla bla bla bla  (recoverd in working area)
-
-git mv 1.txt 2.txt           # as seen can rename a file, so now 2.txt is the new version for 1.txt
-git log  2.txt               # show the story of 2.txt, so I miss the story of 1.txt before the rename!
-                               git log --follow 2.tx can go back on 1.txt !!!!  (option --follow)
 
 
 git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
@@ -188,8 +203,12 @@ git clone dir1  dir2     # copy the repository full path dir1 into the path dir2
                      it might be somewhere else (perhaps in /usr/local/etc/gitconfig), 
                      or may be entirely absent.
 
+git config --global user.name "Dan"
 git config --global user.name "Jon Loeliger"           # in $HOME/.gitconfig
-git config --global user.email "jdl@example.com"
+git config --global user.email "uuuuu@ddddd.com"
+git config --edit <----    open the file ex in vim <----    open the file ex in vim
+git config --help
+
 
 git config -l      # to show how the above settings are configured in your distro
 

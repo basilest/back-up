@@ -1,0 +1,118 @@
+
+__________________________________________________
+
+__________________________________________________
+It wites a txt file with the general structure
+      tag_name    <TAB>    file_name     <TAB>     ex_cmd;"   <TAB>     extension_fields
+
+ .  file name: where to go for that tag
+ .  EX command used to locate the tag; generally 
+                           a search pattern (either /pattern/ or ?pattern?) 
+                           or line number (see −−excmd). 
+    Line numbers: are the easiest way: go there and stop.
+                 It also reduces the size of the resulting tag file.
+    Search pattern: perform a search
+ .  The are some 'extensions' to the EX commands. These are managed with the extenson_fields
+
+--------------------------------------------------
+                       FILES PARSED
+--------------------------------------------------
+         ctags tries to determine the language of the file 
+         by applying the following 3 tests in order: 
+         
+      1. file extension (if known according to the internal mapping: 
+                         run ctags --list-maps to see the list
+                         )
+      2. shell knowkedge (if the file name matches a shell pattern mapped to a language) 
+      3. if the file is executable and its first line is the usual  "#!" 
+--------------------------------------------------
+                       USE FROM VI
+--------------------------------------------------
+             vi −t tag:    Start vi opening the file where tag is defined.
+             :ta tag       Find a tag.   (:tag is the long form, but use the short :ta)
+             Ctrl-]        Find the tag under the cursor.
+             Ctrl-T        Return to previous location before jump to tag (not widely implemented).
+             :pop          the same as Ctrl-T
+             :tnext        go to the next definition for tags that are in more files
+             :tprev        jump back wrt :tnext
+
+--------------------------------------------------
+             OPTIONS  RULE
+--------------------------------------------------
+     SPACE:          the space after a single-letter option is optional
+     BOOLEAN OPTION: 'yes'  'on'  '1'  and also nothing are the same:
+                     −−sort=yes
+                     −−sort=1
+                     −−sort=on
+                     −−sort    
+
+                     (also to turn them off there are equivalent ways:
+                      =no  =0   =off)
+
+
+--------------------------------------------------
+             OPTIONS  
+--------------------------------------------------
+
+-f  file     to specify a different from the default "tags"  (is the same to use letter o:  -o file)
+-L  file     a file conatining the LIST of which files to parse
+-R           --recurse[=yes|no]  go in subdir recursively
+--sort[=yes|no|foldcase]   specify if tag file internally must be sorted (legacy vi requires sorted
+                           so default is 'yes'.  -u  Equivalent to --sort=no (i.e. "unsorted").
+−−tag−relative[=yes|no]    specify that the paths recorded in the tags should be relative to the dir
+                           containing the tag file (rather than relative to the current dir) 
+-x           Print a tabular. Human readable form instead generating the tags file
+-V           verbose
+-F           (is the default)  the search is FORWARD  eg. /pattern/ in the file
+-B                             the search is BACKWARD eg. ?pattern?
+--excmd=     the values can be 
+             --excmd=number      use only line num method    (the short option is  -n)
+             --excmd=pattern     use search method           (                     -N)
+             --excmd=mixed       use both
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
+--------------------------------------------------
