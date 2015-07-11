@@ -22,6 +22,170 @@ git show-ref       # lists all references
 git --version
 
 
+usage: git [--version] [--help] [-C <path>] [-c name=value]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p|--paginate|--no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           <command> [<args>]
+
+available git commands in '/usr/lib/git-core'
+
+000  add                      :
+001  add--interactive         :
+002  am                       :
+003  annotate                 :
+004  apply                    :
+005  archive                  :
+006  bisect                   :
+007  bisect--helper           :
+010  blame                    :
+011  branch                   :
+012  bundle                   :
+013  cat-file                 :
+014  check-attr               :
+015  check-ignore             :
+016  check-mailmap            :
+017  check-ref-format         :
+020  checkout                 :
+021  checkout-index           :
+022  cherry                   :
+023  cherry-pick              :
+024  clean                    :
+025  clone                    :
+026  column                   :
+027  commit                   :
+030  commit-tree              :
+031  config                   :
+032  count-objects            :
+033  credential               :
+034  credential-cache         :
+035  credential-cache--daemon :
+036  credential-store         :
+037  daemon                   :
+040  describe                 :
+041  diff                     :
+042  diff-files               :
+043  diff-index               :
+044  diff-tree                :
+045  difftool                 :
+046  difftool--helper         :
+047  fast-export              :
+050  fast-import              :
+051  fetch                    :
+052  fetch-pack               :
+053  filter-branch            :
+054  fmt-merge-msg            :
+055  for-each-ref             :
+056  format-patch             :
+057  fsck                     :
+060  fsck-objects             :
+061  gc                       :
+062  get-tar-commit-id        :
+063  grep                     :
+064  hash-object              : calculate the SHA1 of a file:  git hash-object pippo.txt      
+065  help                     :
+066  http-backend             :
+067  http-fetch               :
+070  http-push                :
+071  imap-send                :
+072  index-pack               :
+073  init                     :
+074  init-db                  :
+075  instaweb                 :
+076  log                      :
+077  ls-files                 :
+078  ls-remote                :
+079  ls-tree                  :
+080  mailinfo                 :
+081  mailsplit                :
+082  merge                    :
+083  merge-base               :
+084  merge-file               :
+085  merge-index              :
+086  merge-octopus            :
+087  merge-one-file           :
+088  merge-ours               :
+089  merge-recursive          :
+090  merge-resolve            :
+091  merge-subtree            :
+092  merge-tree               :
+093  mergetool                :
+094  mktag                    :
+095  mktree                   :
+096  mv                       :
+097  name-rev                 :
+098  notes                    :
+099  p4                       :
+100  pack-objects             :
+101  pack-redundant           :
+102  pack-refs                :
+103  patch-id                 :
+104  prune                    :
+105  prune-packed             :
+106  pull                     :
+107  push                     :
+108  quiltimport              :
+109  read-tree                :
+110  rebase                   :
+111  receive-pack             :
+112  reflog                   :
+113  relink                   :
+114  remote                   :
+115  remote-ext               :
+116  remote-fd                :
+117  remote-ftp               :
+118  remote-ftps              :
+119  remote-http              :
+120  remote-https             :
+121  remote-testsvn           :
+122  repack                   :
+123  replace                  :
+124  request-pull             :
+125  rerere                   :
+126  reset                    :
+127  rev-list                 :
+128  rev-parse                :
+129  revert                   :
+130  rm                       :
+131  send-pack                :
+132  sh-i18n--envsubst        :
+133  shell                    :
+134  shortlog                 :
+135  show                     :
+136  show-branch              :
+137  show-index               :
+138  show-ref                 :
+139  stage                    :
+140  stash                    :
+141  status                   :
+142  stripspace               :
+143  submodule                :
+144  subtree                  :
+145  symbolic-ref             :
+146  tag                      :
+147  unpack-file              :
+148  unpack-objects           :
+149  update-index             :
+150  update-ref               :
+151  update-server-info       :
+152  upload-archive           :
+153  upload-pack              :
+154  var                      :
+155  verify-pack              :
+156  verify-tag               :
+157  web--browse              :
+158  whatchanged              :
+159  write-tree               :
+
+
+
+
+
+
+
+'git help -a' and 'git help -g' lists available subcommands and some
+concept guides. See 'git help <command>' or 'git help <concept>'
+to read about a specific subcommand or concept.
 ______________________________________________
 HISTORY
 ______________________________________________
@@ -197,7 +361,7 @@ git clone dir1  dir2     # copy the repository full path dir1 into the path dir2
 
                          Git supports a hierarchy of configuration files. They are:
 
-.git/config        # Repository-specific manipulated with --file   (highest precedence)
+.git/config        # Repository-specific manipulated with --local   (highest precedence)
 ~/.gitconfig       # User-specific       manipulated with --global 
 /etc/gitconfig     # System-wide         manipulated with --system (lowest precedence). 
                      it might be somewhere else (perhaps in /usr/local/etc/gitconfig), 
@@ -224,7 +388,7 @@ git config --global alias.show-graph \           # to define alias
 
 >>>>>>N.B.  EACH COMMIT INTRODUCES A TREE OBJECT THAT REPRESENTS THE ENTIRE REPOSITORY.
 
-Blobs            Binary Large Object: the content of a file, no other metadata (ex file-name)
+Blobs            Binary Large Object: the content of a file, no other metadata (ex no file-name !)
 Trees            stores Blob-id (the SHA1), file path, link to other trees
 Commits          store metadata (author, reason of change...) and a link to a Tree storing the snapshot
                  Normally 1 Commit has 1 other 'parent'-Commit but can have more 'parents'
@@ -237,8 +401,15 @@ Tags             add a human readbale identification to a Commit to avoid using 
                                          |
                                         [ B ]   BLOB   (file data)
 
-Pack file        Is a file where more contenst of file are stored and compressed together for
-                 performance reasons. Git is also able to find is more files are quite similar 
+git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   to see the content of a whichever node (blob tree or commit)
+                                                           from its hash
+git cat-file -t 3b18e...        return the type (ex. commit)
+git cat-file -s 3b18e...        return the size (bytes) (ex. 443))
+git cat-file -e 3b18e...        return 0 if node is 0K (echo $?)
+
+
+Pack file        Is a file where more contents of files are stored and compressed together for
+                 performance reasons. Git is also able to find if more files are quite similar 
                  and for them store only the content and the diff to recosntruct each.
 
 
@@ -248,15 +419,14 @@ literal .git.
 .git/objects     the directory (that starts empty) where each 'git add' will add 1 entry hash
                  the SHA1 of the content of the file.
                  The files in .git/obejcts are not the overall hash: 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
-                 but a directory named with the 2 byte (here 3b) of hash is created:
+                 but a directory is created, naming with the first 2 hex (1 bite)  (here 3b) of the hash:
                            .git/objects/3b/18e512dba79e4c8300dd08aeb37f8e728b8dad
-                 so that even if there are many files, there will be up to  256 subdir to cut the 
-                 number of files in the same dir (performance reasons for some filesystems)
+                 so that even if there are many files, there will be up to  256 subdirs to cut the 
+                 number of files in the same dir (performance reason for some filesystems)
 
-git rev-parse 3b18e512d     to get all the hash starting with that substring of an hash
-                            so obtaining here 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
+git rev-parse 3b18e512d     to get all the hash starting with that substring of a hash
+                            so here obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
 
-git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   to see the content of the file (like a normal cat)
 
 git ls-files -s            to see which files are in the index:
 git ls-files --stage       # long form
@@ -355,21 +525,20 @@ untracked         # all the working-dir files which remain after subtracting the
 
 git hash-object pippo.txt      # calculate the SHA1 of file pippo.txt in the working-dir
 
---interactive option              git add / git commit     useful to explore which files you would like 
-                                                           to stage for a commit.
+--interactive        useful option in    git add / git commit     to control which files process
 
 git commit --all               # or -a: commit everything also not staged (not work for new dirctories)
 
 .gitignore         Git allows you to have a .gitignore file in any directory within your repository. 
-                   Each file affects its directory and all subdirectories.
+                   EACH FILE AFFECTS ITS DIRECTORY AND ALL SUBDIRECTORIES.
                    A .gitignore file contains a list of filename to ignore.
-                   shell globbing characters, such as an asterisk ( * ), is expanded as a shell glob pattern
+                   shell globbing works ( *  [ ]   [! ]   (! negate))
                    An initial  !  inverts the sense of the pattern on the rest of the line.
 
 $ cat .gitignore                                 in a .gitignore:
 *.[oa]                                                 #        for comments
-*~          <--- ex aaaaaa.txt~                        .../     a / ending a path specify a dir
-                                                       standard glob works    *, [ ]   [! ]   N.B.(! negate)
+*~          <--- ex aaaaaa.txt~                        .../     ending / specifies a dir
+
 --------------------------  COMMIT                        
 
                    A commit is the ONLY method of introducing CHANGES to a repository.
@@ -395,7 +564,7 @@ git log --stat                             very very very useful stat info
 
 git log --shortstat
 git log --name-only                        list modified files
-git log --name-status                      list files +  what was done:  added / modified / deleted lines
+git log --name-status                      list files +  what was done:  added(A) / modified(M) / deleted(D)
 git log --abbrev-commit                    short SHA1
 git log --relative-date                    '5 months ago'    instaed of   'Wed Sep 24 14:19:24 2014' 
 git log --since, --after                    after  that time   --since="2008-10-01"
@@ -415,9 +584,9 @@ A symbolic reference, or symref, is a name that indirectly points to a Git objec
 
                       HEAD:         a symref to link to the last Commit
                       ORIG_HEAD     store previous value of HEAD during an update for a merge (if a recovery is needed)
-                      FETCH_HEAD    valid only immediately after a 'git fetch'. Git store in file .git/FETCH_HEAD
+                      FETCH_HEAD    valid only immediately after a 'git fetch'. Git stores in the file:.git/FETCH_HEAD
                                     all the HEADS of the remote branches fetched.
-                      MERGE_HEAD    is the value that HEAD coming from ORIG_HEAD is going to take.
+                      MERGE_HEAD    is the value that HEAD is going to take (coming from ORIG_HEAD)
                       
                       git symbolic-ref    the plumbing command to manage symref
 
@@ -459,7 +628,7 @@ git log   -1   -p 4fe86488
           -[n]  limit the output to n commits  (-1 single commit)
 
 git log --stat            enumerates the files changed in a commit adding the numebr of lines modified in each file.
-                          similar to   git diff --stat    which print as total difference
+                          similar to   git diff --stat    which print the differences
 
 
 git log --graph --pretty=oneline --abbrev-commit       to see a graph view
@@ -478,7 +647,7 @@ Reachability:   for the graph of Git nodes, is the set of parents nodes (as pare
                                "give me all commits that are reachable from Y and don’t give me any
                                 commit leading up to and including X"
 
-HEAD is assumed:   If in a Commit RANGE you don't write leave either the 'start' or 'end'  
+HEAD is assumed:   If in a Commit RANGE you don't write either the 'start' or 'end'  
                           ..end      is equivalent to HEAD..end 
                           start..    is equivalent to start..HEAD 
 
@@ -568,7 +737,7 @@ view branch:         git show-branch      to see more use -r (remote tracking)  
                              bug/pr-1
                              dev
                            * master      * : branch checked out into working dir
-      git show-branch
+      git show-branch 
 
       ! [bug/pr-1] Fix Problem Report 1       \   this fisrt section lists each branch on 1 line, with * for
        * [dev] Improve the new development     |  active branch and ! for the others.  Each branch is shifted
@@ -594,7 +763,7 @@ checking out branch:   your working directory can reflect only 1 branch at a tim
                        Then you use 'git checkout  dev'   to set active the specified branch (here dev)
 
                        Git place the files in the working dir. For any case where you risk some not saved file
-                       currently present in the wd will be overwritten, Git stop without checking out.
+                       currently present in the wd will be overwritten, Git stops without checking out.
                        You can still force Git to preceded with option -f
 
         git checkout -m dev      -m ask Git to merge files from wd with the branch.
@@ -618,7 +787,7 @@ delete branch:   Remember, a branch is simply a name or pointer to a commit (tha
                  prune away commits that are no longer referenced (by a branch or tag name).
                  They are collected as garbage by the git gc tool.
 
-git reflog       commands to recove from accidentally removing a branch or 
+git reflog       commands to recover from accidentally removing a branch or 
 git fsck         commits, files, and heads.
 gc.reflogExpire
 gc.pruneExpire                 
@@ -631,7 +800,7 @@ diff -u 1 -r           # normal linux cmd:       -u    gives 1 line of context (
                                                        (say, original/src/main.c and new/src/main.c)
 
 git diff                   # wd / INDEX. Says what is dirty in the working dir that must be staged.
-git diff commit            # wd / specified COMMIT (use HEAD normally)
+git diff commit            # wd / specified COMMIT (used HEAD normally)
 git diff --cached [commit] # INDEX  / specified COMMIT (use HEAD if not specified)
 git diff --cached [commit] # INDEX  / specified COMMIT (use HEAD if not specified)
 
@@ -639,7 +808,7 @@ git diff --cached [commit] # INDEX  / specified COMMIT (use HEAD if not specifie
                  options:
                  --M                       for files renamed print a customize output (not the usual)
                  -w or --ignore-all-space  skip diff on blanks
-                 --stat                    adds statistics  <------ OTTIMA : usala x avere un breve riassunto.
+                 --stat                    adds statistics  <------ GREAT : use it to have a short abstract
                  --color                   adds color
 
 git diff / git log:       gitt diff:  compares only 2 imagines, a start and an end
@@ -652,24 +821,24 @@ git diff / git log:       gitt diff:  compares only 2 imagines, a start and an e
 
 git diff --stat master~5 master dir_x           # if you specify a dir (here dir_x) diff limits on that dir
 git diff --stat master~5 master dir_x/main.c    # or limits on a single file (here main.c inside dir_x)
-git diff -S"octopus" master~50                  # list only diff containing specifid String
+git diff -S"octopus" master~50                  # lists only diff containing specified String
 
 git difftool  --tool-help    to see external graphical tool ex.     
 git difftool  --tool=vimdiff
 
 --------------------------  MERGE
-                   Before merge tidy up your wd + index (
-                   Git creates new versions of files in wd + store temp files in index
+                   Before merging,  tidy up your wd + index (
+                   Git creates new versions of files in wd + stores temp files in index
                    ).
-                   This means that repository is updated and any file in wd is somewhere there
-                   so any file in the wd can be rm o overwritten by git with no loss.
+                   This means that repository is updated and any file in wd is somewhere there.
+                   So any file in the wd can be rm or overwritten with no loss.
 
-git status               # and see which is the active branch (suppose master)
+git status               # to be sure  which is the active branch (suppose master)
 ls                       # to see files in the wd. Suppose I have 2 files A.txt B.txt
-git chekout dev          # change branch to dev (suppose dev only has 1 file A.txt different from master:A.txt)
+git chekout dev          # to change branch to dev (suppose dev only has 1 file A.txt different from master:A.txt)
                            Use ls now to see that after this command, in wd B.txt is no more present, A.txt is the dev one)
 modify A.txt             
-git commit -a            # this add + commit A.txt in dev
+git commit -a            # this adds + commits A.txt in dev
 git status               # dev is still the active branch
 git checkout master      # in wd there is again B.txt and the old A.txt, active branch is master 
 git merge dev            # this change physically the text inside A.txt in wd with the merge from master:A.txt and dev:A.txt
@@ -708,12 +877,12 @@ git ls-files -u -s      help to see the set of files under merge conflicts
                                              git cat-file -p e63164d951
 
 git log --merge --left-right -p
-                                 --merge : show only Commits related to files that produced conflicts
+                                 --merge : shows only Commits related to files that produced conflicts
                                  --left-right : marks with < the Commits from left ('our' part, above ex is master)
                                                 and > the right or 'their' part (above ex is dev)
                                  -p shows the commit message and the patch associated
 
-git log --merge --left-right -p  A.txt       if you only want display for a single file A.txt
+git log --merge --left-right -p  A.txt       if you only want to display for a single file A.txt
 
 
 undo a merge:          to go back at the point before the 'git merge'  (so having a clean wd)
@@ -724,29 +893,31 @@ undo a merge:          to go back at the point before the 'git merge'  (so havin
 
 --------------------------  ALTERING COMMITS
                          Git allows to re-write or re-organize the history (the Commits) if you
-                         like to di it. 
-git reset --soft  commit     # moves HEAD to point to that Commit. wd + index reamain untached
-git reset --mixed commit     # [default]  moves HEAD and align on that Commit also index not wd (as having all staged)
-git reset --hard  commit     # already seen above. Move back all:  HEAD / index / wd
+                         like to do it. 
+                             # moves HEAD to point to that Commit:
+                             #                         HEAD     wd       index
+git reset --soft  commit     #                          Y       -         -
+git reset --mixed commit     # [default]                Y       -         Y   <- = to reset index to the status = repo without losing changes in WD (like a rm --cahced)
+git reset --hard  commit     # already seen above.      Y       Y         Y
 
         ex 1 - remove a file from the index (leaving all unchanged)
-            git ad foo.c                     # I accidentally stage a file
-	    git ls-files -->  ... foo.c      # I see it among other
-	    git reset HEAD foo.c             # Remove from index (set HEAD as if it was before it was present)
-	    git ls-files -->  ...            # removed
+        git ad foo.c                     # I accidentally stage a file
+        git ls-files -->  ... foo.c      # I see it among other
+        git reset HEAD foo.c             # Remove from index (set HEAD as if it was before it was present)
+        git ls-files -->  ...            # removed
 
         ex 2 - remove the last commit (not changing wd) so that I can modify again what in wd and commit
-            git reset HEAD^                  # go 1 commit back (without change wd)
-	    .... edit in wd
-	    git commit
+            git reset HEAD^              # go 1 commit back (without change wd)
+        .... edit in wd
+        git commit
 
         ex 3 - only change the message of last Commit
-            git reset --sodt HEAD^                  # go 1 commit back (without change wd and index)
-	    git commit                              # you can add the new message
+        git reset --soft HEAD^           # goes 1 commit back (without changing wd / index)
+        git commit                       # you can add the new message
 
         ex 4 - remove 2nd Commit
-            git reset --hard HEAD^                  # go 1 commit back (change wd !! and index)
-            ls                                      # I see we as it was 
+            git reset --hard HEAD^       # go 1 commit back (change wd !! and index)
+            ls                           # I see as it was 
 
 
 --------------------------  1/10
