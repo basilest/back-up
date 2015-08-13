@@ -24,25 +24,6 @@ chmod +x test.py
 
 
 
-Wow!
-Helenl, you're so nice... even too much,
-for sure too much young, and a bit too far either,....
-By the way, pleased to know you exist.
-I hope a nice guy there,  wakes up, and cross your way.
-I wish for me also a Bristol hand to hold for sharing a walk.
-So good luck to both of us!!
-
-Hi,
-thanks to had a quick stop at my page.
-I had no option to find yours before, as I limited my circle
-around Bristol.
-By the way, pleased to know you exist.
-even if a bit too far.
-I hope a nice guy over there,  wakes up, and cross your way.
-Well, .. I wish for me also someone wakes up in Bristol 
-just to have one hand to hold for sharing a walk.
-So good luck to both of us!!
-
 ________________________________________
 
 #--------------- <-- comment line
@@ -84,7 +65,7 @@ ________________________________________
                name, country, language = data      name:Kushal Das country:India language:Python
      
                n.b.  tuple are immutable cannot be added\remove values
-                     a tuble of 1 elem is (1,)  not (1)
+                     a tuple of 1 elem is (1,)  not (1)
 
 named tuple    For readability I can give a name xxx to a tuple
                namedtuple('xxx', ...)
