@@ -1,0 +1,1070 @@
+___________________________ vim plugin for C\C++
+               1. clang_complete 
+               2. map <F8> :!g++ % && ./a.out <CR>
+               3. garbas/vim-snipmate
+
+--------------------------------------------------------
+g++ -std=c++0x example.cpp -o example_program
+--------------------------------------------------------
+
+"case sensitive"
+
+
+Comment:   // line comment
+           /* block comment */ 
+
+
+:: namespaces:
+
+       #include <iostream>                   | #include <iostream>
+                                             | using namespace std;
+                                             | 
+       int main ()                           | int main ()
+       {                                     | {
+         std::cout << "Hello World! ";       |   cout << "Hello World! ";
+         std::cout << "I'm a C++ program";   |   cout << "I'm a C++ program";
+       }                                     | }
+
+-------------------------------------------------------- 3 way to init vars
+
+   tradintional:            int x = 0;
+   like class construct:    int x (0);   #constructor initialization
+   new C++ 2011             int x {0};   #uniform initialization
+
+-------------------------------------------------------- auto
+auto:   
+             int foo = 0;
+             auto bar = foo;  // the same as: int bar = foo; 
+
+                
+decltype     int foo = 0;
+             decltype(foo) bar;  // the same as: int bar; 
+
+-------------------------------------------------------- strings
+
+string mystring = "This is a string";
+string mystring ("This is a string");
+string mystring {"This is a string"};
+
+x = "string expressed in \
+two lines"
+
+    // n.b. can change its value during execution:
+
+    s = "This is the initial string content";
+    cout << s << endl;
+    s = "This is a different string content";
+
+These are 'library strings' specific of C++
+C-string (some parag. below) are also considered (overloaded) 
+C-string is the legacy view od a string as an array of chars
+
+   char question1[] = "What is your name? "; <-- C-string (fixed SIZE)
+   string question2 = "Where do you live? "; <-- library string (dynamic SIZE)
+
+   char myntcs[] = "some text";
+   string mystring = myntcs;  // convert c-string to string
+   cout << mystring;          // printed as a library string
+   cout << mystring.c_str();  // printed as a c-string 
+
+
+-------------------------------------------------------- const 
+    75         # decimal
+    0113       # octal
+    0x4b       # hexadecimal  
+
+    75         # int                     3.14159    # 3.14159
+    75u        # unsigned int            6.02e23    # 6.02 x 10^23
+    75l        # long                    1.6e-19    # 1.6 x 10^-19
+    75ul       # unsigned long           3.0        # 3.0  
+    75lu       # unsigned long 
+    3.14159L   # long double
+    6.02e23f   # float  
+
+    /------- char
+ 
+ 
+ 
+
+    /------- string
+    x = u"abcdef"         # u  # char16_t
+    x = U"abcdef"         # U  # char32_t <--- case sensitive
+    x = L"abcdef"         # L  # wchar_t
+    x = u8"abcdef"        # encoded using UTF-8
+
+    x = R"&%$(string with \backslash)&%$"      #Raw string delimited by R".s1.( ).s1.
+                   . s1 can be null or any seuqence of char
+                   . R can be mixed con any of: u,U,L,u8
+
+        Raw string literal are used to avoid escaping of any character, 
+        anything between the ()  becomes part of the string 
+
+         version with escapes                   |    version without escapes
+        ----------------------------------------|----------------------------
+        const char* s = "\nHello\nWorld\n";     |    const char* s = R"foo(   
+                                                |    Hello
+                                                |    World
+                                                |    )foo";
+   
+    
+    
+
+-------------------------------------------------------- const keywords
+
+    bool foo = true;        'true' is a keyword
+    bool bar = false;                   idem
+    int* p   = nullptr;                 idem
+
+-------------------------------------------------------- comma ','
+
+a = (b=3, b+2);              execute both, and returns the 2'
+                             so at the end:  b=3, a=5
+
+    
+-------------------------------------------------------- Basic In / Out
+
+    cin     keyboard               int i;
+    cout    video                  cout << "Please enter an integer value: ";
+    cerr    error                  cin >> i;
+    clog    log
+
+>>          insertion   operatior (<<) 
+            extraction  operatior (>>) 
+            
+  
+  
+  
+multiple insertion operations (<<) may be chained in a single statement:
+also mix string and var
+
+    cout << "This " << " is a " << "single C++ statement";
+    cout << "I am " << age << " years old and my zipcode is " << zipcode;
+
+
+    cin >> a >> b;         equivalent to:    cin >> a;  Any kind of space is used 
+                                             cin >> b;  to separate 2 consecutive inputs; 
+                                                        this may either be a 
+                                                        space, a tab, or a new-line. 
+       
+    string s;       
+    cin >> s;       could not work as expected as instead of a phrase
+                    the 1st 'blank' would load in s only the 1st word.
+                    better:   getline (cin, s);
+
+
+stringstream        #include <sstream>
+                    allows a string to be treated as a stream, 
+                    thus allowing extraction or insertion
+                    in the same way as they are performed on cin and cout.
+                    This feature is most useful to convert strings <--> num
+
+                    string s ("1204");
+                    int i;
+                    stringstream(s) >> i;
+
+                        
+        
+       
+                                             
+
+\n 
+enfl          cout << "First sentence.\n";
+              cout << "First sentence." << endl;
+
+
+
+        
+-------------------------------------------------------- constructs
+  if ()        while () {      do {             for (;;) {
+   ..            ..               ^               ..
+  else if      }               } while ();      }
+   ..                                    ^
+  else
+
+
+  for ( declaration : range ) ..;       range: seq of elem:
+                                                    - arrays
+                                                    - containers
+                                                    - any type with functions ( begin, end)
+
+  nb. strings are 'sequence' of chars
+
+     string str {"Hello!"};
+     for (char c : str)              for (auto c : str)
+     {                                      ^
+       std::cout << "[" << c << "]";
+     }
+     std::cout << '\n'
+
+-------------------------------------------------------- fucntions
+    void can be used also in the args part:
+
+    void  funct ()      void funct (void)
+
+exit values:  returned by main()       header <cstdlib>
+              0 (or EXIT_SUCCESS)
+              EXIT_FAILURE
+
+
+
+in C++ strings can be passed by value. It's possible to write both
+
+        passed by value                               passed by ref
+   string concatenate (string a, string b)       string concatenate (string& a, string& b)
+   {                                             {
+     return a+b;                                   return a+b;
+   }                                             } 
+
+                                             string concatenate (const string& a, const string& b)
+                                                                  ^                 ^
+inline: added in a fun decl. instructs the compiler to expand the code
+        inside the caller code, instead using the normal call of funtions
+        (this is presumed for functions with a little body, to gain in efficeincy)
+
+         inline string concatenate (const string& a, const string& b)
+         {
+           return a+b;
+         }
+
+default args:    ex. int divide (int a, int b=2)
+
+overload:  Note that a function cannot be overloaded only by its return type. 
+           At least one of its arg must have a different type.
+
+function templates: with the overload I can have many funct where 
+           only the arg types change, but the body is then the same (suppose
+           a fun to add 2 int, 2 long, 2 double, 2 float).
+           A way to zip the code, is declare this function normally (in the body)
+           while in the main line declare it as
+
+               template <class SomeType> <--- I'll can use SomeType as any other type from now on
+               SomeType sum (SomeType a, SomeType b)        in the funct definition
+               {
+                 return a+b;
+               }
+
+               the call will have this syntax:
+
+               x = sum<int>(10,20);                # fun <type> (..args..)
+
+
+
+
+               Easy when need to have more types:
+
+               template <class T, class U>            call it as 
+               bool are_equal (T a, U b)              are_equal<int,double>(10,10.0)
+               {
+                 return (a==b);
+               }
+
+
+inner scope
+                // inner block scopes
+
+                int main () {
+                int x = 10;
+                int y = 20;
+                {
+                       int x;   // ok, inner scope.
+                       x = 50;  // sets value to inner x
+                       y = 50;  // sets value to (outer) y
+                       ..
+                } <-- end of inner scope
+
+
+namespace scope
+                define with this syntax          call with this syntax
+                ------------------------------------------------------
+                  namespace basilest              basilest::a;
+                  {                               basilest::fun();
+                    int a, b; 
+                    int fun () {..}
+                  }
+
+                  namespaces can be splitted, but it's bad to read:
+
+                  namespace foo { int a; }
+                  namespace bar { int b; }
+                  namespace foo { int c; } <--- again foo
+
+using          this keyword can compact code:
+
+     namespace first                |                                |
+     {                              |                                |
+       int x = 5;                   |                                |
+       int y = 10;                  |                                |
+     }                              |                                |
+                                    |                                |
+     namespace second               |                                |
+     {                              |                                |
+       double x = 3.1416;           |                                |   int main () {
+       double y = 2.7183;           |                                |     {
+     }                              |                                |         using namespace first;
+                                    |                                |         cout << x << '\n';
+     int main () {                  |     int main () {              |     }
+         using first::x;            |          using namespace first;|     {
+         using second::y;           |                                |         using namespace second;
+         cout << x << '\n';         |          cout << x << '\n';    |         cout << x << '\n';
+         cout << y << '\n';  <--y 2 |  y 1 --> cout << y << '\n';    |     }
+             
+
+-------------------------------------------------------- array
+
+  int foo [5] = { 16, 2, 77, 40, 12071 };    # init with { }
+  int foo [5] = { 16, 2, 77 };               # OK: the others are 0!
+  int foo [5] = { };                         # OK: all 0!
+
+  int foo [] = { 16, 2, 77, 40, 12071 };     # OK foo is calculated as len:5
+
+  int foo [] { 16, 2, 77, 40, 12071 };       # OK also for array 'universal init' (without =)
+
+
+strings:    as they are normal array, the following has the same effect
+
+     char myword[] = "Hello"; 
+     char myword[] = { 'H', 'e', 'l', 'l', 'o', '\0' };
+
+-------------------------------------------------------- pointer
+
+    pointer that cannot modify the data they point to:
+
+    const int * p = &x;       are both the same. const can be put prefix (better)  const type
+    int const * p = &x;       or after (type const) 
+
+    In the above case p can then be changed, but x can never be modified through p.
+
+    To specify that a pointer p gets a value and then cannot be changed:
+
+          int * const p = &x;
+    
+    So in this case x can be modified through p and p can only point forever to x.
+
+    The syntax to say p cannot change itself, and through p you cannot change x is thus:
+
+    const int * const p = &x;   (so p could be only used to READ x)
+
+
+
+new / delete    new [] / delete []
+
+          pointer = new type                             delete pointer;
+          pointer = new type [number_of_elements]        delete[] pointer;
+
+          int * foo;
+          foo = new (nothrow) int [5]; <--- C++ construct to intercept (without throw an exception)
+          if (foo == nullptr) {             that the heap is full
+            // error assigning memory. 
+               Take measures.
+          }
+
+   nb.  malloc, calloc, realloc free, 
+        defined in <cstdlib> (known as <stdlib.h> in C). 
+        are also available in C++,  note that are not necessarily compatible 
+        with new / delete so they should not be mixed; 
+        each one should be handled with its own.
+
+-------------------------------------------------------- reference
+
+  reference is a C++ type, to specify a const pointer (a pointer which cannot address
+  anything else than the var it has been init for)
+  The compiler implicitly adds the * when dereferencing.
+
+
+  the syntax is (type &)
+          int x = 0;
+          int &r = x;         # <--- a refe. is ALWAYS init.  (nb. it's not &x)
+
+          if p is a pointer 
+          int *p;
+
+          pointer and reference speak each other like as a reference is an object:
+
+          p = &r;     <--- NOT p = r
+          r = *p;     <--- NOT r = p
+
+          while pointers refer class members like p-> a
+          references syntax is r.a
+          
+  References are normally used when passing var by reference in functions.
+  So the usual way is:
+        bool Dummy::isitme (Dummy& param)
+        {
+          if (&param == this) return true;
+          else return false;
+        }
+
+  Besides when declaring (where there is that strange &), 
+  then write you C++ code thinking as an object (not a pointer) and any & or *
+  in your instruction will be put right for free !
+  for example:
+     CVector& CVector::operator= (const CVector& param)
+     {
+       x=param.x;
+       y=param.y;
+       return *this;
+     }
+
+-------------------------------------------------------- struct / union
+
+       struct product_t {            |        struct product {
+         int weight;                 |          int weight;
+         double price;               |          double price;
+       } ;                           |        } apple, banana, melon;
+                                     |
+       product_t apple;              | 
+       product_t banana, melon;      | 
+       _______________________________________________________
+
+       union mix_t {      
+         int l;           
+         struct {         
+               short hi;  
+               short lo;  
+         } s;             
+         char c[4];       
+       } mix;             
+
+       _______________________________________________________
+       struct book1_t {           |    struct book2_t {
+         char title[50];          |      char title[50];
+         char author[50];         |      char author[50];
+         union {                  |      union {
+                 float dollars;   |              float dollars;
+                 int yen;         |              int yen;
+          } price;  <--- name     |      };  <---  anonymous
+        } book1;                       } book2;
+       _______________________________________________________
+
+       book1.price.dollars              book2.dollars
+       book1.price.yen                  book2.yen
+       _______________________________________________________
+
+-------------------------------------------------------- typedf / using
+   C style:                              |  C++ new 
+   typedef existing_type new_type_name ; |  using new_type_name = existing_type ;
+   ____________________________________________________________________________
+    typedef char C;                      |  using C = char;
+    typedef unsigned int WORD;           |  using WORD = unsigned int;
+    typedef char * pChar;                |  using pChar = char *;
+    typedef char field [50];             |  using field = char [50]; 
+
+-------------------------------------------------------- Enum
+   legacy C style:  (they are integer)
+   _______________
+   enum type_name {
+     value1,
+     value2,                 enum colors_t {black, blue, green, cyan, red, purple, yellow, white};
+     value3,                 colors_t    c = blue;
+     ..
+   } object_names;
+
+   C++ alternative  (enum class)
+   _______________
+   enum class Colors {black, blue, green, cyan, red, purple, yellow, white};
+   
+   Colors c;
+   c = Colors::blue;
+   if (c == Colors::green) c = Colors::red;
+
+   nb. can be any type of int (char, short, unsigned int) the syntax is ': type'
+       enum class EyeColor : char {blue, green, brown}; 
+     
+-------------------------------------------------------- Class
+    class Rectangle {
+        int width, height;   <---- whet missing 'access specifier' it's PRIVATE (default)
+        public:
+        void   set_values (int,int);
+        int area (void); |
+    } rect;              |
+                         |
+    void Rectangle::set_values (int x, int y) { <---- nb. I can define memebrs outside  (I use the scope)
+      width = x;                                          the diff is that inside the class they are 'inline'
+      height = y;                                         the compiler makes optimization code.
+    }
+
+    Instead of the keyword 'class' I can use 'struct' or 'union' 
+    the only diff is that instead of 'PRIVATE' members if not specified are 'PUBLIC'.
+    (And union of course has mutually exclusive the members!)
+
+
+
+
+
+
+Constructors:     never have return val
+
+default constructor:   takes no args, and 
+                       it is called when an object is only declared:    ex  Rectangle r;
+
+uniform initialization:  recently C++ has allowed the uniform initialization also for Classes
+                         that it's the same that call a constructor with {} instead of ()
+
+                         class_name o { value, value, value, ... } 
+                         class_name o = { value, value, value, ... }     optionally a =
+
+
+      This syntax allows to call the default constructor in the declaration                 
+
+                     Rectangle rectd{};   <--- called default const.
+                     Rectangle rectc();   <--- NO!  this is the prototype of a function (void) return Rect.
+
+GENERAL RULE:  if a Class as no construct at all, the compiler provides the 'default constructor' 
+               so declaration as
+                             Rectangle r;
+               are ok.
+               But if at least 1 const. is provided, the implicit const. is no more provided
+               by he compiler. In this cases the above declaration is accepted only if
+               there is an explicit ' default const'. 
+                         Rectangle () { ..}
+
+
+Member initialization.
+      Inside a constructor can be used the following fast syntax to init members
+      
+       Rectangle::Rectangle (int x, int y) { width=x; height=y; }
+       Rectangle::Rectangle (int x, int y) : width(x) { height=y; }
+       Rectangle::Rectangle (int x, int y) : width(x), height(y) { }
+
+       or also the uniform initializer with {} instead of ()
+
+       Rectangle::Rectangle (int x, int y) : width{x}, height{y} { }
+            
+Destructor: is a member function (with tilde sign(~)) very similar to a default constructor: 
+            it takes no arguments and returns nothing, not even void. 
+
+              class Example4 {
+                  string* ptr;
+                    public:
+                      Example4() : ptr(new string) {}
+                      Example4 (const string& str) : ptr(new string(str)) {}
+                      ~Example4 () {delete ptr;}
+              };
+
+
+Copy constructor:
+           in an instruct like  a(b) where object a of tipe T is created 
+           passing as arg another object b (still type T) the compiler looks for a Copy construct
+           a constructor whose first parameter is of type reference to the class itself.
+           If there isn't it provides an implicit one (making a shallow-copy) of all vars.
+           In case likethe Example4 before, this implicit copy, provides the same
+           heap pointer ptr to both a & b. BAD
+           So it's better in this cases to provide a deep-copy explicitally through
+           a capy constr.
+
+           Example4 (const Example4& x) : ptr(new string(x.content())) {}
+
+Copy assignment: all what said for Copy cosnt (included implicit shallow-copy)  is performed
+           on instructions like a = b, where a is already created, and there is only a copy-assignment.
+
+           So for the same reason, of problems with the implicit solution, here the explicit way:
+
+           Example4& operator= (const Example4& x) {
+             delete ptr;                      // delete currently pointed string (avoid leak in the heap)
+             ptr = new string (x.content());  // allocate space for new string, and copy
+             return *this;
+           }
+
+Move constructor and assignment:  they are used when in instruct like a = f() where f returns a type T
+          instead of copy, from the 'unnamed object' returned by f() to a, that data is 'moved' to be referenced
+          by a.
+          It's the only case where the strange 'rvalue reference' && symbols is used:
+
+           Example4 (Example4&& x) : ptr(x.ptr) {x.ptr=nullptr;}  // move constructor
+           Example4& operator= (Example4&& x) {                   // move assignment
+                 delete ptr; 
+                 ptr = x.ptr;
+                 x.ptr=nullptr;
+                 return *this;
+           }
+           nb. Compilers already optimize many cases that formally require a move-construction.
+
+= default    We have seen that as soon as there are explicit fun, the compilere provdides
+= delete     implicit code. To bypass this mechanism, there are the keyword default / delete
+             with the following syntax. The delete, specify that this function must not be
+             considered available for that class (so if a copy constr is required for a class
+             that has specified 'delete' a compiler error is traced, as that instr. is not supported).
+             default, means to code and call the implicit function that the compilere would have added.
+
+          ex. Rectangle() = default;
+              Rectangle (const Rectangle& other) = delete;
+-------------------------------------------------------- Overloading operators
+
+  type operator sign (parameters) { /*... body ...*/ } 
+
+  CVector operator + (const CVector&);               Once declared, can be called either 
+                                                     implicitly: c = a + b 
+                                                     explicitly: c = a.operator+ (b);
+                                                                               ^
+                                                                               no space
+
+  ___________________________________________________________________________________________________
+    operator defined as a member                           operator defined as non-member function
+  ___________________________________________________________________________________________________
+  class CVector {                                      |      class CVector {
+    public:                                            |        public:
+        int x,y;                                       |            int x,y;
+        CVector () {};                                 |            CVector () {}
+        CVector (int a,int b) : x(a), y(b) {}          |            CVector (int a, int b) : x(a), y(b) {}
+        CVector operator + (const CVector&);           |      };
+  };                    ^                              |    
+                                                       |    
+  CVector CVector::operator+ (const CVector& param) {  |      CVector operator+ (const CVector& lhs, const CVector& rhs) {
+        CVector temp;      ^                           |            CVector temp;
+        temp.x = x + param.x;                          |            temp.x = lhs.x + rhs.x;
+        temp.y = y + param.y;                          |            temp.y = lhs.y + rhs.y;
+        return temp;                                   |            return temp;
+  }                                                    |      }
+
+
+-------------------------------------------------------- static members
+
+  class Dummy {                  they cannot be initialized directly in the class, 
+    public:                      but need to be initialized somewhere outside
+    static int n;   <----        int Dummy::n=0;
+    Dummy () { n++; };
+    ~Dummy () { n--; };          usega:   cout << Dummy::n
+  };
+
+  static vars, only enjoy the 'class scope' but actually have 
+  the same properties as non-member var.
+  The same of course is for 'static' functions Because they are like non-member functions, 
+  they cannot access non-static members of the class (neither member variables nor member functions). 
+  They neither can use the keyword this.
+
+
+-------------------------------------------------------- const
+
+   a const object o:
+
+   const MyClass o;     cannot be modified (o.a = 5) even the functions o.f()
+                        can be called, if they have been declared const
+
+                        ex.  int get() const {return x;}        // const member function
+
+                        note this other syntax what means:
+                             const int& get() {return x;}       // member function returning a const&
+                             const int& get() const {return x;} // const member function returning a const& 
+    
+-------------------------------------------------------- template
+  class templates act like fun temp:
+   
+   template <class T>
+   class mypair {                                         call it like:  mypair<int> i (115, 36);
+       T values [2];                                                     mypair<double> f (3.0, 2.18);
+       public:
+       mypair (T first, T second)
+       {
+           values[0]=first; values[1]=second;
+       }
+   };
+
+   if the definition of a fun is outside, the syntax is:
+          
+          template <class T>
+          T mypair<T>::getmax ()
+          {
+            T retval;
+            retval = a>b? a : b;
+            return retval;
+          }
+
+Template specialization:
+    when a class template for a specific type (ex. char) can be better coded,
+    we define a specialized template, the syntax is not the 1. below but the 2.
+
+       1. template <class T> class myc        { ... }  # here the code for general case
+       2. template <>        class myc <char> { ... }; # here the code for char case
+
+   When we declare specializations for a template, we must also define all its members, 
+   even those identical to the generic template, because there is no "inheritance" 
+   of members from the generic template to the specialization.
+
+------ resume on tamplates:
+function:
+    template <class T, class U>  bool are_equal (T a, U b)        are_equal<int,double>(10,10.0)
+class:
+1. template <class T> class myc        { ... }    myc<int>  i(..)
+2. template <>        class myc <char> { ... };   myc<char> i(..)
+
+
+-------------------------------------------------------- friend fun
+  Friends are functions or classes that 
+  can access the PRIVATE and PROTECTED members of a class.
+
+  ------ friend fun:
+
+  class Rectangle {
+      int width, height;
+      public:
+      Rectangle() {}
+      Rectangle (int x, int y) : width(x), height(y) {}
+      int area() {return width * height;}
+      friend Rectangle duplicate (const Rectangle&); <--- inside the class the declaration of
+   }   ^^^^                                               a friend fun
+
+   Rectangle duplicate (const Rectangle& param)
+   {
+     Rectangle res;
+     res.width = param.width*2;
+     res.height = param.height*2;
+     return res;
+   }
+
+  ------ friend class:
+
+     class Square; <-------  here as used already here (before definition)
+                                       | 
+     class Rectangle {                 |  
+         int width, height;            |  
+         public:                       |  
+         int area ()                   |  
+         {return (width * height);}    |  
+         void convert (Square a); <----'   
+     };                                   
+
+     class Square {
+         friend class Rectangle;  <----- inside the class the declaration of a frind class
+         private:
+           int side;
+         public:
+           Square (int a) : side(a) {}
+     };
+
+     void Rectangle::convert (Square a) {
+         width = a.side;
+         height = a.side;
+     }
+
+  friendships is not transitive: 
+  friend of a friend is not considered a friend unless explicitly specified.
+
+-------------------------------------------------------- Inheritance
+
+   class Rectangle: public Polygon {
+     public:         ^^^^^
+     int area ()      '------------------  public: all memb from Polygon preservs their access val
+      { return width * height; }           protected: public members of Poly are protected in Rec
+   };                                      private:  protect+public "      "  "  private   in Rec
+
+                                           as default the compiler assumes:
+                                               private for classes (keyword class)
+                                               public  for struct.
+
+
+
+  a child do not inherit from father:
+      
+        - its constructors and its destructor
+        - its assignment operator members (operator=)
+        - its friends
+        - its private members
+
+  class Son : public Father {
+    public:
+    Son (int a) : Father (a)  <--- the syntax to call father const. ':'
+    { cout << "Son: int parameter\n\n"; }
+  };
+
+Multiple inheritance:
+              class Rectangle: public Polygon, public Output{..}
+
+
+-------------------------------------------------------- Polymorphism
+   the art of taking advantage of that
+   a pointer of a class father is type-compatible to point to sons
+
+   Rectangle rect;
+   Polygon * p = & rect   nb. now p-> can access members of Rect, but only those
+                              common with father (x,y, but not a)
+
+                               class Polygon {
+                                     int x,y;
+                               
+                               class Rectangle: public Polygon {
+                                     int a; <----- p -> a would produce:
+
+                               t2.cpp:34:30: error: ‘class Polygon’ has no member named ‘a’
+
+Virtual members:   
+                         p -> x   
+
+                  can access member x (common between Poly and Rect). 
+                  Now, if 
+                       x is is declared virtual in Poly, 
+                       x is changed somehow in Rect
+
+                  an instruct. p->x will call x of Rect instead of Poly
+                  nb.  
+                  Poly still works as a normal class (even if there is the key 'virtual')
+                  A class like Rect that 'overwrite' a virtual fun of its father
+                  is called 'polymorphic class'
+
+                                       lass Polygon {
+                                            ..
+                                            virtual int area () 
+                                            { return 0; }
+                                       };
+                                       
+                                       class Rectangle: public Polygon {
+                                            ..
+                                            int area ()
+                                            { return width * height; }
+                                       };
+
+Abstract fun & classes:   
+                   if in Polygon I changes the area() removing the body and adding the syntax '=0'
+
+                                       class Polygon {
+                                            ..
+                                            virtual int area ()  =0; <--- now it's a 'pure virtual function'
+                                       };
+                   classes that have at lest 1 'pure virtual fun' are called abstract.
+                   Now that Poly is abstarct it's nomore possible to define var of its type
+
+                                       Polygon p;     // NO ALLOWED
+
+                   Buts it's possible to define var pointer to its type:
+
+                                       Polygon * p;   // YES
+
+                   pointer p can now be used with Polymorphism.
+
+
+
+                  
+-------------------------------------------------------- Type cast
+   When operating on Classes, 3 implicit casts occur
+
+        A a;
+
+        1  B b = a;    # constructor cast: I'm declaring/creating var b
+        2    b = a;    # assign. cast:  I'm assigning to var b (already created)
+        3    a = b;    # cast operator: I'm casting b to a different type
+    
+    In class B I can explicitely define all the 3:
+
+                       class B {
+                       public:
+                         B (const A& x) {}                              # conversion from A (constructor):
+                         B& operator= (const A& x) {return *this;}      # conversion from A (assignment):
+                         operator A() {return A();                      # conversion to A (type-cast operator)  
+                       };
+
+   
+explicit:  added to a fun, instruct the compiler to avoid cast
+                       class B {
+                       public:
+                         explicit B (const A& x) {}      <---- now it's nomore possible this:    B b = a;
+                          ^^^^^
+
+notations:   C++ is a strong-typed.  The cast notations syntax allowed are
+                      y = int (x);    // functional notation
+                      y = (int) x;    // c-like cast notation 
+
+             to allow safe casting with pointers, there are 4 keywords:
+
+            1. dynamic_cast     <new_type> (expression)
+            2. static_cast      <new_type> (expression)
+            3. reinterpret_cast <new_type> (expression)
+            4. const_cast       <new_type> (expression)
+
+
+            1. dynamic_cast  
+               ask the compiler to check the cast is ok. This runtime check on types
+               is slow and anyhow the code must be compiled with the proper option.
+               If the cast cannot be done, because the type that the compiler determines
+               is another, the pointer returned is NULL: 0.
+
+                   Base * pa = new Derived;
+                   Base * pb = new Base;
+                   Derived * p;
+
+                   p = dynamic_cast<Derived*>(pa);
+                   if (p==0) cout << "Null pointer on first type-cast.\n";   <-- OK
+                   p = dynamic_cast<Derived*>(pb);
+                   if (p==0) cout << "Null pointer on second type-cast.\n"\ <--- BAD
+
+
+            2. static_cast  : remove the runtime compiler check.
+
+               class Base {};
+               class Derived: public Base {};
+               Base * a = new Base;
+               Derived * b = static_cast<Derived*>(a);
+
+            3. reinterpret_cast:  not portable. Store a pointer and reassign later
+
+               class A { /* ... */ };
+               class B { /* ... */ };
+               A * a = new A;
+               B * b = reinterpret_cast<B*>(a);
+
+            4. const_cast      allow to add / remove check on const * pointer
+
+               void print (char * str)
+               { cout << str << '\n'; }
+               
+               int main () {
+                   const char * c = "sample text";
+                   print ( const_cast<char *> (c) );
+               }
+
+
+typeid:   a function that return the type of a var. Can be used to check against 2 vars:
+
+              int main () {                            a and b are of different types:
+                int * a,b;                             a is: int *
+                a=0; b=0;                              b is: int  
+                if (typeid(a) != typeid(b))
+                {
+                   cout << "a and b are of different types:\n";
+                   cout << "a is: " << typeid(a).name() << '\n';
+                   cout << "b is: " << typeid(b).name() << '\n';
+                }
+
+-------------------------------------------------------- Exceptions
+
+    to throw an exception, the syntax is
+           throw x;               where x is any type: int, char, or some Class
+
+    the thrown exception is cought by a proper catch with the same x type
+
+    catch (int  e)  { cout << "int exception"; }   <--- this catch int
+    catch (char e)  { cout << "char exception"; }  <--- this catch char 
+    catch (...)     { cout << "default exception";}<--- this cath anything '...' is the C++ keyword to use
+
+    the try { throw } catch  block can be nested
+
+    try {
+      try {
+            ..
+      }
+      catch (int n) {
+             throw;
+      }
+    }
+    catch (...) {
+             cout << "Exception occurred";
+    }
+
+ <exception>  All C++ lib except. are derived from  <exception>, so is common
+         a code like this:
+
+
+         #include <iostream>
+         #include <exception>
+         ...
+
+         catch (exception& e)
+         {
+               cout << e.what() << '\n';  <--- what(): virtual function. I can also overwrite in
+         }                                     my except. definition.
+
+-------------------------------------------------------- Files
+   
+       ofstream:  to write to
+       ifstream:  ro read from
+       fstream:   both read & write
+
+
+
+       ofstream f;
+       f.open ("example.txt");
+       f << "Writing this to a file.\n";
+       f.close();
+
+
+                                                     
+       open (filename, mode);          mode options can be added in 'or':
+                        ^
+                        |____ f.open ("example.bin", ios::out | ios::app | ios::binary); 
+                        
+                        ios::in         open to read
+                        ios::out             to write
+                        ios::binary     a binary file
+                        ios::ate        open and 'seek' 'at-the-end'
+                        ios::app        write appending
+                        ios::trunc      write deleting any previous content
+
+
+
+       string line;
+       ifstream f ("example.txt");
+       if (f.is_open())
+       {
+           while ( getline (f,line) )
+
+
+
+functions on f:
+   |__ f.close()
+   |
+   |   return bool state
+   |_____________ f.is_open()      if (f.is_open())
+   |_____________ f.bad()          true: if read/write fails
+   |_____________ f.fail()         true: like bad but also when there are 'format' error 
+   |                               (we want to read an int text but the format is wrong)
+   |_____________ f.good()         test more general cases. For sure if bad or fail are true good is false 
+   |_____________ f.eof()          when f open for reading reaches end 
+   |
+   |   manage position:   there are 2 positions stored: 1 for read (get) 1 for write (put)
+   |                      the can be retrieved (tell) and set (seek)
+   |
+   |_____________ f.tellg()        get the current position for reading
+   |_____________ f.tellp()                   "                 writing
+   |_____________ f.seekg()        set        "                 reading
+   |_____________ f.seekp()                   "                 writing
+   |               
+   |               positions can be specified with values of type 'streampos'
+   |               offests                                        'streamoff'
+   |
+   |                   absolute form (beginning of file (position 0)) seek. ( position );
+   |                   relative to a position                         seek. ( offset, direction );
+   |
+   |                            direction is: 
+   |                                          ios::beg  beginning
+   |                                          ios::cur  current
+   |                                          ios::end  end 
+   |
+   |                 streampos begin,end;
+   |                 ifstream f ("example.bin", ios::binary);
+   |                 begin = f.tellg();
+   |                 f.seekg (0, ios::end);
+   |                 end = f.tellg();
+   |                 f.close();
+   |                cout << "size is: " << (end-begin) << " bytes.\n"
+   |
+   |   binary files
+   |_____________ f.read()      read  (memory_block, size);  in istream (inherited by ifstream)
+   |_____________ f.write()     write (memory_block, size);  in ostream (inherited by ofstream)
+   |
+   |
+   |                    streampos size;
+   |                    char * block;
+   |
+   |                    ifstream f ("example.bin", ios::in|ios::binary|ios::ate);
+   |                    if (f.is_open())
+   |                    {
+   |                        size = f.tellg();
+   |                        block = new char [size];
+   |                        f.seekg (0, ios::beg);
+   |                        f.read (block, size);
+   |                        f.close();
+   |
+   |                        cout << "the entire file content is in memory";
+   |
+   |                        delete[] block;
+   |
+   |   Buffers Synchronization: when fle is closed internal 'caching' buffers flush conent to disk
+   |                            3 fun allow to explicitally manage the cache layer
+   |_____________ f.flush() 
+   |_____________ f.endl()  
+   |_____________ f.sync()  0 on success, -1 on fail
+
+
+-------------------------------------------------------- t
+   #include <thread>         // std::this_thread::sleep_for
+
+   std::this_thread::sleep_for (std::chrono::seconds(1));
+-------------------------------------------------------- t

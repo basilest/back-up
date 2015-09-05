@@ -1,0 +1,101 @@
+_________________________ static / dynamic
+
+           httpd is the APACHE executable
+
+           it can 
+           - be compiled static (old way)
+           - dynamic (DSO: Dinamyc Shared Object) 
+             it loads runtime the required modules.
+
+_________________________  httpd -l
+
+           lists the static compiled modules.
+           If there is mod_so.c
+           it's in the DSO version.
+           so it can be extended runtime.
+
+_________________________  mod_perl
+
+           with httpd -l 
+           I can also see it mod_perl is already compiled
+           inside or not.
+           The module name is mod_perl.c
+
+______________  
+
+        Apache::Registry                             Apache::PerlRun
+
+   <IfModule mod_perl.c>                          ..
+      PerlModule Apache::Registry                     PerlModule Apache::PerlRun
+      Alias /perl/ /usr/local/apache/cgi-bin/         Alias /cgi-perl/ /usr/local/apache/cgi-bin/
+      <Location /perl>                                <Location /cgi-perl>
+         SetHandler perl-script                          ..
+         PerlHandler Apache::Registry                    PerlHandler Apache::PerlRun
+         Options +ExecCGI                                ..
+         PerlSendHeader On                               ..
+         PerlSetupEnv On                                 ..
+      </Location>                                     ..
+   </IfModule>                                     ..
+
+ 
+           <IfModule>                     to enclose all directives only if that module is present
+           PerlModule Apache::Registry    to load (= compile + run) that module when Apache starts
+           <Location /perl>               any request http://<host.com>/perl
+           SetHandler perl-script         to associate the handler 'perl-script'
+                                          The life-cycle of Apache is a RequestLoop whit many phases 
+                                          and a handler each. 
+           PerlHandler Apache::Registry   Tu use this module to manage all requests for any file in 
+                                          http://<host.com>/perl
+           Options +ExecCGI               says to Apache that CGI scripts file are inside that dir
+                                          (it's required by Apache::Registry and those files must be 
+                                           with execution permission)
+           PerlSendHeader On              Intercepts any output written by the scripts and translates
+                                          in a proper HTTP/1.x header
+                                          (as Apache normally does with CGI scripts)
+
+            
+  global vars:  without Cookie or sessions still after the execution of the script
+                they are not destroyed with Apache::Registry. So a second execution
+                will start with value already assigned. Be carefull, and trying to avoid
+                global var in general.
+  
+_________________________  use strict
+  with 'use strict' the compiler/interpreter stops already  
+  at compile time (not execution time) if global vars are defined
+  without my,our.
+_________________________  <Perl> </Perl>  inside httpd.conf
+
+It's possible to write directly in httpd.conf
+something like:
+        
+         .....
+         n.   <Perl>
+         o.       #!perl
+         p.         .....<--- any perl code here
+         q.   </Perl>
+         r.   __END__
+
+
+so configure with perl code.
+To test the code it can also be use:
+
+  > perl -cx httpd.conf
+
+       -c   acts a syntax check (compilation only with no execution-interpretation)
+       -x   ignore any line before #!perl   (line o.)
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
