@@ -43,6 +43,13 @@
   ;              to separate cmd.   ex.   :100;+5p     print 5 linex after 100.
   
   
+------------------------------------------------------ to get info from the bash
+
+:r !ls              to insert the output of a bash cmd in the line below
+
+let @a=system("ls") to do the same, with 2 commands 
+"ap                 nb however that with this way instead the line below (p)
+                    it can be above P
 ------------------------------------------------------ In Insert Mode
   :scriptnames         I see all the .vim (as also my .vimrc) that vim reads at the moment
   :set wm=10           wrapmargin

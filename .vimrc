@@ -185,7 +185,7 @@ endfunction
 " Vimscript MY file settings MAIN ---------------------- {{{
 set mouse=a
 set nu
-set relativenumber
+"set relativenumber
 set hlsearch
 set ic
 

@@ -1,84 +1,192 @@
-@ARGV      built-in array for arg to the script
-@_         built-in array for arg to the funct
-           nb. the array name is '_' so its elem 0
-           is $_[0] 
-$_         built-in iterator used instead of normal $i in a for / foreach ...
-           Warning! Many built-in functions (ex. print) can be called with no arguments, 
-           causing them to operate on $_ instead:
+namespaces:
+pragma: special Modules (ex. use strict)
+                             use v5.10    <--- version of Perl: includes many features 
+                                               ex. say wrt print (which adds a \n for me)
 
-           ex1        print foreach @array;
 
-           ex2        foreach ( @array ) {
-                          next unless defined;
-                      }
-$"         separator var (normally a space)   $a = join( $", @ARGV );   
-$!         built-in message on errors (to use ex on die )
+
+
+
+
+PERL SPECIAL VARs
+     Most of the special vars have an english long name (ex, $! =  $OS_ERROR)
+     Remember to add a line "use English;"
+
+_____________ SCALAR
+
+     LONG NAME 
+
+$_     $ARG                            The default 
+                                                  - input (the line read from a file)
+                                                  - pattern-searching space.  
+                                                  - built-in iterator used instead of normal $i in a for / foreach ... 
+                                       In other words, if you read from a file at the top of a 
+                                       while, for or foreach 
+                                       $_ is set up for you. 
+                                       Then any regular expression matches, chops (and lcs and many more) 
+                                       without a parameter, and even prints assume you want to work on $_. Thus:
+                                       it can be omitted:  
+
+                                           while ($line = <FH>) {          while (<FH>) {
+                                             if ($line =~ /Perl/) {          /Perl/ and
+                                                 print FHO $line;                print FHO ;
+                                             }                               print uc;
+                                             print uc $line;               }
+                                           }
+
+                                          ex1        print foreach @array;
+                                          ex2        foreach ( @array ) { next unless defined; }
+
+$.     $NR                             The current input line num of the last filehandle that was read. 
+                                       An explicit close on the filehandle resets the line number.
+$/     $RS                             The input record separator; newline by default. 
+                                       If set to the null string, it treats blank lines as delimiters.
+$,     $OFS                            The output field separator for the print operator.
+$\     $ORS                            The output record separator for the print operator.
+$"     $LIST_SEPARATOR                 Like "$," except that it applies to list values interpolated into 
+                                       a double-quoted string (or similar interpreted string). 
+                                       Default is a space: $a = join( $", @ARGV );   .
+$;    $SUBSCRIPT_SEPARATOR             The subscript separator for multidimensional array emulation. Default is "\034".
+$^L   $FORMAT_FORMFEED                 What a format outputs to perform a formfeed. Default is "\f".
+$:    $FORMAT_LINE_BREAK_CHARACTERS    The current set of characters after which a string may be broken 
+                                       to fill continuation fields (starting with ^) in a format. Default is "\n"".
+$^A   $ACCUMULATOR                     The current value of the write accumulator for format lines.
+$#    $OFMT                            Contains the output format for printed numbers (deprecated).
+$?    $CHILD_ERROR                     The status returned by the last pipe close, backtick (``) command, or system operator.
+$!    $OS_ERROR or $ERRNO              If used in a numeric context, yields the current value of the errno variable, 
+                                       identifying the last system call error. 
+                                       If used in a string context, yields the corresponding system error string.
+$@    $EVAL_ERROR                      The Perl syntax error message from the last eval command.
+$$    $PROCESS_ID or $PID              The pid of the Perl process running this script.
+$<    $REAL_USER_ID or $UID            The real user ID (uid) of this process.
+$>    $EFFECTIVE_USER_ID or $EUID      The effective user ID of this process.
+$(    $REAL_GROUP_ID or $GID           The real group ID (gid) of this process.
+$)    $EFFECTIVE_GROUP_ID or $EGID     The effective gid of this process.
+$0    $PROGRAM_NAME                    Contains the name of the file containing the Perl script being executed.
+$[                                     The index of the first element in an array and 
+                                       of the first character in a substring. 
+                                       Default is 0.
+$]    $PERL_VERSION                    Returns the version plus patchlevel divided by 1000.
+$^D   $DEBUGGING                       The current value of the debugging flags.
+$^E   $EXTENDED_OS_ERROR               Extended error message on some platforms.
+$^F   $SYSTEM_FD_MAX                   The maximum system file descriptor, ordinarily 2.
+$^H                                    Contains internal compiler hints enabled by certain pragmatic modules.
+$^I   $INPLACE_EDIT                    The current value of the inplace-edit extension. Use undef to disable inplace editing.
+$^M                                    The contents of $M can be used as an emergency memory pool in case Perl dies 
+                                       with an out-of-memory error. 
+                                       Use of $M requires a special compilation of Perl. 
+                                       See the INSTALL document for more information.
+$^O   $OSNAME                          Contains the name of the operating system that the current Perl binary was compiled for.
+$^P   $PERLDB                          The internal flag that the debugger clears so that it doesn't debug itself.
+$^T   $BASETIME                        The time at which the script began running, in seconds since the epoch.
+$^W   $WARNING                         The current value of the warning switch, either true or false.
+$^X   $EXECUTABLE_NAME                 The name that the Perl binary itself was executed as.
+$ARGV                                  Contains the name of the current file when reading from <ARGV>.
+
+_____________ ARRAY
+
+@_ $#_        is the list of incoming parameters to a sub. 
+              If the array name is '_' so its elem 0 is $_[0] the second is $_[1] and so on. 
+              And you can refer to $#_ as the index number of the last parameter:
+@ARGV         The array containing the command-line arg for the script.
+@INC          The array containing the list of places to look for Perl scripts to be evaluated by the do, require, or use constructs.
+
+
+_____________ HASH
+
+%INC          The hash containing entries for the filename of each file that has been included via do or require.
+%ENV          The hash containing your current environment. Ex. $ENV{PATH}  # /usr/local/bin:/usr/bin:/sbin:/usr/sbin
+%SIG          The hash used to set signal handlers for various signals.
+
+         
+
+
+_____________ FILEHANDLES
+
+ARGV          The special filehandle that iterates over command line filenames in @ARGV. 
+              Usually written as the null filehandle in <>.
+STDERR        The special filehandle for standard error in any package.
+STDIN         The special filehandle for standard input in any package.
+STDOUT        The special filehandle for standard output in any package.
+DATA          The special filehandle that refers to anything following the __END__ token 
+              in the file containing the script. 
+              Or, the special filehandle for anything following the __DATA__ token 
+              in a required file, as long as you're reading data in the same package __DATA__ was found in.
+_             (underscore) The special filehandle used to cache the information 
+              from the last stat, lstat, or file test operator.
+
+$|    $OUTPUT_AUTOFLUSH          If set to nonzero, forces an fflush(3)
+                                 after every write or print on the currently selected output channel.
+$%    $FORMAT_PAGE_NUMBER        The current page number of the currently selected output channel.
+$=    $FORMAT_LINES_PER_PAGE     The current page length (printable lines)
+                                 of the currently selected output channel. Default is 60.
+$-    $FORMAT_LINES_LEFT         The number of lines left on the page
+                                 of the currently selected output channel.
+$~    $FORMAT_NAME               The name of the current report format for the currently selected output channel.
+                                 Default is the name of the filehandle.
+$^    $FORMAT_TOP_NAME           The name of the current top-of-page format for the currently selected output channel.
+                                 Default is the name of the filehandle with _TOP appended.
+_____________ CONSTANTS
+
+__END__       Indicates the logical end of your program. 
+              Any following text is ignored, but may be read via the DATA filehandle.
+__FILE__      Represents the filename at the point in your program where it's used. 
+              Not interpolated into strings.
+__LINE__      Represents the current line number. Not interpolated into strings.
+__PACKAGE__   Represents the current package name at compile time, or undefined 
+              if there is no current package. Not interpolated into strings.
+
+_____________ REGULAR EXPRESSION
+
+$digit                    usual $1 $2 $3 ...
+$&   $MATCH               The string matched by the last successful pattern match.
+$`   $PREMATCH            The string preceding whatever was matched by the last successful pattern match.
+$'   $POSTMATCH           The string following whatever was matched by the last successful pattern match.
+$+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern. 
+                          This is useful if you don't know which of a set of alternative patterns was matched. 
+                          For example: /Version: (.*)|Revision: (.*)/ && ($rev = $+);
+
+
+
+--------------------------
+PERL DISTRIBUTIONs     (http://perldoc.perl.org/perlpolicy.html)
+--------------------------                      ^^^^^^^^^^
+only the last 2 are supported
+    ex. 5.20   5.22     
+when is released 5.24,
+5.20 will be no more supported.
+
+--------- 
+INSTALL                                                       another way is perlenv
+---------                         |                              /
+ > tar zxf latest.tar.gz          | install from  CPAN App::perlbrew <----- allows to have more PERL versions 
+ > cd perl–5.22.2                 |                                         and switch between them
+ > sh Configure –des              | ~/perl5/perlbrew/bin/perlbrew install perl–5.22.2
+ > make test && make install      |
+ 
+       enhanced distributions wrt standard one:
+          - ActivePerl  free Win/Mac/Linux   $ Unix (Solaris..)
+          - Strawberry       Win only
+          - Citrus      free  Win/Mac/Linux  bundles wxPer to distribute app with GUI
+ 
+ 
+ 
+ 
+
+
 
  perl -MData::Dumper -e 'print Dumper \@INC'      to see the INC value.
---------------------------------------------------- HASH
-   keys:    are always STRING
-   values:  are SCALAR (: string or numbers)
+                                                  also a simple     perl -V
+                                                  or even           perl -E "say @INC"
 
-   %some_hash = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
-                 'wilma', 1.72e30, 'betty', "bye\n");
-
-   
-   $family_name{'foo'}    = 36; #modify a key already present
-
-   $family_name{'fred'}   = 'flintstone';  # add 2 keys new ...
-   $family_name{'barney'} = 'rubble';      # ... not present before
-
-
-   $foo = 'bar';
-   print $family_name{ $foo . 'ney' }; # prints 'rubble'
-
-undef:   accessing a key that not exits or accessing outside 
-         the hash gives  'undef'
-
-array:   @any_array = %some_hash;     (just put the list (2 entry for each 
-                                       pair) in a long array
-                               N.B. no order is assured
-
-reverse: %inverse_hash = reverse %any_hash;  
-                                       create a new has were the keys are
-                               the values of the first, and the values
-                               are the old keys.
-                               N.B. as keys must be unique, il old hash
-                               had equal value for different keys, they overwrite
-                               each others(: the later items in the list
-                               overwrite any earlier ones).
-            %ip_address = reverse %host_name;
-
-           my %last_name                                my %last_name
-         'fred'   =>   'flintstone'                   fred   =>   'flintstone'
-         'dino'   =>   undef,                         dino   =>   undef,
-         'barney' =>   'rubble',                      barney =>   'rubble',
-         'betty'  =>   'rubble'                       betty  =>   'rubble'
-         );                                           );
-
-         # define a hash with =>                      # define omitting '' for keys
-      
-      
-keys / values:
-                 my %hash = ('a' => 1, 'b' => 2, 'c' => 3);
-             my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
-             my @v = values %hash;                   
-
-while / foreach:
-                while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) { 
-                     print "$key => $value\n";           |  print "$key => $hash{$key}\n";
-            }                                            | }
-
-exist:                                       Test if such a key is presnt
-          if (exists $books{"dino"}) {
-        print "Hey, there's a library card for dino!\n";
-        }
-delete:                                       Remove that pair key / value
-          $person = "betty";        
-        delete $books{$person};
-         
-%ENV :                                       The HASH where Perl stores the environment
-         print "PATH is $ENV{PATH}\n"        # PATH is /usr/local/bin:/usr/bin:/sbin:/usr/sbin
+                                                  to add a path in INC ex to use A::B
+                                                  perl -I A  (<--- it's the dir)
+                                                  or inside the code (use lib "/.../.../A";  or use lib qw((...)
+                                                                      use A::B;)
+                                                  nb. I can also push on the array @INC:
+                                                      push(@INC, (...))
+                                                      but in such a way, my dirs will be searched 
+                                                      as last option, that is not what I want.
 
 --------------------------
 START A SCRIPT
@@ -95,10 +203,22 @@ START A SCRIPT
 
 
 --------------------------
+SIGILs   (the reserved symbols for the type of var)
+--------------------------
+Scalar      $   stays for the S of Scalar
+Array       @   stays for the A of Array
+Hash        %   a pair of ° (separated by a /) indicating key/value
+Typeglob    *   *struck  (Everything named struck)
+Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
+                wrt buil-in function (ex print()) that don't want it.
+                Now it's optional. It must be used only when assigning the name
+                of the function to a reference: $r=\&fun;
+
+--------------------------
 SCALAR VARIABLES
 --------------------------
             can contain
-                1. undef
+                1. undef      <-----   ANY scalar var before any assignment is automatically init with value 'undef'
                 2. a number
                 3. a string  (concatenated with '.')
                 4. a reference
@@ -124,8 +244,16 @@ SCALAR VARIABLES
         print "yes" == "no";  # "1" with two warnings; 
                                     both values evaluate to 0 
                                     when used as numbers
-    string with " and ':
-        as in bash ' is STRONG quote:
+   
+    __________________________________
+    |    INTERPOLATION   (string with " and ')
+    |__________________________________
+        is the term used by Perl (bash uses 'string substitution')
+        to specify that in "---val of $a"   $a is replaced by its value
+        "" performes INTERPOLATION
+        '' suppresses  ...
+
+        As in bash ' is STRONG quote:
         print "Hello \$string"; # "Hello $string"
         print 'Hello $string';  # "Hello $string"
 
@@ -170,14 +298,24 @@ SCALAR VARIABLES
 --------------------------
 BOOLEAN VARIABLES
 --------------------------
-            Perl has no boolean data type.
-            A scalar is 'false' only when:
+            A scalar is 'false' when:
 
             1. undef
             2. number 0
             3. string ""
             4. string "0".
-                
+
+            nb. "0.00"    is true   (not "" neither "0")
+                "0.00" +0 is false  (+ is num-operator so string is converted to num and result is 0)
+     
+     Boolean operators are both &&  ||  !       from C       + precedence over ,
+                                and or  not     from BASIC   -    "            ,
+
+     Both works as short-circuit, which means the evaluation
+     is stopped as soon as possible. Any remaining right part is not conisdered.
+     Besides the precedence the 2 families behave identically.
+
+
 --------------------------
 ARRAY
 --------------------------
@@ -192,13 +330,17 @@ ARRAY
             print $array[2]; # "B"
             print $array[3]; # returns undef, prints "" and raises a warning
 
-
     - negative indices to retrieve from the end
 
             print $array[-1]; # "B"
             print $array[-2]; # "A"
             print $array[-3]; # "print"
             print $array[-4]; # returns undef, prints "" and raises a warning
+
+    - add on demand (no dimension required on declaration, like in C)
+            my @home;
+            $home[0] =  "couch";
+            $home[1] =  "chair";
 
     - len
             scalar @array
@@ -213,13 +355,24 @@ HASH
 --------------------------
             a list of scalars indexed by strings. 
 
-            my %scientists = (
-                "Newton"   => "Isaac",
-                "Einstein" => "Albert",
-                "Darwin"   => "Charles",
-            );
-                
+   keys:    are always STRING
+   values:  are SCALAR (: string or numbers)
+
+   Linguistically, a hash relationship is genitive or possessive, ( “of” in English)
+   The wife of Adam is Eve: $wife{"Adam"} = "Eve";
+
+undef:   accessing a key that not exits or accessing outside 
+         the hash gives  'undef'
+
+            my %scientists = (                  %h = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
+                "Newton"   => "Isaac",                'wilma', 1.72e30, 'betty', "bye\n");
+                "Einstein" => "Albert",         
+                "Darwin"   => "Charles",        $h{'foo'}    = 36;            # modify a key already present 
+            );                                  $h{'fred'}   = 'flintstone';  # add 2 keys new ...
+                                                $h{'barney'} = 'rubble';      # ... not present before
             => is called a "fat comma"    
+            syntactic sugar which allows to not use ','
+            and see the key/value with ease.
 
             print $scientists{"Newton"};   # "Isaac"
             print $scientists{"Einstein"}; # "Albert"
@@ -227,6 +380,38 @@ HASH
             print $scientists{"Dyson"};    # returns undef, prints "" and raises a warning
 
             Sometimes people omit quotes around hash keys, writing $hash{key} instead of $hash{"key"}.
+            my %last_name                                my %last_name
+             'fred'   =>   'flintstone'                   fred   =>   'flintstone'
+             'dino'   =>   undef,                         dino   =>   undef,
+             'barney' =>   'rubble',                      barney =>   'rubble',
+             'betty'  =>   'rubble'                       betty  =>   'rubble'
+            );                                           );
+
+----------- HASH FUNCTIONS 
+keys / values: they return 2 ARRAYs
+             my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
+             my @v = values %hash;                   
+
+exist:                                       Test if such a key is presnt
+        if (exists $books{"dino"}) {
+
+delete:                                       Remove that pair key / value
+        delete $books{$person};
+
+reverse: %ip_address = reverse %host_name;
+                               create a new has were the keys are
+                               the values of the first, and the values
+                               are the old keys.
+                               N.B. as keys must be unique, if old hash
+                               had equal value for different keys, they overwrite
+                               each others(: the later items in the list
+                               overwrite any earlier ones).
+
+while / foreach:
+            while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) { 
+                 print "$key => $value\n";           |  print "$key => $hash{$key}\n";
+            }                                        | }
+         
 --------------------------
 ARRAY & HASH
 --------------------------
@@ -261,6 +446,7 @@ ARRAY & HASH
            nb.  The order is not guaranted. 
                 They will be returned in whatever order is more efficient.
                 It's only guaranted that each key comes before its value. 
+
 --------------------------
 LIST
 --------------------------
@@ -282,6 +468,10 @@ LIST
 
      empty list:  ()
              can be used to declare an empty array or an empty hash 
+
+     list assignments: are called the assignments like:
+             my ($a, $b, $c) = @x;   # assign to scalars val from an array
+             ($a, $b) = ($b, $a);    # swap 2 vars
 
      List values cannot be nested.            |Perl has no way of knowing so 
              my @array = (                    |it manages it as a single long list.
@@ -311,6 +501,7 @@ LIST
                 my @fingers = ("thumb", "index", "middle", "ring", "little");
                 my @parts   = (@bones, @fingers, ("foot", "toes"), "eyeball", "knuckle");
 
+             Nesting is acted with references.
 --------------------------
 CONTEXT
 --------------------------
@@ -358,6 +549,9 @@ CONTEXT
                                     so returns its len.
             print $outer[3]; # "2"
 
+   nb.      when the compiler parses the code, it figures out the context
+            and generates the proper binary opcode. Later, at runtime 
+            those internal opcodes are actually interpreted in that context.
 --------------------------
 REFERENCES
 --------------------------
@@ -387,6 +581,19 @@ REFERENCES
             print $atomicWeights{"Helium"}; # direct hash access
             print ${ $hashRef }{"Helium"};  or only print $hashRef->{"Helium"};    
 
+        ___________________________________________
+        | ANONYMOUS ARRAY and HASH  (and function)
+        |
+        |    Use [ ] for an anonymous ARRAY and 
+        |        { } for an anonymous HASH. 
+        |    The value returned in each case is a REFERENCE:
+        |___________________________________________
+
+      my $ary = \@myarray;    # reference to a named array                   my $ary = [1,2,3,4,5];            # reference to an unnamed array
+      my $hsh = \%myhash;     # reference to a named hash                    my $hsh = {Na => 19, Cl => 35};   # reference to an unnamed hash
+      my $sub = \&mysub;      # reference to a named subroutine              my $sub = sub { print $state };   # reference to an unnamed subroutine
+      
+      
       ----------------------------------------------------------------------------------------------
              declaration                                         retrieve back
       ----------------------------------------------------------------------------------------------
@@ -403,8 +610,8 @@ REFERENCES
            my @o = ( \%o1, \%o2 );        |   $account{"number"}              |               |
                                           |   $account{"opened"}              |               |
            my %account = (                |                                   |               |
-               "number" => "12345678",    |   $o1{"name"}   $o1{"DOB"}|       |
-               "opened" => "2000-01-01",  |   $o2{"name"}   $o2{"DOB"}|       |
+               "number" => "12345678",    |   $o1{"name"}   $o1{"DOB"}|       |               | 
+               "opened" => "2000-01-01",  |   $o2{"name"}   $o2{"DOB"}|       |               | 
                "owners" => \@o,           |                                   |               |
            );      ^
                    |    
@@ -413,12 +620,6 @@ REFERENCES
                  the 'members' are the key names and the values are their type.
 
             
-        ANONYMOUS ARRAY and HASH
-
-            Use [ ] for an anonymous ARRAY and 
-                { } for an anonymous HASH. 
-            The value returned in each case is a REFERENCE:
-
       ----------------------------------------------------------------------------------------------
              long form                                           short
       ----------------------------------------------------------------------------------------------
@@ -440,12 +641,43 @@ REFERENCES
           "owners" => $ownersRef,
       );
 --------------------------
+CONDITIONALS
+--------------------------
+      if () {cmd}               unlike C, { } are always required even for 1 single cmd.
+      cmd  if ()
+      if  - elsif  - else       unlike C there is 'elsif'
+      unless (A) - else         try to avoid 'unless' block as it's the same as 
+                                if (not A)  - else
+      ? a : b
+
+  LABEL: ....                   we can use   next LABEL        (like the C 'continue')
+                                             last              (like the C 'break')
+--------------------------
+SWITCH
+--------------------------
+switch has been introduced only from version 5.10 and must anyhow 'imported'
+
+    use v5.10;                                   | alternative way (ex for perl < 5.10)
+    use feature qw(switch); <----- optional      | 
+    use feature qw(:5.10);  <----- optional      |         for ($string) {
+                                                 |             /abc/ and do {$abc    = 1; last;};
+    given ($item) {                              |             /def/ and do {$def    = 1; last;};
+    when (/a/)     { say "Matched an a" }        |             /xyz/ and do {$xyz    = 1; last;};
+    when (/42/)    { say "Matched a 42" }        |             $nothing = 1;
+    when (/"bee"/) { say "Matched a bee" }       |        }
+    when (/\d+\w*/){ say "Matched a regex" }     
+    default {  ;  }             \___________nb I can use literal, string, number, regex
+    }                                          
+
+
+--------------------------
 LOOPS
 --------------------------
             the C-style 'for' is considered old-fashion.
             Where possible use the 'foreach' which can iterate over an ARRAY.
 
-            foreach my $i ( @array ) { print $i; }
+            foreach my $i ( @array ) { print $i; }  <---- the foreach evaluates in LIST context what inside ()
+                                                          so a scalar is considered a list of 1
 
       range operator '..':
 
@@ -473,21 +705,22 @@ LOOPS
 
                                        print $_ foreach @array;
 
+     foreach --> for   as the syntax is anyhow different instead of foreach
+                       you can substitute nowadays a simple shorter 'for'.
+
+     nb. Note that the loop variable refers to the real element, not a copy.
+         Hence, modifying the loop variable also modifies the original array.
+
+      next, last: are the equivalent of break/continue. A label is optional
+                  HERE: while () { ....
+                                  next HERE;
+                                  last HERE; <-- ex to exit many inner levels
+
       while  () {}
       untill () {}
       do {} while ();
---------------------------
-CONDITIONALS
---------------------------
-      if () {cmd}
-      cmd  if ()
-      if  - elsif  - else 
-      unless (A) - else         try to avoid 'unless' block as it's the same as 
-                                if (not A)  - else
-      ? a : b
 
-  LABEL: ....                   we can use   next LABEL        (like the C 'continue')
-                                             last              (like the C 'break')
+
 --------------------------
 ARRAY FUNCTIONS
 --------------------------
@@ -566,12 +799,27 @@ FILE
             It's the value retrived with function 'open'
             my $result = open my $fh, "<", "pippo.txt";     $result is FALSE on errors
             close $fh  # to close
+                                                        ___file name ("a.txt")
+                                                       /   
+        the general form is with 3 args   open (1  2  3)
+                                                |  \_______mode: "<"   to read    "-|"   input pipe
+                                                |                ">"   to write   "|-"   output pipe
+                                                |                ">>"  to append
+                                                |                "< :encoding(UTF–8)"  it's possible to specify the ecncoding
+                                                '                ">> :encoding(MacRoman)"
+                                                 \ 
+                                                  \________file handle, a literal open (FILE_HDL ..)
+                                                                        a var     open (my $fh   ..) <-- better
+
+        It's possible (not recommended!) to merge 2 and 3:  open (FILE_HDL, "< a.txt")
 
         readline    read a line of text (use chomp $line to del the '\n')
             (ex $line = readline $fh)
                     returns 'undef' on end of file;
 
-        < >         like readline     (ex $line = <$fh>)
+        <>         (called 'angle operator') like readline   (ex $line = <$fh>)
+                    has the file handle inside: <FILE_HDL>   when I used a literal open   open(FILE_HDL, "a.txt");
+                                                <$fh>        when I used a var open       open(my $fs, "a.txt");
 
         eof         TRUE on eof
 
@@ -581,18 +829,60 @@ FILE
                    ....                         |  }                         |                      |
                }                                |                            |                      |
 
+               Each line (also blank lines) as a \n at the end, so it's never FALSE. When reaching the end
+               it's returned 'undef' (= FALSE) so without expicit test against eof, while(<$fh>) is the best.
+
         STDIN / STDOUT / STDERR  (global constants)       print     is short for print STDOUT
                                                           <>        is short for <STDIN>
         -e "pippo.txt"           TRUE if file exists
         -d                            if a dir
         -f                            if a file
+        -r                            if readable
+        -w                            if writeable
+        -T                            if text file
 
+        -------------
+        |  chop / chomp
+        -------------
+        chop      removes last char of a string (whichever it is, [also not a \n])
+        chomp     removes any sequence of end-record-markes (usually \n) to the end
+                  and return the number removed. It's common this: chomp($l = <STDIN>);
 --------------------------
 REG EX
 --------------------------
-        to TEST a match  =~ m//      m//g (to find another match after the previous one)
-                                           in SCALAR context is 1 at a time
-                                           in LIST   context are all together
+        <STRING>  =~   <PATTERN>       the =~ operator returns
+                                         'true'  if <PATTERN> mathes <STRING>
+                                         'false' otherwise
+                                       Said otherwise, it evaluates a <PATTERN> in SCALAR context
+                                       (see below what happens when a <PATTERN> is evaluated in LIST context)
+
+        "Hello World" =~ /World/;  # matches
+
+        2 rules: 1) FIRST match wins:
+                    "Hello World" =~ /o/;         "That hat is red" =~ /hat/;
+                         ^                          ^
+                    $_ = "fred xxxxxxx barney";
+                    s/x*//;                      it will have absolutely no effect! 
+                                                 because the x* will match the “nothing” at the beginning of the string.
+
+                 2) matches as many as possible char. (greedy (avido))
+                    In Modern Perl you can use ? to switch to nongreedy (as few characters as possible)
+                    /.*?/
+
+        !~              reverses =~     if ("Hello World" !~ /World/) { ...
+        
+        m<C> ... <C>    to use another char <C> as delimiter instead of //   ex. "Hello World" =~ m!World!
+                        Useful when there are a lot of slashes, (to avoid to escape each). 
+                        ex. =~ m{///}              matches three literal forward slashes, 
+                            =~ s{^https?://}{}     removes the protocol part of a URL.
+        
+        $var            the values of the vars are substituted before the regexp is evaluated
+                        $foo = 'house';   'cathouse' =~ /cat$foo/;   'housecat' =~ /${foo}cat/
+
+        m//g (to find another match after the previous one)
+              in SCALAR context is 1 at a time
+              in LIST   context are all together
+
             if ($string =~ m/(\w+)\s+(\w+)/) {         # values in $1, $2, 
 
                                      SCALAR context                      LIST context
@@ -604,17 +894,41 @@ REG EX
         to SUBSTITUTE    =~ s///    s///g  (to subst. all. RETURNS the num of subst!)
             $string =~ s/[aeiou]//;       #del all vowels
 
-        /i     case-insensitive
-        /x     to contain whitespace \n comments :
+        //i    case insensitive
+        //x    to contain whitespace \n comments :
                                                    "Hello world" =~ m/
                                                           (\w+) # one or more word characters
                                                           [ ]   # single literal space, stored inside a character class
                                                           world # literal "world"
                                                          /x;
-        {}     instead of // as delimiters. 
-               Useful when there are a lot of slashes, (to avoid to escape each). 
-               ex. =~ m{///}              matches three literal forward slashes, 
-                   =~ s{^https?://}{}     removes the protocol part of a URL.
+        //a                    to keep your program from being needlessly exposed to full Unicode
+                               input text can be only considered ASCII
+        //aa                   even more restrictions 
+        //s                    even more restrictions 
+
+
+        <PATTER>  in LIST context  : it pulls out all the backreferences as a list
+                               ex on "12:59:59 am"
+                               my ($hour, $min, $sec, $ampm) = /(\d+):(\d+):(\d+) *(\w+)/;
+                               my @hmsa = /(\d+):(\d+):(\d+) *(\w+)/;
+
+        use re 'strict'        to be warned, as this find things that, while legal, 
+                               may not be what you intended.
+        ()                     parentheses besides used to then refer the matched string with $1,$2, .. 
+                               they can also be used to apply a quantifier to more than one char:
+                               /bam{2}/ bamm (ok) bambam (not) --> /(bam){2}/
+        \1 \2                  similar to vi. I can refer to the mathed substring () while still in the regex
+                               "<B>Bold</B>"  --> /<(.*?)>.*?<\/\1>/
+                                                                ^
+        Named Backreferences.  From v5.10 besides \1 and $1 (called Numbered Group) there are (named Group)
+
+                               Where                  Numbered Group     Named Group
+                               -------------------------------------------------------
+                               Declare                ( ... )           (?<NAME> ... )
+                               Inside same regex      \1                \k<NAME>
+                               In regular Perl code   $1                $+{NAME}
+
+                               ex. s/(?<alpha>\S+)\s+(?<beta>\S+)/$+{beta} $+{alpha}/
 --------------------------
 MODULEs / PACKAGEs
 --------------------------
@@ -852,6 +1166,117 @@ Dates and Times
             printf '%d years, %d months, and %d days', @units;       # 23 years, 4 months, and 14 days
             
 --------------------------
+INSTALL MODULES
+--------------------------
+'distributions'                 is the name how 'packages' are called in CPAN
+                                they are a tar.gz file containing 1 or more .pm
+                                in a dir-tree structure
+
+'intstall by hand'              download the tar.gz, unpack and run
+
+                                          BUILD.PL         or if there is Makefile.PL
+
+                                       1. perl Build.PL             1. perl Makefile.PL        
+                                       2. ./Build                   2. make
+                                       3. ./Build test              3. make test
+                                       4. ./Build install           4. make install
+
+                                at step 2. the compilation create the .pm files in a dir .blib
+                                at step 4 (the .pm files are copied into a dir of @INC) that can
+                                be specified as --installdirs option at step 1)
+                                perl Makefile.PL PREFIX=/home/me/perl INSTALLDIRS=perl
+
+
+install in a specific dir:      ex. you are not root and cannot write in system dir
+                                       perl Makefile.PL PREFIX=~/lib LIB=~/lib
+                                change ~/lib to a preferred value
+
+'dependencies'                  the module M, needs module A, which needs B, ....
+                                to avoid installing all by hand, use CPAN client like cpan or newer cpanm
+
+'cpan'                          is already available in core perl distribution.
+                                Anyhow you can update as >cpan CPAN
+
+~/.cpan ~/.cpanm                are the default dir used by cpan and cpanm
+                                to created a repository.
+                                The configuration file is usually stored in
+                                    ~/.cpan/CPAN/MyConfig.pm
+                                and it's something like:
+                                    $CPAN::Config = {
+                                         '...' =>  q[...]   ex 'http_proxy' => q[],
+                                         '...' =>  q[...]      'prefer_installer' => q[MB],
+                                    };
+                                    1;
+prefer_installer                MB means that if there are both a Makefile.PL and a Build.PL
+                                the command 'make' must act as a simple wrapper around the Build.PL
+                                (so actually running always Build.PL)
+
+cpan[1]>                        Once run the command 'cpan', I'm inside the cpan shell
+                                and that is the prompt.
+     -o conf                    command to edit the MyConfig.pm through the cpan shell.
+     -o conf commit             to save the changes
+     -h                         for the help
+     -o conf init               to see all the values (and the meaning!!) of each param.
+                                nb. I see the 'current' value not the 'factory' default.
+                                To see the original value, rename MyConfig.pm, 
+                                and run -o conf init like it was the first time.
+                                
+--------------------------
+MORE PERL versions on the same PC
+--------------------------
+The already installed PERL version (RedHat, Ubuntu, ...) arrived customized
+and it's better not to mess it up. The vendor's system perl scripts are tested agaist that.
+To install a different version download the perl.gz distribution and run its 'Configure'
+with the required -Dprefix=... (ex -Dprefix=${HOME}/perl_vers/5.10.1/)
+
+PERL5LIB :      this env variable must be set when I need to add additional dirs besides @INC.
+                Perl does not require that the PERL5LIB variable be set. 
+                Typically, the variable will not be set to any value. 
+                Anyhow I can set PERL5LIB so that Perl looks for modules in a private directory.
+                
+       % export PERL5LIB=~/my_debug_lib
+       % mkdir -p ~/my_debug_lib/Net/
+       % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
+       % vi ~/my_debug_lib/Net/SMTP.pm
+
+local::lib     this module can be downloaded and compiled with its option --bootstrap=
+                   $ perl Makefile.PL --bootstrap=~/.perl  <---- set here the dir you want
+                   $ make test && make install
+               and allows to have an archive of CPAN Modules in the specified dir.
+               It's behavoìiour is to print the required variables (e.g. PERL5LIB)
+               and the command is usually:
+
+                   perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl
+
+               which prints:
+                   export MODULEBUILDRC="/home/you/.perl/lib/perl5/.modulebuildrc" <---- vars used by Module::Build and 
+                   export PERL_MM_OPT="INSTALL_BASE=/home/you/.perl/lib/perl5"      <--- ExtUtils::MakeMaker when they need to target
+                   export PERL5LIB="/home/you/.perl/lib/perl5/lib/perl5:$PERL5LIB"       a tree on a MODULE installation
+                   export PATH="/home/you/.perl/lib/perl5/bin:$PATH"
+
+              you can add those lines in ~/.bashrc as
+              echo 'eval $(perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl)' >> ~/.bashrc
+
+perlbrew      to manage multiple Perl installations in your $HOME directory. 
+              They are completely isolated perl universes.
+
+              Install as   sudo apt-get install perlbrew                 <----- works but as root then 
+              or           \curl -L http://install.perlbrew.pl | bash    <----- works for user
+                                                                                is installed as
+                                                                                ~/perl5/perlbrew/bin/perlbrew
+
+
+              then install a Perl distribution as  perlbrew install perl-5.16.0
+
+              perlbrew list        to see the installed versions
+
+              to switch to a Perl version:
+              perlbrew switch perl-5.16.0  (works for ANY shells: PERMANENT, till a new switch or use)
+              perlbrew use    perl-5.16.0  (works   temporarily  on current shell only)
+
+
+
+--------------------------
 DEBUGGERS
 --------------------------
 
@@ -870,14 +1295,6 @@ print:
 
        use Data::Dumper qw(Dumper);                    # use Data::Dumper to print Objects and limit with < .. >
        warn "The value of the hash is <\n" . Dumper( \%hash ) . "\n>";
-
-PERL5LIB :    Every time I wanted to investigate a new module, copy into a temp dir. Set PERL5LIB environment variable 
-              so Perl finds temp dir first. After all clear PERL5LIB to use the original.
-
-       % export PERL5LIB=~/my_debug_lib
-       % mkdir -p ~/my_debug_lib/Net/
-       % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
-       % vi ~/my_debug_lib/Net/SMTP.pm
 
 Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to inspect args and ret val.
       
@@ -1078,9 +1495,61 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 ---------- Perl 4ed Oreilly Ch21  
 ---------- Perl 4ed Oreilly Ch22
 ---------- Perl 4ed Oreilly Ch23
----------- Perl 4ed Oreilly Ch24
+---------- Perl 4ed Oreilly Ch24    
+
+\d      matches a Unicode digit, not just [0-9] but also other Unicode math digits (ARABIC INDIC symbols)
+\D      is a negated \d; [^\d]
+\s      matches a whitespace character, the set [\ \t\r\n\f] and others
+\S      is a negated \s; [^\s]
+\w      matches a word character (alphanumeric or _), not just [0-9a-zA-Z_] but also other Unicode digits
+\W      is a negated \w; [^\w]
+.       matches any character but "\n" 
+\N      like '.' but it does so regardless of whether the modifier //s is in effect.
+\b      word anchor, matches a boundary between a word char and a non-word char  /cat\b/;  # matches cat in 'housecat'
+\b{wb}  light form of \b for natural language (ex. apostrophes are included in words, like in "don't")
+
+
 ---------- Perl 4ed Oreilly Ch25
 ---------- Perl 4ed Oreilly Ch26
 ---------- Perl 4ed Oreilly Ch27
 ---------- Perl 4ed Oreilly Ch28
 ---------- Perl 4ed Oreilly Ch29
+
+
+
+//a              to match inside the ASCII subset of Unicode. 
+                 Ex \d in ASCII is only [0-9] while in Uniocde
+                 matches other matemathical digits (ex. ARABIC INDIC)
+                 so use /\d/a
+//aa             When using ignorecase //i, Perl must consider UPPERCASE Uniocode val
+                 and lowercase Uniocde val. If one val (UPPER or lower) is in ASCII range and
+                 the other is not, when testing with //ia as one macthes, the result is true.
+                 To restrict on these cases use //iaa
+//s   //m        stand for single-line multi-line and they determine whether a string 
+                 is to be treated as one continuous string, or as a set of lines. 
+                 They affect 1) how the '.' is defined, 2) where ^ and $ are able to match. 
+
+                              .                ^                                   $
+                 //      any != \n        only 1st char of ALL STR    only last char of ALL STR 
+                 //s     any (also \n)    only 1st char of ALL STR    only last char of ALL STR
+                 //m     any != \n        any STR start               any STR end or before \n   
+                 //sm    any (also \n)    any STR start               any STR end or before \n
+
+                 regardless of all the cases with
+                      \A is always  "only 1st  char of ALL STR"
+                      \Z is always  "only last char of ALL STR (with or without \n)"
+                      \z is always  "only last char of ALL STR (different from  \n)"
+
+
+                 
+                 
+                 the ASCII val, it matches
+                 (so matching also 
+                 
+                 
+                 
+                 to match inside the ASCII subset of Unicode. 
+
+
+
+

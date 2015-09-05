@@ -46,10 +46,10 @@ available git commands in '/usr/lib/git-core'
 015  check-ignore             :
 016  check-mailmap            :
 017  check-ref-format         :
-020  checkout                 :
+020  checkout                 : to switch branch, or also to extract a given file from REPO, overwriting the wd
 021  checkout-index           :
 022  cherry                   :
-023  cherry-pick              :
+023  cherry-pick              : to copy commits between branches
 024  clean                    :
 025  clone                    :
 026  column                   :
@@ -99,7 +99,7 @@ available git commands in '/usr/lib/git-core'
 080  mailinfo                 :
 081  mailsplit                :
 082  merge                    :
-083  merge-base               :
+083  merge-base               : to find the commit where a branch B is forked from a branch A:  git merge-base A B
 084  merge-file               :
 085  merge-index              :
 086  merge-octopus            :
@@ -128,7 +128,7 @@ available git commands in '/usr/lib/git-core'
 109  read-tree                :
 110  rebase                   :
 111  receive-pack             :
-112  reflog                   :
+112  reflog                   : to see the history os submitted cmd
 113  relink                   :
 114  remote                   :
 115  remote-ext               :
@@ -307,6 +307,8 @@ git show    # show more info for the LAST commit
 git show 9da581d910c9c4ac93557ca4859e767f5caf516   # show more info for the commit identified
 git show-branch    # show even more info
 git show --pretty=fuller        #to see additional details about a given commit.
+git show branchName:a.c         #to see a file (a.c) from branch 'branchName' (ex git show master:a.c)
+                                git show origin/master:src/spec/ch/fe/web/ewf/E90Forms/appointments/AP03ErrorValidation.html
 
 
 
@@ -355,6 +357,10 @@ old versions of files:                                                          
 $ git checkout HEAD -- pippo.txt <-----------------------------------------------------------'
 $ cat pippo.txt
    bla bla bla bla  (recoverd in working area)
+                     
+                     the previous example uses checkout not in the form of switching  branch
+                     but to extract a file from the REPO and write it in wd:
+                     git checkout -- a.txt              to discard changes in wd, overwriting a.txt
 
 
 git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
@@ -576,11 +582,27 @@ git log --grep                              only commit where grep find somethig
 git log --decorate                          to see which branch is active
 
 
-A ref :         a SHA1 that refers to an object within the Git object store, although it usually refers to a commit object. 
-A symbolic reference, or symref, is a name that indirectly points to a Git object. It begins with refs/:
-                      refs/heads/ref              for your local branches,
-                      refs/remotes/ref            for your remote tracking branches
-                      refs/tags/ref               for your tags.
+references:     A reference is used in Git to specify BRANCHES(local/remote) and TAGS. They are stored in:
+
+                      $GIT_DIR/refs/heads/ref              for local  branches,
+                      $GIT_DIR/refs/remotes/ref            for remote branches
+                      $GIT_DIR/refs/tags/ref               for tags.
+                      $GIT_DIR/packed-refs                 if refs are packed by git gc
+
+                      ex:   find .git/refs/  :
+
+                             .git/refs/
+                             .git/refs/remotes
+                             .git/refs/remotes/origin
+                             .git/refs/remotes/origin/master
+                             .git/refs/remotes/origin/HEAD
+                             .git/refs/tags
+                             .git/refs/heads
+                             .git/refs/heads/master
+
+                      'git symbolic-ref'    the plumbing command to manage references
+                         
+     special references:
 
                       HEAD:         a symref to link to the last Commit
                       ORIG_HEAD     store previous value of HEAD during an update for a merge (if a recovery is needed)
@@ -588,7 +610,7 @@ A symbolic reference, or symref, is a name that indirectly points to a Git objec
                                     all the HEADS of the remote branches fetched.
                       MERGE_HEAD    is the value that HEAD is going to take (coming from ORIG_HEAD)
                       
-                      git symbolic-ref    the plumbing command to manage symref
+
 
 
 root Commit:         is the first Commit of a project and the only one to not have a 'parent'
@@ -711,29 +733,32 @@ git log -Sstring          search back when in a specified file changes the count
                One reason is that Git, like bash, supports wildcards:
                git show-branch 'bug/*'
  
-branche names:      Of course some special char cannot be used. To be sure: git check-ref-format
+branche names:      Of course some special chars (- . .. ^ ~ )  cannot be used. 
+                    To be sure, run  'git help check-ref-format'
 
-active branch:       By default, master is the active branch, but you can make any branch the current branch.
-                     The active branch determines which files are checked out in the working directory. 
-                     Furthermore, it is often an implicit operand such as the target of a merge.
+active branch:      Determines which files are checked out in the wd.
+                    It's the branch tagged with * (see below: 'git branch -a')
+                    It is often an implicit operand such as the target of a merge.
 
-create branch:       A new branch is based upon an existing commit.
-                     A given branch name may be added and deleted multiple times over the branch lifetime.
-                     
-                     git branch branch [starting-commit]       
-                     git branch prs/pr-1138               (considered starting from HEAD)
-                     git branch prs/pr-1138 rel-2.3       (start from Commit identified relative)
-                     git branch prs/pr-1138 db7de5feebef8bcd18c5356cb47c337236b50c13   (from Commit identified absolute)
+list branch:       'git branch' is the command to both list and create branches.
+                    git branch with no arguments only lists.
 
-                     Git simply creates a named branch at the given commit. You can’t actually start work on 
-                     the branch until you switch to it.
-
-list branch:         git branch           to see more use -r (remote tracking)  -a (all branches)  options
+                    git branch         : lis only 'topic' branches
+                    git branch -r      : list remote b.
+                    git branch -a      : list remote + topic b.
+                    ex.
                              bug/pr-1
                              dev
                            * master      * : branch checked out into working dir
 
-view branch:         git show-branch      to see more use -r (remote tracking)  -a (all branches)  options
+view branch:        'show-branch' provides more detailed output than 'git branch'.
+                    -r (remote)  
+                    -a (remote + topic)
+                    --more=n           n>0 instead of stopping (as default behaviour) at 1st common 
+                                       parent Commit, go on for more n Commits.
+                                       n<0 show only indicated branches, without parents tree.
+
+                    git show-branch      to see more use -r (remote tracking)  -a (all branches)  options
                              bug/pr-1
                              dev
                            * master      * : branch checked out into working dir
@@ -755,34 +780,45 @@ view branch:         git show-branch      to see more use -r (remote tracking)  
          git show-branch bug/pr-1 bug/pr-2       to limit only to the specified listed branches
          git show-branch bug/*
         
-         
-checking out branch:   your working directory can reflect only 1 branch at a time. 
+create branch:      Must only specify from which commit to fork (the default is the HEAD of the active branch)
+                    and a name:
+                     
+                    git branch name_here [starting-commit]       
+                    git branch prs/pr-1138               (considered starting from HEAD)
+                    git branch prs/pr-1138 rel-2.3       (fork at Commit with tag rel-2.3, (relative id))
+                    git branch prs/pr-1138 db7de5feebef8bcd18c5356cb47c337236b50c13   (from Commit identified absolute)
+
+                    Git simply creates a named branch forking from the given commit. You can’t actually start work on 
+                    the branch until you switch to it.
+
+checking out branch:   your wd can reflect 1 branch at a time (the active branch: '*') 
                        To start working on a different branch, issue 
                                               git checkout
-                       Normally you use 'git branch' to see the list of branches and with the '*' which is active.
                        Then you use 'git checkout  dev'   to set active the specified branch (here dev)
 
-                       Git place the files in the working dir. For any case where you risk some not saved file
+                       Git places the files in the wd. For any case where you risk some not saved file
                        currently present in the wd will be overwritten, Git stops without checking out.
                        You can still force Git to preceded with option -f
 
-        git checkout -m dev      -m ask Git to merge files from wd with the branch.
+        git checkout -m dev      -m asks Git to merge from branch 'dev' into wd
                        ex. with a file a.c:  
                                    1. 'cat a.c'                  to see the working one. 
-                                   2. 'git show bug/pr-1:a.c'    to see the branch one (here branch 'bug/pr-1')
+                                   2. 'git show bug/pr-1:a.c'    to see the branch (here branch 'bug/pr-1')
                                    3. git checkout -m bug/pr-1   
-                                   4. git diff                   to see how Git merged all in the working dir a.c   
+                                   4. git diff                   to see how Git merged a.c (in wd)
                                    
          
-creating & checking out:   1 only command:  git checkout -b new-branch [staring commit]
-                           instead of the equivaled pair:
-                                                          git branch new-branch [starting commit]
-                                                          git checkout new-branch
+creating & checking out: can be done with 1 only command:  git checkout -b new-branch [starting commit]
+                                        
                                                           
-delete branch:   Remember, a branch is simply a name or pointer to a commit (that has actual content).
-                 Deleting a branch (git branch -d bug/pr-3) 
-                 Git does not maintain any form of historical record of branch names being created,
-                 moved, manipulated, merged, or deleted. Once a branch name has been removed, it is gone.
+delete branch:   git branch -d bug/pr-3 
+                 - of course the branch cannot be the active one, because no clear rule how to leave wd.
+                 - secondly, Git won’t allow you to delete a branch that contains commits 
+                   that are not also present on the current branch (as they could be lost)
+                   If you want to delete anyhow, use -D :   git branch -D bug/pr-3
+
+                 Git does not maintain any form of history for branch names being created,
+                 merged, or deleted. Once a branch name has been removed, it is gone.
                  The Commits on that branch, however, are separated. Git will eventually
                  prune away commits that are no longer referenced (by a branch or tag name).
                  They are collected as garbage by the git gc tool.
@@ -792,32 +828,62 @@ git fsck         commits, files, and heads.
 gc.reflogExpire
 gc.pruneExpire                 
                                                           
+The original commit from which a branch was started is not explicitly identified
+to identify it use:  git merge-base original-branch new-branch
          
 --------------------------  DIFF
-diff -u 1 -r           # normal linux cmd:       -u    gives 1 line of context (same line in both files) default is 3
-                                                 -r    goes on dir
-                                                       traverses each hierarchy in tandem, twins files by pathname 
-                                                       (say, original/src/main.c and new/src/main.c)
+unix diff            : diff -u a b    -u option prints output in this format:
+                                      file (a) is maked as +++, (b) as ---
+                                      +  a line starting with + means it was added in a
+                                      -    "              "   -              removed from a
+                                     ' '   "              a space   is a context line (a=b)
+                                      @@ marks line num
 
-git diff                   # wd / INDEX. Says what is dirty in the working dir that must be staged.
-git diff commit            # wd / specified COMMIT (used HEAD normally)
-git diff --cached [commit] # INDEX  / specified COMMIT (use HEAD if not specified)
-git diff --cached [commit] # INDEX  / specified COMMIT (use HEAD if not specified)
+                       diff -r     make diff between 2 dir
+                       diff -w     ignore white spaces
+                                                        
 
-                           N.B. the above diff refers to a tree (a dir) so like diff -r
+
+git diff             :git uses an internal diff. Anyhow it relies mainly on unix diff.
+
+
+
+git diff                   # wd     / INDEX.            Says what is dirty in wd that must be staged.
+                             Can be used to see if I miss any 'git add' before committing
+                             While 'git diff' produces something I missed some 'git add'
+git diff <commit>          # wd     / specified COMMIT  (or HEAD if not specified)
+git diff --cached [commit] # INDEX  / specified COMMIT  (or HEAD if not specified)
+                             from Git 1.6.1 --staged is synonym for --cached
+git diff <c1> <c2>         # diff between 2 commits
+
+                           nb. the above diff refers to a tree (a dir) so like diff -r
+
                  options:
-                 --M                       for files renamed print a customize output (not the usual)
+                 --M                       for renamed files, print a customize output (not the usual)
                  -w or --ignore-all-space  skip diff on blanks
                  --stat                    adds statistics  <------ GREAT : use it to have a short abstract
                  --color                   adds color
 
-git diff / git log:       gitt diff:  compares only 2 imagines, a start and an end
-                          gitt log:   compares all the history of Commits that go from the start to the end.
+git diff / git log:       git diff:  compares 2 snapshots: a start / an end
+                          git log:   compares all the history of Commits that goes from  start to end.
+
+                          git diff s..x   all branch-x-commits + all branch-s-commits (EXCLUDED the common fork commit, as it's = for both)
+                          git log  s..x   all branch-x-commits, back to the fork from s (and stop there)
 
                  A -- B -- C -- D -- E -- F -- G -- H    ----- master
-                        \                                                  git diff master..dev: H/Z
-                         \                                                 git log  master..dev: V-W-X-Y-Z
+                        \                                                  git diff master..dev: H/Z (EXCLUDED B)
+                         \                                                 git log  master..dev: V/Z
                            V -- W -- X -- Y -- Z         ----- dev
+
+
+                ...     git diff master...dev      difference with the fork commit (B): V/Z
+                        git log   "        "       all commits reachable from either BUT NOT BOTH: C/H + V/Z 
+
+
+                       Thus, related to the set fo involved Commits its:
+
+                                 log  ..   =   diff ...
+                                 log  ...  =   diff ..
 
 git diff --stat master~5 master dir_x           # if you specify a dir (here dir_x) diff limits on that dir
 git diff --stat master~5 master dir_x/main.c    # or limits on a single file (here main.c inside dir_x)
@@ -827,6 +893,12 @@ git difftool  --tool-help    to see external graphical tool ex.
 git difftool  --tool=vimdiff
 
 --------------------------  MERGE
+                   to merge branch OUT into branch IN do       --------*------ IN
+                         - git checkout IN                            /
+                         - git merge    OUT                     -----' OUT
+
+
+
                    Before merging,  tidy up your wd + index (
                    Git creates new versions of files in wd + stores temp files in index
                    ).
@@ -843,8 +915,8 @@ git status               # dev is still the active branch
 git checkout master      # in wd there is again B.txt and the old A.txt, active branch is master 
 git merge dev            # this change physically the text inside A.txt in wd with the merge from master:A.txt and dev:A.txt
                            I open this mixed A.txt file, and edit to merge as I like. 
-                           diff acts between the active branch HEAD (called 'our') and the head of the merging branch called 
-                           MERGE_HEAD or 'their'.
+                           diff acts between the active branch HEAD (called 'ours') and the head of the merging branch called 
+                           MERGE_HEAD or 'theirs'.
                            these command can be performed explicitly 
                                 git diff HEAD             or git diff --ours     : wd   / HEAD
                                 git diff MERGE_HEAD       or git diff --theirs   : wd   / MERGE_HEAD
@@ -876,10 +948,14 @@ git ls-files -u -s      help to see the set of files under merge conflicts
                                              I can then look for ex at 2 A.txt :
                                              git cat-file -p e63164d951
 
+                                             I can diff between stage numbers with this syntax:
+                                             git diff :1:A.txt :3:A.txt
+
+
 git log --merge --left-right -p
                                  --merge : shows only Commits related to files that produced conflicts
-                                 --left-right : marks with < the Commits from left ('our' part, above ex is master)
-                                                and > the right or 'their' part (above ex is dev)
+                                 --left-right : marks with < the Commits from left ('ours' part, above ex is master)
+                                                and > the right or 'theirs' part (above ex is dev)
                                  -p shows the commit message and the patch associated
 
 git log --merge --left-right -p  A.txt       if you only want to display for a single file A.txt
@@ -887,38 +963,102 @@ git log --merge --left-right -p  A.txt       if you only want to display for a s
 
 undo a merge:          to go back at the point before the 'git merge'  (so having a clean wd)
 
-                       - git reset --hard HEAD         # if a 'git commit' has not been yet done
-                       - git reset --hard ORIG_HEAD    # if a 'git commit' has been already done
+                       - git reset --hard HEAD         # if 'git commit' not done yet 
+                       - git reset --hard ORIG_HEAD    # if 'git commit' already done
                        - git checkout -m               # from Git ver. 1.6.1
 
 --------------------------  ALTERING COMMITS
                          Git allows to re-write or re-organize the history (the Commits) if you
                          like to do it. 
+
+git reset            : it acts on Commits like checkout acts on branches. This means that I can
+                       switch HEAD to point to a Commit different from the last one.
+                       As a checkout changes both the Index and the files in wd, 'git reset'
+                       can change also Index and wd. The behaviour is related to which of the 
+                       3 options it is executed:
+                       HEAD is switched. The previous values is stored in ORIG_HEAD.
+
                              # moves HEAD to point to that Commit:
                              #                         HEAD     wd       index
 git reset --soft  commit     #                          Y       -         -
-git reset --mixed commit     # [default]                Y       -         Y   <- = to reset index to the status = repo without losing changes in WD (like a rm --cahced)
+git reset --mixed commit     # [default]                Y       -         Y   <- = to reset index to the status = repo without losing changes in WD (like a rm --cached)
 git reset --hard  commit     # already seen above.      Y       Y         Y
 
-        ex 1 - remove a file from the index (leaving all unchanged)
+  ex 1 - remove a file from the index (leaving all unchanged)
         git ad foo.c                     # I accidentally stage a file
         git ls-files -->  ... foo.c      # I see it among other
         git reset HEAD foo.c             # Remove from index (set HEAD as if it was before it was present)
         git ls-files -->  ...            # removed
 
-        ex 2 - remove the last commit (not changing wd) so that I can modify again what in wd and commit
+  ex 2 - remove the last commit (not changing wd) so that I can modify again what in wd and commit
             git reset HEAD^              # go 1 commit back (without change wd)
         .... edit in wd
         git commit
 
-        ex 3 - only change the message of last Commit
+  ex 3 - only change the message of last Commit
         git reset --soft HEAD^           # goes 1 commit back (without changing wd / index)
         git commit                       # you can add the new message
 
-        ex 4 - remove 2nd Commit
+  ex 4 - remove 2nd Commit
             git reset --hard HEAD^       # go 1 commit back (change wd !! and index)
             ls                           # I see as it was 
 
+cherry-pick            : to copy a commit from another branch
+                         Usually requires to manage some conflict:
+                         ex {here also the order of Commits between the 2 branches is altered}
+
+                         git   checkout master
+                         git   cherry-pick my_dev^      copying commit last-1
+                         git   cherry-pick my_dev~3                    last-3
+                         git   cherry-pick my_dev~2                    last-2
+                         git   cherry-pick my_dev                      last
+
+
+git revert             : git revert master~3
+                         is the revert of cherry-pick. It also adds a copy of a Commit
+                         but adds the opposite of what the original Commit did.
+                         It's normally used inside the same branch, to revert and old
+                         Commit that was bugous.
+
+git commit --amend     : to change last Commit. If the last Commit was wrong somehow (in the message, in the number of files
+                         in some typos in one or more of the committed files), you can prepare to do another fixing Commit
+                         (so in the case with proper previous new 'git add ..')
+                         Intead of the usual 'git commit' which will just add the fixing Commit (leaving also the wrong one)
+                         you can execute 'git commit --amend' which will overwrite the previous one.
+
+git rebase             : move a sequence of Commits from a place to another (same or other branches)
+                        ex the pair of commands
+                           git checkout topic
+                           git rebase master
+                        can be  collapsed in 1 single command 'git rebase master topic'
+                        and moves  branch topic ahead as it was forked from the HEAD of master
+                        insted of a previous fork Commit
+                         
+              'git rebase master topic'
+
+                         --*--*--*--*  master      --*--*--*--*  master
+                            \                                  \
+                             \--*--*   topic                    \--*--*   topic
+
+              'git rebase --onto master topic^ dev'
+                         
+                         --*--*--*--*  master                   /--* dev
+                            \                                  /
+                             \--*--*   topic       --*--*--*--*  master      
+                                 \                    \                     
+                                  \--* dev             \--*--*   topic     
+                                                          
+                                                         
+              git rebase usually requires to manage some conflict.
+              This will cause to stop for each commit and edit some file in the index.
+              To resume 
+                              git rebase --continue
+              To skip a Commit
+                              git rebase --skip    (but it's never a good choice)
+              To abort all 
+                              git rebase --abort
+
+                         
 
 --------------------------  1/10
 clone:           git clone https://github.com/libgit2/libgit2    download & creates a dir libgit2
@@ -940,11 +1080,7 @@ clone:           git clone https://github.com/libgit2/libgit2    download & crea
                                                                              again since last stage.
                                                                              A commit will miss wd changes.
 --------------------------  2/10
-git commit --amend                 to change a Commit.
-                                   Change only the message (open vi with the old msg) if stage=commit.
-                                   If stage != commit, that stage overwrite last commit
 
-git checkout -- a.txt              to discard changes in working directory, overwriting a.txt
 
 git remote -v                    
             origin  git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git (fetch)
@@ -989,7 +1125,7 @@ git commit                  add 1st commit to the new branch (so now 'testing' i
 --------------------------  4/10 Git on the Server
   - 4 Protocols:
 
-      1. Local:    is a local filesystem (ex shared folders in the network trhough NFS), so a dir on a local disk.
+      1. Local:    is a local filesystem (ex shared folders in the network through NFS), so a dir on a local disk.
 
                    git clone /opt/git/project.git            filesystem path (will hardcopy on my disk)
                    git clone file:///opt/git/project.git     netpath (slower, as will operated remotely)
@@ -1083,12 +1219,596 @@ git commit                  add 1st commit to the new branch (so now 'testing' i
 
 --------------------------  5/10 Git on the Server
 
+  this is the COMMIT            this is the TREE                this is the BLOB
+                                n.b. file names                 n.b. file content
+                                     are stored here                 is stored here
+
+                                                                              5b1d3
+                                                                     _____________________     
+                                                                     |     blob   size    |     
+                                                                     |  a b c .....       |
+                                                              ______ |  d e f .....       |
+                                                             /       |  g h i .....       |
+                                                            /        |____________________|
+                                                           /         
+            98ca9                        92ec2            /                  911e7                   
+   _____________________        ______________________   /           _____________________     
+   |   commit   size    |       |  tree   size        | /            |     blob   size    |     
+   |     tree   92ec2   |______ |  blob   5b1d3 README|/             |  x y z .....       |
+   |   parent           |       |  blob   911e7 A.txt | ____________ |  w j k .....       |
+   |   author   ste     |       |  blob   cba0a B.c   |              |  q 7 v .....       |
+   |committer   ste     |       |                     |\             |____________________|
+   |____________________|       |_____________________| \                                                                 
+                                                         \                 cba0a
+                                                          \          _____________________     
+                                                           \________ |     blob   size    |     
+                                                                     |  #include ...      |
+                                                                     |  int a = 1;        |
+                                                                     |                    |
+                                                                     |____________________|
+
+COMMITs are chained (to 1 ore more parents) in a COMMIT history
+
+          98ca9                     ac77b                     6f37a
+ _____________________     _____________________     _____________________ 
+ |   commit   size    |    |   commit   size    |    |   commit   size    |
+ |     tree   92ec2   |    |     tree   0b11f   |    |     tree   505fe   |
+ |   parent          <-------- parent          <-------- parent           |  ...
+ |   author   ste     |    |   author   ste     |    |   author   ste     |
+ |committer   ste     |    |committer   ste     |    |committer   ste     |
+ |____________________|    |____________________|    |____________________|
+                                                                           
+
+--- 2/10
 
 
 
 
+1. Getting Started                          |
+                                            |
+    1.1 About Version Control               |
+                                            |
+    1.2 A Short History of Git              |
+                                            |
+    1.3 Git Basics                          |
+                                            |
+    1.4 The Command Line                    |
+                                            |
+    1.5 Installing Git                      |
+                                            |
+    1.6 First-Time Git Setup                |
+                                            |
+    1.7 Getting Help                        |
+                                            |
+    1.8 Summary                             |
+                                            |
+2. Git Basics                               |
+                                            |
+    2.1 Getting a Git Repository            |  1' way: create a new git repo
+                                            |          enter a dir (empty or with already some subtree filesystem)
+                                            |          and run 'git init'  (this creates the .git, now empty, after some
+                                            |                              'git add + git commit' the repo starts to live)
+                                            |  2' way: git clone <url>  [dir_name]
+                                            |          git clone https://github.com/A
+                                            |          git clone https://github.com/A  B    # if I want a dir named B instead of the REPO dir name
+                                            |             
+                                            |         <url> formats   https://    git://   user@server:path_to_repo.git  (<-- uses ssh)
+                                            |
+                                            |
+    2.2 Recording Changes to the Repository | Tracked files:    files that were in the last snapshot; 
+                                            |                   they can be (unmodified, modified, or staged) 
+                                            |                   [ex.after a 'clone' everything is TRACKED+UNMODIFIED]
+                                            | 
+                                            | Untracked files:  Not in previous shapshot
+                                            | 
+                                            | git status       to see which files are in which state
+                                            | git status -s    or --short   (for less verbose output)
+                                            | gitignore        - blank or # lines --> ignored
+                                            |                  - a directory is a path ending with /   (ex build/)
+                                            |                  - a file starting with / refers to cur dir (doesn't recursively go in subtrees) (ex /TODO)
+                                            |                  - normal globbing works (ex. *.a)  (exclude any file with extension 'a')
+                                            |                  - negation is with !  (ex !lib.a)  (NOT exclude file lib.a)
+                                            |                  - ** to match any subdir (ex a/**/z  matches a/z a/b/z a/b/c/z)
+                                            | 
+                                            | git diff / git diff --cached [or synonym --staged]
+                                            | git difftool    insted of .git diff vimdiff is usually one of the tools
+                                            |                 to see the others: 'git difftool --tool-help'
+                                            |                 ex. git difftool --tool=vimdiff
+                                            | 
+                                            | git commit      open the editor defined by $EDITOR or
+                                            |                                         by git config --global core.editor 
+                                            | 
+                                            | git commit -v  also puts the diff of the changes in the editor 
+                                            | git commit -m "bla bla bla"  to not open the editor (passing the reason of commit at commandline)
+                                            | git commit -a   to skip the staging phase ('git add'). I can commit directly all the tracked files
+                                            | 
+                                            | git rm  a.txt   to remove a.txt BOTH from the stage AND wd. 
+                                            |                 If I already removed it in wd, git only removes form the stage
+                                            |                 Remove from the stage means it will be no more tracked
+                                            |                 so from the next snapshot (next commit) it will be gone.
+                                            | git rm -f       to force the rm. In cases where after I staged a.txt, I then modified again
+                                            |                 so it's in the stage and wd but they diff. To confirm I'm going to
+                                            |                 remove both version I add option -f
+                                            | git rm --cached  to remove only the stage version and preserve the wd file.
+                                            | git rm log/\*.log   I can use globbing. Anyhow git has it's own filename expansion
+                                            |                 in addition to the shell's one. So note here the '\'
+                                            | git mv A B      to track rename of file A into B. Instead of this single command
+                                            |                 I can explicitly do the 3: [mv A B] + [git rm A] + [git add B]
+    2.3 Viewing the Commit History          | 
+                                            | ex: git log -1 --pretty="%h - %an (%cd -T:%t)" --stat -p  --graph --all --decorate 8ae1aa
+                                            |
+                                            | git log                 shows commits history (from most recent back)
+                                            | git log -p              shows more info (the changes introduced in each commit)
+                                            | git log -2              shows only 2 commits
+                                            | git log --stat          shows mod (ex +++++++++----   + insertions  - deletions)
+                                            | git log --graph         adds a nice little ASCII graph showing your branch and merge history:
+                                            | git log --pretty        to customize output (
+                                            |                               --pretty=oneline   (usefull with --graph)
+                                            |                                       =short
+                                            |                                       =full
+                                            |                                       =fuller
+                                            |                                       ="%h - %an, %ar : %s"   my own format ex
+                                            |                                        ca82a6d - Scott Chacon, 6 years ago : changed the version number
+                                            | 
+                                            |                                        %h     commit (short) hash
+                                            |                                        %H     commit (long)  hash
+                                            |                                        %T     tree   (long)  hash
+                                            |                                        %t     tree   (short) hash
+                                            |                                        %P     Parent (long)  hashes
+                                            |                                        %p     Parent (short) hashes
+                                            |                                        %an    Author name
+                                            |                                        %ae    Author e-mail
+                                            |                                        %ad    Author date (format respects the --date=option)
+                                            |                                        %ar    Author date, relative
+                                            |                                        %cn    Committer name
+                                            |                                        %ce    Committer email
+                                            |                                        %cd    Committer date
+                                            |                                        %cr    Committer date, relative
+                                            |                                        %s     Subject  
+                                            | 
+                                            | git log --until=2.weeks    (or --before)  to filter on (before) dates
+                                            | git log --since=2.weeks    (or --after)   to filter on (after)  dates
+                                            |                                        dates expressed in absolute ex "2008-01-15"
+                                            |                                                        in relative "2 years 1 day 3 minutes ago"
+                                            | git log --author           to filter on author
+                                            | git log --committer        to filter on committer
+                                            | git log --grep             to filter on keywords in the commit messages
+                                            | git log --all-match        to use more filters together (ex --author and grep)
+                                            | git log -S                 to filter when a certain String was added or removed through that commit
+                                            |                            ex. git log -Sfunction_name
+                                            | 
+                                            | git log <path>             the last arg is for an optional path (file or dir) and limits
+                                            |                            to only commits where that path was touched
+                                            | git log --                 as usual they end options before an optional <path> arg.
+                                            | 
+    2.4 Undoing Things                      |
+                                            | git commit --amend         to overwrite previous Commit (and have 1 instead of 2 consecutives).
+                                            |                            If I didn't "add" anything in the stage, the new Commit will only
+                                            |                            change the message text.
+                                            | 
+                                            | git reset HEAD <file>      to unstage a file from index and track again as modified but not staged.
+                                            |                            with option --hard reset is a dangerous command
+                                            | 
+                                            | git checkout -- <file>     to reset changes also in wd, where <file> will be overwritten taking
+                                            |                            the previous version from the last committed shapshot
+                                            | 
+    2.5 Working with Remotes                |
+                                            | git remote add [shortname] [url]    to add (ex. git remote add pb https://github.com/paulboone/ticgit)
+                                            |                           server names (shortname) can ne used instead of the longer URL
+                                            |                           ex. git fetch pb
+                                            | git remote rm <shortname> to remove that shortname from the server list
+                                            |                           ex. git remote rm pb
+                                            | git remote                to see wich remote servers are configured
+                                            |                           "origin"  is the default name of the server I cloned from
+                                            |                           saied otherwise, a clone automatically adds that remote repo under the name “origin"
+                                            | git remote -v             to see the URLs
+                                            | git fetch [remote-name]   download all the data from that remote project that I don’t have yet. 
+                                            |                           NB. it doesn't merge! 
+                                            | git pull                  = fetch+merge
+                                            | git push [remote-name] [branch-name]   to upstream to the server.
+                                            |                           ex. git push origin master
+                                            |                           push works only if:
+                                            |                           1. I have write permissions onto the server
+                                            |                           2. nobody else has  pushed since I cloned/pulled. If there are other recent push,
+                                            |                              I must first a pull or fetch+merge, align to the new code and only after tha, push.
+                                            | git remote show           Shows which branch is automatically pushed  when you run git push. 
+                                            |                           It also shows you which remote branches on the server you don’t yet have, 
+                                            |                           which remote branches you have that have been removed from the server 
+                                            |                           and multiple branches that are automatically merged when you run git pull.
+                                            | 
+                                            |
+                                            | git clone        clones a complete repo (this means all the branches included)
+                                            | git clone -b branch    doesn't what you are expecting probably. It doesn't clone
+                                            |                        only 1 branch from the remote repo, but does:
+                                            |                                 1. clone all (normal .git clone)
+                                            |                                 2. check_out that branch from all you now have locally.
+                                            |
+                                            | git clone -b branch --single-branch  does what expected (option --single-branch)
+                                            |
+                                            |
+    2.6 Tagging                             | git tag         Lists the available tags (alphabetical order)
+                                            | git tag -l 'v1.8.5*'   I can reg-expr-search for tags with -l
+                                            |
+                                            | git/refs/tags/  the dir where tags for that repo are stored
+                                            |
+                                            | annotated / lightweight    the 2 possible types for tags
+                                            |      ^           ^
+                                            |      |           |_____    just a pointer to a Commit (doesn't contain any data)
+                                            |      |
+                                            |      |_________________    they are full git obj. Contain:
+                                            |                                       - tha tag name
+                                            |                                       - a message
+                                            |                                       - a date
+                                            |                                       - an email (field "Tagger:")
+                                            |
+                                            | git tag -a   v1.4   -m 'my version 1.4'     this creates an annotated tag
+                                            |               ^             ^               on last Commit (HEAD)
+                                            |             tag name      message
+                                            |
+                                            | git tag  v1.4      this creates a lightweight tag on last Commit (HEAD)
+                                            |
+                                            | git tag -a v1.2 9fceb02   to tag a specific Commit (not the last)
+                                            |
+                                            |                          tags can’t be moved (to point to a different Commit)
+                                            |                          they must be deleted and recreated.
+                                            |
+                                            | git show v1.4      For a lightweight, shows the pointed Commit data
+                                            |                    For an annotated shows the tag data
+                                            |
+                                            | git push origin v1.4    By default, the git push command doesn’t transfer tags to remote server
+                                            |                         so this is the explicit command to move 1 tag there
+                                            | git push origin --tags  This will transfer all tags that are not already there.
+                                            |
+                                            | git tag -d v1.4                     to delete a tag fromm the local repo
+                                            |                                     (it remove in .git/refs/ dir)
+                                            | git push origin :refs/tags/v1.4     to delete on the remote repo
+                                            |
+                                            | git checkout -b [branchname] [tagname]    ex. git checkout -b version2 v2.0.0
+                                            |                         I can create+chekcout a branch, adding a tag, anyhow as tags can't be moved
+                                            |                         the tag will remain at the beginning of the branch (first forking Commit)
+                                            |                         while on each Commit the branch will go on pointing to the HEAD.
+                                            |
+    2.7 Git Aliases                         | git config         use .git config to set up an alias.
+                                            |
+                                            |                    git config --global alias.co checkout  <--- now: git co = git checkout
+                                            |                    git config --global alias.br branch
+                                            |                    git config --global alias.ci commit
+                                            |                    git config --global alias.st status
+                                            |                    git config --global alias.unstage 'reset HEAD --'
+                                            |
+                                            | !                  to alias on an external cmd (like in vi)
+                                            |                    git config --global alias.visual '!gitk'
+                                            |
+    2.8 Summary                             |
+                                            |
+3. Git Branching                            |
+                                            |
+    3.1 Branches in a Nutshell              |
+                                            | A branch is :
+                                            |    . a pointer to a Commit (a lightweight movable pointer,
+                                            |                             on each "git commit" the pointer moves ahead)
+                                            |
+                                            |    . phisically a simple file 
+                                            |      that contains the 40 bytes SHA-1 of the commit it points to
+                                            |      + a newline (so a file of 41 bytes)
+                                            |
+                                            | "master" branch.
+                                            |   there is nothing special. It's created by default on a "git init"
+                                            |   and people don’t bother to change it.
+                                            |
+                                            | "HEAD" it's the special pointer Git uses to point to the current branch
+                                            |         you're on.
+                                            |
+                                            | So all the branches inside a proj, are a set of POINTERS (to COMMITs) !
+                                            | HEAD indicates the current branch, and so the current COMMIT.
+                                            |
+                                            | git branch  <name>     CREATE a branch <name>  (on the Commit I'm on)
+                                            |                        nb. HEAD is NOT changed!!!! there isn't a branch switch yet!
+                                            |                         git branch  <name> ad567f    create a branch on a specified COMMIT
+                                            |                                                      (different from HEAD)
+                                            | git checkout <name>    I switch to branch <name>.
+                                            |                        nb. HEAD is changed!!!! 
+                                            |                        nb. wd is changed!: It’s important to note that when 
+                                            |                            you switch branch, files in your wd will change. 
+                                            |
+                                            | git checkout -b <name>            I both: CREATE + SWITCH (option -b)
+                                            | git checkout -b <name>  ad567f    when COMMIT is not HEAD
+                                            |
+                                            | git log --oneline --decorate                   to see where branches point to
+                                            | git log --oneline --decorate --graph --all
+                                            |
+    3.2 Basic Branching and Merging         |
+                                            | merge modifications from branch B into master:
+                                            |              1. git checkout master     (I first switch to the branch where I want to merge into)
+                                            |              2. git merge    B          (then I use command "git merge")
+                                            |
+                                            | "fast-forward"    in the cases where the branch B (that is a COMMIT pointed by pointer B)
+                                            |                   is an upstream (one commit that can be reached by following ahead
+                                            |                   from master) of the commit you’re on, Git simply moves the pointer forward. 
+                                            |                             ____ C3 ___C4               ____ C3 ___C4
+                                            |                            /           ^               /           ^
+                                            |                   C1 -- C2             B      C1 -- C2             B/master
+                                            |                         ^                           
+                                            |                       master                     
+                                            |
+                                            | git branch -d <name>     to delete branch <name>
+                                            |                          Once a branch is merged, I can decide to delete it.
+                                            |
+                                            | "three-way merge" in the cases where the 2 branches went both ahead from their
+                                            |                   common ancestor (C2), the merge is a three-way merge
+                                            |                   where the 3 means: C2, C5, C4. That is join the mod
+                                            |                   in C4 and C5 considering the common ancestor C2.
+                                            |
+                                            |                             ____ C3 ___C4                 ____ C3 ___C4
+                                            |                            /           ^                 /             \
+                                            |                           /            B                /               \
+                                            |                  C1 -- C2 -- C5                C1 -- C2 -- C5 -----------C6
+                                            |                              ^                                           ^             
+                                            |                            master                                      B/master          
+                                            |      
+                                            |                   nb. while "fast-forward" only moves a pointer, here git creates
+                                            |                       a new Commit (C6) and then moves both the pointers
+                                            |
+                                            | CONFLICTs         if some <k> files of total <N> involved in the merge
+                                            |                   cannot be automatically merged then:
+                                            |                        1. git didn't create COMMIT C6
+                                            |                        2. N-k files are already automatically updated
+                                            |                        3. k files are modified by git with lines like:
+                                            |                             <<<<<<< HEAD:index.html  <--- this is the 'master' part
+                                            |                                       ...
+                                            |                             =======
+                                            |                                       ...
+                                            |                             >>>>>>> iss53:index.html
+                                            |                        4. use git status the see the k files
+                                            |                        5. edit each of the k files in the selected sections
+                                            |                        6. use "git add" for all the k files
+                                            |                        7. use "git commit" to create the C6 merged commit
+                                            |
+                                            | git mergetool          to use one of the possible tools to see graphically
+                                            |                        the merge conflicts.
+                                            |                        (use git mergetool --tool-help   to see the list)
+                                            |
+    3.3 Branch Management                   | git branch             to see the active branches (a * indicates the checkout (HEAD))
+                                            | git branch -a          to see all the project branches
+                                            | git branch -v          to see the last commit for each branch
+                                            | git branch --merged    to see the list of branches already merged in the branch 
+                                            |                        where I'm on. All those branches are candidate to be deleted
+                                            |                        with "git branch -d"
+                                            | git branch --no-merged to see the list of branches not yet merged.
+                                            |                        Because they contain work that isn’t merged yet, 
+                                            |                        trying to delete with "git branch -d" will fail.
+                                            |                        To force use -D
+    3.4 Branching Workflows                 |
+                                            |
+    3.5 Remote Branches                     |
+                                            | "Remote-tracking"-branches are LOCAL bookmark that remind you 
+                                            |                        where the branches in your remote repositories were 
+                                            |                        the last time you connected to them.
+                                            |                        So even if when there is no network connection
+                                            |                        I've a remind.
+                                            | remote/branch          The syntax used by this bookmark is:
+                                            |                        name of remote +  '/' +  branch name
+                                            | origin                 Is the default name of the remote after the command clone
+                                            |                        If I want anothe name xxxxx:  git clone -o xxxxx
+                                            | origin/master          the default name of the commit on the remote server
+                                            |                        when I downloaded with a clone
+                                            |                                                    ____ origin/master
+                                            |                                                   /
+                                            |                        C1 _____ C2 _____ C3 ____ C4
+                                            |                                                  ^
+                                            |                                                master
+                                            |
+                                            |                       After a clone, the local master pointer
+                                            |                       refers to the same commit of origin/master.
+                                            |                       If I commit (locally), master moves on,
+                                            |                       but origin/master remains fixed on C4.
+                                            |                       This allows to bookmark C4 the day I come back
+                                            |                       to the server where others maybe have pushed other stuff.
 
-
-
-
-
+                                            | git fetch origin      allow to resynchronize to the last commit Cx on the server
+                                            |                       so:
+                                            |                           1. moves origin/master
+                                            |                           2. download the state from C4 to Cx
+                                            |                       nb. local mater remains where it is. With a merge it also
+                                            |                           moves: git pull = git fetch + merge.
+                                            | more servers          If I add anothet remote (git remote add xxxx), for the same 
+                                            |                       project, it could be with last commit Cy (with y any value
+                                            |                       even 3, i.e. Cy < C4 < Cx). For instance it's a lot time
+                                            |                       nobody had pushed to that server, so the last Cy is old.
+                                            |                       Anyhow, git adds another 'bookmark' (xxxx/master (also for 
+                                            |                       this server)
+                                            |                       A git fetch from this server, will not download anything.
+                                            | git push              to public a branch on a remote. The syntax to use is:
+                                            |                       git push <remote name> <branch name>
+                                            |                       ex.    git push origon 
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+    3.6 Rebasing                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+    3.7 Summary                             |
+                                            |
+4. Git on the Server                        |
+                                            |
+    4.1 The Protocols                       |
+                                            |
+    4.2 Getting Git on a Server             |
+                                            |
+    4.3 Generating Your SSH Public Key      |
+                                            |
+    4.4 Setting Up the Server               |
+                                            |
+    4.5 Git Daemon                          |
+                                            |
+    4.6 Smart HTTP                          |
+                                            |
+    4.7 GitWeb                              |
+                                            |
+    4.8 GitLab                              |
+                                            |
+    4.9 Third Party Hosted Options          |
+                                            |
+    4.10 Summary                            |
+                                            |
+5. Distributed Git                          |
+                                            |
+    5.1 Distributed Workflows               |
+                                            |
+    5.2 Contributing to a Project           |
+                                            |
+    5.3 Maintaining a Project               |
+                                            |
+    5.4 Summary                             |
+                                            |
+                                            |
+                                            |
+6. GitHub                                   |
+                                            |
+    6.1 Account Setup and Configuration     |
+                                            |
+    6.2 Contributing to a Project           |
+                                            |
+    6.3 Maintaining a Project               |
+                                            |
+    6.4 Managing an organization            |
+                                            |
+    6.5 Scripting GitHub                    |
+                                            |
+    6.6 Summary                             |
+                                            |
+7. Git Tools                                |
+                                            |
+    7.1 Revision Selection                  |
+                                            |
+    7.2 Interactive Staging                 |
+                                            |
+    7.3 Stashing and Cleaning               |
+                                            |
+    7.4 Signing Your Work                   |
+                                            |
+    7.5 Searching                           |
+                                            |
+    7.6 Rewriting History                   |
+                                            |
+    7.7 Reset Demystified                   |
+                                            |
+    7.8 Advanced Merging                    |
+                                            |
+    7.9 Rerere                              |
+                                            |
+    7.10 Debugging with Git                 |
+                                            |
+    7.11 Submodules                         |
+                                            |
+    7.12 Bundling                           |
+                                            |
+    7.13 Replace                            |
+                                            |
+    7.14 Credential Storage                 |
+                                            |
+    7.15 Summary                            |
+                                            |
+8. Customizing Git                          |
+                                            |
+    8.1 Git Configuration                   |
+                                            |
+    8.2 Git Attributes                      |
+                                            |
+    8.3 Git Hooks                           |
+                                            |
+    8.4 An Example Git-Enforced Policy      |
+                                            |
+    8.5 Summary                             |
+                                            |
+9. Git and Other Systems                    |
+                                            |
+    9.1 Git as a Client                     |
+                                            |
+    9.2 Migrating to Git                    |
+                                            |
+    9.3 Summary                             |
+                                            |
+10. Git Internals                           |
+                                            |
+    10.1 Plumbing and Porcelain             |
+                                            |
+    10.2 Git Objects                        |
+                                            |
+    10.3 Git References                     |
+                                            |
+    10.4 Packfiles                          |
+                                            |
+    10.5 The Refspec                        |
+                                            |
+    10.6 Transfer Protocols                 |
+                                            |
+    10.7 Maintenance and Data Recovery      |
+                                            |
+    10.8 Environment Variables              |
+                                            |
+    10.9 Summary                            |
+                                            |
+                                            |
+                                            |
+A1. Git in Other Environments               |
+                                            |
+    A1.1 Graphical Interfaces               |
+                                            |
+    A1.2 Git in Visual Studio               |
+                                            |
+    A1.3 Git in Eclipse                     |
+                                            |
+    A1.4 Git in Bash                        |
+                                            |
+    A1.5 Git in Zsh                         |
+                                            |
+    A1.6 Git in Powershell                  |
+                                            |
+    A1.7 Summary                            |
+                                            |
+A2. Embedding Git in your Applications      |
+                                            |
+    A2.1 Command-line Git                   |
+                                            |
+    A2.2 Libgit2                            |
+                                            |
+    A2.3 JGit                               |
+                                            |
+A3. Git Commands                            |
+                                            |
+    A3.1 Setup and Config                   |
+                                            |
+    A3.2 Getting and Creating Projects      |
+                                            |
+    A3.3 Basic Snapshotting                 |
+                                            |
+    A3.4 Branching and Merging              |
+                                            |
+    A3.5 Sharing and Updating Projects      |
+                                            |
+    A3.6 Inspection and Comparison          |
+                                            |
+    A3.7 Debugging                          |
+                                            |
+    A3.8 Patching                           |
+                                            |
+    A3.9 Email                              |
+                                            |
+    A3.10 External Systems                  |
+                                            |
+    A3.11 Administration                    |
+                                            |
+    A3.12 Plumbing Commands                 |
+                                            |
