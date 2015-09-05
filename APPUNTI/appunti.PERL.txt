@@ -346,6 +346,10 @@ ARRAY
             scalar @array
             $#array
 
+    - slice of arrays
+            @days[3, 4, 5]     Array slice containing ($days[3], $days[4], $days[5])
+            @days[4..6]        Array slice containing ($days[4], $days[5], $days[6])
+
     - print 
             it's interpolated into strings
             print "@array";        # "print A B"
@@ -1037,6 +1041,47 @@ EXPORTER
                                  our @EXPORT = ("crawl", "eat", "pup");
                  they are exported if import is called with no args:    import()
        
+
+--------------------------
+SYMBOL TABLEs / LEXICAL SCOPEs
+--------------------------
+varibale-names  are stored in memory in 2 different places, both called
+"name-spaces", and then one space called "symbol tables" and the other
+"lexical-scopes". Each space then allocates different sub-area for the
+different 'sigil': so var of type $, @, %, &, go in separate area
+(that's the reason why $a @a %a &a do not conflict each other)
+
+lexical scopes: store 'local' vars. 
+                That is, vars inside blocks { }, of type
+                my, our, state.
+symbol tables:  called also 'package' var, store 'global vars.
+
+qualified name: is the long name of a var that allows to distinguish from others
+
+                ex. $Santa::Helper::Reindeer::Rudolph::nose  <---- 1 name = {many 'term'}
+                      ^       ^         ^       ^       ^
+                     term    term      term    term    term
+
+Name Lookups:   is the process that Perl uses to find from the simple term (ex. $a)
+                the qualified name. It is:
+
+                        1. starts searching in the lexical scope of that block
+                        2. goes on upper blocks
+                        3. goes to the largest possible lexical scope (compilation unit)
+                           that is:
+                              - the file (normally)
+                              - the STRING passed to an 'eval': in this case
+                                is still is not found in the runtime STRING, Perl
+                                restart from point 2, considering the lexical scope
+                                of the block where the 'eval' is written.
+                           
+                        4. pass to search for global vars, searching again from point 1 to 3
+                           but for the nearest 'package' instruction which will be 
+                           prepended to the front of the variable.
+                        5. If there is no package declaration in any surrounding lexical scope, 
+                           Perl looks for the variable name in the unnamed top-level package, 
+                           (called 'main')
+                           
 
 --------------------------
 USEFUL MODULES
