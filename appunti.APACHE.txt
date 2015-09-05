@@ -794,8 +794,27 @@ handler-name is an APACHE directive (not mod_perl)
 
 ------------------------ MOD_PERL_CONFIG <END>
 
+error_log           is the 1st place to look when there are errors
+                    in particular each "Internal Server Error".
+                    A local perl program print on the shell terminal
+                    but on a server application the perl programm
+                    inside Apache, prints in 
+                        error_log
+                        STDERR (the server terminal where I executed httpd)
 
+                    Normally it prints on error_log, but can print on STDERR
+                    for at least the following reasons:
+                     - the error_log is wrongly defined in httpd.conf
+                       (the directive ErrorLog is wrong), so no file is opened.
+                     - during the no-fork execution (httpd -X) (ex in debug)
+                       most status messages that normally go to error_log
+                       go to STDERR
 
+die "...."         nb. without a \n, the messages is printed with also "line 9"
+    "...\n"            (or whichever is the number of line)
+                       I miss this added info if I put \n.
+warn "..."             The same works for warn (which is the sister of die
+                       that logs on error_log (and go on  living))
 
 
 

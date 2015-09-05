@@ -1227,16 +1227,16 @@ git commit                  add 1st commit to the new branch (so now 'testing' i
                                                                      _____________________     
                                                                      |     blob   size    |     
                                                                      |  a b c .....       |
-                                                              ______ |  a b c .....       |
-                                                             /       |  a b c .....       |
+                                                              ______ |  d e f .....       |
+                                                             /       |  g h i .....       |
                                                             /        |____________________|
                                                            /         
             98ca9                        92ec2            /                  911e7                   
    _____________________        ______________________   /           _____________________     
    |   commit   size    |       |  tree   size        | /            |     blob   size    |     
-   |     tree   92ec2   |______ |  blob   5b1d3 README|/             |  e f g .....       |
-   |   parent           |       |  blob   911e7 A.txt | ____________ |  e f g .....       |
-   |   author   ste     |       |  blob   cba0a B.c   |              |  e f g .....       |
+   |     tree   92ec2   |______ |  blob   5b1d3 README|/             |  x y z .....       |
+   |   parent           |       |  blob   911e7 A.txt | ____________ |  w j k .....       |
+   |   author   ste     |       |  blob   cba0a B.c   |              |  q 7 v .....       |
    |committer   ste     |       |                     |\             |____________________|
    |____________________|       |_____________________| \                                                                 
                                                          \                 cba0a
@@ -1511,7 +1511,7 @@ COMMITs are chained (to 1 ore more parents) in a COMMIT history
                                             |                        nb. wd is changed!: It’s important to note that when 
                                             |                            you switch branch, files in your wd will change. 
                                             |
-                                            | git checkout -b <name>            I both CREATE + SWITCH (option -b)
+                                            | git checkout -b <name>            I both: CREATE + SWITCH (option -b)
                                             | git checkout -b <name>  ad567f    when COMMIT is not HEAD
                                             |
                                             | git log --oneline --decorate                   to see where branches point to
@@ -1581,7 +1581,7 @@ COMMITs are chained (to 1 ore more parents) in a COMMIT history
     3.4 Branching Workflows                 |
                                             |
     3.5 Remote Branches                     |
-                                            | "Remote-tracking"-branches are local bookmark that remind you 
+                                            | "Remote-tracking"-branches are LOCAL bookmark that remind you 
                                             |                        where the branches in your remote repositories were 
                                             |                        the last time you connected to them.
                                             |                        So even if when there is no network connection
@@ -1590,7 +1590,7 @@ COMMITs are chained (to 1 ore more parents) in a COMMIT history
                                             |                        name of remote +  '/' +  branch name
                                             | origin                 Is the default name of the remote after the command clone
                                             |                        If I want anothe name xxxxx:  git clone -o xxxxx
-                                            | origin/master          is so the efault name of the commit on the remote server
+                                            | origin/master          the default name of the commit on the remote server
                                             |                        when I downloaded with a clone
                                             |                                                    ____ origin/master
                                             |                                                   /
@@ -1604,6 +1604,7 @@ COMMITs are chained (to 1 ore more parents) in a COMMIT history
                                             |                       but origin/master remains fixed on C4.
                                             |                       This allows to bookmark C4 the day I come back
                                             |                       to the server where others maybe have pushed other stuff.
+
                                             | git fetch origin      allow to resynchronize to the last commit Cx on the server
                                             |                       so:
                                             |                           1. moves origin/master
