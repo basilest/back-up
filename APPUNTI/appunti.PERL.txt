@@ -224,10 +224,12 @@ SCALAR VARIABLES
                 4. a reference
                 5. a file handle
                 
-        It is impossible to determine whether 
-        a scalar contains a "number" or a "string"
-        Perl treats it as one or the other depending
-        on the operator, and in the case add a warning
+        In Perl, the operator\function determines both 
+          - the context: SCALAR / LIST
+          - the TYPE for scalars: (string / num)
+        For example $x + $y is always a numeric addition of 2 SCALAR, 
+        and if $x or $y do not contain numbers, an attempt is made to convert them to numbers first.
+        ($x == $y I'm comparing 2 nums,  $x eq $y I'm comparing 2 strings)
 
     Operators are:
         # Numerical operators:  <,  >, <=, >=, ==, !=, <=>, +, *
@@ -257,6 +259,9 @@ SCALAR VARIABLES
         print "Hello \$string"; # "Hello $string"
         print 'Hello $string';  # "Hello $string"
 
+        nb. ' is a valid —though archaic— character 
+            replaced by the more visually distinct :: . That means that
+            $main'var and $main::var are the same thing.
     __________________________________
     |    notes on  N U M
     |__________________________________
@@ -270,9 +275,21 @@ SCALAR VARIABLES
     |        0... (     oct) 
     |        0b.. (     bin)
     |        _    (ex 4_294_967_296)
-    | these symbols CANNOT be used if the rvalue
+    |
+    | Automatic conversion from string (ex "0x56f") to num (1391)
+    | not works for these formats:
+    |     $a = 0x56f   + 1   #1392 ok
+    |     $a = "0x56f" + 1   #1    NOT OK
+    |     $a = 071   wrt "071"    
+    |          0b111 wrt "0b111"   
+    |          1_004 wrt "1_004"
+    | So these numeric literals  CANNOT be used if the rvalue
     | comes from another source (ex an input string)
-    | different from the inline literal.
+    | In that case use an explicitly conversion 
+    |              hex("0x56f")
+    |              oct("071")
+    |              oct("0b111") <---- nb. for binary I still use oct!!!       OCT for all!
+    |              oct("0x56f") <---- nb. for hex    I can still use oct!!!   OCT for all!
     |_________________________________
     __________________________________
     |    notes on  S T R I N G
@@ -282,7 +299,7 @@ SCALAR VARIABLES
     |   where I can avoid to use explicit concatenatios with '.'
     |   INTERPOLATION woks only for $scalar and @array NOT %hash
     |   for array means concatenate all el with a $" (usually a space)
-    |   print "@a"  is like  $a = join( $", @ARGV ); prin $a;   
+    |   print "@a"  is like  $a = join( $", @ARGV ); print $a;   
     |   
     |   {} can be used to better separate a var ex "aaa${var}rrr"  without is a mess "aaa$varrrr"
     |   this because a var inside {} is forced to a be a STRING
@@ -294,7 +311,51 @@ SCALAR VARIABLES
     |   ex /${foo[bar]}/  better than only  /$foo[bar]/  
     |   where [bar] could be intended as range of 3 letters b a r
     |_________________________________
+-------
+lower UPPER case
+-------
+    there are interesting escape sequences
+        \l  \u              lower UPPER case only the following char
+        \L   \U .... \E       "    "     "   ALL the chars up to \E (optional if till the end)
+    ex
+        $a="arREFD67hhff"; $b="\U$a\E";    #ARREFD67HHFF  also only $b="\U$a";
 
+    the usage is normally in regex
+        $a="ID"; print (($a=~/\Uid/) ? "yes" : "no")   #yes
+-------
+q qq qw qx  
+-------
+     They are the alternative to:
+
+     ''    q   (NO   interpolation, as they are '') 
+     ""    qq  (YES     "         ) qq/a b c/ --> "a b c" <--- a SCALAR: $a=qq..
+     ``    qx  (YES     "         ) execute a command  
+     ()    qw  (NO      "         ) qw/a b c/ --> ("a", "b", "c") <-- a LIST: @a=qw..
+                                        ^ ^           ^    ^            ^
+                                      spaces          commas            $a=qw/a b c/ returns "c"
+                                                                        that is a LIST evaluated as a SCALAR
+  nb. any not alphanum char is OK as separator
+      ex. q//   q()     q!!
+
+  qr   is the last of the family. It can define a PATTERN as
+       a string var, to use later in pattern match.
+       ex
+            $re = qr/$pattern/;
+            $s =~ /foo${re}bar/;    # can be interpolated in other patterns
+            $s =~ $re;              # or used standalone
+            $s =~ /$re/;            # or this way
+
+-------
+BAREWORD
+-------
+   unquoted terms (ex. print hello;) should be avoided, as error prone.
+   a way is:
+            use strict "subs";
+   that has anyhow the limits of:
+            - lasts its scope only
+            - a    no strict "subs";    can turn it effects off
+   so the best is to write (at least)
+            use v5.12;
 --------------------------
 BOOLEAN VARIABLES
 --------------------------
@@ -383,24 +444,35 @@ undef:   accessing a key that not exits or accessing outside
             print $scientists{"Darwin"};   # "Charles"
             print $scientists{"Dyson"};    # returns undef, prints "" and raises a warning
 
-            Sometimes people omit quotes around hash keys, writing $hash{key} instead of $hash{"key"}.
-            my %last_name                                my %last_name
-             'fred'   =>   'flintstone'                   fred   =>   'flintstone'
-             'dino'   =>   undef,                         dino   =>   undef,
-             'barney' =>   'rubble',                      barney =>   'rubble',
-             'betty'  =>   'rubble'                       betty  =>   'rubble'
-            );                                           );
+            We have seen that {} is a STRING operator, that forces what inside to be a STRING
+            so you can omit quotes:  $hash{key} instead of $hash{"key"} 
+            ("" are required if the key has spaces).
+
+    - HASH into SCALAR   $s = %H
+            $s = 0   if the HASH is EMPTY. Usefull in tests!!
+            otherwise (HASH not EMPTY) return a vale x/y (ex 5/8) which is
+            the situation of the hash table (5 used buckets on a total of 8 available)
+
+    - slice of hashes
+            Given a HASH %H, a subset %h could be identified by a LIST of keys, ex ("a", "b", "f") or better qw/a b f/
+            An instruction like H{ qw/a b f/} is the array of values so it's @H{ qw/a b f}
+            To have a hash it's:
+
+            my %h;
+            @h{qw/a b f/} = @H{qw/a b f/};     or   with the map function    my %h = map { $_ => $H{$_} } qw/a b f/;
+
+            Starting with Perl 5.20.0 it's possible the same short form as array:
+                 my %h = %H{qw/a b f/};
+
 
 ----------- HASH FUNCTIONS 
 keys / values: they return 2 ARRAYs
              my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
              my @v = values %hash;                   
 
-exist:                                       Test if such a key is presnt
-        if (exists $books{"dino"}) {
+exist:  if (exists $books{"dino"}) {   # Test if such a key is presnt
 
-delete:                                       Remove that pair key / value
-        delete $books{$person};
+delete: delete $books{$person};        # Remove that pair key / value
 
 reverse: %ip_address = reverse %host_name;
                                create a new has were the keys are
@@ -577,6 +649,15 @@ REFERENCES
                           if it's not ambiguous, you can omit {}
                           while for array and hash you can also use -> 
 
+                          nb.  We have seen that {} is a STRING operator, 
+                               that forces what inside to be a STRING
+                               it's the way to have the "name" of the pointed var:
+
+                                perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2
+                                
+                                and here I never used a reference.
+
+
             print ${ $scalarRef };   or only        print $$scalarRef;
 
             print $colours[0];       # direct array access
@@ -749,7 +830,7 @@ ARRAY FUNCTIONS
             map      : map { .. $_ } @a;     returns an array from @a where each el (_$) has been
                                              modified by the instruct inside the {}
                                              ex map { uc $_ } @a;   convert any el in UPPERCASE
-            grep     : grep { ..$_ } @a;     returns an array from @a where each el (_$) is added or not
+            grep     : grep { ..$_ } @a;     returns an array from @a where each el ($_) is added or not
                                              depending if the test on it { ..$_} is true or false
                                              It can be used to test if an el is present in @a
                                              scalar grep { $_ eq "..." } @a   #"1"/true
@@ -897,6 +978,14 @@ REG EX
 
         to SUBSTITUTE    =~ s///    s///g  (to subst. all. RETURNS the num of subst!)
             $string =~ s/[aeiou]//;       #del all vowels
+
+            Instead of 3 char /// !!! if I chose a char of the 'bracket families'  <> () [] {}
+            it can be written as 4 char where the second pair could be different: s{foo}(bar)
+            and even with a space or a newline s{foo}
+                                                (bar)
+            s/// allows interpolation (usage of vars $a). 
+                 you can find the alternative equivalent versions  tr/// y/// that do the same
+                 but with no allowed usage of $var in the pattern (they are just char substitution)
 
         //i    case insensitive
         //x    to contain whitespace \n comments :
