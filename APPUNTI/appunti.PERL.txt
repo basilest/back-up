@@ -36,6 +36,12 @@ $_     $ARG                            The default
 
                                           ex1        print foreach @array;
                                           ex2        foreach ( @array ) { next unless defined; }
+                                          ex3        --b{(/(\w+)/)[0]}  <----  1. \w+ : returns the first word matched in $_
+                                                                               2. (..)  it's managed in a list context
+                                                                               3. [0]   it's the 1st (and only) el of the list
+                                                                               4. b{..} it's the key to enter hash b
+                                                                               5. --    that hash entry is decremented
+                                                                      
 
 $.     $NR                             The current input line num of the last filehandle that was read. 
                                        An explicit close on the filehandle resets the line number.
@@ -214,6 +220,12 @@ Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
                 Now it's optional. It must be used only when assigning the name
                 of the function to a reference: $r=\&fun;
 
+nb. 'glob' is the nick name for *. ('globally') In the unix shell it means FILE-glob,
+     all files in a dir. TYPE-glob means all entries in a Symbol Table.
+
+symbol table: where the compiler remembers symbols (variables, filehandles, and subroutines) 
+              A table, which is implemented in Perl using a hash table. 
+              1 symbol table for each package to give its own namespace.
 --------------------------
 SCALAR VARIABLES
 --------------------------
@@ -234,7 +246,14 @@ SCALAR VARIABLES
     Operators are:
         # Numerical operators:  <,  >, <=, >=, ==, !=, <=>, +, *
         # String operators:    lt, gt, le, ge, eq, ne, cmp, ., x
-        nb. x for string.
+        nb. x for string. (ex. print "–" x 80;)
+            in list context instead of the strings, it replicates the list.
+            This is useful to init an array or hash
+                              @ones = (1) x 80;      #init with 80 1
+                              @ones = (5) x @ones;   #change all 80 to 5
+                              @keys = qw(aaa bbb ccc);
+                              @h{@keys} = ("") x @keys;    #h{aaa}="", h{bbb}="", h{ccc}=""
+
 
         my $str1 = "4G";
         my $str2 = "4H";
@@ -464,6 +483,15 @@ undef:   accessing a key that not exits or accessing outside
             Starting with Perl 5.20.0 it's possible the same short form as array:
                  my %h = %H{qw/a b f/};
 
+    - array to hash
+            I used this trick to convert an array 
+            (where i loaded the lines of a file: @lines=<$fh> <--- 1 single command)
+            into and hash: 
+            %lines = map { $_ => 1 } @lines;   
+            the lines are the keys and the values (useless) are all 1.
+            This can be usefull for fast serach/test: 
+                 if (exists $lines {$k}) {
+            
 
 ----------- HASH FUNCTIONS 
 keys / values: they return 2 ARRAYs
@@ -488,6 +516,14 @@ while / foreach:
                  print "$key => $value\n";           |  print "$key => $hash{$key}\n";
             }                                        | }
          
+----------- OLD MULTDI-DIM EMULATION
+A feature was originally implemented to support a2p, the awk-to-Perl trans-
+lator. It allows to emulate a multi-dim hash with the syntax of a list of keys
+inside { }, (separated by commas) : %h { k1, k2, k3}. They form a super-key
+that is the string with all the key concatenated with the special var $;  
+       %h { k1, k2, k3} =  %h { join $; => $k1, k2, k3}
+
+ perl -e 'print $;' | od -c    # 034
 --------------------------
 ARRAY & HASH
 --------------------------
@@ -585,29 +621,29 @@ CONTEXT
             Every expression is evaluated in scalar or list context, 
             depending on whether it is expected to produce a scalar or a list. 
 
-            A scalar assignment 
+          - A scalar assignment 
                      my $scalar = 
             evaluates in scalar context. 
 
-            An array or hash assignment 
+          - An array or hash assignment 
                      my @array = 
                      my %hash  = 
             evaluates in list context. 
 
-            A scalar evaluated in list context 
+          - A scalar evaluated in list context 
             is silently converted into a 1-element list:
 
                my @array = "Mendeleev"; 
                # same as 'my @array = ("Mendeleev");'
 
-            An array evaluated in scalar context 
+          - An array evaluated in scalar context 
             returns the len:
 
                my @array = ("Alpha", "Beta", "Gamma", "Pie");
                my $scalar = @array;
                print $scalar; # "4"
 
-            A list expression (a list is different from an array, remember?) 
+          - A list expression (a list is different from an array, remember?) 
             evaluated in scalar context returns 
                     not the len of the list 
             but 
@@ -615,6 +651,17 @@ CONTEXT
 
             my $scalar = ("Alpha", "Beta", "Gamma", "Pie");
             print $scalar; # "Pie"
+
+          - A list-assignment evaluated in scalar context returns 
+            the number of list elem. assigned
+            if (my ($k,$v) = $string =~ m/(\w+)=(\w*)/) {
+                         1.  =~  has higher precedence wrt =
+                         2.  in list context =~ returns the strings matched
+                         3.  =, the list-assignemtn is done
+                         4.  as it's done in scalar context, if(), it returns 2 the num of elem list assigned
+                             ex. DB<1> $a="aaa bbb"
+                                 DB<2> $s=my($k,$v)=$a=~/(\w+) (\w+)/
+                                 DB<3> p $s    2
 
             ------- example with nested array
             ARRAY and HASH, as depend on list, cannot be nested.
@@ -653,10 +700,15 @@ REFERENCES
                                that forces what inside to be a STRING
                                it's the way to have the "name" of the pointed var:
 
-                                perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2
+                               perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2
                                 
-                                and here I never used a reference.
+                               and here I never used a reference syntax.
 
+                          nb.  symbolic reference: is what I've used above:
+                          a var whose value is the name of another var or subroutine. 
+                          Symbolic references are illegal under use strict "refs" .
+                               perl -e 'use strict "refs"; $b=2; $a=b; print "$a = ${$a}\n"'
+                               Can't use string ("b") as a SCALAR ref while "strict refs" in use at -e line 1.
 
             print ${ $scalarRef };   or only        print $$scalarRef;
 
@@ -725,6 +777,21 @@ REFERENCES
           "opened" => "2000-01-01",                  
           "owners" => $ownersRef,
       );
+--------------------------
+TYPEGLOBS
+--------------------------
+    they are aliases to GLOBAL vars (not lexicals or local).
+    Said otherwise thy refer to entries in (global) Symbol tables.
+    ex.
+         $a = *G;   (or better: *a=\*G)
+    means when now I write $a @a %a I'm accessing Symbol table entries
+                           $G @G %G
+    if I write $a = \$G;  is $a for $G but not @a %a for @G %G.
+    
+    Around Typeglob is built the import mechanism of global vars between 2 modules
+    somethings hidden normally to developer:
+                local *Here::blue = \$There::green;
+    
 --------------------------
 CONDITIONALS
 --------------------------
@@ -902,9 +969,43 @@ FILE
             (ex $line = readline $fh)
                     returns 'undef' on end of file;
 
+        "-"  STDIN: like unix filename "-"  means STDIO
         <>         (called 'angle operator') like readline   (ex $line = <$fh>)
                     has the file handle inside: <FILE_HDL>   when I used a literal open   open(FILE_HDL, "a.txt");
                                                 <$fh>        when I used a var open       open(my $fs, "a.txt");
+                   SCALAR context:   $l=<$fh>   read 1 line
+                   LIST   context:   @l=<$fh>   read ALL the lines of the files in the array 
+
+                   <> (null inside) means read ALL-lines of ALL-files present in the command line (@ARGV)
+
+                    while (<>) {            |     @ARGV = ("-") unless @ARGV; # assume STDIN if empty
+                      # code for each line  |     while (@ARGV) {
+                     ....                   |         $ARGV = shift @ARGV;
+                    }                       |         if (!open(ARGV, '<', $ARGV)) {
+                                            |             warn "Can't open $ARGV: $!\n";
+                                            |             next;
+                         equivalent to      |         }
+                         this ------------> |         while (<ARGV>) {
+                                            |             ...
+                                            |             # code for each line
+                                            |         }
+                                            |     }
+
+                    ex this works like a cat *.txt:
+                            ls *.txt | xargs  perl -e 'while(<>) {print;}'
+
+                    nb. as this magic can be used. I can set @ARGV to a list of files
+
+                        and then call while (<>). 
+                    nb. As files are read as a happy single one, to manage num_lines
+                        correctly, must be tested eof on each one.
+
+        <>  OVERLOAD. An overload meaning of <> is FILE-glob: <*.txt>
+                    when used in this case, it returns:
+                         a single file at a time (in scalar context)  while (<*.txt>)
+                         all the list of files in list context (  @f=<*.txt> )
+                    It can be used also the equivalent explicit function 'glob'
+                    glob ("*.txt")  scalar or list context in the same way.
 
         eof         TRUE on eof
 
@@ -1170,6 +1271,44 @@ Name Lookups:   is the process that Perl uses to find from the simple term (ex. 
                         5. If there is no package declaration in any surrounding lexical scope, 
                            Perl looks for the variable name in the unnamed top-level package, 
                            (called 'main')
+--------------------------
+GRAMMARS - TERMS & OPERATORS
+--------------------------
+term     HIGHEST precedence!!!
+         they are: 
+                 . vars 
+                 . quoted ops (any kind)  <--- A fun is nothing but an operator with args inside (): f (...)
+                 . braces     (any kind)                                                              \___ 'operator'
+
+operators:  
+      01 - Terms and List Operators (Leftward)    
+      02 - The Arrow Operator                          : on the right there are not [] {} or ()
+      03 - Autoincrement and Autodecrement             : ++ only (not --) has some magic on strings
+                                                         incrementing the char
+                                                         $a = "a9";   ++$a;  "b0"
+                                                         $a = "Az";   ++$a;  "Ba"
+                                                         $a = "zz";   ++$a;  "aaa"
+      04 - Exponentiation                              : binds even more tightly than unary minus, so –2**4 is –(2**4)
+      05 - Unary Operators                             : ! + - ~
+      06 - Binding Operators
+      07 - Multiplicative Operators
+      08 - Additive Operators
+      09 - Shift Operators
+      10 - Named Unary and File Test Operators
+      11 - Relational Operators
+      12 - Equality Operators
+      13 - Smartmatch Operator
+      14 - Smartmatching of Objects
+      15 - Bitwise Operators
+      16 - C-Style Logical (Short-Circuit) Operators
+      17 - Range Operators
+      18 - Conditional Operator
+      19 - Assignment Operators
+      20 - Comma Operators
+      21 - List Operators (Rightward)
+      22 - Logical and, or, not, and xor
+      23 - C Operators Missing from Perl
+
                            
 
 --------------------------
