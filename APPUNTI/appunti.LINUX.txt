@@ -1,3 +1,18 @@
+--------------------------------------------------- dmesg
+command that prints the message-buffer of the kernel.
+
+the 'buffer' is the file   /var/log/dmesg
+that can be accessed directly
+
+During boot all the output at video are stored in that buffer.
+So printing after the boot can be read. After some time, the
+buffere is overwritten, so those information go lost.
+
+       ex. 
+           dmesg | grep -i memory
+       
+       can be used to inspect the amount of RAM
+
 --------------------------------------------------- kermit
    to manage in 1 tool all these
 

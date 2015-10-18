@@ -1025,7 +1025,22 @@ FILE
         -f                            if a file
         -r                            if readable
         -w                            if writeable
+        -x                            if exec
         -T                            if text file
+        -C -A -M                      return in $^T ( $BASETIME ) th time of last Change, Access, Modif.
+                                      number is a float, so use function int, if required
+                                      Moreover if the file changed after the script started, it returns < 0
+                                          next unless –M $file > .5;            # files are older than 12 hours
+                                          &newfile if –M $file < 0;             # file is newer than process
+                                          &mailwarning if int(–A) == 90;        # file ($_) was accessed 90 days ago today
+
+                                      $^T = time;  <---- resets the script’s start time to now.
+                                    
+                                    
+                                    
+
+        Starting with v5.10, as a form of purely syntactic sugar, you can stack file test
+        operators, making –f –w –x $file equivalent to –x $file && –w _ && –f _ .
 
         -------------
         |  chop / chomp
