@@ -1,3 +1,38 @@
+
+-------------------------------------------------
+GITHUB:
+GitHub uses SHA256 as a hashing algorithm for SSL, and that was not added to OpenSSL until version 0.9.8o:
+
+For old installations this could return an error while running for example a   "git clone https:....."
+
+Cloning into 'chl-java-xsltservlet'...
+fatal: unable to access 'https://github.com/companieshouse/chl-java-xsltservlet.git/': error:0D0890A1:asn1 encoding routines:ASN1_verify:unknown message digest algorithm
+
+
+SOLUTION 1: export GIT_SSL_NO_VERIFY=1
+GIT_SSL_NO_VERIFY=true git clone https://domain.com/path/to/git
+SOLUTION 2: use –c option to modify a global var only for that command
+git -c http.sslVerify=false <gitSubCommand>
+-------------------------------------------------
+the way to overwrite a file with the version from the repo
+
+
+git fetch 
+git checkout feature/pscs/llpsc01_webfiling websystems/MODULES/CompaniesHouse/Filing/UI/LLPSCs/Page/notifyNaturalLLPSCPage.pm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ______________________________________________
 HISTORY
 ______________________________________________

@@ -77,7 +77,7 @@ To use the long name, the syntax is
                     bash -o verbose  (long form)
        nb.
        bash -v      prints also each cmd before executing it.
-       bash -x      (xtrace) an expanded form of bash -v
+       bash -x      (xtrace) debugging an expanded form of bash -v
 
        bash -p      run as root  (privileged)
        bash -t      run only 1st cmd and exit
@@ -88,6 +88,9 @@ To use the long name, the syntax is
        bash -i      run the script (intercatively)
 
 
+so for debugging a.sh:
+      solution 1:    bash -x  a.sh
+      solution 2:    modify 1st line inside a.sh :  #!/bin/bash -x
 ____________________________________________________________
 ~      $HOME 
 ~+     $PWD      (current dir)
@@ -215,6 +218,53 @@ ____________________________________________________________
      When used with > is the same as cat /dev/null >
      : > data.xxx   # Same effect as   cat /dev/null >data.xxx
 
+     ex.
+     ------------  IF                                    case $1 in    
+     if [[ $1 = "directory" ]]                              "directory")   
+     then                                                     ..
+         find / maxdepth 1 -type d                          ;;
+     elif [[ $1 = "file" ]]                                 "file")
+     then                                                     ..
+         find / maxdepth 1 -type f                          ;;
+     elif [[ $1 = "link" ]]                                 "link")
+     then                                                     ..
+         find / maxdepth 1 -type l                          ;;
+     else                                                   *)
+        echo "usage: $0 file | directory | link"              ..
+     fi                                                     ;;
+     ------------ CASE
+                                                         case $V in     usual regex for [] * ?  |
+                                                         [1-6]* | ?)
+                                                            MSG="<10"
+                                                            ;;
+                                                         [7-8]?)
+                                                            MSG="<89"
+                                                            ;;
+                                                         9[0-9])
+                                                            MSG="<99"
+                                                            ;;
+                                                        *)
+                                                            MSG=">=100"
+                                                            ;;
+     ------------ WHILE
+        COUNT=10
+        while (( COUNT > 0 ))    <-----  not $COUNT (is not required $)  /   exist also "while true" for endless loop
+           do
+               (( COUNT -- ))    <----- nb. usage of -- and ++
+           done
+     ------------ UNTL
+        until (( SZ < 100 ))
+           do
+              ..
+           done
+     ------------  FOR
+     for F in $(ls)
+      do [ ! -f $F ] && continue     <--------- if NOT (!) a file, 'continue'  (exist also 'break', like C)
+        DT=$(stat $F | grep -i access | tail -1 | cut -d " " -f2)
+        echo "$F accessed at $DT"
+      done 
+     ------------
+     ------------
 
 !    from the command line triggers an history event. 
      Not inside a script, as history it's disabled.
@@ -379,6 +429,9 @@ Globbing   Filename expansion: means expanding filename containing
      A non-zero expression returns an exit status of 0, or "true". 
      This is in marked contrast with a C-like behaviour or with using the others
      construct : test and [ ]
+
+     (( ))  is used ot test NUMERICAL values       both required a space after ((  [[
+     [[ ]]  is sued to test STRING    values                                     ^   ^
 
 ____________________________________________________________
 I/O Redirection

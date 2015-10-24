@@ -1,0 +1,455 @@
+-------------------------------
+     PORT numbers
+-------------------------------
+
+/etc/services 
+    
+      cat  /etc/services | grep -i ftp
+
+         ftp-data    20/tcp
+         ftp         21/tcp
+         tftp        69/udp
+         sftp        115/tcp
+         ftps-data   989/tcp        # FTP over SSL (data)
+         ftps        990/tcp
+         venus-se    2431/udp       # udp sftp side effect
+         codasrv-se  2433/udp       # udp sftp side effect
+         gsiftp      2811/tcp
+         gsiftp      2811/udp
+         frox        2121/tcp       # frox: caching ftp proxy
+         zope-ftp    8021/tcp       # zope management by ftp
+
+-------------------------------
+     SW ARCHITECTURE
+-------------------------------
+
+All the protocols (TCP, X.25, Novel, ...) are implemented
+as 1 socket (
+    AF_INET    AF_INET6      :  TCP
+    AF_X25                   :  X.25
+    AF_IPX                   :  Novel
+    AF_UNIX                  :  Unix domain
+    ....
+       can be extended
+ )
+ 1 socket is an API, implemented in the 'libc' C library
+ in the Linux Kernel.
+ Each API-Socket exports the standard methods 
+      'bind'   
+      'listen'  
+      'connect'
+      'accept'
+
+-------------------------------
+     tripwire
+-------------------------------
+
+a prog for sys dministrator that checksum
+system files and store result in a db.
+So if files have been changed you know.
+
+
+-------------------------------
+     127.0.0.0   127.0.0.1
+-------------------------------
+The first is the 'network' of the loopback address
+The second is the loopback interface, the address
+I can use to test my SW network stack 
+without using a real network.
+
+-------------------------------
+     ARP
+-------------------------------
+
+Address esolution Protocol is the translation IP --> MAC.
+To discover the MAC of a given IP a broadcast request is 
+sent. The host with that IP will answer.
+The MAC is then read from the answer and stored in
+an ARP-cache.
+Entries of the cache are renewed after some timer elapses.
+
+-------------------------------
+     netstat
+-------------------------------
+
+-r    print routing table
+
+      netstat -r
+
+      Kernel IP routing table
+      Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+      default         routerlogin.net 0.0.0.0         UG        0 0          0 wlan0
+      192.168.0.0     *               255.255.255.0   U         0 0          0 wlan0
+      
+      
+-n   print information in numbers (xxx.xxx.xxx.xxx) instead of names
+
+      netstat -nr
+      
+      Kernel IP routing table
+      Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+      0.0.0.0         192.168.0.1     0.0.0.0         UG        0 0          0 wlan0
+      192.168.0.0     0.0.0.0         255.255.255.0   U         0 0          0 wlan0
+      
+
+                                                G : the route uses a Gateway
+                                                U : the interface to used is UP
+                                                H : 1 only Host on the subnet (loopback)
+                                                D : route dynamic. generated (ex. 'gated' cmd)
+                                                M : route modify by an ICMP msg
+                                                ! : reject route (packet will be dropped)
+
+
+                                                MSS : Maximum Segment Size 
+                                            TCP Window : Data of a Burst (many messages, without ack)
+                                                irtt   : initial round trip time (the time to wait
+                                                         an IP joins remote host. When a connctions
+                                                         is established for the first time, with no
+                                                         known real value, is used this irrt).
+                                                         0 means used default.
+                                                         Can be set with command 'route'
+                                                wlan0 : the network interface used.
+
+-i    interface statistic    (-a  all interfaces)
+
+      Kernel Interface table
+      Iface       MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+      eth0       1500 0         0      0      0 0             0      0      0      0 BMU
+      lo        65536 0     24591      0      0 0         24591      0      0      0 LRU
+      wlan0      1500 0    474831      0      0 0        197452      0      0      0 BMRU
+
+
+                     Met : Metric for that interface
+                     RX / TX  : packets received / transmitted 
+                     OK       :    "    error free
+                     ERR      :    "    damaged
+                     DRP      :    "    dropped
+                     OVR      :    "    lost for an overrun
+
+
+                     B  :     this interface   : a broadcast address has been set
+                     L  :        "             is a loopback 
+                     M  :        "             : all packets are accepted (promiscue mode)
+                     O  :        "             : ARP is turned OFF
+                     P  :        "             is a Point to Point connection
+                     R  :        "             is Running
+                     U  :        "             is UP
+
+SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num) 
+                any can have -a (to say all)
+-t      TCP
+-u      UDP
+-w      RAW data
+-x      UNIX socket
+
+-a      alone gives all (-t u w x )
+                   
+        netstat -ta
+
+        Active Internet connections (servers and established)
+        Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+        tcp        0      0 stiv-GP60-2PE:domain    *:*                     LISTEN     
+        tcp        0      0 localhost:ipp           *:*                     LISTEN     
+        tcp        0      0 192.168.0.3:40203       wm-in-f189.1e100.:https ESTABLISHED
+        tcp6       0      0 [::]:http               [::]:*                  LISTEN     
+        tcp6       0      0 ip6-localhost:ipp       [::]:*                  LISTEN     
+        tcp6       1      0 ip6-localhost:55006     ip6-localhost:ipp       CLOSE_WAIT 
+
+
+
+
+        netstat -ua
+
+        Active Internet connections (servers and established)
+        Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+        udp        0      0 stiv-GP60-2PE:domain    *:*                                
+        udp        0      0 *:bootpc                *:*                                
+        udp        0      0 *:12461                 *:*                                
+        udp        0      0 *:ipp                   *:*                                
+        udp        0      0 *:41658                 *:*                                
+        udp        0      0 *:mdns                  *:*                                
+        udp6       0      0 [::]:54052              [::]:*                             
+        udp6       0      0 [::]:50167              [::]:*                             
+        udp6       0      0 [::]:mdns               [::]:*                             
+
+
+         
+        netstat -xa
+
+        Active UNIX domain sockets (servers and established)
+        Proto RefCnt Flags       Type       State         I-Node   Path
+        unix  2      [ ACC ]     STREAM     LISTENING     14652    @/tmp/.ICE-unix/1468
+        unix  2      [ ACC ]     STREAM     LISTENING     19746    /var/run/cups/cups.sock
+        unix  2      [ ACC ]     STREAM     LISTENING     18441    @/tmp/.X11-unix/X0
+        unix  2      [ ACC ]     STREAM     LISTENING     13115    /run/user/1000/keyring-vrm0fe/control
+        unix  2      [ ACC ]     STREAM     LISTENING     10064    /var/run/acpid.socket
+        unix  2      [ ACC ]     STREAM     LISTENING     18485    @/tmp/dbus-M6lvYwhUrt
+        unix  2      [ ACC ]     STREAM     LISTENING     15707    /run/user/1000/keyring-vrm0fe/gpg
+        unix  2      [ ACC ]     STREAM     LISTENING     15709    /run/user/1000/keyring-vrm0fe/ssh
+        unix  2      [ ACC ]     STREAM     LISTENING     307      @/com/ubuntu/upstart
+        unix  2      [ ACC ]     STREAM     LISTENING     18492    @/tmp/dbus-cVIOWpdi
+        unix  2      [ ACC ]     SEQPACKET  LISTENING     357      /run/udev/control
+        unix  2      [ ACC ]     STREAM     LISTENING     17513    @/tmp/dbus-X3P8N1NAGu
+        unix  2      [ ACC ]     STREAM     LISTENING     11137    /var/run/dbus/system_bus_socket
+        unix  2      [ ACC ]     STREAM     LISTENING     11157    /var/run/sdp
+        unix  2      [ ACC ]     STREAM     LISTENING     15684    @/com/ubuntu/upstart-session/1000/1311
+        unix  2      [ ACC ]     STREAM     LISTENING     18442    /tmp/.X11-unix/X0
+        unix  20     [ ]         DGRAM                    15517    /dev/log
+        unix  2      [ ACC ]     STREAM     LISTENING     11223    /var/run/avahi-daemon/socket
+
+-------------------------------
+     tcpdump
+-------------------------------
+
+common grouping options:  -nnvvS  instead of -nn -vv -S
+
+-D           Show the list of available interfaces
+-e           dump Ethernet header as well.
+-n           like netstat (not resolve HOST names, leaving naked IP)
+-nn          not resolve HOST + PORT names 
+
+-X           display packet also in HEX format (besides ASCII)
+-XX          like -X but dump HEX + ASCII also for Ethernet header
+
+-s 1514      dump size of 1514 bytes of message (default  96)
+             also without the space: -s1514
+             -s0 (get everything)
+
+-S           the TCP field 'SEQUENCE number' is shown 'absolute' instead of 'relative'
+-i eth0      select the interface to listen 
+             ex. -i wlan0
+                 -i any     to specify ALL if.
+
+-v -vv -vvv  Increase verbosity
+-q           less verbose (more quiet) 
+
+
+-c 5         Only get 5 packets and stop.
+-E           Decrypt IPSEC traffic by providing an encryption key.
+
+host 172.5.0.1     dump packet with that IP address
+host router.net    I can use HOSTnames if there isn't  -n
+
+port  21           dump packets with that PORT num
+port  20-59        can specify a 'range'
+
+src 172.5.0.1      dump packets with that src X
+dst 172.5.0.1       "            "        dst X
+                              src 172.5.0.1      dump packets with that src IP
+                              src port 21        "                  "   src  port
+
+net 172.5.0.0/24   dump packets of that subnet (use CIDR notation: /x)
+
+
+icmp         Only get ICMP packets.
+tcp            "      TCP    "     
+udp            "      UDP    "     
+
+
+ip6          Only get IP v26 D packets.
+
+less    32       also   < 32   <=  32         are packets size limits in bytes
+greater 128      also   >  128  >= 128
+
+-w  log.txt      dump in a file instead stdout
+-r  log.txt      read from file instead interface
+
+
+and              also &&                  to aggregate more options
+or               also ||
+not              also !
+''               single quotes  to safetely group
+
+                 ex. tcpdump -nvvXSs 1514 dst 192.168.0.2 and src net and not icmp
+
+                     tcpdump src 10.0.2.4 and (dst port 3389 or 22)     wrong
+                     tcpdump ‘src 10.0.2.4 and (dst port 3389 or 22)’   OK
+
+[]  test a byte val. NB the syntax in this example:  tcpdump ‘tcp[13] & 32!=0‘
+
+- URGENT (URG)      bit 32      ‘tcp[13] & 32!=0‘
+- ACKNOWLEDGE (ACK) bit 16
+- PUSH (PSH)        bit 8
+- RESET (RST)       bit 4
+- SYNCHRONIZE (SYN) bit 2
+- FINISH (FIN)      bit 1
+
+
+
+Show me all URGENT (URG) packets…
+            URGENT (URG) 
+
+# tcpdump ‘tcp[13] & 32!=0‘
+
+
+# tcpdump ‘tcp[13] & 16!=0‘
+
+
+# tcpdump ‘tcp[13] & 8!=0‘
+
+
+# tcpdump ‘tcp[13] & 4!=0‘
+
+
+# tcpdump ‘tcp[13] & 2!=0‘
+
+-------------------------------
+     ip
+-------------------------------
+
+ip link show
+
+
+       1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default 
+           link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+       2: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
+           link/ether 44:8a:5b:ed:d1:97 brd ff:ff:ff:ff:ff:ff
+       3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DORMANT group default qlen 1000
+           link/ether 30:3a:64:d4:c1:37 brd ff:ff:ff:ff:ff:ff
+
+ip neigh show
+
+       192.168.0.1 dev wlan0 lladdr c4:04:15:fa:12:6f REACHABLE
+       
+
+ip addr show wlan0      to see link speed 
+
+       3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+           link/ether 30:3a:64:d4:c1:37 brd ff:ff:ff:ff:ff:ff
+           inet 192.168.0.3/24 brd 192.168.0.255 scope global wlan0
+              valid_lft forever preferred_lft forever
+           inet6 fe80::323a:64ff:fed4:c137/64 scope link 
+              valid_lft forever preferred_lft forever
+-------------------------------
+     nslookup
+-------------------------------
+
+nslookup google.com
+    
+       Server:    127.0.1.1
+       Address:   127.0.1.1#53
+       
+       Non-authoritative answer:
+       Name:    google.com
+       Address: 216.58.210.46     <---------------
+
+-q=a 
+      nslookup -q=a www.google.com 8.8.8.8
+
+
+               Server:     8.8.8.8
+               Address:    8.8.8.8#53
+               
+               Non-authoritative answer:
+               Name:    www.google.com
+               Address: 62.253.72.183
+               Name:    www.google.com
+               Address: 62.253.72.177
+               Name:    www.google.com
+               Address: 62.253.72.172
+               Name:    www.google.com
+               Address: 62.253.72.148
+               Name:    www.google.com
+               Address: 62.253.72.173
+               Name:    www.google.com
+               Address: 62.253.72.168
+               Name:    www.google.com
+               Address: 62.253.72.158
+               Name:    www.google.com
+               Address: 62.253.72.182
+               Name:    www.google.com
+               Address: 62.253.72.187
+               Name:    www.google.com
+               Address: 62.253.72.178
+               Name:    www.google.com
+               Address: 62.253.72.162
+               Name:    www.google.com
+               Address: 62.253.72.153
+               Name:    www.google.com
+               Address: 62.253.72.167
+               Name:    www.google.com
+               Address: 62.253.72.152
+               Name:    www.google.com
+               Address: 62.253.72.157
+               Name:    www.google.com
+               Address: 62.253.72.163
+
+-------------------------------
+     ethtool
+-------------------------------
+
+ethtool eth0
+
+
+         Settings for eth0:
+             Supported ports: [ TP ]
+             Supported link modes:   10baseT/Half 10baseT/Full 
+                                     100baseT/Half 100baseT/Full 
+                                     1000baseT/Full 
+             Supported pause frame use: Symmetric Receive-only
+             Supports auto-negotiation: Yes
+             Advertised link modes:  10baseT/Half 10baseT/Full 
+                                     100baseT/Half 100baseT/Full 
+                                     1000baseT/Full 
+             Advertised pause frame use: Symmetric
+             Advertised auto-negotiation: Yes
+             Speed: Unknown!
+             Duplex: Unknown! (255)
+             Port: Twisted Pair
+             PHYAD: 0
+             Transceiver: internal
+             Auto-negotiation: on
+             MDI-X: Unknown
+             Current message level: 0x000060e4 (24804)
+                                    link ifup rx_err tx_err hw wol
+             Link detected: no
+
+
+
+       
+       
+       
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

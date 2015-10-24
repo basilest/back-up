@@ -1,3 +1,20 @@
+_____________________________________
+use vars qw($scalar %hash @array);   With perl5.6 you can use the our operator instead: our ($scalar, %hash, @array);
+
+This declares the named variables as package globals in the current package. 
+They may be referred to within the same file and package with their UNQUALIFIED names; 
+and in different files/packages with their FULLY QUALIFIED names.
+
+
+------------ redirect debugger output (to a file)
+once in the debugger (at the prompt), set a 'pager':
+ o pager=">my_file"    
+ or ">>" to append
+ then execute the command to save with a pipe ahead
+ |c
+ |x %big_var
+
+
 namespaces:
 pragma: special Modules (ex. use strict)
                              use v5.10    <--- version of Perl: includes many features 
@@ -253,6 +270,8 @@ SCALAR VARIABLES
                               @ones = (5) x @ones;   #change all 80 to 5
                               @keys = qw(aaa bbb ccc);
                               @h{@keys} = ("") x @keys;    #h{aaa}="", h{bbb}="", h{ccc}=""
+
+        <=> cmp returns  -1 0 +1 if $a < = > $b
 
 
         my $str1 = "4G";
@@ -1035,9 +1054,6 @@ FILE
                                           &mailwarning if int(–A) == 90;        # file ($_) was accessed 90 days ago today
 
                                       $^T = time;  <---- resets the script’s start time to now.
-                                    
-                                    
-                                    
 
         Starting with v5.10, as a form of purely syntactic sugar, you can stack file test
         operators, making –f –w –x $file equivalent to –x $file && –w _ && –f _ .

@@ -1,3 +1,24 @@
+------------------------------------------------------ GET VIM
+
+UPDATE VIM & PLUGIN
+If you have an old VIM version, then do this
+1.  download the zip new version from vim.org
+2.  unpack 
+3.  go to src dir
+4.  edit Makefile uncommenting the line ‘prefix’ (a good vale could be “$HOME”)
+5.  make (to compile)
+6.  make install to have it in $HOME/bin
+To install Vundle follow the instruction of Vundle GitHub repo/README. Anyhow they could not work 
+if linking at ~/.vim/bundle/ as written in the instructions.
+A workaround is:
+1.  link to ~/.vim/plugin/:
+git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/plugin/Vundle.vim
+also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
+2.  execute from vi   :PluginInstall!, this will create again Vundle.vim but in ~/.vim/bundle/ and it is working, so you can rm -rf ~/.vim/plugin
+3.  Add all the required plugin
+
+
+
 ------------------------------------------------------ ex
   enter ex:    :
                Q   
@@ -50,6 +71,14 @@
 let @a=system("ls") to do the same, with 2 commands 
 "ap                 nb however that with this way instead the line below (p)
                     it can be above P
+
+--startuptime       is the option to debug vim. It works like this
+                    1/2     vim --startuptime log.txt pippo.pm    # open pippo.pm logging all into file log.txt
+                    2/2     :tabe log,txt                         # show log.txt
+
+insert num of line in a substitution pattern match:
+              :%s/----------- ok 1/\=line(".")/
+
 ------------------------------------------------------ In Insert Mode
   :scriptnames         I see all the .vim (as also my .vimrc) that vim reads at the moment
   :set wm=10           wrapmargin
@@ -248,13 +277,21 @@ vi +/xxxxxxx               go to 1st occ. of xxxxx    | For backward compatibili
 
 :map ...  oooo             ... can be a symbol (ex -) or specail char (<space> <c-d> for control d)
                            ooo can be anythig  ex. :map <space> viw   (select a word pressing space)
+
+:q
+
+          ex :map <F2> i bla bla bla <ESC>  :r date "+\%x" <ESC> kJ
+                       ^               ^    ^
+                       enter          exit  enter cmd mode
+                       insert         insert
+                       mode           mode
+
           
           :nmap   for normal mode       ex. :nmap \ dd     delete a line whene pressing \ 
           :vmap       visual                :vmap \ U      UPPERCASE the selection when pressing \
           :imap       insert                :imap <c-d> <esc>ddi  delete a line when pressing Ctrl-C
                                                                   N.B. with esc I exit 'insert' and go to 'normal'
                                                                        withoud esc I would have 2 char 'd written
-
 
           N.B. the opposite:  unmap       :unmap <space>
                              nunmap       
