@@ -1,5 +1,7 @@
 --------------------------------------------------- view ENV var + others
 (set -o posix ; set ) | vi -          to see ALL var & functions (env and the others)
+
+
 --------------------------------------------------- crontab
  crontab means cron table, that is where root or any user
  can add some rows (with the cron syntax) to specify periodic tasks
@@ -10,17 +12,17 @@
   │ │ │ │ │
   │ │ │ │ │
   │ │ │ │ └───── day of week (0-6) (Sunday=[0 or 7], or use names SUN-SAT)  - SC
-  │ │ │ └────────month (1-12 or JAN-DEC) - SC
-  │ │ └──────────day of month (1 - 31)   - SC
-  │ └────────────hour (0-23)             - SC
-  └──────────────min  (0-59)             - SC
+  │ │ │ └─────── month (1-12 or JAN-DEC) - SC
+  │ │ └───────── day of month (1 - 31)   - SC
+  │ └─────────── hour (0-23)             - SC
+  └───────────── min  (0-59)             - SC
 
 SC (Special Chars) are 
       *    value skipped
       ,    when the value is a list  (ex. MON,WED,FRI)
       -    when the value is a range (ex. 2000-2010)
       /    (only on some cron implementations) the syntax */<value>
-           means only 'mod' <value>. ex an hour */3 means any hour mod-3 (0,3,6,9,...) 
+           means only 'mod' <value>. ex a hour */3 means any hour mod-3 (0,3,6,9,...) 
 ex:   
    0 20 * * * /home/oracle/scripts/export_dump.sh      (run each day at 20:00)
    1 0  1,2 * *  printf > /var/log/apache/error_log    (run on 1st and 2nd days of each month at 00:01)
@@ -62,6 +64,8 @@ a way to copy from an user to another:
 
 a way to copy to another server
      crontab -l | ssh $remote_host crontab
+
+
 --------------------------------------------------- date
   date  +%s    ->     1445293970       num sec 01.01.1970
 
@@ -99,7 +103,7 @@ kill -l           to have the list of signal names:
     58) SIGRTMAX-6    59) SIGRTMAX-5    60) SIGRTMAX-4     61) SIGRTMAX-3    62) SIGRTMAX-2
     63) SIGRTMAX-1    64) SIGRTMAX       
 
-kill -l 15    gives 'TERM' the signal name (without SIG) from its number.
+kill -l 15    returns 'TERM' from its number, the signal name (without SIG).
 
        SIGHUP     1          Hangup
        SIGINT     2          Interrupt from keyboard   CTRL-C
@@ -174,6 +178,39 @@ shift_verbose           off
 sourcepath              on
 xpg_echo                off
 
+--------------------------------------------------- trap
+trap intercepts the signals. The syntax is:
+     trap '.....; .....; .....'     SIG1 SIG2 SIG3
+
+
+
+so trap + some commands + the signals trapped, which can be as usual:
+                - the numbers   (ex 15)
+                - the name (without SIG)
+                - the special value 0 or EXIT, which mean when that script ends
+                - the special value DEBUG (the commands inside the trap '....' are executed on each cmd')
+                  moreover variables defined with the more specific syntax:
+                                declare -t VAR=val
+                  instead of the normal
+                                           VAR=val
+                  will be logged or 'traced' (t)
+                - the special value ERR (the commands inside the trap '....' are executed on each exit != 0)
+                  (in some cases, inside if, while, ... this is not always true, so check to be sure)
+ex1.
+     trap "echo Booh!" SIGINT SIGTERM
+ex2.
+     FILE=/tmp/$(basename $0).pid
+     trap 'rm $FILE' EXIT
+     trap 'echo "receiving SIG to stop";  exit 3'  15  <----- if a kill -15 is sent to this script,
+     if [ -e $FILE ]                                          it will sent itself an exit 3,
+     then                                                     which will be trapped, above,
+            echo "cannot run if file is present"              so the file is removed
+            exit 2
+     fi
+     echo $$ > $FILE
+     sleep 10
+     exit 0
+
 --------------------------------------------------- echo -e
     echo -e       allows to print ANSI escape sequences
 
@@ -192,6 +229,12 @@ xpg_echo                off
                                                                cyan     36          -
                                                                white    37          -
                   "\e[33;44m blah blah blah"
+
+                  an optional 0; or 1; can be added. It has meaning only for FOREGROUND
+                  color and make it light (1) or dark (0)
+                  ex
+                        "\e[1;32;41m     light green on red
+                        "\e[0;32;1;41m   light green on red (the same, as the second 1; replace the first 0;
                        
 
     
@@ -213,7 +256,7 @@ that can be accessed directly
 
 During boot all the output at video are stored in that buffer.
 So printing after the boot can be read. After some time, the
-buffere is overwritten, so those information go lost.
+buffer is overwritten, so those information go lost.
 
        ex. 
            dmesg | grep -i memory
@@ -233,7 +276,7 @@ the linux implementation of kermit is ckermit
 
 --------------------------------------------------- term
 echo $TERM      to see which terminal (ex. xterm)
-infocmp         to display 'terminfo' info used by my terminal
+infocmp         to display 'terminfo' data, used by my terminal
 /usr/share/terminfo      may be in another loaction. It's the repository 
                 for terminfo files.
                 This value can be also set in var $TERMINFO
@@ -352,7 +395,7 @@ command to see and configure keyboard / mouse
 
    xinput list   (providdes a list of devices and their id= )
                   e.g 
-                  -----> USB Optical Mouse     id=11	[slave  pointer  (2)]
+                  -----> USB Optical Mouse     id=11   [slave  pointer  (2)]
    xinput test 11
                  to test what appens cliking and scrolling. ex:
 
@@ -390,7 +433,7 @@ usually located in dir /usr/share/X11/xorg.conf.d
 
 --------------------------------------------------- xmodmap
 The set of physical keys of a keyboard can be functionally groupped as:
-         - alphanumeric keys (the only to print char, numbers or symbols)
+         - alphanumeric keys (only to print char, numbers or symbols)
          - navigation keys for moving 
          - function keys (Fn, Esc, Del, Break)
          - modifier keys (Shift, AltGr), Control): to be added to alphanumeric keys to modify 
@@ -403,7 +446,7 @@ So through the modifiers keys, 1 single physical keys (e.g. n) can produces MORE
           ñ    (when pressed with AltGr)
           Ñ    (when pressed with Shift+AltGr)
 
-X identifies :
+X server,  identifies :
                - the physical key by a number (keycode) 
                - all the possible system printing symbols in the file /usr/include/X11/keysymdef.h (removing the XK_ )  
 ex.:
@@ -490,7 +533,7 @@ KeyPress event, serial 37, synthetic NO, window 0x3c00001,
 
 X has 8 bit mask reserved to identify (one bit each) a modifier. 3 are Shift, Lock (the CapsLock), Control.
 The others are called Mod1 ... Mod5.
-To see you current X modifiers configuration, use xmodmap -pm ex.:
+To see your current X modifiers configuration, use xmodmap -pm ex.:
 
                    shift       Shift_L (0x32),  Shift_R (0x3e)
                    lock        Caps_Lock (0x42)

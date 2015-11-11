@@ -263,7 +263,10 @@ ____________________________________________________________
         DT=$(stat $F | grep -i access | tail -1 | cut -d " " -f2)
         echo "$F accessed at $DT"
       done 
-     ------------
+
+     look also at this:
+     for U in $(lastlog | grep -vi never | awk '{print $1}' )
+     -----------
      ------------
 
 !    from the command line triggers an history event. 

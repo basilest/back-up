@@ -1,24 +1,29 @@
 
 -------------------------------------------------
 GITHUB:
-GitHub uses SHA256 as a hashing algorithm for SSL, and that was not added to OpenSSL until version 0.9.8o:
+GitHub uses SHA256 as a hashing algorithm for SSL, 
+and that was not added to OpenSSL until version 0.9.8o:
 
-For old installations this could return an error while running for example a   "git clone https:....."
+For old installations this could return an error while 
+running for example a   "git clone https:....."
 
 Cloning into 'chl-java-xsltservlet'...
-fatal: unable to access 'https://github.com/companieshouse/chl-java-xsltservlet.git/': error:0D0890A1:asn1 encoding routines:ASN1_verify:unknown message digest algorithm
+fatal: unable to access 'https://github.com/companieshouse/chl-java-xsltservlet.git/': 
+error:0D0890A1:asn1 encoding routines:ASN1_verify:unknown message digest algorithm
 
 
 SOLUTION 1: export GIT_SSL_NO_VERIFY=1
-GIT_SSL_NO_VERIFY=true git clone https://domain.com/path/to/git
+            GIT_SSL_NO_VERIFY=true git clone https://domain.com/path/to/git
+
 SOLUTION 2: use –c option to modify a global var only for that command
-git -c http.sslVerify=false <gitSubCommand>
+            git -c http.sslVerify=false <gitSubCommand>
 -------------------------------------------------
-the way to overwrite a file with the version from the repo
 
 
-git fetch 
-git checkout feature/pscs/llpsc01_webfiling websystems/MODULES/CompaniesHouse/Filing/UI/LLPSCs/Page/notifyNaturalLLPSCPage.pm
+
+
+
+
 
 
 
@@ -94,6 +99,20 @@ git --version
                                     it might be somewhere else (perhaps in /usr/local/etc/gitconfig), 
                                     or may be entirely absent.
 
+   cat .git/config:                                git config -l:     
+                  [core]                                             user.rmail=basile.stef@gmail.com
+                  	repositoryformatversion = 0                      user.email=basile.stef@gmail.com
+                  	filemode = true                                  core.repositoryformatversion=0
+                  	bare = false                                     core.filemode=true
+                  	logallrefupdates = true                          core.bare=false
+                  [remote "origin"]                                  core.logallrefupdates=true
+                  	url = https://github.com/basilest/back-up.git    remote.origin.url=https://github.com/basilest/back-up.git
+                  	fetch = +refs/heads/*:refs/remotes/origin/*      remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+                  [branch "master"]                                  branch.master.remote=origin
+                  	remote = origin                                  branch.master.merge=refs/heads/master
+                  	merge = refs/heads/master
+
+
 git config --global user.name "Dan"
 git config --global user.name "Jon Loeliger"           # in $HOME/.gitconfig
 git config --global user.email "uuuuu@ddddd.com"
@@ -102,7 +121,7 @@ git config --help
 git config -l      # to show the above settings 
 git config --unset --global user.email  
 git config --global alias.show-graph \           # to define alias 
-'log --graph --abbrev-commit --pretty=oneline' 
+                    'log --graph --abbrev-commit --pretty=oneline' 
 
              now [git show-graph] is equal to
                  [git log --graph --abbrev-commit --pretty=oneline]
@@ -125,7 +144,7 @@ $GIT_DIR
                         40 hex --> 20 bytes --> 160 bit number (2^160) 
            
             In fact, Git stores everything in its database not by file name 
-            but by the hash value of its contents.
+            but by the hash value of its content.
 
 git hash-object pippo.txt      # calculate the SHA1 of file pippo.txt in the working-dir
 git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
@@ -159,22 +178,22 @@ git help -a
 git help -g 
 git help <command> 
 
-git                     # enter git
-git  --help             # print help and common commands
-git    help --all       # list al possible commands
+git  --help             # print help and common cmds
+git    help --all       # list all possible cmds
 
 
 git init                # create directory .git (the 'Git repository') 
                           in the directory where you are (considered thus your 'working dir'.
-                          .git dir start empty. If you whant add some files:
+                          .git dir start empty. If you want add some files.
 
+git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
 
 
 ______________________________________________
 The 3 States
 ______________________________________________
-Committed: means that the data is safely stored in your local database. 
-Modified:  means that you have changed the file but have not committed it to your database yet. 
+Committed: means that the data is safely stored in your local DB. 
+Modified:  means that you have changed the file but have not committed it to your DB yet. 
 Staged:    means that you have marked a modified file in its current version to go into your next commit snapshot.
 
 The [Git directory] is where Git stores the files and 
@@ -186,9 +205,9 @@ The [staging area or "index"] is a 'file', generally contained in your Git direc
 that stores information about what will go into your next commit. 
 
 
-         -------    add     -------  commit  --------
-           WD     ------>    index   ----->    REPO
-         -------            -------          --------
+         -------    add        -------           commit  --------
+           WD     ------>    index/ stage        ----->    REPO
+         -------               -------                   --------
 
                   3 types of files:
 tracked           # files already in repository or staged
@@ -225,7 +244,8 @@ Tags             add a human readbale identification to a Commit to avoid using 
                                         /T\     TREE   (complete path filename, file SHA1)
                                        -----  
                                          |
-                                        [ B ]   BLOB   (file data)
+                                       [ B ]   BLOB   (file data)
+
 
 git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   to see the content of any node (blob tree or commit)
                                                          
@@ -267,11 +287,38 @@ git cat-file -p bedd
                 100644 blob 9e5f5f8a47c87dbb466a2b42a1756de8aae09e78	appunti.VIM.txt
                 100644 blob e987d6a668160ef14d2a00c0be6136ba2ab817b1	appunti.XML.txt
 
+
+--------------------------  COMMIT                        
+
+                   A commit is the ONLY method of introducing CHANGES to a repository.
+                   Commits usually are introduced by a developer, Git itself can introduce commit on a merge.
+                   Commit is a snapshot of your project at a certain time.
+
+                   Git handles small commits well, so there is no need to wait until the last minute 
+                   to commit large changes. Smaller commits and more frequent merge cycles reduce the pain of
+                   conflict resolution.
+
+  -1 explicit:      the 40-hex SHA1 
+  -2 implicit:      the HEAD  which always points to the most recent Commit
+  -3 other different mechanisms for naming a Commit
+
+  -1 : is the absolute way to globally identify a Commit. As the SHA1 is unique in the world, you can be
+       sure you and another developer are addressing the same Commit, but also the same project, and at the
+       same history moment.
+
+
+git blame -L 35, init/version.c      to tell who changed a specified line (here 35) of a specified file (here version.c)
+
+
 git commit      a commit adds: 
                           - author of file (who wrote the change)
                           - name of who added into git (usually the same author)
                           - message "bla bla bla for the change"
                           - a link to a tree
+
+git commit --all     # or -a: commit everything also not staged (not work for new dirctories)
+
+--interactive        useful option in    git add / git commit     to control which files process
 
 git tag -m "Tag version 1.0" V1.0 3ede462        to add a tag (here 'V1.0')  to the commit 3ede462
                                                  and also a long text (here "Tag version 1.0")
@@ -288,12 +335,11 @@ git cat-file -p 6b608c                           to cat the tag:
                 Tag version 1.0
                    
 ex. 
-stiv@stiv-GP60-2PE:~/TEST_GIT/keyutils$ git log  --pretty=oneline   
-               .........  I see all COMMIT info
+git log  --pretty=oneline     #  I see COMMIT info 
+
                5291796474869579f151f7821410e3ef96d1fa7e keyutils historical version 0.1
 
-stiv@stiv-GP60-2PE:~/TEST_GIT/keyutils$ git cat-file -p 5291796474869579f151f7821410e3ef96d1fa7e
-               .........  I see TREE hash
+git cat-file -p 5291796474869579f151f7821410e3ef96d1fa7   # see TREE hash
 
                tree 0b0fa1646e27a7403017dfcbb09c161ce77e22da
                author David Howells <dhowells@redhat.com> 1266853045 +0000
@@ -301,33 +347,160 @@ stiv@stiv-GP60-2PE:~/TEST_GIT/keyutils$ git cat-file -p 5291796474869579f151f782
                
                keyutils historical version 0.1
 
-stiv@stiv-GP60-2PE:~/TEST_GIT/keyutils$ git cat-file -p 0b0fa1646e27a7403017dfcbb09c161ce77e22da
-               .........  I see TREE content (and so file hash)
+git cat-file -p 0b0fa1646e27a7403017dfcbb09c161ce77e22d  # TREE content 
+
 100644 blob a43ea2126fb6b114bff5f8e003ee118e045dacf1    LICENCE.GPL
 100644 blob 8add30ad590a65db7e5914f5417eac39a64402a3    LICENCE.LGPL
 100644 blob c5b874893398bfe6d96815a53692701add5a685e    Makefile
 100644 blob c3e4bc3ee8d3af3f5145a446f147330656dc7bdd    README
 100644 blob 1519f974c9d495efc0109af362a8acc1a002aced    keyctl.1
-100644 blob f3e54bc723de7a91faa92475ddadd2d2569d1581    keyctl.c
-100644 blob 4fdd3b64a3807c13d03b473736c7d70faf6b3b17    keyutil.c
-100644 blob 610f331a336c6ff48116a0c2358871c257dbd8d8    keyutil.h
-100644 blob 58378c288c757dd2dbcb4e480115828a4a81e9e3    keyutils.spec
-100755 blob ece42a44d3f237f5d6fc96a4b46147d2ac350608    request-key-debug.sh
-100644 blob d506da395fa30741b23bdb21ff235b79ab9834cf    request-key.8
-100644 blob ef66c055ba2269a20c7c524a5785b07a032b4427    request-key.c
-100644 blob c1b18a76388e79150fccbaaf33328305c479ffc4    request-key.conf
-100644 blob 97abbbe2338011c4e53c70ddf649d14d676a8634    request-key.conf.5
-
-stiv@stiv-GP60-2PE:~/TEST_GIT/keyutils$ git cat-file -p 
-               .........  I see TREE content (and so file hash)
-
-git cat-file -p f3e54bc723de7a91faa92475ddadd2d2569d1581   <---- I see file keyctl.c
-
---interactive        useful option in    git add / git commit     to control which files process
-
-git commit --all               # or -a: commit everything also not staged (not work for new dirctories)
+100644 blob f3e54bc723de7a91faa92475ddadd2d2569d1581    keyctl.c   ----------------.
+100644 blob 4fdd3b64a3807c13d03b473736c7d70faf6b3b17    keyutil.c                  |
+100644 blob 610f331a336c6ff48116a0c2358871c257dbd8d8    keyutil.h                  |
+100644 blob 58378c288c757dd2dbcb4e480115828a4a81e9e3    keyutils.spec              |
+100755 blob ece42a44d3f237f5d6fc96a4b46147d2ac350608    request-key-debug.sh       |
+100644 blob d506da395fa30741b23bdb21ff235b79ab9834cf    request-key.8              |
+100644 blob ef66c055ba2269a20c7c524a5785b07a032b4427    request-key.c              |
+100644 blob c1b18a76388e79150fccbaaf33328305c479ffc4    request-key.conf           |
+100644 blob 97abbbe2338011c4e53c70ddf649d14d676a8634    request-key.conf.5         |
+                                 __________________________________________________|
+                                |
+git cat-file -p f3e54bc723de7a91fa   <---- I see file keyctl.c
 
 
+
+
+    -----------------------
+       REFERENCES
+    -----------------------
+    A ref is used in Git to specify BRANCHES(local/remote) and TAGS. They are stored in:
+
+                      $GIT_DIR/refs/heads/ref              local  br.
+                      $GIT_DIR/refs/remotes/ref            remote br.
+                      $GIT_DIR/refs/tags/ref               tags.
+                      $GIT_DIR/packed-refs                 if refs are packed by git gc
+
+                      ex:   find .git/refs/  :
+
+                             .git/refs/
+                             .git/refs/remotes
+                             .git/refs/remotes/origin
+                             .git/refs/remotes/origin/master
+                             .git/refs/remotes/origin/HEAD
+                             .git/refs/tags
+                             .git/refs/heads
+                             .git/refs/heads/master
+
+git symbolic-ref      # plumbing command to manage ref
+                         
+     special references:
+
+                      HEAD:         a symref to last Commit
+                      ORIG_HEAD     stores prev val of HEAD (on a merge) (if a recovery is needed)
+                      FETCH_HEAD    valid only immediately after a 'git fetch'. Git stores in the file:.git/FETCH_HEAD
+                                    all the HEADS of the remote branches fetched.
+                      MERGE_HEAD    is the value that HEAD is going to take (coming from ORIG_HEAD)
+                      
+
+
+
+     root Commit:         1st Commit of a project. The only one to have no 'parent'
+     normal Commit        has 1 parent or many (merge: 1 for each merged branch)
+     If C refer a Commit than:
+                                   C~1 its parent                               usually abbreviated as C~
+                                   C~2 its parent's parent and so on .... C~3   
+                                   
+                                   C^1 parent from 1st branch                      "         "         C^
+                                   C^2 parent from 2 branch and so on ... C^3
+     
+                                   C~1 and C^1 are always the same where there is no merge 
+                                   As C^1^1 = C~2      
+                                   C^^   abbr. of C^1^1
+     
+                                   ex:  C~10^2~2^2
+     
+     
+     So with the C ^ ~  we have a 'relative' way to link to a Commit going back. The final autority to translate
+     into the 'absolute' still remains  git rev-parse:
+                                          git rev-parse master~3^2^2^
+                                          32efcd91c6505ae28f87c0e9a3e2b3c0115017d8
+
+                                          git rev-parse HEAD ~~~~~
+                                          4fdd3b64a3807c13d03b473736c7d70faf6b3b17 
+     
+
+    --------
+    RANGES:   symbols '..'  and  '...'
+    --------
+    A..B     (A-B]     Range of Commit (going back, so the start is B, and A is older than B)
+                       nb. the start (B)  is inluded, the end (A) is out
+
+    if missing A or B, HEAD is assumed 
+                          ..B      = HEAD..B
+                          A..      = A..HEAD 
+
+                          ex the last 2 Commits: HEAD~~..  (B itself and prev B~1)
+
+
+    REACHABILITY:   the set of PARENTS (older Commits reachable from C)
+    
+    ^C  : defines the REACHABILITY from C that must be EXCLUDED in a range
+          ^ acts as the usual regex symbol 
+                    X..Y   =  ^X Y 
+                                   "give me all reachable from Y and 
+                                    don’t give me commits leading up to and including X"
+
+git log --pretty=short --abbrev-commit master~12..master~10        range ~12 ~10 
+           |              |                                        12 is excluded(so 2 commits: 10, 11)
+           |           --abbrev-commit  abbreviate SHA1        
+           |
+          --pretty (short oneline full)  
+
+git show HEAD~2             to see a Commit
+git show master:Makefile    to see a Blob  (here file Makefile)
+
+git show        HEAD~2:APPUNTI/appunti.GIT.txt  <-------   they 
+git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------       do, the same
+
+
+      A...B (using three periods)   set reachable from A or B but not from both
+
+         A -- B -- C -- D -- E -- F -- G -- H -- I     ----- master
+                     \               / 
+                      \             /
+                        U -- V -- W -- X -- Y -- Z     ----- def
+
+         master...dev = ?
+                                 reachable from master:    I H G F E D C A B  U V W
+                                 reachable from dev        Z Y X W V U        C B A
+                                 reachable not from both   I H G   Z Y X  D E F   --> master...dev 
+
+git bisect    To make Git narrow a search back from a range you specify and answering questions via via.
+            1.   It is essential that you start the git bisect process from a clean working directory.
+                 Starting with a dirty one is asking for trouble; it could easily be lost.
+
+            2.   git bisect start            to init the bisect. 
+                                             Git detaches HEAD to an anonymous branch and start working.
+
+            3.   git bisect bad              it's considering HEAD as a starting bad Commit to serach back
+
+            4.   git bisect good v.2.6.27    set Commit tagged v.2.6.27 as a presumed good point where things were ok
+            5.   git bisect bad     git bisect good  ...... git bisect  bad  <---- answering questions
+            6.   git bisect log     to see a log of the process
+
+            -.   git bisect replay       to see again  (it uses the log file as input).
+            -.   git bisect visualize    to see with gitk  (if var DISPLAY is set, othervise Git will use git log)
+            -.   git bisect visualize --pretty=oneline  
+
+            7.   when you are finished it is vital that you tell Git that you have finished. 
+                 So Git restablish the detached HEAD : $ git bisect reset      places back on your original branch
+                                    $ git branch
+                                    * (no branch)
+                                    master
+                                    $ git bisect reset     
+                                    Switched to branch "master"
+                                    $ git branch
+                                    * master
 
 
 ______________________________________________
@@ -335,16 +508,46 @@ Command line & GUI
 ______________________________________________
 To use Git: the command line, or there are many GUIs. 
             The command line is the only place you can run all Git commands
+            >>>>>>>>>>>>>>>> gtk : great graphicl tool 
 
-git add a.txt           # add file a.txt  (not yet committed: it's staged) (work regex: git add *.p[lm])
+git add a.txt           # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
 git add .               # add this dir and any sub-dir
 
 git status              # SHOW INDEX: shows what is staged and is going to be committed.
 
-git log     # show the commits
-git show    # show more info for the LAST commit
-git show 9da581d910c9c4ac93557ca4859e767f5caf516   # show more info for the commit identified
-git show-branch    # show even more info
+git log                         # show the commits
+git log -4                                 print only last 4 Commits
+git log -1 --pretty=oneline HEAD           print only 1 line of log (for Commit HEAD)
+git log -1 --pretty=oneline efbb58           "              "       (for Commit starting with efbb58)
+git log -p                                 print the diff
+git log -p 4fe86488                          "        "   of that Commit
+git log --stat                             very very very useful stat info
+git log --stat=200                         print lines of 200 chars len (useful when pathnames are long)
+
+git log --shortstat
+git log --name-only                        list modified files
+git log --name-status                      list files +  what was done:  added(A) / modified(M) / deleted(D)
+git log --abbrev-commit                    short SHA1
+git log --relative-date                    '5 months ago'    instaed of   'Wed Sep 24 14:19:24 2014' 
+git log --since, --after                    after  that time   --since="2008-10-01"
+git log --until, --before                   before that time   --before="2 years 1 day 3 minutes ago"
+git log --author                            edited by 
+git log --committer                         committed by
+git log --grep                              only commit where grep find somethig !!!!! very useful
+
+git log --decorate                          to see which branch is active
+git log                    to see old Commits     (it's like git log HEAD 
+git log master             to see the story of a branch
+git log --graph            to see a graph view ex:   git log --graph --pretty=oneline --abbrev-commit  
+git log -Sstring           to search back when in a specified file changes the count of lines for a specified string
+                           Be careful. If one, changing the file lines (adding and subtracting lines), at the end
+                           the file has the same number of lines again with that string, this comand gets no output
+
+                           git log -Sinclude --pretty=oneline --abbrev-commit init/version.c
+
+git show                        # show more info for the LAST commit
+git show 9da581d910c9c4acf516   # show more info for the commit identified
+git show-branch                 # show even more info
 git show --pretty=fuller        #to see additional details about a given commit.
 git show branchName:a.c         #to see a file (a.c) from branch 'branchName' (ex git show master:a.c)
                                 git show origin/master:src/spec/ch/fe/web/ewf/E90Forms/appointments/AP03ErrorValidation.html
@@ -428,209 +631,30 @@ git diff -S"octopus" master~50                  # lists only diff containing spe
 
 
 
-git rm a.txt                    # remove a file both from the INDEX & wd 
-                                 (N.B. it's really lost, so normally must be forced: git rm -f a.txt)
-git commit -m "Removed a.txt"   # committing, also the repository gets aligned.
+git rm  a.txt        # remove a file both from the INDEX & wd 
+git rm -f  a.txt     # to force the remove if GIT doesn't do.
 
-1.3   mv 1.txt   2.txt   # 3 steps to rename a file (remove and add) or 
-2.3   git rm -f  1.txt   # 1 step only : git mv 1.txt 2.txt
-3.3   git add    2.txt  
+git mv 1.txt 2.txt   # to rename a file instead of 3 steps:
+                       1.3   mv 1.txt   2.txt  
+                       2.3   git rm -f  1.txt 
+                       3.3   git add    2.txt  
 
-git log  2.txt               # show the story of 2.txt, so I miss the story of 1.txt before the rename!
-                               git log --follow 2.tx can go back on 1.txt !!!!  (option --follow)
+git log  2.txt               # show the story of 2.txt, so I miss the story of 1.txt before the rename
+git log --follow 2.tx        # can go back on 1.txt 
 
-
-git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
-
-                         Git supports a hierarchy of configuration files. They are:
-
-    -----------------------
-       REFERENCES
-    -----------------------
-    A reference is used in Git to specify BRANCHES(local/remote) and TAGS. They are stored in:
-
-                      $GIT_DIR/refs/heads/ref              for local  branches,
-                      $GIT_DIR/refs/remotes/ref            for remote branches
-                      $GIT_DIR/refs/tags/ref               for tags.
-                      $GIT_DIR/packed-refs                 if refs are packed by git gc
-
-                      ex:   find .git/refs/  :
-
-                             .git/refs/
-                             .git/refs/remotes
-                             .git/refs/remotes/origin
-                             .git/refs/remotes/origin/master
-                             .git/refs/remotes/origin/HEAD
-                             .git/refs/tags
-                             .git/refs/heads
-                             .git/refs/heads/master
-
-                      'git symbolic-ref'    the plumbing command to manage references
-                         
-     special references:
-
-                      HEAD:         a symref to link to the last Commit
-                      ORIG_HEAD     store previous value of HEAD during an update for a merge (if a recovery is needed)
-                      FETCH_HEAD    valid only immediately after a 'git fetch'. Git stores in the file:.git/FETCH_HEAD
-                                    all the HEADS of the remote branches fetched.
-                      MERGE_HEAD    is the value that HEAD is going to take (coming from ORIG_HEAD)
-                      
-
-
-
-     root Commit:         1st Commit of a project. The only one to have no 'parent'
-     normal Commit        has 1 'parent' (normally)  or many (merge: 1 for each merged branch)
-     If C refer a Commit than:
-                                   C~1 refer to its parent                               usually abbreviated as C~
-                                   C~2 refer to its parent's parent and so on .... C~3   
-                                   
-                                   C^1 refer to parent from 1st branch                      "         "         C^
-                                   C^2 refer to parent from 2 branch and so on ... C^3
-     
-                                   Note that C~1 and C^1 are always the same where there is no merge 
-                                   As C^1^1 = C~2      
-                                   C^^   abbr. of C^1^1
-     
-                                   ex of 1 Commit back:  C~10^2~2^2
-     
-     
-     So with the C ^ ~  we have a 'relative' way to link to a Commit going back. The final autority to translate
-     into the 'absolute' still remains  git rev-parse:
-                                          git rev-parse masterr~3^2^2^
-                                          32efcd91c6505ae28f87c0e9a3e2b3c0115017d8
-     
-
---------------------------  COMMIT                        
-
-                   A commit is the ONLY method of introducing CHANGES to a repository.
-                   Commits usually are introduced by a developer, Git itself can introduce commit on a merge.
-                   Commit is a snapshot of your project at a certain time.
-
-                   Git handles small commits well, so there is no need to wait until the last minute 
-                   to commit large changes. Smaller commits and more frequent merge cycles reduce the pain of
-                   conflict resolution.
-
-  -1 explicit reference:      the 40-hex SHA1 
-  -2 implied reference:       the HEAD , which always points to the most recent Commit
-  -3 other different mechanisms for naming a Commit
-
-  -1 : is the absolute way to globally identified a Commit. As the SHA1 is unique in the world, you can be
-       sure you and another developer are addressing the same Commit, but also the same project, and at the
-       same history moment.
-
-git log -4                                 print only last 4 Commits
-git log -1 --pretty=oneline HEAD           print only 1 line of log (for Commit HEAD)
-git log -1 --pretty=oneline efbb58           "              "       (for Commit starting with efbb58)
-git log -p                                 print the diff
-git log -p 4fe86488                          "        "   of that Commit
-git log --stat                             very very very useful stat info
-git log --stat=200                         print lines of 200 chars len (useful when pathnames are long)
-
-git log --shortstat
-git log --name-only                        list modified files
-git log --name-status                      list files +  what was done:  added(A) / modified(M) / deleted(D)
-git log --abbrev-commit                    short SHA1
-git log --relative-date                    '5 months ago'    instaed of   'Wed Sep 24 14:19:24 2014' 
-git log --since, --after                    after  that time   --since="2008-10-01"
-git log --until, --before                   before that time   --before="2 years 1 day 3 minutes ago"
-git log --author                            edited by 
-git log --committer                         committed by
-git log --grep                              only commit where grep find somethig !!!!! very useful
-
-git log --decorate                          to see which branch is active
-git log                    to see old Commits     (it's like git log HEAD 
-git log master             to see the story of a branch
-git log --graph            to see a graph view ex:   git log --graph --pretty=oneline --abbrev-commit  
-git log -Sstring           to search back when in a specified file changes the count of lines for a specified string
-                           Be careful. If one, changing the file lines (adding and subtracting lines), at the end
-                           the file has the same number of lines again with that string, this comand gets no output
-
-                           git log -Sinclude --pretty=oneline --abbrev-commit init/version.c
-
-git blame -L 35, init/version.c      to tell who changed a specified line (here 35) of a specified file (here version.c)
-
-
->>>>>>>>>>>>>>>> gtk : great graphicl tool             external graph tool
-
-    --------
-    RANGES:   ..   ...
-    --------
-    A..B     (A-B]     Range of Commit (going back, so start is B)
-                       In a range start (B)  is inluded, end (A) is out
-
-    if A or B are omitted, HEAD is assumed 
-                          ..B      = HEAD..B
-                          A..      = A..HEAD 
-
-
-    REACHABILITY:   is the set of PARENTS nodes (they are older Commit
-                    so you can reach or reconstruct the story of that Commit)
-    
-    ^C  : defines the REACHABILITY from C that must be EXCLUDED in a range
-          ^ acts as the usual unix regular expression symbol 
-                    X..Y   =  ^X Y 
-                                   "give me all reachable from Y and 
-                                    don’t give me commits leading up to and including X"
-
-git log --pretty=short --abbrev-commit master~12..master~10        range ~12 ~10 
-           |              |                                        12 is excluded(so 2 commits: 10, 11)
-           |           --abbrev-commit  abbreviate the SHA1        
-           |
-          --pretty (short oneline full)   how much information to print
-
-git show HEAD~2             to see a Commit
-git show master:Makefile    to see a Blob  (here file Makefile)
-
-
-
-      A...B (using three periods)   set reachable from A or B but not from both
-
-         A -- B -- C -- D -- E -- F -- G -- H -- I     ----- master
-                     \               / 
-                      \             /
-                        U -- V -- W -- X -- Y -- Z     ----- def
-
-         master...dev = ?
-                                 reachable from master:    I H G F E D C A B  U V W
-                                 reachable from dev        Z Y X W V U        C B A
-                                 reachable not from both   I H G   Z Y X  D E F   --> master...dev 
-
-git bisect    To make Git narrow a search back from a range you specify and answering questions via via.
-            1.   It is essential that you start the git bisect process from a clean working directory.
-                 Starting with a dirty one is asking for trouble; it could easily be lost.
-
-            2.   git bisect start            to init the bisect. 
-                                             Git detaches HEAD to an anonymous branch and start working.
-
-            3.   git bisect bad              it's considering HEAD as a starting bad Commit to serach back
-
-            4.   git bisect good v.2.6.27    set Commit tagged v.2.6.27 as a presumed good point where things were ok
-            5.   git bisect bad     git bisect good  ...... git bisect  bad  <---- answering questions
-            6.   git bisect log     to see a log of the process
-
-            -.   git bisect replay       to see again  (it uses the log file as input).
-            -.   git bisect visualize    to see with gitk  (if var DISPLAY is set, othervise Git will use git log)
-            -.   git bisect visualize --pretty=oneline  
-
-            7.   when you are finished it is vital that you tell Git that you have finished. 
-                 So Git restablish the detached HEAD : $ git bisect reset      places back on your original branch
-                                    $ git branch
-                                    * (no branch)
-                                    master
-                                    $ git bisect reset     
-                                    Switched to branch "master"
-                                    $ git branch
-                                    * master
 --------------------------  BRANCHES
                     branche names:      Of course some special chars (- . .. ^ ~ )  cannot be used. 
                                         'git help check-ref-format'
+
+        NB. 'git branch' is the command to both LIST and CREATE branches.
+             with no arguments LISTS.
                           
 git branch                  list only local branches
-                            NB. 'git branch' is the command to both LIST and CREATE branches.
-                                 with no arguments only LISTS.
 git branch -r               list remote 
 git branch -a               list ALL
-                            nb the '*'  shows the chekcout branch, ex   * master  
+
+                            nb the '*'  shows the checkout branch, ex   * master  
+
 git show-branch 'bug/*'     supports wildcards
 
                     'show-branch' provides more detailed output than 'git branch'.
@@ -640,11 +664,7 @@ git show-branch 'bug/*'     supports wildcards
                                        parent Commit, go on for more n Commits.
                                        n<0 show only indicated branches, without parents tree.
 
-                    git show-branch      to see more use -r (remote tracking)  -a (all branches)  options
-                             bug/pr-1
-                             dev
-                           * master      * : branch checked out into working dir
-      git show-branch 
+git show-branch 
 
       ! [bug/pr-1] Fix Problem Report 1       \   this fisrt section lists each branch on 1 line, with * for
        * [dev] Improve the new development     |  active branch and ! for the others.  Each branch is shifted
@@ -656,11 +676,10 @@ git show-branch 'bug/*'     supports wildcards
       +*+ [master] Added Bob's fixes.        /  <--- this commit is present in all the branches. That it's the last line
                                                 always, as 'git show-branch' goes back through all the commits up to the 1st 
                                                 common to all!
-                                                If you want 'git show-branch' go back a number n of other common Commits
-                                                use --more=n 
+                                                To go on, use --more=n 
 
-         git show-branch bug/pr-1 bug/pr-2       to limit only to the specified listed branches
-         git show-branch bug/*
+git show-branch bug/pr-1 bug/pr-2       to limit only to the specified listed branches
+git show-branch bug/*
         
     create branch:  Must only specify from which commit to fork (the default is the HEAD of the active branch)
                     and a name:
@@ -680,14 +699,16 @@ git checkout xxxxx        to set active the specified branch (here xxxxx)
                           Git places the files in the wd. For any case where you risk to overwrite some file not saved
                           Git stops without checking out.
 git checkout -f xxxxx     to force even when overwtiting.
-git checkout -m dev       to merge branch 'dev' into my current active branch (the one checkout in wd)
+git checkout -m dev       to undo a merge 
 git checkout -b xxxxx [starting commit]     creating & checking out with 1 only command:  
 git checkout HEAD -- a.txt 
                      
                      uses checkout not in the form of switching  branch
                      but to extract a file from the REPO and write it in wd:
-                     git checkout -- a.txt              to discard changes in wd, overwriting a.txt
-                     git checkout .                     do the same for all files
+git checkout -- a.txt              to discard changes in wd, overwriting a.txt
+git checkout .                     do the same for all files
+
+git fetch + git checkout xxxxxx a.txt   to get a specific file from the remote repo
 
 
                                         
@@ -708,27 +729,26 @@ git fsck         commits, files, and heads.
 gc.reflogExpire
 gc.pruneExpire                 
                                                           
-The original commit from which a branch was started is not explicitly identified
-to identify it use:  git merge-base original-branch new-branch
+
+
+git merge-base original-branch new-branch      to identify the original commit from which a branch was started.
          
 --------------------------  MERGE
-                   to merge branch OUT into branch IN do       --------*------ IN
-                         - git checkout IN                            /
-                         - git merge    OUT                     -----' OUT
+                   Before merging,  tidy up wd + index.
 
-                   Before merging,  tidy up your wd + index (
-                   Git creates new versions of files in wd + stores temp files in index
-                   ).
-                   This means that repository is updated and any file in wd is somewhere there.
-                   So any file in the wd can be rm or overwritten with no loss.
+                   to merge branch OUT into branch IN    --------*------ IN
+                   do:                                          /
+                                                          -----' OUT
+git checkout IN   
+git merge    OUT   
 
-
-           diff acts between the active branch HEAD (called 'ours') and the head of the merging branch called 
-           MERGE_HEAD or 'theirs'.
+           diff acts between the active branch HEAD (called 'ours') and 
+           the head of the merging branch called MERGE_HEAD or 'theirs'.
            these command can be performed explicitly 
-                git diff HEAD             or git diff --ours     : wd   / HEAD
-                git diff MERGE_HEAD       or git diff --theirs   : wd   / MERGE_HEAD
-                git diff HEAD MERGE_HEAD  or git diff --base     : HEAD / MERGE_HEAD
+
+git diff HEAD             or git diff --ours     : wd   / HEAD
+git diff MERGE_HEAD       or git diff --theirs   : wd   / MERGE_HEAD
+git diff HEAD MERGE_HEAD  or git diff --base     : HEAD / MERGE_HEAD
 
                          .git/MERGE_HEAD     contains the SHA1 of MERGE_HEAD Commit merging from
                                              the versions are marked as stage  numbers:
@@ -741,13 +761,12 @@ to identify it use:  git merge-base original-branch new-branch
                  other user edit required.
                  Merge conflicts not resolved, change physically the text inside A.txt 
                  with mixed text from the 2 branches.
-                 I open this mixed A.txt file, and edit to merge as I like. 
+                 I open this mixed A.txt file, and edit to merge as I want. 
 
-
-git status              both these 2 command
+git status              both these 2 commands
 git ls-files -u -s      help to see the set of files under merge conflicts    
                                              (-u : only file  under conflict)
-                                             (-s : all  files with all stage nymbers (1,2,3))
+                                             (-s : all  files with STAGE NUMBERS (1,2,3))
                                              ex.
                                              git ls-files -s
                                                  100644 ce013625030ba8dba906f756967f9e9ca394464a 1  A.txt
@@ -760,28 +779,26 @@ git ls-files -u -s      help to see the set of files under merge conflicts
                                              I can then look for ex at 2 A.txt :
                                              git cat-file -p e63164d951
 
-                                             I can diff between stage numbers with this syntax:
-                                             git diff :1:A.txt :3:A.txt
+git diff :1:A.txt :3:A.txt     syntax to diff between STAGE NUMBERS.
 
 
 git log --merge --left-right -p
-                                 --merge : shows only Commits related to files that produced conflicts
-                                 --left-right : marks with < the Commits from left ('ours' part, above ex is master)
-                                                and > the right or 'theirs' part (above ex is dev)
-                                 -p shows the commit message and the patch associated
+            \          \      \_ shows the commit message and the patch associated
+             \          \_______ marks with < the Commits from left ('ours' part)
+              \                         and > the right ('theirs' part)
+               \________________ shows only Commits related to files that produced conflicts
 
 git log --merge --left-right -p  A.txt       if you only want to display for a single file A.txt
 
 
-undo a merge:          to go back at the point before the 'git merge'  (so having a clean wd)
+               undo a merge:          to go back at the point before the 'git merge'  (so having a clean wd)
 
-                       - git reset --hard HEAD         # if 'git commit' not done yet 
-                       - git reset --hard ORIG_HEAD    # if 'git commit' already done
-                       - git checkout -m               # from Git ver. 1.6.1
+git reset --hard HEAD         # if 'git commit' not done yet 
+git reset --hard ORIG_HEAD    # if 'git commit' already done
+git checkout -m               # from Git ver. 1.6.1
 
 --------------------------  ALTERING COMMITS
-                         Git allows to re-write or re-organize the history (the Commits) if you
-                         like to do it. 
+                         Git allows to re-write Commit history.
 
 git reset            : it acts on Commits like checkout acts on branches. This means that I can
                        switch HEAD to point to a Commit different from the last one.
@@ -793,7 +810,7 @@ git reset            : it acts on Commits like checkout acts on branches. This m
                              # moves HEAD to point to that Commit:
                              #                         HEAD     wd       index
 git reset --soft  commit     #                          Y       -         -
-git reset --mixed commit     # [default]                Y       -         Y   <- = to reset index to the status = repo without losing changes in WD (like a rm --cached)
+git reset --mixed commit     # [default]                Y       -         Y   <- = to reset index to the status = repo without losing changes in WD 
 git reset --hard  commit     # already seen above.      Y       Y         Y
 
   ex 1 - remove a file from the index (leaving all unchanged)
