@@ -1,3 +1,44 @@
+:set conceallevel=0              to avoid 'hidden' behaviour (ex hide the |bars| in help pages.
+
+:hi link HelpBar Normal
+:hi link HelpStar Normal
+
+
+:set showmode                    to keep displaying the mode (Insert, Command, ...) while working
+
+
+:help index                      to have all the commands
+:help CTRL-A                     to have help on ^A (defaut is command-mode)
+:help i_CTRL-A                   append the letter of the mode you want the help for that Ctrl
+:help -t                         to have the help on vim command line options (here -t)
+:help 'mouse'                    to have help on vim options (here mouse) ex help 'nu'
+:help E37                        to have help for vim errors (here code E37)
+:help xxxx + Tab                 like bash (...autocomplete)
+:help xxxx + Ctrl-D              to have ALL the list of possible helps starting with xxxx
+:help E37                        to have help for vim errors (here code E37)
+:helpgrep xxxx                   to search xxxx text INSIDE help pages. It will the jump to the 1st.
+                                 I can then move between the helps as 
+                                      :cn         next match
+                                      :cN         previous    (also :cprev)
+                                      :cfirst     jump to 1st
+                                      :clast      jumo to last
+                                      :copen      jump to item under curson (like Ctrl-]
+                                      :close      (like Ctrl-O, CTRl-T
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------ GET VIM
 
 UPDATE VIM & PLUGIN
@@ -271,8 +312,11 @@ vi +/xxxxxxx               go to 1st occ. of xxxxx    | For backward compatibili
                                              set nonumber or set nonu change it back
                                              but I could do :set number!  (:set nu!)
           ?                          <-- to watch the current value  (:set nu? )
-          :set numberwidth=4         <-- set to width of the number of lines column
-          :set relativenumber        <-- num lines are counter relative respect my position
+          :set numberwidth=4         <-- set the width of the left col for number-lines.
+          :set relativenumber        <-- num lines are counted relative respect my position
+          :set matchtime=5           <-- tens of seconds to show matching ( [ { 
+
+          :set nu  matchtime=3       <-- I can set more options with only 1 set command.
 
 
 :map ...  oooo             ... can be a symbol (ex -) or specail char (<space> <c-d> for control d)

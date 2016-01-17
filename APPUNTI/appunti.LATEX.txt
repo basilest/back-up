@@ -8,7 +8,7 @@ SPECIAL CHARS         # $ % ^ & _ { } ~ \
                       as they have special meaning to insert them, they must be escaped
                       with \   ex \#
 
-\textbackslash        to escape \  (it's not used \\)                      
+\textbackslash        to escape \  (it's not used \\. \\ forces a new-line)                      
 
 \COMMANDS             - LateX commands start with a \
                       - are CASE SENSITIVE 
@@ -31,7 +31,7 @@ GENERAL DOC STRUCTURE                     ______________
 
 COMPILATION            1. write the doc in a file A.tex
                        2. compile it as "latex A.tex"  (which generates A.dvi)
-                                                       Device Independent\
+                                                       Device Independent
                        3. see on screen as "xdvi A.dvi &"
                           xdvi works only on Unix with X11
                           on windows it can be used "yap" (yet another previewer)
@@ -75,13 +75,17 @@ PACKAGES               to enhance the capabilities of LateX
                        (ex. graphics, coloured text)
                        It's possible  to write your own extensions
 
-PAGE style             \pagestyle{ style }   yy
+PAGE style             \pagestyle{ style }  
                                   - plain      page num on the bottom (in the middle of the footer). 
                                                This is the default page style.
                                   - headings   page num in the header
                                   - empty      header / footer empty
 
                        \thispagestyle{ style } change only for the current page
+
+PAGE NUM               \pagenumbering{arabic}   1 2   3  4
+                       \pagenumbering{roman}    I II III IV
+                       \pagenumbering{gobble}   skip  (ex useful at first cover page)
 
 INCLUDE                To split a big project in more files
                        \include{ filename }   include a file in a new page
@@ -91,10 +95,10 @@ INCLUDE                To split a big project in more files
                                               to only these listed files
 
 \usepackage{syntonly}  to only check consistency fo the doc (pre-processing) without
-\syntaxonly             a complete compilation (no .dvi is generated).
-                        To save time. When ready comment out 2' line
+\syntaxonly            a complete compilation (no .dvi is generated).
+                       To save time. When ready comment out the 2' line
 
-line/page breaks       \\ or \newline    force a new line
+line/page breaks       \\ or \newline    forces a new line
                        \newpage          forces a new page
                        ~                 a space to not enlarge (ex in Fig. 5
                                          after the . LateX enlarges the space 
@@ -140,12 +144,12 @@ accents                \^o      o with ^ above
                        \~o      o with tilde above
                        \ss      the german B (Schloss)
                        
-                       so use \ldots instead
 
 \mbox{ text }          to force 'text' to stay on the same line (ex. a phone num)
                        it is also used in 'Ligatures', when ex ff fi ffl ffi 
                        special symbols which are better printed without writing the chars
                        together. ex instead of ff, f\mbox{}f (with an empty \mbox{})
+
 \fbox{ text }          \mbox with a visible box around
 
 \today                 current date
@@ -181,7 +185,7 @@ CROSS REFERENCES      I can mark anything adding a label to it:  \label {....}
                       I can use to jump the commands \ref {...} or 
                       \pageref{...} which will jump to the page.
 
-FOOTNOTES             \footnote[number]{text}  the number is optionalo
+FOOTNOTES             \footnote[number]{text}  the number is optional
 
 
 \underline{ text }   to underline text
@@ -239,7 +243,7 @@ TABLES              \begin{tabular} [pos] {spec}
                       \hline
                       \end{tabular}
 
-FLOATING            Tables and figures are placed so not be cut on more pages.
+FLOATING            Tables and figures are not cut on more pages.
                     Anyhow to avoid too much empty page sections, they remain in a FIFO
                     queue of floating parts. As soon as there is space they are printed.
 
@@ -265,12 +269,37 @@ $ ... $              a pair of $ is used to encapsulate a formula ex. $a^2 + b^2
 \begin{equation}     To start en equation and have also a number reference on the right
 \end{equation}
 
-\lable {text_A}        to mark for future refernce  (\eqref{text_A})that equation 
+\begin{equation *}     only including this package: 
+                                   \usepackage{amsmath}
+                       equation *  means to skip numbering equations
+
+\lable {text_A}        to mark for future reference  (\eqref{text_A})that equation 
                        (what is displayed is anyhow a number, not text_A)
-\tag {text_A}          to mark for future refernce  (\eqref{text_A})that equation 
+\tag {text_A}          to mark for future reference  (\eqref{text_A})that equation 
                        (what is displayed is literally "text_A")
 
+align                  \begin{align*}         to align all included equations
+                       \end{align*}           where it's indicated by the & symbol
 
+                                  \begin{align*}
+                                    1 + 2 &= 3\\         1 + 2 = 3
+                                      1 &= 3 - 2             1 = 3 -2
+                                  \end{align*}                 
+
+
+
+1/x                   \frac{1}{x}
+
+square root           \sqrt{x}
+
+braces ( [ \{          \left(    \left[     \left\{      \right)   \right]   \right\}
+
+integral [a-b]        \int^a_b  
+
+matrix                \begin{matrix}        to fix brakets:      \left[  \begin{matrix }
+                        1 & 0\\                                            1 & 0\\
+                        0 & 1                                              0 & 1
+                      \end{matrix}                                       \end{matrix} \right]
 
 
 
