@@ -1,5 +1,421 @@
---------------------------------------------------- view ENV var + others
-(set -o posix ; set ) | vi -          to see ALL var & functions (env and the others)
+---------------------------------------------------
+                   ENV & SHELL vars
+-----------------------------------
+        ENV vars           
+                   There are quite a few well-known env vars for which 
+                   the meaning and the format have been agreed upon 
+                   and they are used by many applications.
+                   ex:
+                        $LANG      language (ex.  "en_US.UTF-8")
+                        $DISPLAY   
+
+        SHELL vars           
+                   If we assign a var that doesn't exist,  a=34
+                   the shell will create a SHELL var.
+                   (as it's known in that shell only)
+                   It is similar to an ENV v. but does not influence 
+                   the behaviour of other apps. 
+
+        SHELL --> ENV 
+                   A SHELL v. can be exported to become an ENV v.
+                    export A     exporting A already defined 
+                    export A=5   exporting and defining 
+
+        SHELL <-- ENV 
+                    export -n A     remove the ENV property from the var name (A)
+                                    so that $A is only a value known to the original SHELL
+
+        
+        father --> child   Any ENV v. created in a shell, will be available
+                           to all child-procs created by the SHELL.
+
+        T1    T2           2 terminals, (ex 2 xterms) are separated shells
+                           so T1.ENV.v  & T2.ENV.v  are completly different.
+
+      % A=1 B=2  cmd       Any var defined BEFORE a cmd (that will become a new CHILD)
+                           becomes an ENV v.
+                               BUT ONLY FOR THE CHILD
+                           (current SHELL will keep its own var A and B values)
+
+                           the more general way is using 'env'
+                           % env  A=1 B=2  cmd       env runs a program in a modified environment
+                                                     env -i    allows to start with an EMPTY var
+                                                     env       (alone, dumps all vars, a -i is 
+                                                                built-in)
+                           NB. env WORKS only if cmd is not a builtin bash cmd
+                               so in that case write inside a wrapping script:
+
+                             % echo one > 1 && echo two > 2
+                             % A=1                             SHELL var
+                             % export A                        ENV   var
+
+                             % A=2 && cat $A                   print 'one'  (because cat is a bash builtin)
+
+                             % printf '#!/bin/bash\ncat $A\n' > e1.sh    make a wrap script
+                             % chmod +x e1.sh
+
+                             % A=2 && e1.sh                    print 'two' 
+
+    ____________________
+    printenv        dump all ENV v.     (like 'env' alone)
+                    printenv $HOME    print only that ENV v.
+
+
+    set -o posix ; set     to print ENV & SHELL (so also not exported) 
+
+
+    unset a         is the only way to actually remove a var (ENV or SHELL).
+
+                    Setting it to an empty val:  export a=
+                    is not the same, as some conditions (just the var existence
+                    regardless its value) remain TRUE.
+
+
+
+     /etc/environment    file where setting ENV v. for ANY new SHELL
+                         NB. var expansion doesn't work on this file
+                             it's not a script, but a conf file where
+                             each line is ENV_VAR_NAME=VALUE
+
+     /etc/profile.d/*.sh    all the scripts '.sh' in dir /etc/profile.d
+                            are executed each time a LOGIN shell is created
+                            (so console, ssh, a new Desktop session from Gnome, KDE, ...)
+
+     ~/.bashrc  ~/.bash_profile  ~/.bash_login    files setting ENV v. only for a new SHELL
+                                                  they cannot be used to set ENV. v. for 
+                                                  a Graph. desktop (KDE, Gnome ....)
+
+     ~/.profile             a file where setting ENV v. in a Graph. System, as it's read
+                            by the DisplayManager 
+                            like /etc/environment: not a script)
+                              
+     ~/.pam_environment     This file is like ~/.profile but it runs first
+                            so any setting here could be overwritten by ~/.profile
+
+
+
+---------------------------------------------------
+                   X server
+-----------------------------------
+        ENV v, $DISPLAY is of type     [ host_name ]  :  display_num  .   screen_num
+                                            ^         ^      ^        ^        ^
+                                  can be omitted          instance          almost never is 
+                                  on the local host       of which          required a val
+                                  but I could             X server          different from 0
+                                  specify a remote        on that HOST
+
+                          ex.           :0.0  <--- missing HOST
+                               localhost:10.0
+                               ik2ss10:2.0
+
+              This variable is used to indicate to graphical apps where to display 
+              their GUI. 
+              The display_num allows selecting among multiple X servers running on the same machine 
+              (Ubuntu uses multiple X servers to enable multiple graphical desktop sessions).
+--------------------------------
+|       Terminal codes (ANSI/VT100)
+------------------------
+Control-codes       the 'agreement' is that some special sequences of chars
+                    are intended as Control-codes, so the terminal  
+                    won't display the char, but will perform some action
+                   
+                    Main usage: 
+                       - to COLOUR
+                       - to CHANGE POSITION (cursor)
+
+TERMINAL TYPE       As there are many 'agreements', or many different TERMINAL conventions
+                    or TYPES (T1, T2, ...) there is an 'intermediate layer', a 'terminfo DB"
+                    where through some API (like tput) the correct 'control code' is retrieved
+                    and sent to the Terminal
+
+                          |
+                          |
+                          V
+                  ---------------------
+                       terminfo DB     <----  intermediate layer, that provides from a DB, the correct codes for that Terminal
+                  ---------------------       terminfo(5) - to have all the codes
+                          |
+                          |         <--- Control code retrieved from DB
+                          V
+                     -------------
+                     T1   T2   T3      <----  Terminal TYPEs
+                     -------------
+
+ANSI/VT100        most common Terminal TYPE
+
+$TERM             is the bash env var storing the TYPE of Terminal.
+                  Possible values:
+                          "vt100"   "xterm"   "xterm-color-256"   "screen" (<-- for tmux)
+
+                  ex. in .bash_profile: export TERM=vt100
+stty              s[peed]-Terminal
+                  it returns the netwoork speed the Terminal is running
+                  ex
+                      stty -a     --> speed 9600 baud; 46 rows; 189 columns;
+
+
+
+
+--------------------------------
+|       BASH PROMT
+------------------------
+PS1                 is the BASH prompt 
+                    (the format is store into the var $PS1
+                    ex. 
+                       echo $PS1       ---> \h:\W \u\$
+
+~/.bashrc           best place where setting it 
+                    ex
+                            PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] ' <--- make it green
+
+                            nb a normal  \e[X;Ym   is included in a pair of escaped [ ] 
+                                       \[\e[.....\]
+                                        ^         ^
+                            the 2 [ ] are used to enclose sequences of non-printing char
+                            (so \e but also others)
+                            
+                            right positioning.
+
+trap Enter          put also this in ~/.bashrc
+                             trap 'printf "\e[0m" "$_"' DEBUG
+                    so that each left opened   \e[...m     is closed.
+                    This is usefull when you want to still edit commands coloured
+                    and have only the output (after the ENTER) in normal 'white' 
+                    It doesn't work on 'tab'completion as it colours everything
+                    (overwriting default colours for files, dirs, symlinks, executables,...)
+
+/root/.bashrc       nb. the /root/ path where admin .bashrc is stored
+                        if not present copy it from /etc/skel
+
+/etc/skel           For more information on customizing /etc/skel see 'man useradd'
+
+                               /etc/skel is the dir used by 'useradd' to create 
+                               the default settings in a NEW user's home directory.
+                               (to ensure that all NEW users on your system get the same initial settings).
+                               ex.
+                                   % ls -A /etc/skel 
+                                   .bash_profile  .bashrc  .maildir  .screenrc  .tcsh.config
+
+                               To change the location of /etc/skel, edit /etc/default/useradd.
+
+                               # useradd defaults file 
+                               GROUP=100 
+                               HOME=/home 
+                               INACTIVE=-1 
+                               EXPIRE= 
+                               SHELL=/bin/bash 
+                               SKEL=/etc/skel  <----------
+
+                               Typically files included in /etc/skel are .rc files for shell initialization, 
+                               but you could also include a public_html directory, a custom dircolors file, or anything else.
+
+PROMPT_COMMAND      $PROMPT_COMMAND env var whose content (usually some commands, a little code). 
+                    is executed just before Bash displays $PS1
+                    ex. PROMPT_COMMAND="date +%H%M"
+                        will produce a date line before each prompt $PS1> line
+
+Escapes:
+               ----------------- USER 
+              \u      the username of the current user
+              \$      if the effective UID is 0, a #, otherwise a $
+
+               ----------------- HOST
+              \h      the hostname up to the first `.'
+              \H      the hostname
+
+               ----------------- PATH
+              \w      the current working directory, with $HOME abbreviated with a tilde
+              \W      the basename of the current working directory, with $HOME
+                       abbreviated with a tilde
+
+               ----------------- PROC & HISTORY
+              \!      the history number of this command
+              \#      the command number of this command
+              \j      the number of jobs currently managed by the shell
+
+               ----------------- BASH info
+              \v      the version of bash (e.g., 2.00)
+              \V      the release of bash, version + patch level (e.g., 2.00.0)
+              \l      the basename of the shell's terminal device name
+              \s      the name of the shell, the basename of $0 (the portion following
+                        the final slash)
+
+               ----------------- DATE
+              \d      the date in "Weekday Month Date" format (e.g., "Tue May 26")
+              \D{format}  the format is passed to strftime(3) and the result
+                        is inserted into the prompt string an empty format
+                        results in a locale-specific time representation.
+                        The braces are required
+
+               ----------------- TIME
+              \t      the current time in 24-hour HH:MM:SS format
+              \T      the current time in 12-hour HH:MM:SS format
+              \@      the current time in 12-hour am/pm format
+              \A      the current time in 24-hour HH:MM format
+
+               ----------------- ESCAPE SEQ
+              \nnn    the character corresponding to the octal number nnn
+              \e      an ASCII escape character (033)
+              \[      begin a sequence of non-printing characters, which could be used
+                        to embed a terminal control sequence into the prompt
+              \]      end a sequence of non-printing characters
+              \a      an ASCII bell character (07)
+              \\      a backslash
+              \n      newline
+              \r      carriage return
+
+                     
+Cursor position:     is used the \0333[ ....f-s-u sequence (so as any sequence
+                     it must be inside \[ \]
+                     )
+                     with the format \0333[row;colx
+                                                  ^ note the x. It can be 
+                                                                      - f  to set position to a value
+                                                                      - s  to save the current position
+                                                                      - u  to restore a saved position
+
+                     ex. PS1=">\[\033[s\]\[\033[1;\$((COLUMNS-5))f\]\$(date +%H:%M)\[\033[u\]"
+                                   ^                             ^                        ^
+                                here saved                here set pos                here restored
+                                pos                       window corner
+                                                          high-right
+
+                         nb. $COLUMNS var is = num cols of my TERMINAL
+
+                     ex. set unicode red X simbol o green V according to if the command was
+                         OK or ERROR
+                     PS1="\[\033[01;37m\]\$?      <----------  $? = last command result
+                          \$(if [[ \$? == 0 ]]; then echo \"\[\033[01;32m\]\342\234\223\"; 
+                             else echo \"\[\033[01;31m\]\342\234\227\"; fi) 
+                             $(if [[ ${EUID} == 0 ]]; then echo '\[\033[01;31m\]\h'; 
+                             else echo '\[\033[01;32m\]\u@\h'; fi)\[\033[01;34m\] \w \$\[\033[00m\] "
+
+
+                     Or do the same into a clean code, the assign that code to 'PROMPT_COMMAND':
+                     
+                              set_prompt () {
+                                  local last_command=$? # Must come first!
+                                  PS1=""
+                                  local blue='\[\e[01;34m\]'
+                                  local white='\[\e[01;37m\]'
+                                  local red='\[\e[01;31m\]'
+                                  local green='\[\e[01;32m\]'
+                                  local reset='\[\e[00m\]'
+                                  local fancyX='\342\234\227'
+                                  local checkmark='\342\234\223'
+                              
+                                  PS1+="$white\$? "
+                                  if [[ $last_command == 0 ]]; then
+                                      PS1+="$green$checkmark "
+                                  else
+                                      PS1+="$red$fancyX "
+                                  fi
+                                  if [[ $EUID == 0 ]]; then
+                                      PS1+="$red\\h "
+                                  else
+                                      PS1+="$green\\u@\\h "
+                                  fi
+                                  PS1+="$blue\\w \\\$$reset "
+                              }
+                     
+                              PROMPT_COMMAND='set_prompt'  <--------------
+
+
+
+-----------------------------------------
+LOGIN
+-----------------------------------------
+
+         1.  /etc/nologin    <---- if it's present (writen by 'shutdown' for maintenance) only root con login
+                                   Other users will receive its text content as denying-reason message
+         
+         2.  /etc/usertty    or    read to see if there are any special constraints on you
+             /etc/securetty  
+                             some also:
+             /etc/fbtab
+
+         3.  /var/log/failedlogin    some distros log here 'FAIL-login' attempts.
+
+         4.  /var/log/lastlog        some distros log here your login-'TIME'
+
+         5.  /var/run/utmp           adds 1 entry for your succesful login
+                                     (removed on logout)
+
+         6.  /var/log/wtmp           append utmp entry here 
+                                     updated (not removed) on logout so there is the total log-time
+
+         7.  /etc/passwd             open the shell listed here for you.
+                                     If it's tagged as 'interactive' a prompt is available
+
+         8.  /etc/motd               stores the 'message'-of-the-day' to display on login-shell.
+
+
+
+---------------------------------------------------
+                   shell command and special options
+----------------------------------
+____________________
+__  ls
+
+    -1            1 file for line
+    -m            all on a single line separated by comma ','
+    -x            sort horizontally between cols (so a1 and a2 will be on the same line)
+    -p            append a  '/' at dirs
+    -T0           use internally spaces and not TABs to separate cols
+                  (it can be usefull if for any reason the output is not properly aligned)
+    --color       --color=always  (the same as only --color)
+                  --color=auto             color only if printing to a terminal (ex not use in a pipe | or redirection >)
+                  --color=none  (default)  never
+
+                  color requires a 'stat' of each file to then decide (directory, link, executable, ...) 
+                  how to color. 
+                  Thus a performance penalty.
+                  So avoid using this 'stat' during a pipe or redirection (ls | ... ls > ...)
+                  is why  --color=auto is the good choice)
+                 
+         LS_COLORS  is the ENV var setting what to color (dir, link, exe ...) and with which color
+                   
+                  its values is something as a long string like
+                  LS_COLORS=no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:bd=40;33;01:cd=...
+
+         dircolors  is the command ( /usr/bin/dircolors ) to use to set the value for LS_COLORS.
+                  Using: 
+                             dircolors -p
+                  I  have a dump of the fabric default original values in a style like a bash text file.
+                  So that to change it, a way could be:
+                             eval $(dircolors -p | perl -e ' .......' | dircolors -)
+                                               ^                                  ^ 
+                          ex 
+                             eval $(dircolors -p | perl -pe 's/LINK\s+[0-9;]+/LINK 01;36/' | dircolors -)
+____________________
+__  find
+
+
+        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o 
+        find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
+        
+        
+        find -regextype posix-extended -regex '.*\.(jpg|png)'
+        find -E . -regex '.*\.(jpg|png)'                      <--- shortcut for above in some linux
+        
+
+
+
+
+
+____________________
+__  dd
+
+
+/dev/zero     provides ASCII NULL (0x00) bytes to init disk area (files/partitions)
+
+dd if=/dev/zero of=/dev/xxxxxx
+      bs:    to specify my personal block size (in bytes, or even decimal with letter G, M, )
+      count: number of 'blocks'
+
+      dd if=/dev/zero of=foobar count=1024 bs=1024       it's 1 MB: 1024 blocks  X  of personal size:1024 bytes
+      dd if=/dev/zero of=foobar count=1 bs=1G            it's 1 GB: 1 block X 1G
+
 
 
 --------------------------------------------------- crontab
@@ -979,6 +1395,8 @@ is store in the following dirs:
 /var/spool/cron/crontabs/   HP-UX Unix Debian / Ubuntu Linux
 /usr/lib/cron/tabs/         Mac OS X
 
+and output (ex error messages) is logged in files /var/log/cron  ..cron.1  ..cron.2 ...
+
 crontab [-u user] [ -elri ] <file>
 
 -e     crontab files (for each user) are not edited directly but with crontab -e
@@ -1005,6 +1423,10 @@ a way to copy from an user to another:
 
 a way to copy to another server
      crontab -l | ssh $remote_host crontab
+
+     NB. cron is not run as YOU. So for instance the PATH or any othet vars
+         defined in profile or bashrc could not be defined when running the
+         same script during a cron session. (ex. add full path of the exe)
 ____________________________________________________________
 
 /proc  list info like

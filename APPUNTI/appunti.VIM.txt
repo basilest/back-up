@@ -1,3 +1,16 @@
+------------------------------------------------------ TABs in VIM
+     vim -p a.txt b.txt          open vim tabbed with 2 files
+     vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
+         -c :$   a.txt                goto last line
+         -c /xxx a.txt                search for xxx
+------------------------------------------------------ 
+
+
+
+
+
+
+
 :set conceallevel=0              to avoid 'hidden' behaviour (ex hide the |bars| in help pages.
 
 :hi link HelpBar Normal
@@ -119,6 +132,7 @@ let @a=system("ls") to do the same, with 2 commands
 
 insert num of line in a substitution pattern match:
               :%s/----------- ok 1/\=line(".")/
+              :%s/^/\=line(".")/                 <--- just add lines in front of each line
 
 ------------------------------------------------------ In Insert Mode
   :scriptnames         I see all the .vim (as also my .vimrc) that vim reads at the moment
@@ -673,70 +687,3 @@ Managing Strings
                       :echom toupper("Foo")
 
 Execute                evaluate a string as if it was a Vim command. 
-                       
-                      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,0 +1,276 @@
+'httpd'          The httpd web server was developed by the 
+                 Centre d'Etudes et de Recherche Nucléaires (CERN) in Geneva, Switzerland
+                 When CERN stopped funding the development of httpd, 
+                 it was taken over by the Software Development Group of the 
+                 National Center for Supercomputing Applications (NCSA). 
+                 The NCSA also produced Mosaic, the first web browser, 
+                 (later Netscape).
+
+                 1. at the origin only static documents. Mosaic retrieved them from httpd
+                 2. Rewritten to allow dynamic data (ex. submitted by the user in a form)
+                    NCSA developed the Common Gateway Interface (CGI) specification. 
+
+CGI:             A CGI program can be written in virtually any language that can read from 
+                 STDIN and write to STDOUT, regardless of whether 
+                             it is interpreted (e.g., the Unix shell), 
+                             compiled (e.g., C or C++), 
+                             a combination of both (e.g., Perl). 
+                 The first CGI programs were written in C and needed to be compiled into binary executables. 
+                 For this reason, the directory from which the compiled CGI programs were executed was named cgi-bin, 
+                 and the source files directory was named cgi-src. 
+                 Nowadays most servers come with a preconfigured directory for CGI programs called, as you have probably guessed, cgi-bin.
+
+HTTP             Interaction between the browser and the server is governed by the HyperText Transfer Protocol (HTTP)
+                 standard maintained by the World Wide Web Consortium (W3C)
+
+                 a simple request/response model: Requests and responses take the form of 'messages'
+
+                 A message is a simple sequence of text LINES, structured as
+
+                 HEADERS     BLANK_LINE     BODY
+
+                 First come the headers, which hold descriptive information in a set of key-value pair.
+                 There are various types of headers (their contents are fully specified by the HTTP protocol) 
+                 Headers are followed by a blank line, then by the message body.
+                 The body is the actual content of the message, such as an HTML page or a GIF image. 
+                 It's not HTTP to specify the standard for the body but each header describes its body structure.
+
+                 HTTP is a stateless protocol. This means that requests are not related to each other. 
+                 This makes life simple for CGI programs: they need worry about only the current request.
+                 
+                 .---------------------------------------.
+                 | #!/usr/bin/perl -Tw                   |
+                 |                                       |
+                 | print "Content-type: text/plain\n\n"; |<--- 2 \n, as 1 is the blank line to start the body
+                 | print "Hello world!\n";               |
+                 '---------------------------------------'
+
+                   1.  text/plain is a Multipurpose Internet Mail Extensions (MIME) type. 
+                       Other examples of MIME types are 
+                                       text/html  (text in HTML format) 
+                                       video/mpeg (an MPEG stream).
+                   2.  put it into a cgi-bin directory on your server
+                   3.  make the script executable
+                   4.  go to http://localhost/cgi-bin/hello.pl
+
+PASS DATA:        http://localhost/cgi-bin/hello.pl?username=Doug  <-------- GET (passing it in the URI)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+                          PATH to the SCRIPT         QUERY_STRING
+
+
+                  <form action="/cgi-bin/hello_user.pl" method="GET">  <---- GET  in a form
+                  <form action="/cgi-bin/hello_user.pl" method="POST"> <---- POST in a form
+                  <input type="text" name="username">
+                  <input type="submit">
+                  </form>
+
+                  GET: the GET method at the end always passes params in the
+                  URI. Even if HTTP does not specify a limit, Apache and some
+                  client do (8K: 8192 char). Older version and WAP phones even less: 255
+                  Larger size needs a POST.
+
+CGI.pm :         The most widely used CGI library is the CGI.pm module.
+                 it provides an easy API to generate the HTML response.
+                 
+                   #!/usr/bin/perl
+                     
+                   use CGI qw(:standard);  <------------------------    importing a group of functions called :standard
+                   my $username = param('username') || "unknown";i <--  We use its param () function to retrieve the value of the key: username.
+                                                                        (It retrieves whichever of the methos was used to pass the data:
+                   print "Content-type: text/plain\n\n";                 GET-URI, GET-form, POST-form)
+                   print "Hello $username!\n";                   
+                   
+                 All scripts shown here generate plain text, not HTML
+
+                   print header("text/plain");    can be used instead of  print "Content-type: text/plain\n\n";
+                   
+& ,             More params can be separated by both & and , 
+                ex.
+                     http://           ...                 ?a=foo&b=bar&c=foobar
+                CGI.pm (as well as mod_perl and Apache::Request) can manage both.
+                Take only care when the values in the param contain those chars.
+                    A fast way to get could be:
+
+                  for my $key ( param () ) {
+                         print "$key => ", param($key), "\n";
+                   }
+
+mod_cgi        Apache server processes CGI scripts via a module mod_cgi 
+               (built by default with the Apache core)
+                the installation procedure also preconfigures a cgi-bin directory 
+                and populates it with a few sample CGI scripts. 
+
+               In Apache it could be configured as:
+
+               ScriptAlias /cgi-bin/ /home/httpd/cgi-bin/   <--- the association with the real path 
+
+               <Directory /home/httpd/cgi-bin>
+                   Options FollowSymLinks   <--- follow links
+                   Order allow,deny         <--- open to everybody + 
+                   Allow from all           <---                    from eveywhere
+               </Directory>
+
+%ENV           mod_cgi can access server vars by ENV var.
+               ex. 
+                 for (keys %ENV) {
+                       print "$_ => $ENV{$_}\n";
+                 }
+                which produces:
+                
+                NLS_LANG => ENGLISH_UNITED KINGDOM.UTF8
+         -----> SCRIPT_NAME => /bin/vars.pl
+                ORACLE_HOME => /usr/local/oracle/product/10.2.0
+         -----> REQUEST_METHOD => GET
+                HTTP_ACCEPT => text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+         -----> SCRIPT_FILENAME => /home/sbasile/htdocs/efiling/handlers/bin/vars.pl
+                LC_ALL => en_GB.UTF-8
+         -----> SERVER_SOFTWARE => Apache/2.0.52 (Red Hat)
+                SESSION_TOKEN => DummyToken
+                QUERY_STRING => 
+                REMOTE_PORT => 54075
+                HTTP_USER_AGENT => Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0
+                SERVER_SIGNATURE => <address>Apache/2.0.52 (Red Hat) Server at wswebdev1.orctel.internal Port 4055</address>
+                
+                HTTP_ACCEPT_LANGUAGE => en-GB,en;q=0.5
+         -----> PATH => /usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/opt/CollabNet_Subversion/bin/:/usr/local/oracle/product/10.2.0/bin:/home/sbasile/bin
+                MOD_PERL_API_VERSION => 2
+         -----> GATEWAY_INTERFACE => CGI/1.1   <-----------------   when running under mod_perl the value is "CGI-Perl/1.1"
+         -----> SCRIPT_URL => /bin/vars.pl
+         -----> DOCUMENT_ROOT => /home/sbasile/htdocs/efiling/
+                SERVER_NAME => wswebdev1.orctel.internal
+                HTTP_ACCEPT_ENCODING => gzip, deflate
+         -----> SERVER_ADMIN => sbasile@companieshouse.gov.uk
+         -----> SESSION_COOKIES => 1
+                HTTP_CONNECTION => keep-alive
+                SCRIPT_URI => http://wswebdev1.orctel.internal:4055/bin/vars.pl
+                SESSION_ID => 
+         -----> SERVER_PORT => 4055
+                HTTP_COOKIE => _pk_id.6.f375=8cd80679a9c4d9ef.1433769921.2.1433831714.1433771233.; ch_session=1
+                REMOTE_ADDR => 172.19.231.106
+         -----> SERVER_PROTOCOL => HTTP/1.1 <---------    HTTP version agreed between client and server during the negotiation phase 
+                REQUEST_URI => //bin/vars.pl              
+         -----> SERVER_ADDR => 192.168.60.201
+         -----> HTTP_HOST => wswebdev1.orctel.internal:4055
+                MOD_PERL => mod_perl/2.0.2
+
+
+        SPOOFYING USER AGENT: it's easy to fool a naïve CGI programmer into
+                              thinking we've used any kind of client program.
+
+                              use LWP::UserAgent; <---------  LWP library (to create an instance of UserAgent)
+
+                              my $ua  = new LWP::UserAgent;
+                              $ua->agent("Mozilla/5.0 Galeon/1.2.1 (X11; Linux i686; U;) Gecko/0");
+                              my $req = new HTTP::Request('GET', 'http://localhost/cgi-bin/env.pl');
+
+                              my $res = $ua->request($req); <-- "HTTP_USER_AGENT => Mozilla/5.0 Galeon/1.2.1 (X11; Linux i686; U;) Gecko/0"
+
+mod_cgi architecture:     It forks a Child for each request. Apache has something like:
+
+                                   <IfModule prefork.c>
+                                   StartServers    2
+                                   MinSpareServers    1
+                                   MaxSpareServers    2
+                                   ServerLimit    256
+                                   MaxClients    256 <-------- not more that this forks
+                                   MaxRequestsPerChild    4000    
+                                   </IfModule>
+
+                          Each incoming request is forwarded by the mod_cgi process to an idle child.
+                          If there are no idle childs, a new one is forked.
+                          If the fork cannot be done, the request is QUEUED (<---- size of queue managed by Apache directive "ListenBacklog")
+                          until a  child becomes available.
+
+                          (When also "ListenBacklog" is full, the browser
+                          client receives a SERVER UNREACHABLE response)
+
+1 CGI <--> 1 Perl         Each CGI script executed by the child is managed by a new instance of the Perl interpreter.
+                          When the script exits (no matter how), the process
+                          and the interpreter exit as well, cleaning up on the way. 
+                          When a new interpreter is started, it has no
+                          history of previous requests. All the variables are
+                          created from scratch, and all the files are reopened
+                          if needed. 
+
+DISADVANTAGES OF MOD_CGI: - overhead 1: forks (almost insignificant on modern Unix systems)
+                          - overhead 2: Loading the Perl interpreter.
+                          - overhead 3: compile CGI script from scratch
+                          - No persistency: it's impossible to create persistent variables, which
+                                            in turn prevents the establishment of persistent
+                                            database connections and in-memory databases.
+                          - No memory sharing: Starting a new interpreter removes the benefit of
+                                            memory sharing that could be obtained by preloading
+                                            code modules at server startup. Also, database
+                                            connections can't be pre-opened at server startup.
+
+mod_perl 1.0:            The first improvement is to embed the Perl interpreter, in each child
+1 CHILD <--> 1 Perl      and not for each CGI script executed by that child.
+                         A copy of the Perl interpreter is also embedded into the Apache httpd executable
+                         allowing to configure the overall server through Perl scripts.
+                         Any mod_perl Apache directive in http.conf starts with 'Perl'.
+                         
+                         Adding a large executable (Perl) into another large executable (Apache) 
+                         creates a very, very large program. 
+                         mod_perl certainly makes httpd significantly bigger, and you
+                         will need more RAM on your production server.
+                         Techniques can reduce memory requirements.
+
+                          
+Apache::Registry        They are 2 mod_perl packages to run unmodified CGI scripts.
+Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun doesn't.
+
+                        Apache::Registry compiles scripts on first use and
+                        keeps the compiled scripts in memory. On subsequent
+                        requests, all the needed code (the script and the
+                        modules it uses) is already compiled and loaded in
+                        memory. This gives you enormous performance benefits,
+                        but it requires that scripts be well behaved.
+
+                        global vars if not properly managed can produce
+                        problems with ::Registry:
+
+
+                        use CGI;
+                        $q = CGI->new( );
+                        $topsecret = 1 if $q->param("secret") eq 'Muahaha';
+                        # ...
+                        if ($topsecret) {
+                            display_topsecret_data( );
+                        }
+                        else {
+                           security_alert( );
+                        }
+
+                        It works with ::PerlRun but with::Registry on the
+                        second run, preserving the var their values, there
+                        could be a problem.
+
+                        1' solution: use strict + declare var before their usage
+                                         use strict;
+                                         use vars qw($topsecret $q);
+                                         $topsecret = 0;
+                                         $q = undef;
+                        2' solution: avoid global var (use my)
+                                         my $q = CGI->new( );
+                                         my $topsecret = $q->param("secret") eq 'Muahaha' ? 1 : 0;
+
+
+
+
+
+
+
+
+source "Mod_perl Developer's Cookbook" p.344
+        Debugging Registry scripts is a difficult process. Because of the stange interaction between dynamic script loading by 'Apache::Registry' and 'Apache::RegistryLoader', we cannot reliably set a breakpoint.
+
+-----------------
+SET A BREAKPOINT
+-----------------
+add the Perl code 
+           $DB::single=1;
+in my script where I want a breakpoint.
+The Perl debugger automatically stops whenever the value of 
+           $DB::single
+is set.
+

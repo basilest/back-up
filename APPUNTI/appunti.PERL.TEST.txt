@@ -1,369 +1,384 @@
 
-           websystems/testing/testmodules/TestCommon.pm :
+            ____________________________________
+               Test::Harness   is the test runner and output interpreter for Perl. 
+                               It's the thing that powers 'make test' and where the 'prove' utility comes from.
+
+               Test::More      more advanced version of Test::Simple 
+                               well..... remember there is Test::Most
+
+               Test::Simple
+               Test::Most
+
+  Other modules in Test::
+
+
+               Test::Differences    for more ways to test complex data structures. 
+               Test::Class          is like xUnit but more perlish.
+               Test::Deep           gives you more powerful complex data structure testing.
+               Test::Inline         shows the idea of embedded testing.
+               Test::FixtureBuilder Quickly define fixture data for unit tests.
+
+
+
+               Other modules:
+
+               Mock::Quick          The ultimate mocking library. Easily spawn objects defined on the fly. 
+                                    Can also override, block, or reimplement packages as needed.
+
+----------------------
+    Test::More
+---------------
+    ///////////////////////////////////////////////////////////
+    // 
+    // N.B. MEANING of 'tests' and what a Test::More file actually is:
+    //      When you write a Perl test using Test::More you write a Perl file ending with .t (ex xxx.t,
+    //      and by convention ofet located in a ./t/ directory) 
+    //      using one of its 20 constructs
+    //      (e.g ok, is, like ...)
+    //      Each time you write a line in xxx.t using one of its construct, then:
+    //                       THAT IS A TEST
+    //      So the number of tests in a xxx.t is the number of times you called one of Test::More functions.
+    //      Remember this when reading a Test::More xxx.t file.
+    //      So it will be clear the word 'tests' itself as well as the word 'test name' that is just a string
+    //      that will be dumped on output when executing that test (instruction), for better reading the log
+    //
+    //      Then run it just as:  perl -I.... xxx.t     (-I with all the required include paths)
+    //                                                   If it's in dir t/ just add it: perl -I.... t/xxx.t   
+    //      The text produced on output by running the script is called TAP (Test Anything Protocol)
+    //      another way to  run the xxx.t is through the command 'prove'
+    //                   prove -I.... xxx.t             prove produces an output more short, parsing the TAP     
+    // 
+    ///////////////////////////////////////////////////////////
            
-            1 sub aliasExternalMethods
-            2 sub aliasMethods
-            3 sub checkClassName
-            4 sub helper_clearWebInputs
-            5 sub restoreMethods
-            6 sub test_attributesDefined
-            7 sub test_methodsDefined 
-            8 sub test_moduleBaseIs
-            9 sub test_new
-           10 sub test_propertiesDefined 
-           11 sub test_propertiesValues
+
+      use Test::More tests => 23;            <----- the plan is 23 test (I know the number)
+                                                    At the end Test::More will so checks if the number of tests was this.
+                                                    Instead of here, "test => 23" can be set in any place
+                                                    after, with the function plan()
+
+      # or
+      use Test::More;   
+          ..
+        done_testing( [1] number_of_tests );  <---- at the end of the tests execution add this line (the num of tests is not known)
+                                                    
+                                                    Test::More will just print the number of tests executed
+                                                    ex done_testing( 10 );
+                                                       done_testing( $xxx );
+                                                       done_testing( );
+                                                    
+      # or
+      use Test::More skip_all => $reason;     <---- this just exits the script
+
+      plan()     this function is used to define the above number of tests
+                 ex. of usage:
+                 1. plan tests => keys %Stuff * 3;
+                 2. plan skip_all => 'Test irrelevant on MacOS';
+
+
+
+nb.   the check with the number of tests are not mandatory instructions to add.
+      Without them Test::More just executes the tests and exits.
+
+
+TEST NAME   By convention, each test is automatically assigned a number in order. 
+            So the output would be ex:
+                      ok 4
+                      not ok 5
+                      ok 6
+            it's often very useful to assign an optional string called 'test name', to have:
+                      ok 4 - basic multi-variable
+                      not ok 5 - simple exponential
+                      ok 6 - force == mass * acceleration
+
+---------------- SYNTAX:
+
+
+ 1   ok         ok ([1] bool_condition, [2] test_name)                
+
+                ex.ok( $p->tests == 4, 'test is 4' );
+
+ 2   is         is ([1] cmd, [2] expected_result, [3] test_name)     
+                    execute cmd and compare with [2]. If it's different the test fails
+                    it's short for    ok (cmd 'eq' expected_result, '..')
+                  
+ 3   isnt       short for ok (cmd 'ne' expected_result, '..')      (there is also isn't() the alias with the: ')
+
+ 4   like       like ([1] cmd, [2] regular_expr, [3] test_name)
+                like($got, qr/expected/,  '..');
+                like( $got, '/expected/', '..' );
+                it's short for         ok( $got =~ m/expected/, '..')
+
+ 5   unlike     (easy to understand)
+
+ 6   cmp_ok     cmp_ok([1] op1, [2] bool_operator, [3] op2, [4] test_name)
+                it compares op1 and op2 with the Perl operator [2],
+                which can be usefull when the implicit 'eq' 'ne' above not work (ex number compare)
+                ex. cmp_ok( $got, '&&', $expected, '..')
+
+                it's also better the output as it prints both op1 and op2 .
+
+ 7   isa_ok     isa_ok ([1] obj,       [2], class, [3] [obj_name])
+                isa_ok ([1] sub_class, [2], class, [3] [obj_name])
+                isa_ok ([1] ref,       [2], type,  [3] [ref_name])
+                
+                ex.1   isa_ok( $obj, 'Some::Module' );           
+                       short for     ok( defined $obj && $obj->isa('Some::Module') );
+
+                ex.2   use constant CLASS_UNDER_TEST => 'NetBanx::UI::Request';
+                       my $nbx = new_ok( CLASS_UNDER_TEST, [ controlName => 'testControlName' ] );
+                       isa_ok( $nbx, CLASS_UNDER_TEST );
+
+                ex.3   $validator = $handler->getValidator($ar_class);
+                       isa_ok($validator,'CompaniesHouse::Filing::Validation::LLPAnnualReturnValidator','LLP Validator Test');
+
+ 8   new_ok     new_ok ([1] class, [2] [obj_name])
+
+                ex. new_ok( $nbx, CLASS_UNDER_TEST );
+
+                short for new ... +  isa_ok 
+
+ 9   subtest    subtest 'some text for the subtest name'  =>  \&code
+
+                ex.   subtest 'An example subtest' => sub {
+                          plan tests => 2;
+                          pass("This is a subtest");
+                          pass("So is this");
+                      };
+
+
+10   pass       pass ([1] test_name)
+                ex.  see 9.
+                short for ok(1, ..
+
+11   fail       short for ok(0, ..
+
+
+12   require_ok      require_ok"file_or_module_name"  tests if it can load modules
+
+                ex.1      require_ok "Some::Module";
+                ex.2      require_ok "Some/File.pl";
+
+13   use_ok     BEGIN { use_ok($module); }   or       like require_ok but not work with files.
+                BEGIN { use_ok($module, @imports); }
+
+                ex.       BEGIN { use_ok('Some::Module', qw(foo bar)) }
+
+
+
+14   is_deeply  is_deeply([1] var, [2] expected_values, [3] test_name)    Compares a var with the expected content
+                                                                          whene a simple ok with ok does not work.
+                                                                          Know that there are more advanced modules:
+                                                                          Test::Differences and Test::Deep 
+
+                ex. is_deeply($output_r, $s->{expected}, "Output as expected");
+
+15   diag       diag(message)         like a print but it won't interfere with the test.
+                                      as it returns FALSE, this can be used like a 'die':
+
+                ex.         ok( grep(/foo/, @users), "There's a foo user" ) or
+                            diag("Since there's no foo, check that /etc/bar is set up right");
+
+16   note       diag(message)         Like diag(), except the message will not be seen when 
+                                      the test is run in a harness. 
+                                      It will only be visible in the verbose TAP stream.
+                                      Handy for putting in notes which might be useful for debugging, 
+                                      but don't indicate a problem.
+
+17   explain    explain ref           dump the contents of any references in a human readable format. 
+                                      Usually to pass this into note or diag .
+
+                ex.     is_deeply($have, $want) || diag explain $have;
+
+18   SKIP       SKIP { skip [1] why, [2] num_of_tests, if [3] condition}   allows to include in a block
+                                                                           some num_of_tests that after certain condition
+                                                                           can be skipped
+                ex.
+                        SKIP: {
+                                    eval { require HTML::Lint };
+                                    skip "HTML::Lint not installed", 2 if $@;
+                                    my $lint = new HTML::Lint;
+                                    isa_ok( $lint, "HTML::Lint" );
+                                    $lint->parse( $html );
+                                    is( $lint->errors, 0, "No errors found in HTML" );
+                              }
+
+                [2] allows Test::More to have at the end the right TOTAL for the tests
+
+
+19   TODO       like SKIP. The tests inside are expected to fail. 
+                Test::More runs them normally, but print out special flags indicating they are "todo". 
+                Test::Harness will interpret 
+                                failures:as being ok. 
+                                succees :unexpected success. 
+
+                As opposed to simply commenting out a block of tests, is it's like having a programmatic todo list. 
+                You know how much work is left to be done.
+                Once a todo test starts succeeding, simply move it outside the block. 
+                When the block is empty, delete it.
+
+                ex.
+                        TODO: {
+                                    local $TODO = "URI::Geller not finished";
+                                    my $card = "Eight of clubs";
+                                    is( URI::Geller->your_card, $card, 'Is THIS your card?' );
+                                    my $spoon;
+                                    URI::Geller->bend_spoon;
+                                    is( $spoon, 'bent',    "Spoon bending, that's original" );
+                              }
+
+                SKIP vs. TODO
+
+                If it's something the user might not be able to do, use SKIP. 
+                ie. optional modules not installed, running under an OS that doesn't have some feature (like fork() or symlinks), 
+                or maybe you need an Internet connection and one isn't available.
+
+                If it's something the programmer hasn't done yet, use TODO. 
+                This is for any code you haven't written yet.
+
+20   BAIL_OUT   BAIL_OUT('message')      like a die
+------------------------------------------------------
+PUT IT ALL TOGETHER
+------------------------
+      use Test::More tests => 23;            
+      # or
+      use Test::More;   
+          ..
+        done_testing( $number_of_tests ); 
+      # or
+      use Test::More skip_all => $reason;    
+
+      require_ok( 'Some::Module' );
+      # Various ways to say "ok"
+      ok($got eq $expected, $test_name);
+      is  ($got, $expected, $test_name);
+      isnt($got, $expected, $test_name);
+
+      # Rather than print STDERR "# here's what went wrong\n"
+      diag("here's what went wrong");
+
+      like  ($got, qr/expected/, $test_name);
+      unlike($got, qr/expected/, $test_name);
+
+      cmp_ok($got, '==', $expected, $test_name);
+
+      is_deeply($got_complex_structure, $expected_complex_structure, $test_name);
+
+      SKIP: {
+          skip $why, $how_many unless $have_some_feature;
+          ok( foo(),       $test_name );
+          is( foo(42), 23, $test_name );
+      };
+
+      TODO: {
+          local $TODO = $why;
+          ok( foo(),       $test_name );
+          is( foo(42), 23, $test_name );
+      };
+
+      can_ok($module, @methods);
+      isa_ok($object, $class);
+
+      pass($test_name);
+      fail($test_name);
+
+      BAIL_OUT($why);
+
+      # UNIMPLEMENTED!!!
+      my @status = Test::More::status;
+
+-------------------------------------------
+
+           websystems/testing/testmodules/TestCommon.pm :  is our library file 
+                                                           with 13 useful functions:
+
+            ____________________________________
+            1 sub test_use
+
+                  test_use;          # Check basic compilation of module
+
+            ____________________________________
+            2 sub test_new
+
+                  my $obj_r = test_new([config=>\%c]);
+           
+            ____________________________________
+            3 sub test_moduleBaseIs
+                  
+                  test_moduleBaseIs('Framework::UI::control');
+
+            ____________________________________
+            4 sub test_methodsDefined 
+            
+                  test_methodsDefined([qw( 
+                      formType
+                      validate
+                      validateFormByNotificationDate
+                      validateFutureNotificationDate
+                      validateNatureOfControls
+                      validateNatureOfControlForCompanyType
+                  )]);
+
+                  $TestCommon::CLASS_NAME = 'CompaniesHouse::Filing::Validation::pscNotificationValidator';
+                   
+            ____________________________________
+            5 sub test_attributesDefined
+
+                  test_attributesDefined(
+                      $obj_r,
+                      [qw(
+                          recipientID recipientSeq recipientDtme coNumb coName emailAddress
+                      )]
+                  );
+
+            ____________________________________
+            6 sub test_propertiesDefined 
+                  
+                  test_propertiesDefined($obj_r, [qw(
+                      config
+                      CompanyType
+                  )]);
+                  
+            ____________________________________
+            7 sub test_propertiesValues
+
+                 test_propertiesValues(
+                     $obj_r,
+                     {
+                         formID     => CV_FORMTYPE_LLMR01,
+                         forwardURL => 'payment?formtype='.CV_FORMTYPE_LLMR01,
+                     }
+                 );
+
+            ____________________________________
+            8 sub aliasMethods
+
+                  aliasMethods( { "validateNameEnding" => sub{}} );
+            ____________________________________
+            9 sub aliasExternalMethods
+
+                  aliasExternalMethods({ "CommonDB::DBConnect" => sub {} });
+            ____________________________________
+           10 sub helper_clearWebInputs
+
+                  helper_clearWebInputs($obj_r);
+            ____________________________________
+           11 sub restoreMethods
+            
+                  restoreMethods;
+                  restoreMethods();
+                  restoreMethods( 'getEmailFromCustID' );
+                  restoreMethods( ['validateMandatoryNotes'] );
+            ____________________________________
            12 sub test_propertyMetaData
-           13 sub test_use
-           
-Test::Harness   is the test runner and output interpreter for Perl. 
-                It's the thing that powers 'make test' and where the 'prove' utility comes from.
-
-
- use Test::More               more advanced version of Test::Simple 
-                              well..... remember there is Test::Most
-
-
-               Other modules in Test::
-
-
-               Test::Differences    for more ways to test complex data structures. 
-               Test::Class          is like xUnit but more perlish.
-               Test::Deep           gives you more powerful complex data structure testing.
-               Test::Inline         shows the idea of embedded testing.
-               Test::FixtureBuilder Quickly define fixture data for unit tests.
-
-
-
-               Other modules:
-
-               Mock::Quick          The ultimate mocking library. Easily spawn objects defined on the fly. 
-                                    Can also override, block, or reimplement packages as needed.
-
-----------------------
-    Test::More
----------------
-
-
- 1   ok         ok ([1] bool_condition, [2] test_name)                
-
-                ex.ok( $p->tests == 4, 'my test' );
-
- 2   is         is ([1] cmd, [2] expected_result, [3] test_name)     
-                    execute cmd and compare with [2]. If it's different the test fails
-                    it's short for    ok (cmd 'eq' expected_result, '..')
                   
- 3   isnt       short for ok (cmd 'ne' expected_result, '..')      (there is also isn't() the alias with the: ')
+                  test_propertyMetaData(
+                      $obj_r, {
+                          merchantReference => [ 'barclaysRequest', 'barclaysNotification' ],
+                          merchantSig       => [ 'barclaysRequest' ],
+                      }
+                  );
+            ____________________________________
+           13 sub checkClassName
+
+-------------------------------------------
 
- 4   like       like ([1] cmd, [2] regular_expr, [3] test_name)
-                like($got, qr/expected/,  '..');
-                like( $got, '/expected/', '..' );
-                it's short for         ok( $got =~ m/expected/, '..')
-
- 5   unlike     (easy to understand)
-
- 6   cmp_ok     cmp_ok([1] op1, [2] bool_operator, [3] op2, [4] test_name)
-                it compares op1 and op2 with the Perl operator [2],
-                which can be usefull when the implicit 'eq' 'ne' above not work (ex number compare)
-                ex. cmp_ok( $got, '&&', $expected, '..')
-
-                it's also better the output as it prints both op1 and op2 .
-
- 7   is_ok      is_ok ([1] obj,       [2], class, [3] [obj_name])
-                is_ok ([1] sub_class, [2], class, [3] [obj_name])
-                is_ok ([1] ref,       [2], type,  [3] [ref_name])
-                
-                ex.1   isa_ok( $obj, 'Some::Module' );           
-                       short for     ok( defined $obj && $obj->isa('Some::Module') );
-
-                ex.2   use constant CLASS_UNDER_TEST => 'NetBanx::UI::Request';
-                       my $nbx = new_ok( CLASS_UNDER_TEST, [ controlName => 'testControlName' ] );
-                       isa_ok( $nbx, CLASS_UNDER_TEST );
-
-                ex.3   $validator = $handler->getValidator($ar_class);
-                       isa_ok($validator,'CompaniesHouse::Filing::Validation::LLPAnnualReturnValidator','LLP Validator Test');
-
- 8   new_ok     new_ok ([1] class, [2] [obj_name])
-
-                ex. isa_ok( $nbx, CLASS_UNDER_TEST );
-
-                short for new ... +  isa_ok 
-
- 9   subtest    subtest 'some text for the subtest name'  =>  \&code
-
-                ex.   subtest 'An example subtest' => sub {
-                          plan tests => 2;
-                          pass("This is a subtest");
-                          pass("So is this");
-                      };
-
-
-10   pass       pass ([1] test_name)
-                ex.  see 9.
-                short for ok(1, ..
-
-11   fail       short for ok(0, ..
-
-
-
-12   require_ok      require_ok"file_or_module_name"  tests if it can load modules
-
-                ex.1      require_ok "Some::Module";
-                ex.2      require_ok "Some/File.pl";
-
-13   use_ok     BEGIN { use_ok($module); }   or       like require_ok but not work with files.
-                BEGIN { use_ok($module, @imports); }
-
-                ex.       BEGIN { use_ok('Some::Module', qw(foo bar)) }
-
-
-
-14   is_deeply  is_deeply([1] var, [2] expected_values, [3] test_name)    Compares a var with the expected content
-                                                                          whene a simpe ok with ok does not work.
-                                                                          Know that There are more advanced modules:
-                                                                          Test::Differences and Test::Deep 
-
-                ex. is_deeply($output_r, $s->{expected}, "Output as expected");
-
-15   diag       diag(message)         like a print but it won't interfere with the test.
-                                      as it returns FALSE, this can be used like a 'die':
-
-                ex.         ok( grep(/foo/, @users), "There's a foo user" ) or
-                            diag("Since there's no foo, check that /etc/bar is set up right");
-
-16   note       diag(message)         Like diag(), except the message will not be seen when 
-                                      the test is run in a harness. 
-                                      It will only be visible in the verbose TAP stream.
-                                      Handy for putting in notes which might be useful for debugging, 
-                                      but don't indicate a problem.
-
-17   explain    explain ref           dump the contents of any references in a human readable format. 
-                                      Usually to pass this into note or diag .
-
-                ex.     is_deeply($have, $want) || diag explain $have;
-
-18   SKIP       SKIP { skip [1] why, [2] num_of_tests, if [3] condition}   allows to include in a block
-                                                                           some num_of_tests that after certain condition
-                                                                           can be skipped
-                ex.
-                        SKIP: {
-                                    eval { require HTML::Lint };
-                                    skip "HTML::Lint not installed", 2 if $@;
-                                    my $lint = new HTML::Lint;
-                                    isa_ok( $lint, "HTML::Lint" );
-                                    $lint->parse( $html );
-                                    is( $lint->errors, 0, "No errors found in HTML" );
-                              }
-
-                [2] allows Test::More to have at the end the right TOTAL for the tests
-
-
-19   TODO       like SKIP. The tests inside are expected to fail. 
-                Test::More runs them normally, but print out special flags indicating they are "todo". 
-                Test::Harness will interpret 
-                                failures:as being ok. 
-                                succees :unexpected success. 
-
-                As opposed to simply commenting out a block of tests, is it's like having a programmatic todo list. 
-                You know how much work is left to be done.
-                Once a todo test starts succeeding, simply move it outside the block. 
-                When the block is empty, delete it.
-
-                ex.
-                        TODO: {
-                                    local $TODO = "URI::Geller not finished";
-                                    my $card = "Eight of clubs";
-                                    is( URI::Geller->your_card, $card, 'Is THIS your card?' );
-                                    my $spoon;
-                                    URI::Geller->bend_spoon;
-                                    is( $spoon, 'bent',    "Spoon bending, that's original" );
-                              }
-
-                SKIP vs. TODO
-
-                If it's something the user might not be able to do, use SKIP. 
-                ie. optional modules not installed, running under an OS that doesn't have some feature (like fork() or symlinks), 
-                or maybe you need an Internet connection and one isn't available.
-
-                If it's something the programmer hasn't done yet, use TODO. 
-                This is for any code you haven't written yet.
-
-20   BAIL_OUT   BAIL_OUT('message')      like a die
-
-21   ok         ok ([1] bool_condition, [2] test_name)                ok( $p->tests == 4, 'saw tests' );
-                
-Test::Harness   is the test runner and output interpreter for Perl. 
-                It's the thing that powers 'make test' and where the 'prove' utility comes from.
-
-
- use Test::More               more advanced version of Test::Simple 
-                              well..... remember there is Test::Most
-
-
-               Other modules in Test::
-
-
-               Test::Differences    for more ways to test complex data structures. 
-               Test::Class          is like xUnit but more perlish.
-               Test::Deep           gives you more powerful complex data structure testing.
-               Test::Inline         shows the idea of embedded testing.
-               Test::FixtureBuilder Quickly define fixture data for unit tests.
-
-
-
-               Other modules:
-
-               Mock::Quick          The ultimate mocking library. Easily spawn objects defined on the fly. 
-                                    Can also override, block, or reimplement packages as needed.
-
-----------------------
-    Test::More
----------------
-
-
- 1   ok         ok ([1] bool_condition, [2] test_name)                
-
-                ex.ok( $p->tests == 4, 'my test' );
-
- 2   is         is ([1] cmd, [2] expected_result, [3] test_name)     
-                    execute cmd and compare with [2]. If it's different the test fails
-                    it's short for    ok (cmd 'eq' expected_result, '..')
-                  
- 3   isnt       short for ok (cmd 'ne' expected_result, '..')      (there is also isn't() the alias with the: ')
-
- 4   like       like ([1] cmd, [2] regular_expr, [3] test_name)
-                like($got, qr/expected/,  '..');
-                like( $got, '/expected/', '..' );
-                it's short for         ok( $got =~ m/expected/, '..')
-
- 5   unlike     (easy to understand)
-
- 6   cmp_ok     cmp_ok([1] op1, [2] bool_operator, [3] op2, [4] test_name)
-                it compares op1 and op2 with the Perl operator [2],
-                which can be usefull when the implicit 'eq' 'ne' above not work (ex number compare)
-                ex. cmp_ok( $got, '&&', $expected, '..')
-
-                it's also better the output as it prints both op1 and op2 .
-
- 7   is_ok      is_ok ([1] obj,       [2], class, [3] [obj_name])
-                is_ok ([1] sub_class, [2], class, [3] [obj_name])
-                is_ok ([1] ref,       [2], type,  [3] [ref_name])
-                
-                ex.1   isa_ok( $obj, 'Some::Module' );           
-                       short for     ok( defined $obj && $obj->isa('Some::Module') );
-
-                ex.2   use constant CLASS_UNDER_TEST => 'NetBanx::UI::Request';
-                       my $nbx = new_ok( CLASS_UNDER_TEST, [ controlName => 'testControlName' ] );
-                       isa_ok( $nbx, CLASS_UNDER_TEST );
-
-                ex.3   $validator = $handler->getValidator($ar_class);
-                       isa_ok($validator,'CompaniesHouse::Filing::Validation::LLPAnnualReturnValidator','LLP Validator Test');
-
- 8   new_ok     new_ok ([1] class, [2] [obj_name])
-
-                ex. isa_ok( $nbx, CLASS_UNDER_TEST );
-
-                short for new ... +  isa_ok 
-
- 9   subtest    subtest 'some text for the subtest name'  =>  \&code
-
-                ex.   subtest 'An example subtest' => sub {
-                          plan tests => 2;
-                          pass("This is a subtest");
-                          pass("So is this");
-                      };
-
-
-10   pass       pass ([1] test_name)
-                ex.  see 9.
-                short for ok(1, ..
-
-11   fail       short for ok(0, ..
-
-
-
-12   require_ok      require_ok"file_or_module_name"  tests if it can load modules
-
-                ex.1      require_ok "Some::Module";
-                ex.2      require_ok "Some/File.pl";
-
-13   use_ok     BEGIN { use_ok($module); }   or       like require_ok but not work with files.
-                BEGIN { use_ok($module, @imports); }
-
-                ex.       BEGIN { use_ok('Some::Module', qw(foo bar)) }
-
-
-
-14   is_deeply  is_deeply([1] var, [2] expected_values, [3] test_name)    Compares a var with the expected content
-                                                                          whene a simpe ok with ok does not work.
-                                                                          Know that There are more advanced modules:
-                                                                          Test::Differences and Test::Deep 
-
-                ex. is_deeply($output_r, $s->{expected}, "Output as expected");
-
-15   diag       diag(message)         like a print but it won't interfere with the test.
-                                      as it returns FALSE, this can be used like a 'die':
-
-                ex.         ok( grep(/foo/, @users), "There's a foo user" ) or
-                            diag("Since there's no foo, check that /etc/bar is set up right");
-
-16   note       diag(message)         Like diag(), except the message will not be seen when 
-                                      the test is run in a harness. 
-                                      It will only be visible in the verbose TAP stream.
-                                      Handy for putting in notes which might be useful for debugging, 
-                                      but don't indicate a problem.
-
-17   explain    explain ref           dump the contents of any references in a human readable format. 
-                                      Usually to pass this into note or diag .
-
-                ex.     is_deeply($have, $want) || diag explain $have;
-
-18   SKIP       SKIP { skip [1] why, [2] num_of_tests, if [3] condition}   allows to include in a block
-                                                                           some num_of_tests that after certain condition
-                                                                           can be skipped
-                ex.
-                        SKIP: {
-                                    eval { require HTML::Lint };
-                                    skip "HTML::Lint not installed", 2 if $@;
-                                    my $lint = new HTML::Lint;
-                                    isa_ok( $lint, "HTML::Lint" );
-                                    $lint->parse( $html );
-                                    is( $lint->errors, 0, "No errors found in HTML" );
-                              }
-
-                [2] allows Test::More to have at the end the right TOTAL for the tests
-
-
-19   TODO       like SKIP. The tests inside are expected to fail. 
-                Test::More runs them normally, but print out special flags indicating they are "todo". 
-                Test::Harness will interpret 
-                                failures:as being ok. 
-                                succees :unexpected success. 
-
-                As opposed to simply commenting out a block of tests, is it's like having a programmatic todo list. 
-                You know how much work is left to be done.
-                Once a todo test starts succeeding, simply move it outside the block. 
-                When the block is empty, delete it.
-
-                ex.
-                        TODO: {
-                                    local $TODO = "URI::Geller not finished";
-                                    my $card = "Eight of clubs";
-                                    is( URI::Geller->your_card, $card, 'Is THIS your card?' );
-                                    my $spoon;
-                                    URI::Geller->bend_spoon;
-                                    is( $spoon, 'bent',    "Spoon bending, that's original" );
-                              }
-
-                SKIP vs. TODO
-
-                If it's something the user might not be able to do, use SKIP. 
-                ie. optional modules not installed, running under an OS that doesn't have some feature (like fork() or symlinks), 
-                or maybe you need an Internet connection and one isn't available.
-
-                If it's something the programmer hasn't done yet, use TODO. 
-                This is for any code you haven't written yet.
-
-20   BAIL_OUT   BAIL_OUT('message')      like a die
-
-21   ok         ok ([1] bool_condition, [2] test_name)                ok( $p->tests == 4, 'saw tests' );
-                

@@ -1,3 +1,46 @@
+
+
+    dump all 'eval'uated entries of debugger internal table 
+            p join "\n", map { "$_   $#{$_}" } grep /_<\(/, keys %::
+    show something like this:
+              DB<1> p join "\n", map { "$_   $#{$_}" } grep /_<\(/, keys %::
+              _<(eval 111)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 44)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 147)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 126)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 114)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 33)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 45)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 39)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 48)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 134)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 118)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 142)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 132)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 35)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 140)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 120)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 133)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 127)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 47)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 34)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 231)[/home/sbasile/modperl/i386-linux-thread-multi/Apache/perl5db.pl:620]   -1
+              _<(eval 139)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 135)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 37)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 41)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 153)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 112)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 42)[/home/sbasile/perl5lib/lib/lib/perl5/JSON/PP.pm:66]   -1
+              _<(eval 129)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 107)[/usr/lib/perl5/vendor_perl/5.8.5/XML/DOM.pm:178]   -1
+              _<(eval 27)[/var/local/cpan/perl/lib/perl5/site_perl/5.8.5//JSON.pm:353]   -1
+
+
+
+
+
+
   
 'httpd'          The httpd web server was developed by the 
                  Centre d'Etudes et de Recherche Nucléaires (CERN) in Geneva, Switzerland
@@ -166,7 +209,7 @@ LoadModule      (ex LoadModule perl_module modules/mod_perl.so)
                  The order of the modules is no longer important with Apache 2.0.
 
 IfDefine        (ex <IfDefine PERLDB> ..</IfDefine>)
-                 to wrap isntructions if a certain tag is defined
+                 to wrap instructions if a certain tag is defined
 
 User            (User sbasile)
                  pass to the server the same rights this user has on files
@@ -374,6 +417,40 @@ ProxyVia        (ex ProxyVia On)
 NameVirtualHost (ex NameVirtualHost *:4055)
                  associates an IP and port number, for any name-based virtual hosts.
 
+------------------------------------
+You can always adjust contents of @INC before the server starts. There are several ways to do that.
+
+    - startup.pl: 
+              use lib qw(/home/httpd/project1/lib /tmp/lib);
+              use lib qw(/home/httpd/project2/lib);
+
+    - httpd.conf: the PerlSwitches directive to pass arguments to perl as you do from the command line, e.g.:
+              PerlSwitches -I/home/httpd/project1/lib -I/tmp/lib
+              PerlSwitches -I/home/httpd/project2/lib
+
+
+PERL5LIB / PERLLIB Environment Variables
+
+    PERL5LIB / PERLLIB are ignored when the taint mode is on (PerlSwitches -T). 
+    Since you want to make sure that your mod_perl server is running under the taint mode, 
+    you can't use the PERL5LIB and PERLLIB environment variables.
+
+    However there is the perl5lib module on CPAN, which, 
+    if loaded, bypasses perl's security and will affect @INC. 
+    Use it only if you know what you are doing.
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ------------------------ 11 PHASES
 When Apache receives a request, it processes it in 11 phases.
 Each has an handler. You can overwrite/extend this standard handler with any Perl code.
@@ -473,9 +550,9 @@ mod_perl: 1996 Doug MacEachern (from Apache Software Foundation).
                              as:
                                  >perl -cx http.conf
 
-                             -x   ignore any line #!perl
+                             -x   says to skip all before line #!perl
                              -c   acts a syntax check (compilation only with no execution-interpretation)
-                                  The __END__ allows to stop 
+                                  the __END__ allow to stop 
               
         
 
@@ -574,9 +651,9 @@ mod_cgi        Apache server processes CGI scripts via a module mod_cgi
                ScriptAlias /cgi-bin/ /home/httpd/cgi-bin/   <--- the association with the real path 
 
                <Directory /home/httpd/cgi-bin>
-                   Options FollowSymLinks  
-                   Order allow,deny         
-                   Allow from all         
+                   Options FollowSymLinks   <--- follow links
+                   Order allow,deny         <--- open to everybody + 
+                   Allow from all           <---                    from eveywhere
                </Directory>
 
 %ENV           mod_cgi can access server vars by ENV var.
@@ -715,8 +792,8 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
    <IfModule mod_perl.c>
       PerlModule Apache::Registry <----------   PerlModule xxxx is the mod_perl directive to load 1 of the internal  mod_perl modules
       Alias /perl/ /usr/local/apache/cgi-bin/ <-- gives an alias to a filesystem path usually outside DocumentRoot, that I can so access
-      <Location /perl>          <-- wraps here all the instruct. which will be executed for any request of type http://host + "/perl" ...
-         SetHandler perl-script <-- set 'perl-script' as the 'content handler' for this block  <Location></Loc..>, actually activates mod_perl
+      <Location /perl>          <-- wraps here all the isntrutions which will be executed for any request of type http://host + "/perl" ...
+         SetHandler perl-script <-- set 'perl-script' as the 'content handler' for this block of instructions <Location></Loc..>, actually activates mod_perl
          PerlHandler Apache::Registry <-- is the real hanlder inside mod_perl which will be called to answer any file requested inside <Loc..> </Loc..>
          Options +ExecCGI  <-- requested by Apache::Registry to mark that directory as containing cgi scripts.
          PerlSendHeader On <-- intercepts all outputis and converts into a proper HTTP header. So legacy CGI script can run without modifications.
@@ -728,6 +805,9 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
                   put some scripts (ex a.pl) in the dir marked by Alias (/usr/local/apache/cgi-bin/)
                   and call them as http://host + /perl + /a.pl
                   
+                  I can change in the above config the 2 lines 'Apache::Registry'
+                  with 'Apache::PerlRun' .
+
                   The different behaviour of Run-vs-Registry can have side effects on
                   global vars:
 
@@ -784,6 +864,8 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
            PerlSetVar name value     allows to pass generic vars (not ENV) to perl modules. 
 
 
+        
+                                 
 
 internal module of mod_perl (it's searched that .pm file
                                  as usual in any path of @INC)
@@ -870,14 +952,3 @@ warn "..."             The same works for warn (which is the sister of die
 
 
 
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  

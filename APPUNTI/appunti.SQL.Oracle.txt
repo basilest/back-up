@@ -1,0 +1,583 @@
+  DBMS:               Database Management System. A collection of programs written to manage a database.
+R-DBMS:               R is Relational. 
+                      The father of Relational Data-Model was Dr. E.F. CODD. 
+                      He took the concept from Relational Algebra in June-1970. 
+Logical / Physical    Tables are logical structures. Data are managed by Physical files in the filesystem.
+                      Both the data files, and additional config files:
+                                     - control files, 
+                                     - redo-log files.
+
+Redo log  files        allow to manage failures, so if any write is broken, data can be restored.
+Control   files        contain info (names & paths  of data-files, and redo-log files).
+Parameter files        contain info (DB name, Memory settings, path of its Control file).
+-------------------------------------------
+DESIGN TABLES:
+        - max 255 Columns (1000 from Oracle 8)
+        - unlimited rows
+        - Normalize 
+        - Move Optional cols (those allowing NULL) at the end to optimize space
+
+-------------------------------------------
+ORACLE SQL SYNTAX:
+
+     - DDL : Data Definition     Language  -  Statements (CREATE / ALTER     / DROP    / TRUNCATE   / RENAME)
+     - DML : Data Manipulation   Language  -  Statements (INSERT / UPDATE    / DELETE  / INSERT ALL / MERGE )
+     - TCL : Transaction Control Language  -  Statements (COMMIT / SAVEPOINT / ROLLBACK)
+     - DCL : Data Control        Language  -  Statements (GRANT  / REVOKE)
+
+      NB. for STRINGs use ' not "
+      NB. STRINGs are case-sensitive ==>  a LIKE '%psc%' will not match 'AAAAPSCx.txt'
+
+  /  - select * from T1;          to have rows for all the cols of T1
+  |  - SELECT c1, c2 from T1      to have rows with only cols c1,c2
+  |  - select * from cat;         to have all the Tables from a DB (cat is a keyword)
+  |  - desc T1                    to have all T1 cols (& their type), its description
+  |
+  |
+  |  - SELECT * from T1 WHERE c1 > 5000
+  |                     WHERE c1 = 5000
+  |                     WHERE c1 BETWEEN  1000 AND 2000
+  |                     WHERE c1='aaaa'
+  |                     WHERE c1 IN     ('text1', 'text2', ..)
+  |                     WHERE c1 NOT IN ('text1', 'text2', ..)
+  |                     AND / OR / NOT       WHERE c1=1000 AND c2='aaaa'
+S |                                          WHERE c1=1000 OR  c2='aaaa'
+  |                                          WHERE NOT c1=1000 
+E |                     WHERE c1 IS NULL
+  |                     WHERE c1 IS NOT NULL
+L |
+  |                     WHERE c1 LIKE 'a%'         LIKE for pattern mathing
+E |                           c1 LIKE 'A%d'
+  |                           c1 LIKE '%a%'
+C |                           c1 LIKE '%\%%'   \ escapes %
+  |
+T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd inner select has at least 1 row
+  |
+  |  - SELECT * from T1 ORDER by c1
+  |                     ORDER by c1 DESC         descending
+  |                     ORDER by c1, c2 DESC     sort on c1 (ascending) and for same c1 on c2 (descending)
+  |              
+  |                     nb. instead of col names num position of cols can also be used
+  |                     ORDER by 1,2 DESC
+  |                      
+  |  - UNION                   T1 (Select)            T2  (Select)                         UNION (is an append 1 above the other)
+  |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |
+  |                      r1   | a1 | a2 | a3 |     | b1 | b2 | b3 |    r2          r1   | a1 | a2 | a3 |
+  |                           | a1 | a2 | a3 |                                          | a1 | a2 | a3 |   r3 <= r1 + r2      (is = (a real simple 'append') 
+  |                                                                                    -----------------                       only with flag ALL
+  |                                                                                r2   | b1 | b2 | b3 |                       normally 1 only row is kept 
+  |                                                                                     | b1 | b2 | b3 |                       from 2 or more equal)
+  |
+  |                      A UNION operator, combines (Selects) from T1 and T2 where the 2 select returns
+  |                                 the same NUMBER (and TYPES)  of cols:   (TYPE ai = TYPE bi  for each i)
+  |
+  |                      The  2 nums of rows of each Select are unrelated (r1 != r2)
+  |
+  |  - select1 UNION     select2    returns only DISTINCT rows from select1 + select2
+  |       "    UNION ALL "          returns ALL            "           "         "
+  |       "    INTERSECT "          returns only COMMON    "           "         "
+  |       "    MINUS     "          returns only select1 rows that are not also in select2
+  |
+  |  - GROUP BY;  collapse a Select of 1 col  in distinct val only
+                           a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
+                           a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
+                                                                                             
+
+  |        - SELECT c1 from T1 GROUP BY c1;  Without a GROUP BY a select returns all the rows (ex. 1000 rows with duplicated the col City)
+  |                                          With    a GROUP BY it returns rows grouped by that col (ex. City, so only 3 rows 'Milan' 'Rome' 'Venice')
+  |
+  |        - select c1,c2 from T1 GROUP BY (c1,c2);  With more Cols
+  |        - select c1,c2 from T1 GROUP BY ROLLUP (c1,c2);  With 'superaggregate' rows - seldom used
+  |        - select c1,c2 from T1 GROUP BY CUBE   (c1,c2);  With 'superaggregate' rows - seldom used
+  |
+  |  CASE IF:   CASE expressions allows inline usage of 
+  |                  IF ... THEN ... ELSE  logic
+  |             in SQL statements without having to invoke procedures.
+  |  -  Select c1, c2, CASE c3  WHEN 10 THEN ‘Accounts’
+  |                             WHEN 20 THEN ‘Sales’
+  |                             WHEN 30 THEN ‘R&D’
+  |                             ELSE “Unknown’ 
+  |                             END
+  \           FROM T1;
+
+  /  - CREATE ( , , );            CREATE TABLE T1 (
+  |                                  Empno      NUMBER(5),
+  |                                  Ename      VARCHAR2(15),
+  |                                  Hiredate   DATE,
+  |                                  Sal        NUMBER(7,2)
+  |                               );
+D |                               #---------- CREATE + INSERT: "CREATE AS":
+  |
+  |                               CREATE TABLE T1 AS select c1, c2 from T2          # to create T1 from a subset of T2
+D |                               CREATE TABLE T1 AS select * FROM T2               # to copy T1 from T2
+  |                               CREATE TABLE T1 AS select * FROM T2 WHERE 1=2     # to copy only the structure from T2, and no rows.
+  |
+L |  -  ALTER :   Alter the structure of the Table:
+  |               ALTER TABLE T1 ADD (c1 number(5), c2 varchar2(20));       # add Cols
+  |               ALTER TABLE T1 MODIFY (c1 number(7));                     # modify type or len of Cols
+  |
+  |  -  DROP :    DROP TABLE T1
+  |               DROP TABLE T1 cascade constraints;    # to delete T1 that contains a col with foreign keys for other Tables.
+  |
+  |               From Oracle 8.1 it's possible to delete Cols
+  |               ALTER TABLE T1 DROP COLUMN (c1, c3)
+  |               ALTER TABLE T1 DROP COLUMN (c1) cascade constraints       # If deleting 1 Col with primary key
+  |
+  |  -  TRUNCATE: truncate TABLE T1                  # remove all rows
+  |               truncate TABLE T1 reuse storage    # keep your own space for future usage, do not give back to other Tables.
+  |
+  \  -  RENAME :  rename T1 to T2
+   
+   
+  /  - INSERT                     INSERT into T1 values (101,’Sami’,3400);
+  |                               INSERT into T1 (c1, c5, c18) select cx, cy, cz from T2;
+  |
+  |                               #----- MULTI-TABLE insert:
+  |                               INSERT all 
+  |                                   into T1 (c1, c5, c18) values (x, y, z)   <-----  here I use some vars
+  |                                   into T2 (c1, c3, c14) values (d, y, g)
+D |                                   into T4 (c2, c7, c16) values (x, a, b)
+  |                                   
+  |                                   SELECT x, y, z, d, g, a, b from T2;      <-----  here the vars are defined
+M |
+  |  -  UPDATE:    to modify values in a row
+  |                UPDATE T1 set c1=10                             # update 1 val  (of ANY row)
+L |                UPDATE T1 set c1=10, c2='aaaa'                  # update 2 cols (   "      )
+  |                UPDATE T1 set c1=c1+500 WHERE c2 = 104;         # update only some rows
+  |                UPDATE T1 set c3=c1+c2                          # update 1 col using values from others
+  |
+  |  -  DELETE:    DELETE ROWS of a Table. With no WHERE clause ALL rows are deleted.
+  |                DELETE from T1 WHERE c1=5
+  |                DELETE from (select * FROM T1 WHERE c1 > 10)
+  |
+  |  -  MERGE:     from Oracle 9.1 (UPDATE + INSERT)
+  |                It reads from T2 and inserts into T1, what was missing in T1, otherwise updates/overwrite the rows.
+  |
+  |                 MERGE into  T1 a
+  |                       using T2 b
+  |                       on (b.c1=a.c1 and b.c2=a.c2)
+  |                       when     matched then update set a.c3=b=c3
+  |                       when not matched then insert values (c1, c2, c3);
+  |
+  |  -  TEMP TABLES:  It's possible to create TEMP Tables. They will be deleted by Oracle:
+  |                       - After a specified commit  (ex. DELETE:  ON COMMIT DELETE ROWS)  transaction-specific (default) 
+  |                       - When the Session is cloed (ON COMMIT PRESERVE  ROWS)            session    -specific
+  |
+  |                       CREATE GLOBAL TEMPORARY TABLE T1
+  |                               (c1 number(5),
+  \                                c2 varchar2(20)) ON COMMIT DELETE ROWS;
+   
+  /  -  COMMIT :  commit [WORK] [COMMENT 'blah blah'];    Commit is used to permanentely save modifications.
+T |                                                       the WORK keyword can be optionally added, as well as
+  |                                                       an optional COMMENT.
+  |
+C |  -  SAVEPOINT : savepoint a;            # adds some named points where I can then rollback
+  |                 ...
+  |                 savepoint b;
+L |
+  |  -  ROLLBACK :  rollback;           # to undo last transaction
+  \                 rollback to a;      # to undo up to savepoint a;
+   
+  /  -  GRANT :     grant select, update, insert on T1 to sami;      # to give rights to user 'sami'
+  |                 grant ALL on T1 to sami;                         # to give ALL rights to  'sami'
+  |                 grant select on T1 to PUBLIC;                    # to give rights to ALL users
+  |                 grant update (c1), insert (c1,c2) on T1 to sami; # to give rights to only some Cols
+D |                 grant select on T1 to sami WITH GRANT OPTION;    # to give to sami rights to forward rights
+  |
+  |  -  REVOKE :    revoke select, update, insert on T1  from sami;  # to revoke previous rights    
+C |                 revoke select on T1  from public;                
+  |                
+  |  -  ROLES :     1/3 create role R1                               # create a ROLE
+L |                 2/3 grant select, update on T1 to R1;            # give rights to the ROLE
+  |                 3/3 grant R1 to sami, scott, ashi, tanya;        # add users to ROLE
+  |
+  |                     grant  delete on T1 to   R1;   # Now all the users in the role have 'delete' right
+  |                     revoke update on T1 from R1;   # remove a rights from ROLE
+  |                     drop role R1;
+  |                
+  |  -  look rights : 
+  |                      SELECT * FROM USER_TAB_PRIVS_MADE   # to see    TABLE rights I gave to       others
+  |                      SELECT * FROM USER_TAB_PRIVS_RECD   # to see my TABLE rights I received from others
+  |                      SELECT * FROM USER_COL_PRIVS_MADE   # to see    COLUM rights I gave to       others
+  |                      SELECT * FROM USER_COL_PRIVS_RECD   # to see my COLUM rights I received from others
+  \                      SELECT * FROM USER_ROLE_PRIVS;      # to see ROLES rights
+   
+-------------------------------------------
+DATA TYPES (for Columns)
+
+     - ROWID              stores the automatic internal index of each ROW
+
+     - CHAR (s)           Fixed num of char   (max len is 2000)
+     - NCHAR (s)          Fixed  "     Unicode  "         2000) 
+     - VARCHAR2 (s)       Var    "     char     "         4000) 
+     - NVARCHAR2 (s)      Var    "     Unicode  "         4000) 
+
+     - CLOB / NCLOB       Big Text    (Strings up to 4 Giga!) NCLOB for Unicode
+     - BLOB / BFILE       Big Binary  (Binary data   4 Giga)  BFILE: the content is stored in an external file
+
+     - NUMBER (p,s)       Numbers  (precision, scale):   ex1: distance NUMBER
+                                                         ex2: price NUMBER (8, 2)
+
+                                                         Input Data    Specified As   Stored As 
+                                                         _______________________________________
+                                                         4,751,132.79  NUMBER         4751132.79 
+                                                         4,751,132.79  NUMBER (9)     4751133
+                                                         4,751,132.79  NUMBER (9,2)   4751132.79 
+                                                         4,751,132.79  NUMBER (9,1)   4751132.7 
+                                                         4,751,132.79  NUMBER (6)     (not accepted, exceeds precision) 
+                                                         4,751,132.79  NUMBER (7, -2) 4,751100 
+
+     - DATE               DD-MM-YY                       (format specified by  NLS_DATE_FORMAT         parameter)
+     - TIMESTAMP (p)      Date+Time (up to precision p of fractional seconds) (NLS_TIMESTAMP_FORMAT    par)
+     - TIMESTAMP (p) WITH TIME ZONE  (ex -5:0 or US/Pacific)                  (NLS_TIMESTAMP_TZ_FORMAT par)
+     - TIMESTAMP (p) WITH LOCAL TIME ZONE                                     (NLS_TIMESTAMP_FORMAT    par)
+     - INTERVAL YEAR (p) TO MONTH       a time with a num of YEARS and MONTHS (withput days)  YEARs in p format YY or YYYY
+     - INTERVAL DAY  (p) TO SECOND (p)  a time with a num of DAYS  and seconds (both with their own precision format)
+
+     - RAW (s)            for backward compatibility. Var Binary data (up to 2000)
+     - LONG RAW           for backward compatibility. Var Binary data (up to 2 Giga)
+
+To change a Oracle par:
+   1. use ALTER SESSION statement
+   2. call the proper function ex. TO_DATE:   TO_DATE ('November 13, 1992', 'MONTH DD, YYYY')
+-------------------------------------------
+FUNCTIONS:
+
+________FUNCTIONs THAT WORK ON A SINGLE ROW
+     ------- on INT
+
+       ABS            - ABS(-87)   --> 87
+       MOD            - mod(30,4)  --> 2
+       POWER          - power(2,3) --> 8
+       SQRT           - sqrt(16)   --> 4
+       ROUND (number) - round(3.4573,2) --> 3.46
+       TRUNC (number) - trunc(3.4573,2) --> 3.45 
+
+       CEIL           - 1st > integer   ciel (3.456) --> 4
+       FLOOR          - 1st <   "       floor(3.456) --> 3
+
+       EXP            - e^x   exp(7) --> e^7
+       LN             - ln(5)
+       LOG            - log(3,9)     --> 2
+
+       ACOS           -
+       ASIN           -
+       ATAN           -
+       ATAN2          -
+       BITAND         -
+       COS            -
+       COSH           -
+       SIGN           -
+       SIN            -
+       SINH           -
+       TAN            -
+       TANH           -
+
+     ------- on STRING
+
+       LOWER          -  LOWER(‘SAMI’) --> sami
+       UPPER          -  UPPER(‘Sami’) --> SAMI
+       INITCAP        -  INITCAP(‘mohammed sami’) --> Mohammed Sami
+       LENGTH         -  length(‘mohammed sami’)  --> 13
+       SUBSTR         -  substr('mohammed sami',10,3) --> sam
+       INSTR          -  instr('mohammed sami','a')   --> 4   (1st position, if char not present: 0)
+       REPLACE        -  replace('ali mohd khan','mohd','mohammed') --> ali mohammed khan
+       TRANSLATE      -  translate('intr','ABCabcinrt', 'BCDk012349') --> 2394
+       SOUNDEX        -  for pronunciation of names (you will never use this)
+       RPAD           -  rpad(name,'*',10) -->  Smith*****
+       LPAD           -  lpad(name,'*',10) -->  *****Smith
+       LTRIM          -  removes left 'blanks' 
+       RTRIM          -       "  right    "   
+       TRIM           -  remove that char:  trim(0 from '00003443500') --> 34435
+       CONCAT         -  concat(concat(c1,' is a '),c2)  -->  Smith is a clerk
+
+     ------- Miscellaneous 
+
+       GREATEST       -  greatest(10,20,50,20,30) --> 50
+       LEAST          -  least   (10,20,50,20,30) --> 10     least('SAMI','RAVI') --> RAVI
+
+       COALESCE       - returns 1st not-null of a list: coalesce(c1+c2,c1,1000)
+       DECODE         - returns the val matched by an exp or default : DECODE (exp, match1, val1, match2, val2 ..., default)
+                                                                       decode(c1,10,'Sales',20,'Accounts,30,'Production, 'Unknown Dept')
+       NVL            -  NVL(exp1,exp2)       would return exp1, but if exp1 is NULL, returns exp2
+       NVL2           -  NVL2(exp1,exp2,exp3) returns exp2 if exp1 != NULL, else exp3
+       NULLIF         -  NULLIF(exp1, exp2)   returns NULL if exp1=exp2 else returns exp1
+
+       UID            -  Session ID of user
+       USER           -  User name
+       SYS_CONTEXT    -  return the env var specified. Ex: sys_context('USERENV','SESSION_USER') --> Scott
+       VSIZE          -  VSIZE(exp)  returns how many bytes that value occupies in memory
+
+________FUNCTIONs THAT WORK ON A SET OF ROWS
+
+       AVG            - select avg(c1)   from T1;  --> 40          Full syntax: AVG( ALL /DISTINCT  exp)
+       SUM            - select sum(c1)   from T1;  --> 2400.76                  SUM( "              "  )
+       MAX            - select max(c1)   from T1;  --> 4000                     MAX( "              "  )
+       MIN            - select min(c1)   from T1;  --> 6                        MIN( "              "  )
+       COUNT          - select count (*) from T1   --> 15 (num of rows)         COUNT( "            "  )
+       STDDEV         - standard deviation                                      STDDEV( "           "  )
+       VARIANCE       - Variance                                                VARIANCE( "         "  )
+
+      ex. SELECT COUNT(DISTINCT manager_id) "Managers" FROM employees;
+-------------------------------------------
+JOINS:
+
+      A J is performed each time the FROM clause has > 1 Table:
+
+           the ROWS of that SELECT come from T1, T2, ...
+
+      Cartesian Products T1 x T2 : combines each row of T1 with each row of T2. 
+               (ex. T1 & T2 both of 100 rows --> 10,000 rows). 
+               A Cartesian product always generates many rows and is rarely useful. 
+
+      So Normally there is a JOIN_CONDITION (a WHERE)
+
+      EQUI-J   the operator between cols is =
+
+               SELECT T1.ca, T1.cb, T1.cd,   T2.cy FROM T1,T2      WHERE   T1.ca=T2.ca;
+               SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T2 B WHERE   T1.ca=T2.ca;   # use of aliases
+               SELECT ca,      cb,    cd,      cy  FROM T1, T2     WHERE   T1.ca=T2.ca;   # without FULL names
+               SELECT          *                   FROM T1, T2     WHERE   T1.ca=T2.ca;   # to have all Cols
+
+      NON-EQUI-J   when it's not an EQUI-J 
+               
+               SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T2 B WHERE   T1.ca BETWEEN T2.cx AND T2.cz
+
+
+      SELF-J   The SAME Table appears more with different aliases
+               
+               SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T1 B WHERE   A.ck = B.ca
+
+
+      INNER-J   (sometimes called a "simple join") 
+                is a normal J, where rows satisfy the WHERE condition.
+
+      OUTER-J  T1 & T2 Rows of condition + rows of only T1 or T2
+
+                left  OUTER J : all T1     ANSI LEFT  [OUTER]  or use +_op on T2
+                right OUTER J : all T2     ANSI RIGHT [OUTER]  or use +_op on T1
+                full  OUTER J : all T2     ANSI FULL  [OUTER]  
+               
+               SELECT A.cx, A.cy, A.cz, A.ca,  B.ck, B.cw  FROM T1 A, T2 B WHERE A.ca(+)=B.ca;    <-- right OUTER J
+
+                    returns rows from B even when 
+                    A has no row to satisfy the J-condition A.ca=B.ca
+                    (+) specify to bypass the lack of info from A
+
+
+      
+
+-------------------------------------------
+SEQUENCES:
+      to generate SEQ of nums (usefull for Keys or Columns numbering)
+
+       CREATE SEQUENCE bills  <--- this creates 'bills' of type SEQ
+           START WITH 1
+           INCREMENT BY 1
+           MINVALUE 1
+           MAXVALUE 100/NOMAXVALUE
+           CYCLE/NOCYCLE
+           CACHE 10/NOCACHE;    <--- CACHE 10, Oracle will cache in SGA (System Global Area) the next 10 nums
+                                     for performance reason.
+
+     NEXTVAL CURRVAL:   Once a var has been created of type SEQ, the values can be accessed as:
+                          bills.NEXTVAL   bills.CURRVAL
+
+     DROP:                           to delete a SEQ:   drop sequence bills; 
+
+     SELECT * FROM USER_SEQUENCES;   to list all the created SEQs.
+
+     ALTER:   Any param. of the SEQ can then be changed:
+                           ALTER SEQUENCE BILLS
+                                 MAXVALUE 200;
+              Only "START WITH" requires to drop+recreate the SEQ.
+
+-------------------------------------------
+SYNONYMS:
+     can be defined for all (Tables, views, SEQ, functions ....)
+
+     SYN can be PUBLIC or PRIVATE. 
+     PRIVATE SYN are prepended by the FULL qualified name (with the Owner name)
+
+     CREATE SYNONYM employee FOR scott.emp;
+                                  ^^^ 
+                                 owner
+
+     SELECT * FROM employee;
+     SELECT scott.today FROM dual;
+
+     SELECT * FROM USER_SYNONYMS;     to list all the created SYNs
+
+     DROP SYNONYM employee;           to delete a SYN
+ 
+
+     
+-------------------------------------------
+INDEXES:
+      create indexes rules:
+           - on those columns which are often used in WHERE conditions. 
+           - not on Col with many NULL 
+           - not for small tables
+           - if the operations return only small portion of data 
+                i.e. < 15% of the table.
+
+      On one side INDX increases performance, but 
+      on the other side too many INDX slow down op. like CREATE/INSERT/DELETE
+      
+     CREATE INDEX aaaa  ON T1 (c1);
+     CREATE INDEX aaaa  ON T1 (c1, c2);
+
+     CREATE BITMAP INDEX aaaa  ON T1 (c1);   BITMAP Idx are usefull for c1 with 
+                                           many repeated val (ex a col 'city')
+
+     FUNCTION Idx:    If a function (ex c1+c2) is used often in a WHERE:
+
+                        CREATE INDEX aaaa ON T1 (c1+c2);
+
+                    Oracle will make the call internally more effective.
+         
+     DROP INDEX aaaa;           to delete an Idx
+
+     SELECT * FROM USER_INDEXES;     to list all the created Idxs
+
+-------------------------------------------
+CLUSTERS:
+      A CL is a Table,
+      It allows to store on disk 2 or more tables that share some cols
+      (ex both T1 and T2 have col 'city')
+      So even the Tables are different, on disk they are an amministratibe single
+      Table (1 CLUSTER)
+
+  1/4  CREATE CLUSTER cccc (cx NUMBER);
+  2/4  CREATE INDEX   iiii  ON CLUSTER cccc;
+
+  3/4  CREATE TABLE T1 (cx NUMBER, ....)          CLUSTER cccc (cx);
+  4/4  CREATE TABLE T2 (c1, ... cx NUMBER, ....)  CLUSTER cccc (cx);
+
+
+     DROP CLUSTER aaaa;                    to delete a CL  (with included Tables already deleted)
+     DROP CLUSTER aaaa INCLUDING TABLES;   to delete a CL and also internal Tables.
+
+
+     SELECT * FROM USER_CLUSTERS;  to list all the created CL
+     SELECT * FROM TAB;            to list all Tables (and see also the Clusters they belong to)
+
+-------------------------------------------
+KEYS / 'Integrity' Constraints:
+
+    To prevent the entry of INVALID data, there are 5 Constraints for a COLUMN val
+    Each Constraint can be set 'inline' during the COL creation (CREATE Tab) or modification (ALTER Tab)
+    or they can be set all at the end:
+
+                    CREATE Tab (c1 .., c2 .., c3 .., ....
+                                CONSTRAINT C1 primary key(c2)
+                                CONSTRAINT C2 UNIQUE (c3)
+                                CONSTRAINT C3 CHECK (c1 <= 5)
+                               );
+
+    They can also be set ON/OFF at any time:      ALTER TABLE T1 ENABLE/DISABLE CONSTRAINT C1
+    They can also be DELETED:                     ALTER TABLE T1 DROP           CONSTRAINT C1               
+                                                   
+                                                  nb. On Deletion FOREIGN KEY must be DELETED before PRIMARY
+                                                      or otherwise us 'CASCADE'  
+                                                             ALTER TABLE T1 DROP CONSTRAINT k1 CASCADE;
+
+    They can also be VIEWED:    select * from USER_CONSTRAINTS;
+                                select * from USER_CONS_COLUMNS;
+
+
+    1 - NOT NULL          # Mandatory fields
+    2 - key (PRIMARY)     # Oracle automatically creates an Index on that Col
+                            Create table T1 ( ....
+                                             c1 number(5) constraint C1 PRIMARY KEY,
+                            Alter table T1 add constraint C1 PRIMARY KEY (c1);
+
+    3   key (UNIQUE)      While there can be 1 only PRIMARY key per table, I can have Many UNIQUE key cols.
+                          They are just cols with NO-REPEATED values and that can also be NULL (left blank, 
+                          while PRIMARY key cannot be left NULL) 
+                            Alter table T1 add constraint C1 UNIQUE (c1);
+                         
+
+    3 - key (FOREIGN)     # c2 col of T2 contains values from col c1 of T1
+                            c2 has a constraint of 'foreign KEY'
+                            and depends (REFERENTIAL INTEGRITY relation) from c1.
+                            Normally I cannot delete rows from T1 if rows in T2 refers to them.
+
+                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1);                   
+                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1) ON DELETE CASCADE;   to automatically delete 
+                                                                                                                      rows in T2 when deleting
+                                                                                                                      linked rows in T1 
+                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1) ON DELETE SET NULL;  Set automatically NULL in T2
+                                                                                                                      when in T1 the row is deleted
+                                                                                                                      (from Oracle 9.1)
+
+    4 - CHECK             To add data validation on cols.
+                          There is no restrictions on number of CHECK on 1 col.
+
+                          Alter table T1 add constraint C1 CHECK (c1 <= 31);
+                          Alter table T1 add constraint C1 CHECK (c1 between 1000 and 20000);
+
+                          
+    5 - DEFAULT           create table T1 (  ....
+                                             city varchar2(20) DEFAULT ‘Milan’);
+
+    flag DEFERRABLE:  can be added to all KEYs (primary, foreign, unique) 
+                      ex:  c1 number(5) constraint C1 Primary key DEFERRABLE
+                      this means that the checks are performed not immediately (there are movements of big data)
+                      but delayed (before, or after the COMMIT)
+
+                      If constraint C1 has the DEFERRABLE flag, I can then set:
+                       
+                         Set constraint C1 deferred;
+
+
+-------------------------------------------
+VIEWS:
+       They are LOGICAL Tables, based on 
+                 PHYSICAL Tables (or 
+                 other Views)
+       All operations performed on a V are performed on the physical Table
+       at the end of the Chain.
+       The advantage of a V is so that they are like T but not occupy space.
+  
+
+     CREATE VIEW V1 as select a.c1, a.c2, a.c5, b.cx, b.cy    # create a view from a long select
+                       from T1 a, T2 b where a.c5=b.c5;
+
+     SELECT * from  V1;     # using the view, make now the above select simple.
+
+
+     WITH CHECK OPTION CONSTRAINT :       CREATE VIEW V1 AS SELECT 
+                                                           c1, c2 FROM T1 WHERE c1=7
+                                                           WITH CHECK OPTION CONSTRAINT C1;
+
+                                     in this case, the View doesn't accept INSERT/UPDATE if the
+                                     input data are against the VIEW:
+                                         ex INSERT into V1 VALUES (5, 'aaa')  # error as 5 != 7
+
+     WITH READ ONLY :       Doesn't allow any mod (UPDATE or INSERT) 
+
+     FORCE :       CREATE FORCE VIEW V1 AS ..
+                                    The FORCE allow to create a V even if the select is wrong 
+                                    (ex no Table or no Col). The V is created with status 'INVALID'
+                                    On any attemp to use it, Oracle, checks if the condition is
+                                    now right and recompile the V on the fly.
+
+     DROP :       DROP VIEW V1;
+
+
+     REPLACE :    CREATE OR REPLACE V1 AS ...   It allows to modify then the view
+                                                without a DROP + CREATE again.
+
+     JOINN :      If the V comes from a JOIN-select, it can be that some  
+                  INSERT\UPDATE operation are disallowd (common sense helps)
+
+     SELECT * FROM USER_VIEWS;    To have info on all the V.
+
+     SELECT * FROM   USER_UPDATABLE_COLUMNS;    ALL COL (in Tab and Views of the USER) that are MODIFIABLE
+     SELECT * FROM    DBA_UPDATABLE_COLUMNS;      "                              DB                "
+     SELECT * FROM    ALL_UPDATABLE_VIEWS;        "     (in ANY Tab and View)                      " 
+
+                       
+
+-------------------------------------------

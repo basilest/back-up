@@ -1,3 +1,67 @@
+git fetch origin --prune              to remove, all old branches, deleted on remote but still
+                                      present on my local env.
+
+
+git remote prune origin
+
+
+
+git fetch 
+git checkout feature/pscs/llpsc01_webfiling websystems/MODULES/CompaniesHouse/Filing/UI/LLPSCs/Page/notifyNaturalLLPSCPage.pm
+--------------------------
+         GIT
+--------------------------
+
+git --version
+
+
+        ______________________________________________
+        VERSION CONTROL SYSTEMS HISTORY
+        ______________________________________________
+        Local Version Control Systems:   (RCS)
+                                         each programmer manages its project and files
+                                         This is usefull for 1 person only and suffers
+                                         for single point of failure (if that PC goes wrong)
+        
+        Centralized Version Control Systems:   (CVS, Subversion, and Perforce)
+                                         A server stores the project.
+                                         More than 1 developer can work together.
+                                         Still the server is a single point of failure (if 
+                                         goes down 1 hour or destroyed with no back-up)
+        
+        Distributed Version Control Systems:   (Git, Mercurial, Bazaar or Darcs)
+                                         The database is distributed.
+                                         With Git each programmer downloads all copy
+                                         so it would be also used as back-up
+        
+        
+        ______________________________________________
+        Snapshots, Not Differences
+        ______________________________________________
+        
+        Other systems (CVS, Subversion, Perforce, Bazaar, and so on) think of 
+                   . a set of files (to start)
+                   . only their changes made over time.
+        
+        Git instead thinks of its data more like a set of snapshots of a miniature filesystem. 
+        Every time you commit, (or save the state of your project) 
+        Git, takes a picture of all files and stores a reference to that snapshot. 
+        If a file has no changes, Git stores just a link to the previous identical file.
+        
+        Git thinks about its data like a stream of snapshots.
+        
+        ______________________________________________
+        Nearly Every Operation Is Local
+        ______________________________________________
+        
+        Most operations in Git only need local files.
+        Git doesn’t need to go out to the server to get data.
+        
+        In Perforce, for example, you can’t do much when you aren’t connected to the server; 
+        and in Subversion and CVS, you can edit files, but you can’t commit changes to your database 
+        (because your database is offline). 
+        
+
 
 -------------------------------------------------
 GITHUB:
@@ -20,97 +84,129 @@ SOLUTION 2: use –c option to modify a global var only for that command
 -------------------------------------------------
 
 
+'GIT'    has been built as a set of small, stand-alone, commands.
+         Now they can be executed as stand-alone or, identically, as
+         subcommands of 1 single main command 'git'
+
+         so    git-commit is 1 exe, identical to 
+               git commit      (<--- git + subcmd as arg)
 
 
 
+git help --all             to list all sub-commands 
+git help -a                to list all sub-commands (short form)
+git help -g                the guide form
+
+         help on a command (ex commit)      (On Ubuntu the following 3 are identical)
+               % git   help commit
+               % git --help commit
+               % git commit --help
 
 
 
+           GIT works as
+
+              1. a file is a just a CONTENT (a stream of bytes), not its FILENAME
+              2. that bunch of bytes is stored as a flat BLOB  (nb. GIT stores so the whole file, not just the diffs)
+              3. from the CONTENT is calculated a SHA1
+                 40-hex [0–9A–F] --> 20 bytes --> 160 bit number (2^160) 
+              4. the CONTENT is 'indexed' by its SHA1 (its a list of dirs under.git/objects/)
+
+              NB: so 2 or more identical files (spread around in the repo dirs)
+                  will be 1 single BLOB and SHA1 index
+                  (they will have a separate TREE node each)
+           
+
+git hash-object pippo.txt      # calculate the SHA1 of file pippo.txt 
+git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
 
 
+              .git/objects/   this dir (called "object store"), 
+                              stores as a subdirs-strcture all the SHA1.
+                              A generic SHA1 (ex. 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
+                              is stored as
+                                     .git/objects/3b/18e512dba79e4c8300dd08aeb37f8e728b8dad
+                              so    a dir named with the first 2 hex
+                              and   a file named with the rest.
+                              This file is the content of that SHA1 (can be a TREE a BLOB a COMMIT or a TAG)
+                              They are most binary and not text files.
+
+                              The reason for not having directly all the SHA1 files (ex 3b18e....ad)
+                              inside .git/objects, but splitting with an intermediate dir
+                              is an optimization.
+                              NB. As the dirs inside .git/objects are named as 2 hex chars (1st byte)
+                                  they cannot be more than 256.
 
 
+                              The "object store" dir is where the actual repository is stored
+                              (BLOB,      files_CONTENT
+                               TREE,      the dirs (the structure with files_NAME)
+                               COMMIT,    the HISTORY
+                               TAG        any human alias
 
+                              NB. also PACK files are stored here.
 
+              
+              .git/index      Is the 'local' temporary area that GIT uses to work on the repo.
+                              As its meaning is local, a clone transmits only the "object store" .git/objects/
+                              among the dirs inside .git, not .git/index
+______________________________________________
+            PACKs 
+______________________________________________
 
+              Even if GIT stores normally the WHOLE content of a file
+              anyhow there is an internal optimization.
+              So when 2 or more contents are ENOUGH similar, regardless
+              what they come from (2 or more files, or revisions of files)
+              GIT stores 1 WHOLE content, and DIFFs to rebuild similar
+              CONTENTs.
 
-
+              .git/objects/pack/          This dir contains any pack file
 
 
 
 ______________________________________________
-HISTORY
-______________________________________________
-Local Version Control Systems:   (RCS)
-                                 each programmer manages its project and files
-                                 This is usefull for 1 person only and suffers
-                                 for single point of failure (if that PC goes wrong)
-
-Centralized Version Control Systems:   (CVS, Subversion, and Perforce)
-                                 A server stores the project.
-                                 More than 1 developer can work together.
-                                 Still the server is a single point of failure (if 
-                                 goes down 1 hour or destroyed with no back-up)
-
-Distributed Version Control Systems:   (Git, Mercurial, Bazaar or Darcs)
-                                 The database is distributed.
-                                 With Git each programmer downloads all copy
-                                 so it would be also used as back-up
-
-
-______________________________________________
-Snapshots, Not Differences
+ CREATE A REPOSITORY     (AND "WORKING DIR")
 ______________________________________________
 
-Other systems (CVS, Subversion, Perforce, Bazaar, and so on) think of 
-           . a set of files (to start)
-           . only their changes made over time.
+git init         to create a repo from scratch
 
-Git instead thinks of its data more like a set of snapshots of a miniature filesystem. 
-Every time you commit, (or save the state of your project) 
-Git, takes a picture of all files and stores a reference to that snapshot. 
-If a file has no changes, Git stores just a link to the previous identical file.
-
-Git thinks about its data like a stream of snapshots.
-
+    1. go in any dir you want   (ex cd ~/my_repo)
+    2.     % git init                   create an empty repo ( the dir .git/  )
+                                        the path is: ~/my_repo/.git
+                                        and   ~/my_repo/  (the dir where "git init" was executed
+                                        is considered  the "WORKING DIR"  (wd)
 ______________________________________________
-Nearly Every Operation Is Local
+                      CONFIGURATION
 ______________________________________________
 
-Most operations in Git only need local files.
-Git doesn’t need to go out to the server to get data.
+------------- CONFIGURATION WITH command 'config'
 
-In Perforce, for example, you can’t do much when you aren’t connected to the server; 
-and in Subversion and CVS, you can edit files, but you can’t commit changes to your database 
-(because your database is offline). 
+git config       the command to configure GIT
+                (the information are store in one of the 3 files .gitconfig:
 
-
-
-
---------------------------
-         GIT
---------------------------
-
-git --version
-
-               .git/config        # Repository-specific manipulated with --local   (highest precedence)
-               ~/.gitconfig       # User-specific       manipulated with --global 
-               /etc/gitconfig     # System-wide         manipulated with --system (lowest precedence). 
+         1     /etc/gitconfig     # System-wide         manipulated with --system (lowest precedence). 
                                     it might be somewhere else (perhaps in /usr/local/etc/gitconfig), 
                                     or may be entirely absent.
+         2     ~/.gitconfig       # User-specific       manipulated with --global 
+         3     .git/config        # Repository-specific manipulated with --local   (highest precedence)
+                                    (NB is only named "config" not ".gitconfig")
 
-   cat .git/config:                                git config -l:     
-                  [core]                                             user.rmail=basile.stef@gmail.com
-                  	repositoryformatversion = 0                      user.email=basile.stef@gmail.com
-                  	filemode = true                                  core.repositoryformatversion=0
-                  	bare = false                                     core.filemode=true
-                  	logallrefupdates = true                          core.bare=false
-                  [remote "origin"]                                  core.logallrefupdates=true
-                  	url = https://github.com/basilest/back-up.git    remote.origin.url=https://github.com/basilest/back-up.git
-                  	fetch = +refs/heads/*:refs/remotes/origin/*      remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
-                  [branch "master"]                                  branch.master.remote=origin
-                  	remote = origin                                  branch.master.merge=refs/heads/master
-                  	merge = refs/heads/master
+git config -l      to list the settings   (almost like a simple cat  .gitconfig)
+                   git config -l:                                                cat .git/config:   
+
+        user.rmail=basile.stef@gmail.com                                           [core]                                            
+        user.email=basile.stef@gmail.com                                           	repositoryformatversion = 0                     
+        core.repositoryformatversion=0                                             	filemode = true                                 
+        core.filemode=true                                                         	bare = false                                    
+        core.bare=false                                                            	logallrefupdates = true                         
+        core.logallrefupdates=true                                                 [remote "origin"]                                 
+        remote.origin.url=https://github.com/basilest/back-up.git                  	url = https://github.com/basilest/back-up.git   
+        remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*                    	fetch = +refs/heads/*:refs/remotes/origin/*     
+        branch.master.remote=origin                                                [branch "master"]                                 
+        branch.master.merge=refs/heads/master                                      	remote = origin                                 
+                                                                                   	merge = refs/heads/master
+
 
 
 git config --global user.name "Dan"
@@ -118,7 +214,6 @@ git config --global user.name "Jon Loeliger"           # in $HOME/.gitconfig
 git config --global user.email "uuuuu@ddddd.com"
 git config --edit <----    open the file ex in vim 
 git config --help
-git config -l      # to show the above settings 
 git config --unset --global user.email  
 git config --global alias.show-graph \           # to define alias 
                     'log --graph --abbrev-commit --pretty=oneline' 
@@ -126,67 +221,46 @@ git config --global alias.show-graph \           # to define alias
              now [git show-graph] is equal to
                  [git log --graph --abbrev-commit --pretty=oneline]
 
-export GIT_EDITOR=vim   # to set in .bashrc to have preferred editor for Git
+
+
+
+------------- CONFIGURATION WITH ENV vars
+$GIT_DIR
+.git             .git/  is the default name for the repo dir, but it's not fixed.  
+                  GIT reads var $GIT_DIR to do this.
+
+$GIT_EDITOR      to set a preferred editor (ex.  export GIT_EDITOR=vim   # .bashrc)
+
+                 anyhow GIT uses these steps in order to define the editor
+                    1. $GIT_EDITOR  (ENV var)
+                    2. core.editor   configuration option in one of the .gitconfig
+                    3. $VISUAL     (ENV var)
+                    4. $EDITOR     (ENV var)
+                    5. vi 
 
                         Git will not process an empty (no text) commit.
                         So if I omit the -m it will open the editor (ex vi)
                         if a I close without saving or save it empty  -->  no commit wil be processed.
 
-$GIT_DIR
-.git             all hidden structures are inside .git repository dir (view all with 'find .')
-                 It can be even renamed as GIT refers to variable $GIT_DIR 
-           ______________________________________________
-           Integrity
-           ______________________________________________
-           Everything in Git is check-summed before it is stored
-           SHA-1 hash:a 40-hexadecimal characters (0–9 and a–f) 
-                        calculated on the contents of file 
-                        40 hex --> 20 bytes --> 160 bit number (2^160) 
-           
-            In fact, Git stores everything in its database not by file name 
-            but by the hash value of its content.
-
-git hash-object pippo.txt      # calculate the SHA1 of file pippo.txt in the working-dir
-git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
 
 
-.gitignore         Git allows you to have a .gitignore file in any directory within your repository. 
+$GIT_AUTHOR_NAME        anothe way instead of setting 
+$GIT_AUTHOR_EMAIL       in .gitconfig
+
+
+______________________________________________
+        .gitignore
+______________________________________________
+
+.gitignore         a .gitignore can be in any dir (of the repo)
                    EACH FILE AFFECTS ITS DIRECTORY AND ALL SUBDIRECTORIES.
-                   A .gitignore file contains a list of filename to ignore.
+                   It contains a list of filenames to ignore.
                    shell globbing works ( *  [ ]   [! ]   (! negate))
                    An initial  !  inverts the sense of the pattern on the rest of the line.
 
 $ cat .gitignore                                 in a .gitignore:
 *.[oa]                                                 #        for comments
 *~          <--- ex aaaaaa.txt~                        .../     ending / specifies a dir
-
-
-literal .git.
-.git/objects     the directory (that starts empty) where each 'git add' will add 1 entry hash
-                 the SHA1 of the content of the file.
-                 The files in .git/obejcts are not the overall hash: 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
-                 but a directory is created, naming with the first 2 hex (1 bite)  (here 3b) of the hash:
-                           .git/objects/3b/18e512dba79e4c8300dd08aeb37f8e728b8dad
-                 so that even if there are many files, there will be up to  256 subdirs to cut the 
-                 number of files in the same dir (performance reason for some filesystems)
-
-git commit -m "bla bla bla reason to the change" \
-              --author="Stefano Basile <basile.stef.gmail.com>"
-
-
-git help -a 
-git help -g 
-git help <command> 
-
-git  --help             # print help and common cmds
-git    help --all       # list all possible cmds
-
-
-git init                # create directory .git (the 'Git repository') 
-                          in the directory where you are (considered thus your 'working dir'.
-                          .git dir start empty. If you want add some files.
-
-git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
 
 
 ______________________________________________
@@ -201,8 +275,10 @@ where it is cloned a repository (from another computer (remotely) or even (local
 
 The wd [working directory] is where you modify files.
 
-The [staging area or "index"] is a 'file', generally contained in your Git directory, 
+The [staging area or "index"] is a 'file'  (binary file)  in .git/      
 that stores information about what will go into your next commit. 
+(the index contains also other info on the repository, 
+ like the dirs structure, or info during a merge)
 
 
          -------    add        -------           commit  --------
@@ -234,29 +310,26 @@ The basic Git workflow is:
 >>>>>>N.B.  EACH COMMIT INTRODUCES A TREE OBJECT THAT REPRESENTS THE ENTIRE REPOSITORY.
 
 Blobs            Binary Large Object: the content of a file, no other metadata (ex no file-name !)
+                 So each time a file changes, a new BLOB is created, oterwise it's reused the old one.
 Trees            stores Blob-id (the SHA1), file path, link to other trees
-Commits          store metadata (author, reason of change...) and a link to a Tree storing the snapshot
+                 A Tree is conceptually the 'BLOB of a dir'. Each time a dir changes (new files, less files
+                 file rename, different SHA1 for any of its file) a new TREE is created.
+Commits          store metadata (author, reason of change...) and a link to the most root TREE node.
                  Normally 1 Commit has 1 other 'parent'-Commit but can have more 'parents'
 Tags             add a human readbale identification to a Commit to avoid using Commit-SHA1-id
 
-                           TAG --->     (C)     COMMIT (SHA1 of TREE, + author, message)
+                           TAG --->     (C)    COMMIT (TREE_SHA1, author, message)
                                          |
-                                        /T\     TREE   (complete path filename, file SHA1)
+                                        /T\    TREE   (BLOB_SHA1, filename)
                                        -----  
                                          |
-                                       [ B ]   BLOB   (file data)
+                                       [ B ]   BLOB   (flat bytes content)
 
 
 git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   to see the content of any node (blob tree or commit)
-                                                         
 git cat-file -t 3b18e...        shows type (ex. commit)
 git cat-file -s 3b18e...          "   size (bytes) (ex. 443))
 git cat-file -e 3b18e...          "   0 if node is 0K (echo $?)
-
-
-Pack file        Is a file where more contents of files are stored and compressed together for
-                 performance reasons. Git is also able to find if more files are quite similar 
-                 and for them store only the content and the diff to recosntruct each.
 
 
 
@@ -298,27 +371,33 @@ git cat-file -p bedd
                    to commit large changes. Smaller commits and more frequent merge cycles reduce the pain of
                    conflict resolution.
 
-  -1 explicit:      the 40-hex SHA1 
-  -2 implicit:      the HEAD  which always points to the most recent Commit
-  -3 other different mechanisms for naming a Commit
+git commit      a commit adds: 
+                          - 1 author of file (who wrote the change)
+                          - 1 name of who added into git (usually the same author)
+                          - 1 message "bla bla bla for the change"  (it's mandatory. An Empty msg, doesn't generate any Commit)
+                          - 1 link to a TREE
 
-  -1 : is the absolute way to globally identify a Commit. As the SHA1 is unique in the world, you can be
-       sure you and another developer are addressing the same Commit, but also the same project, and at the
-       same history moment.
+                root Commit:         1st Commit of a project. The only one to have no 'parent'
+                normal Commit        has 1 parent or many (merge: 1 for each merged branch)
+
+                A commit can be indicated as:
+                    -1 explicit:      the 40-hex SHA1 
+                                      it's the absolute way to globally identify a Commit. 
+                                      As the SHA1 is unique in the world, you can be sure that you and 
+                                      another developer are addressing the same Commit, but also the same project, 
+                                      and at the same history moment.
+                    -2 implicit:      the HEAD  which always points to the most recent Commit
+                    -3 other different mechanisms for naming a Commit
+
+
+git commit --all              # or -a: commit everything also not staged (not work for new dirctories)
+git commit --interactive      # to select one by one
 
 
 git blame -L 35, init/version.c      to tell who changed a specified line (here 35) of a specified file (here version.c)
 
 
-git commit      a commit adds: 
-                          - author of file (who wrote the change)
-                          - name of who added into git (usually the same author)
-                          - message "bla bla bla for the change"
-                          - a link to a tree
 
-git commit --all     # or -a: commit everything also not staged (not work for new dirctories)
-
---interactive        useful option in    git add / git commit     to control which files process
 
 git tag -m "Tag version 1.0" V1.0 3ede462        to add a tag (here 'V1.0')  to the commit 3ede462
                                                  and also a long text (here "Tag version 1.0")
@@ -404,8 +483,6 @@ git symbolic-ref      # plumbing command to manage ref
 
 
 
-     root Commit:         1st Commit of a project. The only one to have no 'parent'
-     normal Commit        has 1 parent or many (merge: 1 for each merged branch)
      If C refer a Commit than:
                                    C~1 its parent                               usually abbreviated as C~
                                    C~2 its parent's parent and so on .... C~3   
@@ -428,9 +505,15 @@ git symbolic-ref      # plumbing command to manage ref
                                           git rev-parse HEAD ~~~~~
                                           4fdd3b64a3807c13d03b473736c7d70faf6b3b17 
      
-
     --------
-    RANGES:   symbols '..'  and  '...'
+    DAG 
+    --------
+    
+    DAG (Directed Acyclic Graph) is the type of graph built by the GIT Commits chain.
+                                 where there are no LOOPs and arrows are only in 1 direction (not also back).
+    
+    --------
+    RANGES:  2 symbols '..' (difference)  '...'  (symmetric difference)
     --------
     A..B     (A-B]     Range of Commit (going back, so the start is B, and A is older than B)
                        nb. the start (B)  is inluded, the end (A) is out
@@ -444,11 +527,11 @@ git symbolic-ref      # plumbing command to manage ref
 
     REACHABILITY:   the set of PARENTS (older Commits reachable from C)
     
-    ^C  : defines the REACHABILITY from C that must be EXCLUDED in a range
+    ^C  (the ^ before C) means all the Commits starting (and including) C that must be excluded
+        said otherwise defines the REACHABILITY from C that must be EXCLUDED in a range
           ^ acts as the usual regex symbol 
-                    X..Y   =  ^X Y 
-                                   "give me all reachable from Y and 
-                                    don’t give me commits leading up to and including X"
+
+    X..Y   =  ^X Y 
 
 git log --pretty=short --abbrev-commit master~12..master~10        range ~12 ~10 
            |              |                                        12 is excluded(so 2 commits: 10, 11)
@@ -464,6 +547,7 @@ git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------       do, the same
 
 
       A...B (using three periods)   set reachable from A or B but not from both
+                                    said oterwise is the set of Commits missing to one or the other
 
          A -- B -- C -- D -- E -- F -- G -- H -- I     ----- master
                      \               / 
@@ -475,45 +559,37 @@ git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------       do, the same
                                  reachable from dev        Z Y X W V U        C B A
                                  reachable not from both   I H G   Z Y X  D E F   --> master...dev 
 
-git bisect    To make Git narrow a search back from a range you specify and answering questions via via.
-            1.   It is essential that you start the git bisect process from a clean working directory.
-                 Starting with a dirty one is asking for trouble; it could easily be lost.
-
-            2.   git bisect start            to init the bisect. 
-                                             Git detaches HEAD to an anonymous branch and start working.
-
-            3.   git bisect bad              it's considering HEAD as a starting bad Commit to serach back
-
-            4.   git bisect good v.2.6.27    set Commit tagged v.2.6.27 as a presumed good point where things were ok
-            5.   git bisect bad     git bisect good  ...... git bisect  bad  <---- answering questions
-            6.   git bisect log     to see a log of the process
-
-            -.   git bisect replay       to see again  (it uses the log file as input).
-            -.   git bisect visualize    to see with gitk  (if var DISPLAY is set, othervise Git will use git log)
-            -.   git bisect visualize --pretty=oneline  
-
-            7.   when you are finished it is vital that you tell Git that you have finished. 
-                 So Git restablish the detached HEAD : $ git bisect reset      places back on your original branch
-                                    $ git branch
-                                    * (no branch)
-                                    master
-                                    $ git bisect reset     
-                                    Switched to branch "master"
-                                    $ git branch
-                                    * master
-
-
 ______________________________________________
 Command line & GUI
 ______________________________________________
 To use Git: the command line, or there are many GUIs. 
             The command line is the only place you can run all Git commands
-            >>>>>>>>>>>>>>>> gtk : great graphicl tool 
+            >>>>>>>>>>>>>>>> gitk : great graphical tool 
 
 git add a.txt           # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
-git add .               # add this dir and any sub-dir
+git add .               # add this dir and any sub-dir   (more general: git add dirA    add all the tree rooted by dirA)
+git add --interactive   # useful to check one by one
 
 git status              # SHOW INDEX: shows what is staged and is going to be committed.
+
+git rm                  rm is the opposite of add.
+                        It removes from index.
+                        It's not usually what you want, as removing from index, means it will be
+                        no more tracked, so it will be added into repo again only with another add.
+                        To unstage a file use 
+                              % git reset HEAD a.txt  <--------------------
+
+git rm --cached  a.txt  # remove a file from the INDEX (not wd ) 
+git rm  a.txt           # remove a file from both the INDEX & wd 
+                          (not performed by GIT    if wd version != current stored in repo, to avoid loosing info)
+git rm -f  a.txt        # to force the remove even if  "         "    "                 "
+
+
+git mv 1.txt 2.txt      # to rename a file instead of 3 steps:
+                          1.3   mv 1.txt   2.txt  
+                          2.3   git rm -f  1.txt 
+                          3.3   git add    2.txt  
+
 
 git log                         # show the commits
 git log -4                                 print only last 4 Commits
@@ -551,6 +627,16 @@ git show-branch                 # show even more info
 git show --pretty=fuller        #to see additional details about a given commit.
 git show branchName:a.c         #to see a file (a.c) from branch 'branchName' (ex git show master:a.c)
                                 git show origin/master:src/spec/ch/fe/web/ewf/E90Forms/appointments/AP03ErrorValidation.html
+
+______________________________________________
+
+git commit -m "bla bla bla reason to the change" \
+              --author="Stefano Basile <basile.stef.gmail.com>"
+
+
+
+git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
+
 
 --------------------
    DIFF
@@ -629,15 +715,6 @@ git diff --stat master~5 master dir_x/main.c    # or limits on a single file (he
 git diff -S"octopus" master~50                  # lists only diff containing specified String
 
 
-
-
-git rm  a.txt        # remove a file both from the INDEX & wd 
-git rm -f  a.txt     # to force the remove if GIT doesn't do.
-
-git mv 1.txt 2.txt   # to rename a file instead of 3 steps:
-                       1.3   mv 1.txt   2.txt  
-                       2.3   git rm -f  1.txt 
-                       3.3   git add    2.txt  
 
 git log  2.txt               # show the story of 2.txt, so I miss the story of 1.txt before the rename
 git log --follow 2.tx        # can go back on 1.txt 
@@ -888,6 +965,34 @@ git rebase             : move a sequence of Commits from a place to another (sam
                               git rebase --abort
 
                          
+git bisect    To make Git narrow a search back from a range you specify and answering questions via via.
+            1.   It is essential that you start the git bisect process from a clean working directory.
+                 Starting with a dirty one is asking for trouble; it could easily be lost.
+
+            2.   git bisect start            to init the bisect. 
+                                             Git detaches HEAD to an anonymous branch and start working.
+
+            3.   git bisect bad              it's considering HEAD as a starting bad Commit to search back
+
+            4.   git bisect good v.2.6.27    set Commit tagged v.2.6.27 as a presumed good point where things were ok
+            5.   git bisect bad     git bisect good  ...... git bisect  bad  <---- answering questions
+            6.   git bisect log     to see a log of the process
+
+            -.   git bisect replay       to see again  (it uses the log file as input).
+            -.   git bisect visualize    to see with gitk  (if var DISPLAY is set, othervise Git will use git log)
+            -.   git bisect visualize --pretty=oneline  
+
+            7.   when you are finished it is vital that you tell Git that you have finished. 
+                 So Git restablish the detached HEAD : $ git bisect reset      places back on your original branch
+                                    $ git branch
+                                    * (no branch)
+                                    master
+                                    $ git bisect reset     
+                                    Switched to branch "master"
+                                    $ git branch
+                                    * master
+
+
 
 --------------------------  1/10
 clone:           git clone https://github.com/libgit2/libgit2    download & creates a dir libgit2

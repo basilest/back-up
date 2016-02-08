@@ -1,0 +1,191 @@
+
+
+
+        Client                                     Server
+                           HTTP-header
+                           -----
+                            TCP
+                  ------------------>  Port:80
+
+
+                  <------------------
+                           HTTP-header
+                           -----
+                            TCP
+
+
+
+
+
+HTTP                  Hypertext Transfer Protocol
+                      The network protocol ((relying on TCP) and then IP)
+                      used to deliver files/data
+                      (called "RESOURCES")
+
+
+HTTP Client           a browser
+HTTP Server           called WEB Server  (ex. Apache)
+
+
+TCP, port 80          is the default, but can be any
+
+StateLess             Normally the protocol does not maintain infos on the 
+                      connections, between transactions.
+
+HTTP-header           Client and Server communicate via TCP messages
+                      containing as Data a HTTP-header with this structure:
+
+                      
+                          | ----------------------
+                        1 | <a starting line>    <--  differ for request & response>
+                          | ----------------------
+                          |
+                          | Header1: value1
+                        2 | Header2: value2      <-- HEADER lines  (OPTIONAL)
+                          | Header3: value3
+                          | ----------------------
+                        3 |
+                          | \n                   <-- a new line CR+LF  ASCII:  13+10
+                          | ----------------------
+                          |
+                        4 | .... body ....       <-- any text/binary data  (OPTIONAL)
+                          |
+                          | ----------------------
+
+                ______________________________________________
+                1. Initial Line:   3 parts, with 2 spaces: 
+
+                    for a   REQUEST:     
+
+                                   GET /path/to/file/index.html HTTP/1.0     1- a method (GET,POST,HEAD)
+                                     ^               ^             ^         2- Resources PATH / URL
+                                     1               2             3         3- HTTP version to use
+                                                                                     with the form HTTP:/x.x
+                    for a   RESPONSE:    called 'status line'
+
+                                   HTTP/1.0         404         Not Found    1- the same HTTP:/x.x 
+                                     ^               ^             ^         2- status-code    (for computer)
+                                     1               2             3         3- reason phrase  (for humans)
+                                   
+                                                 status codes: 3-digits, grouped by the 1st 
+
+                                                          1xx informational message only
+                                                          2xx success of some kind
+                                                          3xx redirects the client to another URL
+                                                          4xx error on the client's part
+                                                          5xx error on the server's part 
+
+                                                                The most common:
+                                                                             200 OK
+                                                                             404 Not Found
+                                                                             301 Moved Permanently
+                                                                             302 Moved Temporarily
+                                                                             303 (HTTP 1.1 only) # used often in CGI script. 
+                                                                                 (URL given by the Location: response header), 
+                                                                                 so the client can automatically retrieve it.
+                                                                             500 Server Error (most common cause: server script syntax err)
+                ______________________________________________
+                2. HEADERs lines
+                   1 line per header with the form
+                            
+                       ------ HEADER_NAME :         value    CRLF           lines beginning with space or tab are part of the previous header, 
+                         ^       ^        ^     ^     ^       ^             
+                   NO SPACES case-SENSITIVE     \s
+                   BEFORE                       \t
+
+
+                             ex:
+                                    Header1: some-long-value-1a, some-long-value-1b
+                                    HEADER1:    some-long-value-1a,
+                                                some-long-value-1b
+
+
+
+                            HTTP 1.0       defines 16 headers  (ALL OPTIONAL)
+                            HTTP 1.1       defines 46 headers, (1,  (Host:) is Mandatory in REQUESTS.
+
+                                  Most Common:
+
+                                     for a REQUEST      "From:"        gives an email address
+                                                        "User-Agent:"  identifies the program with the form 
+                                                                            "Program-name/x.xx", 
+
+                                                                          ex "User-agent: Mozilla/3.0Gold". 
+
+                                     for a RESPONSE     "Server:"         ex "Server: Apache/1.2b3-dev"
+                                                        "Last-Modified:"  ex "Last-Modified: Fri, 31 Dec 1999 23:59:59 GMT"
+                ______________________________________________
+                3. new line
+                           even not-standard, some implementations allow only LF instead of the mandatory CRLF
+                ______________________________________________
+                4. Optional Body
+                           If an HTTP message includes a body, there are usually header lines to describe it.
+
+                               "Content-Type:"    MIME-type of the data, ex text/html or image/gif.
+                               "Content-Length:"  body len in bytes
+                ______________________________________________
+
+
+
+3 STEPS       the most basic message flow is a 3 steps
+
+                  ex on http://www.somehost.com/path/file.html
+
+
+                  1. Open the socket 
+                        server:  http://www.somehost.com/
+                        port  :  80 (if not specified)
+
+                  2. Client sends this REQUEST --------->
+                                       GET /path/file.html HTTP/1.0
+                                       From: someuser@jmarshall.com
+                                       User-Agent: HTTPTool/1.0
+                                       \n
+
+                  3. Servers sends this RESPONSE   <------------
+                                                   HTTP/1.0 200 OK
+                                                   Date: Fri, 31 Dec 1999 23:59:59 GMT
+                                                   Content-Type: text/html
+                                                   Content-Length: 1354
+
+                                                   <html>
+                                                   <body>
+                                                   <h1> ....
+                                                     .
+                                                         </body>
+                                                         </html>
+
+GET / HEAD / POST
+                HEAD  is like GET but the Server RESPONSE will NEVER 
+                      contain a body
+                      This is useful to check a resource without actually 
+                      downloading it, thus saving bandwidth. 
+
+                POST  i)   has always a body
+                      ii)  having a body, has usually headers
+                      iii) the URI is normally the path of the prog (CGI) to execute
+                           that will see the data in the body in its STDIN
+                      iv)  can be used to send anything once Client and Server
+                           both agree on the used format.
+
+                               ex.
+                                  POST /path/script.cgi HTTP/1.0
+                                  From: frog@jmarshall.com
+                                  User-Agent: HTTPTool/1.0
+                                  Content-Type: application/x-www-form-urlencoded
+                                  Content-Length: 32
+            
+                                  home=Cosby&favorite+flavor=flies
+
+HTTP Proxy
+                They rely between Client and Server and forward the traffic.
+                One main usage is to CACHE data in a LAN
+                A Client's REQUEST will differ only in the 1st line
+                where there is a complete URL not just the path:
+
+                     GET http://www.somehost.com/path/file.html HTTP/1.0
+                instead of 
+                     GET /path/file.html HTTP/1.0
+
+                the proxy knows which server to forward the request to (even another proxy)
+
