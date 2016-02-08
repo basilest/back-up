@@ -89,7 +89,7 @@ SOLUTION 2: use –c option to modify a global var only for that command
          subcommands of 1 single main command 'git'
 
          so    git-commit is 1 exe, identical to 
-               git commit      (<--- git + subcmd as arg)
+               git commit      (<--- git + sub-command as arg)
 
 
 
@@ -106,7 +106,7 @@ git help -g                the guide form
 
            GIT works as
 
-              1. a file is a just a CONTENT (a stream of bytes), not its FILENAME
+              1. a file is just a CONTENT (a stream of bytes), not its FILENAME
               2. that bunch of bytes is stored as a flat BLOB  (nb. GIT stores so the whole file, not just the diffs)
               3. from the CONTENT is calculated a SHA1
                  40-hex [0–9A–F] --> 20 bytes --> 160 bit number (2^160) 
@@ -129,7 +129,7 @@ git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba7
                               so    a dir named with the first 2 hex
                               and   a file named with the rest.
                               This file is the content of that SHA1 (can be a TREE a BLOB a COMMIT or a TAG)
-                              They are most binary and not text files.
+                              They are mainly binary and not text files. (use  git cat-file   to see the content)
 
                               The reason for not having directly all the SHA1 files (ex 3b18e....ad)
                               inside .git/objects, but splitting with an intermediate dir
