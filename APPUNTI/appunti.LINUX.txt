@@ -418,6 +418,39 @@ dd if=/dev/zero of=/dev/xxxxxx
 
 
 
+____________________
+__  rsync
+
+
+      -z          --compress
+      -r          --recursive
+      -d          --dirs         opposite of recursive,  any dir is skippedr
+      -l          --links        copy links (only as symbolic)
+      -L          --copy-links   copy links (copying real pointed object)  nb. if the pointed object is external, it is NOT copyed
+      --copy-unsafe-links        copy all links even external
+
+      --times                    preserves timestamp   \
+      --perms                    permissions            |  these 4 flags are all on when using -a (archive)
+      --owner                                           |
+      --group                                          / 
+
+
+      --delete                  delete on server files not present locally (so making a real mirror)
+
+      -v           --verbose
+      --progress               a progress bar
+      --stats                  statistics info
+
+      -e           --rsh       force using ssh on remote connections (nb. the short flag is -e the long flag is --rsh)
+
+      --exclude                which files exclude. Can be more:   ex. --exclude "*.log"  --exclude "*.swp"
+      --include                
+
+      ex.
+        rsync -za  --delete --exclude "*log" /my/dir/* basilest:/backup      <--- nb. always best ending with /* the source path
+
+
+
 --------------------------------------------------- crontab
  crontab means cron table, that is where root or any user
  can add some rows (with the cron syntax) to specify periodic tasks

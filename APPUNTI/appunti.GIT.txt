@@ -562,12 +562,20 @@ git gc --prune     # to remove garbaged collection
                                             |
                                             |         Git is based mainly on the unix diff:
                                             |
-                                            |                       diff -u a b    -u prints in this format:
+                                            |                       diff -u a b    -u prints in this format (called 'unified'):
                                             |                                      file (a) is marked as +++, (b) as ---
                                             |                                      +  a line starting with + means added in a
                                             |                                      -    "              "   -       removed from a
                                             |                                     ' '   "              a space   is a context line (a=b)
                                             |                                      @@ marks line num
+                                            |                              
+                                            |                             -u or 'unified' is the format used by the 'patch' program (written in 1985
+                                            |                                             by Larry Wall)
+                                            |                                             diff a.txt  a2.txt  > p.txt
+                                            |                                             patch < p.txt               (modifies a.txt in current dir
+                                            |                                                                          generating an a.txt=a2.txt)
+                                            |                                             patch -R < p.txt             reverts, modifies back a.txt)
+                                            |
                                             |
                                             |                       diff -r     make diff between 2 dir
                                             |                       diff -w     ignore white spaces
