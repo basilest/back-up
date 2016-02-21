@@ -29,13 +29,14 @@ HTTP Server           called WEB Server  (ex. Apache)
 
 TCP, port 80          is the default, but can be any
 
-StateLess             Normally the protocol does not maintain infos on the 
+StateLess             Normally the protocol does not maintain infos on the
                       connections, between transactions.
 
 HTTP-header           Client and Server communicate via TCP messages
                       containing as Data a HTTP-header with this structure:
+                      N.B. ALL lines ends in DOS format ( \r\n or CR+LF ASCII 13+10)
 
-                      
+
                           | ----------------------
                         1 | <a starting line>    <--  differ for request & response>
                           | ----------------------
@@ -45,7 +46,7 @@ HTTP-header           Client and Server communicate via TCP messages
                           | Header3: value3
                           | ----------------------
                         3 |
-                          | \n                   <-- a new line CR+LF  ASCII:  13+10
+                          |  \r\n                <-- 1 blank line (only 1 CR+LF)
                           | ----------------------
                           |
                         4 | .... body ....       <-- any text/binary data  (OPTIONAL)
@@ -53,9 +54,9 @@ HTTP-header           Client and Server communicate via TCP messages
                           | ----------------------
 
                 ______________________________________________
-                1. Initial Line:   3 parts, with 2 spaces: 
+                1. Initial Line:   3 parts, with 2 spaces:
 
-                    for a   REQUEST:     
+                    for a   REQUEST:
 
                                    GET /path/to/file/index.html HTTP/1.0     1- a method (GET,POST,HEAD)
                                      ^               ^             ^         2- Resources PATH / URL
@@ -63,33 +64,33 @@ HTTP-header           Client and Server communicate via TCP messages
                                                                                      with the form HTTP:/x.x
                     for a   RESPONSE:    called 'status line'
 
-                                   HTTP/1.0         404         Not Found    1- the same HTTP:/x.x 
+                                   HTTP/1.0         404         Not Found    1- the same HTTP:/x.x
                                      ^               ^             ^         2- status-code    (for computer)
                                      1               2             3         3- reason phrase  (for humans)
-                                   
-                                                 status codes: 3-digits, grouped by the 1st 
+
+                                                 status codes: 3-digits, grouped by the 1st
 
                                                           1xx informational message only
                                                           2xx success of some kind
                                                           3xx redirects the client to another URL
                                                           4xx error on the client's part
-                                                          5xx error on the server's part 
+                                                          5xx error on the server's part
 
                                                                 The most common:
                                                                              200 OK
                                                                              404 Not Found
                                                                              301 Moved Permanently
                                                                              302 Moved Temporarily
-                                                                             303 (HTTP 1.1 only) # used often in CGI script. 
-                                                                                 (URL given by the Location: response header), 
+                                                                             303 (HTTP 1.1 only) # used often in CGI script.
+                                                                                 (URL given by the Location: response header),
                                                                                  so the client can automatically retrieve it.
                                                                              500 Server Error (most common cause: server script syntax err)
                 ______________________________________________
                 2. HEADERs lines
                    1 line per header with the form
-                            
-                       ------ HEADER_NAME :         value    CRLF           lines beginning with space or tab are part of the previous header, 
-                         ^       ^        ^     ^     ^       ^             
+
+                       ------ HEADER_NAME :         value    CRLF           lines beginning with space or tab are part of the previous header,
+                         ^       ^        ^     ^     ^       ^
                    NO SPACES case-SENSITIVE     \s
                    BEFORE                       \t
 
@@ -107,10 +108,10 @@ HTTP-header           Client and Server communicate via TCP messages
                                   Most Common:
 
                                      for a REQUEST      "From:"        gives an email address
-                                                        "User-Agent:"  identifies the program with the form 
-                                                                            "Program-name/x.xx", 
+                                                        "User-Agent:"  identifies the program with the form
+                                                                            "Program-name/x.xx",
 
-                                                                          ex "User-agent: Mozilla/3.0Gold". 
+                                                                          ex "User-agent: Mozilla/3.0Gold".
 
                                      for a RESPONSE     "Server:"         ex "Server: Apache/1.2b3-dev"
                                                         "Last-Modified:"  ex "Last-Modified: Fri, 31 Dec 1999 23:59:59 GMT"
@@ -132,7 +133,7 @@ HTTP-header           Client and Server communicate via TCP messages
                   ex on http://www.somehost.com/path/file.html
 
 
-                  1. Open the socket 
+                  1. Open the socket
                         server:  http://www.somehost.com/
                         port  :  80 (if not specified)
 
@@ -156,10 +157,10 @@ HTTP-header           Client and Server communicate via TCP messages
                                                          </html>
 
 GET / HEAD / POST
-                HEAD  is like GET but the Server RESPONSE will NEVER 
+                HEAD  is like GET but the Server RESPONSE will NEVER
                       contain a body
-                      This is useful to check a resource without actually 
-                      downloading it, thus saving bandwidth. 
+                      This is useful to check a resource without actually
+                      downloading it, thus saving bandwidth.
 
                 POST  i)   has always a body
                       ii)  having a body, has usually headers
@@ -174,7 +175,7 @@ GET / HEAD / POST
                                   User-Agent: HTTPTool/1.0
                                   Content-Type: application/x-www-form-urlencoded
                                   Content-Length: 32
-            
+
                                   home=Cosby&favorite+flavor=flies
 
 HTTP Proxy
@@ -184,8 +185,259 @@ HTTP Proxy
                 where there is a complete URL not just the path:
 
                      GET http://www.somehost.com/path/file.html HTTP/1.0
-                instead of 
+                instead of
                      GET /path/file.html HTTP/1.0
 
                 the proxy knows which server to forward the request to (even another proxy)
+
+                forward proxy:  they are 'client' proxy. They are at the source of the chain,
+                                and can control how to forward outgoing traffic (it can also block it)
+
+                reverse proxy:  they stay on the destination side. It's the other site administrator
+                                to hide the internal servers putting as public visible a proxy.
+                                It will manage the requests, redirecting on the appropriate server
+                                whihch will answer again to the proxy whihc will return to the requester.
+
+
+
+______________________________________
+HTTPS
+                  provides bidirectional encryption of communications between a client and server.
+                  protects against man-in-the-middle attacks.
+                  Basically there are 3 stages in any HTTPS connection:
+
+                   1 Connection negotiation - the client (your browser) and the server (Web server or proxy)
+                                              negotiate the basic parameters: ciphers to use, session key, etc.
+                   2 Connection authentication: at the very least the server presents the client with a certificate
+                                              that says "I am server www.encrypted.com - and certificate.authority.org will verify that".
+                                              The client may also present a certificate of its own at this stage.
+                   3 Request/response cycle: normal HTTP is sent (through the encrypted channel) back and forth.
+
+                 The vital point to notice here is that connection authentication takes place BEFORE any request was issued.
+
+                 HTTPS URLs begin with "https://" and use port 443 by default.
+______________________________________
+Sessions and Stateless
+                 Unfortunately, HTTP is defined as a stateless protocol, which complicates matters:
+                 many schemes have been invented to allow keeping track of sessions, none of which works perfectly.
+                 Even worse, sessions are critical in order to allow web-based applications to function correctly -
+                 it is vital that ONCE a session is established ALL subsequent requests from the same browser
+                 be directed to the same back-end server.
+______________________________________
+HTTP/2
+                 Did you notice that all HTTP headers is a bunch of text ?
+                 HTTP/2 is a new RFC binary protocol that makes much easier to parse a HTTP/2 header.
+                 Moreover it fixes some congestion problem of HTTP that requires 1 request per TCP connection.
+                 With HTTP/1, browsers open between four and eight connections per origin.
+                 Since many sites use multiple origins, this could mean that a single page load
+                 opens more than thirty connections.
+                 So many connections simultaneously breaks a lot of the assumptions that TCP was built upon.
+
+                 HTTP/2 acts multiplexing, allowing multiple request and response messages to be in flight at the same time.
+
+______________________________________
+Revese HTTP Proxy  & Load Balancer    (Pound a free open source, not using hard disk)
+
+
+              - a reverse-proxy: it passes requests from client browsers to one or more back-end servers.
+              - a load balancer: it will distribute the requests from the client browsers
+                                 among several back-end servers, while keeping session information.
+              - an SSL wrapper: Pound will decrypt HTTPS requests from client browsers
+                                and pass them as plain HTTP to the back-end servers.
+              - an HTTP/HTTPS sanitizer: Pound will verify requests for correctness and accept only well-formed ones.
+              - a fail over-server: should a back-end server fail, Pound will take note of the fact and
+                                    stop passing requests to it until it recovers.
+              - a request redirector: requests may be distributed among servers according to the requested URL.
+
+                WHAT POUND IS NOT:
+
+              - Pound is not a Web server: by itself, Pound serves no content - it contacts the back-end server(s) for that purpose.
+              - Pound is not a Web accelerator: no caching is done - every request is passed "as is" to a back-end server.
+
+                     Pound passes ALL headers as they arrive from the client browser to the back-end server(s).
+                     In 2 case it can create a missing one:
+                           1  Pound may add information about the SSL client certificate (a X-Forwarded-For header).
+                              The general format is:
+                                                    X-Forwarded-for: client-IP-address
+
+                              The back-end server(s) may use this extra information in order to create their log-files
+                              with the real client address (otherwise all requests will appear to originate from Pound itself,
+                              which is rather useless).
+                           2  HTTPS CERTIFICATES  (see some sections below)
+
+
+                    Let's assume that you have internal server 192.168.0.10 that is supposed to serve
+                    the needs of virtual host www.server0.com and 192.168.0.11 that serves www.server1.com.
+                    You want Pound to listen on address 1.2.3.4 and separate the requests to each host.
+                    The config file would look something like this:
+
+                                    ListenHTTP
+                                        Address 1.2.3.4
+                                        Port    80
+
+                                        Service
+                                            HeadRequire "Host: .*www.server0.com.*"
+
+                                            BackEnd
+                                                Address 192.168.0.10
+                                                Port    80
+                                            End
+                                        End
+
+                                        Service
+                                            HeadRequire "Host: .*www.server1.com.*"
+
+                                            BackEnd
+                                                Address 192.168.0.11
+                                                Port    80
+                                            End
+                                        End
+                                    End
+
+Sessions and Stateless solution with Pound
+              Pound has the ability to keep track of sessions between a client browser and a back-end server.
+              6 possible ways of detecting a session have been implemented:
+
+                1 by client address: Pound directs all requests from the same client IP to the same back-end server.
+
+                          Session
+                              Type  IP
+                              TTL  300   <-- indicates what period of inactivity is allowed before the session is discarded.
+                          End
+
+                2 by Basic Authentication: Pound directs all requests from the same user
+                                          (as identified in the Basic Authentication header ) to the same back-end server.
+                          Session
+                              Type    Basic
+                              TTL     300
+                          End
+
+                3 by URL parameter: quite often session information is passed through URL parameters
+                                    (the browser is pointed to something like http://xxx?id=123).
+
+                          Session
+                              Type    URL
+                              ID      "id"  <-- and the sessions will be tracked based on the value of the "id" parameter.
+                              TTL     300
+                          End
+
+                4 by cookie value: applications that use this method pass a certain cookie BACK AND FORTH.
+
+                          Session
+                              Type    Cookie
+                              ID      "sess" <-- the sessions will be tracked by the value of the "sess" cookie.
+                              TTL     300
+                          End
+
+                5 by HTTP parameter value: applications that use this method pass a parameter (http://x.y/z;parameter) BACK AND FORTH.
+
+                          Session
+                              Type    PARM  <-- the sessions will be tracked by the value of the parameter
+                              TTL     300
+                          End
+
+                6 by header value: applications that use this method pass a certain header BACK AND FORTH.
+
+                          Session
+                              Type    Header
+                              ID      "X-sess"  <-- the sessions will be tracked by the value of the "X-sess" header.
+                              TTL     300
+                          End
+
+
+
+                 Please note the following restrictions on session tracking:
+
+                   - session tracking is always associated with a certain Service.
+                     Thus each group may have other methods and parameters.
+                     If your application has more methods for sessions you must define a separate Service for each method.
+
+                   - there is no default session: if you have not defined any sessions no session tracking will be done.
+
+                HTTPS CERTIFICATES
+
+                If a client browser connects via HTTPS and if it presents a certificate and if HTTPSHeaders is set,
+                Pound will obtain the certificate data and add the following HTTP headers to the request it makes to the server:
+
+                    X-SSL-Subject: information about the certificate owner
+                    X-SSL-Issuer: information about the certificate issuer (CA)
+                    X-SSL-notBefore: begin validity date for the certificate
+                    X-SSL-notAfter: end validity date for the certificate
+                    X-SSL-serial: certificate serial number (in decimal)
+                    X-SSL-cipher: the cipher currently in use
+                    X-SSL-certificate: the full client certificate (multi-line)
+
+                It is the application's responsibility to actually use these headers - Pound just passes this information
+                without checking it in any way (except for signature and encryption correctness).
+
+                Please note that this mechanism allows forgeries: a client may (maliciously) send these headers to Pound
+                in order to masquerade as an SSL client with a specific certificate.
+                If this is a problem for your application make sure to deny these requests. Add within the UrlGroup(s):
+
+                        HeadDeny X-SSL-Subject ".*"
+                        HeadDeny X-SSL-Issuer ".*"
+                        HeadDeny X-SSL-notBefore ".*"
+                        HeadDeny X-SSL-notAfter ".*"
+                        HeadDeny X-SSL-serial ".*"
+                        HeadDeny X-SSL-cipher ".*"
+
+
+______________________________________
+WebSocket
+                 It's an evoluton of HTTP(S) so instead of http://  https:// the url
+                 are of type                               ws://    wss://
+
+                 It's:
+                   - based on TCP     (the protocol is defined in RFC 6455)
+                   - at Developer level API's are standardized by W3C HTML5
+                   - of course both server and client must implement it.
+                     In the specific the handshake start as an HTTP\HTTPs and
+                     then switch into the new protocol.
+
+                     In the specific, client request and server response are as follows:
+
+                                                             GET /chat HTTP/1.1
+                                                             Host: server.example.com
+                                                             Upgrade: websocket <---- this is the new HTTP header to switch into websocket
+                                                             Connection: Upgrade
+                                  request <-------------     Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==  <---  key
+                                                             Sec-WebSocket-Protocol: chat, superchat
+                                                             Sec-WebSocket-Version: 13
+                                                             Origin: http://example.com                   <---  Origin
+
+                                                             1. the new HTTP header is Upgrade: websockt
+                                                             2. a ranom base64 key is added
+                                                             3. a normal HTTP header, Origin is usually present (to identify the client)
+
+       code 101 --> HTTP/1.1 101 Switching Protocols
+                    Upgrade: websockete             ------------>   response
+                    Connection: Upgrade
+                    Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
+                    Sec-WebSocket-Protocol: chat
+
+
+                    1. Server response has a code 101
+                    2. performs some SHA1 on client key and returns a new base64 code ...-Accept
+                    3. The Origin infomation can be used on Server side to improve security checks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
