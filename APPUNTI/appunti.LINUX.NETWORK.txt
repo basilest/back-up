@@ -404,6 +404,109 @@ ethtool eth0
                                     link ifup rx_err tx_err hw wol
              Link detected: no
 
+-------------------------------
+     IP TABLES
+-------------------------------
+
+
+iptables :    set of utilities in user-space
+              process packets a Lev3. 
+              Others (ex ebtables)
+              process Ethernet-Bridge Lev2.
+
+Netfilter:   framework in the kernel, 
+             tightly coupled with iptables set
+
+
+
+
+iptables -t nat   -A PREROUTING   -i eth1   -p tcp  --dport 80
+         -j DNAT   --to-destination 192.168.1.3:8080
+
+         -t nat              operate NAT table
+         -A PREROUTING       appending following rule to PRE.. chain
+         -i eth1             consider pckts coming from eth1
+         -p tcp              protocol tcp  (also udp)
+         --dport 80          address to that port
+         -j DNAT             jump to DNAT target
+         --to ...            change IP addr and port
+______________________________________________________ config
+   
+   /etc/sysconfig/iptables              stores the rules
+   chkconfig --list iptables            list the runlevel associated (3,4,5)
+   chkconfig --levels 345 iptables on   associate runlevels
+   service iptables start               to manaully start
+   service iptables stop                to manually stop
+
+   service is the command to run an 'init' script
+   in Ubuntu chkconfig is replaced by 'sysv-rc-conf' and 'upstart'
+______________________________________________________
+                               defined in /usr/include/linux/netfilter_ipv4.h
+5 hooks          1. PREROUTING         
+                 2. INPUT
+                 3. FORWARD
+                 4. OUTPUT
+                 5. POSTROUTING
+
+       each is the start pointer to a seq of rules, chained together
+
+       each 'rule' describes what to do on 3 tables 
+       where kernel stores data:
+
+                   filter (defaul: if no tbl is specified
+                                   in iptables cmd, this tbl is used) 
+                   mangle
+                   nat
+
+______________________________________________________ rule
+
+
+       rule:  criteria to match.
+              1 pckt is matched against all the criteria of the rule
+              if it fits, it's forwarded to the TARGET of the rule.
+              For each pckt forwarded the kernel increments:
+
+                    -num of pckts passed through this rule:=  +1
+                    -num of bytes         idem            := + pckt bytes
+
+
+              if the match-part  is missing, all pckts are sent to target
+              if the target-part is missing, none is done on pckt, anyhow
+                                             the above counts are incremented.
+
+______________________________________________________ match
+
+
+______________________________________________________ target
+      
+  4 targets (more can be others with extension modules)
+
+  ACCEPT: stop processing current chain
+          go to next rule
+  DROP:   discard the pckt
+  QUEUE:  queue pckt in user-space queue (man libipq)
+  RETURN: for user specific chain, added.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
        
