@@ -3,6 +3,12 @@
      vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
          -c :$   a.txt                goto last line
          -c /xxx a.txt                search for xxx
+
+     :tabs    show the list
+     gt       go to tab AFTER    
+     gT       go to tab BEFORE    
+     3gt      go to tab n.3
+------------------------------------------------------ 
 ------------------------------------------------------ 
 
 
@@ -120,11 +126,34 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
   
 ------------------------------------------------------ to get info from the bash
 
-:r !ls              to insert the output of a bash cmd in the line below
 
 let @a=system("ls") to do the same, with 2 commands 
 "ap                 nb however that with this way instead the line below (p)
                     it can be above P
+
+:r !ls              to insert the output of a bash cmd in the line below
+:.!ls               to replace the current line with output ...   
+                    nb. the keysequence !$ is a shorthand for :.!
+                    nb. the keysequence !! "       "         "
+                        if you write a command in a line (or that line is already a command)
+                        ex 'ls' or 'date' executing !$sh or !!sh  substitute that line
+                        with the output of the command
+                    nb. '.' (current line) is a special case of the general form
+                        :range! where there is a range of lines, ex:
+                                        :10,85!sort  
+                                        :%!sort
+
+                    nb. like 5dd delete 5 lines, the same works for !!
+                                    5!!sh    
+                                    5!!cmd
+                        
+                    nb. :%!xxd     switch into binary editor
+                                   (be careful that a save can damage the file if vi was
+                                    not start as vi -b 
+                                    (which can anyhow specify now with   :set binary)
+                        :%!xxd -r    rever to ascii 
+                                    
+
 
 --startuptime       is the option to debug vim. It works like this
                     1/2     vim --startuptime log.txt pippo.pm    # open pippo.pm logging all into file log.txt

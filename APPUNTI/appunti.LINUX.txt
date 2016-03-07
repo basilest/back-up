@@ -972,6 +972,31 @@ LOGIN
                    shell command and special options
 ----------------------------------
 ____________________
+__  id
+                give the UID and GID
+       id         uid=1000(stiv) gid=1000(stiv) groups=1000(stiv),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lpadmin),124(sambashare)
+       id -u      1000       (gives the uid - numeric format)
+       id -g      1000       (gives the gid - numeric format)
+       id -G      1000 4 24 27 30 46 108 124                              (gives all groups - numeric format)
+
+       id -un     stiv       (gives the uid - text    format)
+       id -gn     stiv       (gives the gid - text    format)
+       id -Gn     stiv adm cdrom sudo dip plugdev lpadmin sambashare      (gives all groups - text    format)
+
+____________________
+__  chown
+       
+       allows to change UID (user) and GID (group) as the owner of a file.
+
+          chwon  elen      a.txt       from stiv to elem   (works with numeric)
+          chown  625       a.txt       from 1000 to 625    (works with text)
+          chown  elen.g2   a.txt       change user & group (as separator can be used . or :)
+          chown  .g2       a.txt       change only group
+
+               
+                 man chown    (other options  -R (recursice) --reference  --from)
+               
+____________________
 __  chmod
            
           chmod  -755  
