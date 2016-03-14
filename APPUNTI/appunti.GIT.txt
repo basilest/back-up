@@ -4,7 +4,6 @@ git fetch origin --prune              to remove, all old branches, deleted on re
 git remote prune origin
 
 git reflog       commands to recover from accidentally removing a branch or 
-git fsck         commits, files, and heads.
 gc.reflogExpire
 gc.pruneExpire                 
 
@@ -21,7 +20,7 @@ git gc --prune     # to remove garbaged collection
                                             |        VERSION CONTROL SYSTEMS HISTORY
                                             |        ______________________________________________
                                             |        Local Version Control Systems:   (RCS)
-                                            |                                         each programmer manages its project and files
+                                            |                                         each programmer manages his project and files
                                             |                                         This is usefull for 1 person only and suffers
                                             |                                         for single point of failure (if that PC goes wrong)
                                             |        
@@ -43,14 +42,12 @@ git gc --prune     # to remove garbaged collection
                                             |        
                                             |        Other systems (CVS, Subversion, Perforce, Bazaar, and so on) think of 
                                             |                   . a set of files (to start)
-                                            |                   . only their changes made over time.
+                                            |                   . only changes made over time.
                                             |        
-                                            |        Git instead thinks of its data more like a set of snapshots of a miniature filesystem. 
-                                            |        Every time you commit, (or save the state of your project) 
-                                            |        Git, takes a picture of all files and stores a reference to that snapshot. 
-                                            |        If a file has no changes, Git stores just a link to the previous identical file.
-                                            |        
-                                            |        Git thinks about its data like a stream of snapshots.
+                                            |        In Git: data = a set of snapshots of a miniature filesystem. 
+                                            |
+                                            |        1 commit = 1 snapshot   (If a file has no changes, 
+                                            |                                 Git stores just a link to the previous identical file).
                                             |        
                                             |        ______________________________________________
                                             |        Nearly Every Operation Is Local
@@ -70,8 +67,8 @@ git gc --prune     # to remove garbaged collection
                                             |          Now they can be executed as stand-alone or, identically, as
                                             |          subcommands of 1 single main command 'git'
                                             | 
-                                            |          so    git-commit is 1 exe, identical to 
-                                            |                git commit      (<--- git + sub-command as arg)
+                                            |          so    git-commit      1 command (0 args)
+                                            |                git commit      1 command + 1 arg
                                             | 
                                             | 
                                             | 
@@ -81,14 +78,14 @@ git gc --prune     # to remove garbaged collection
                                             |               2. that bunch of bytes is stored as a flat BLOB  (nb. GIT stores so the whole file, not just the diffs)
                                             |               3. from the CONTENT is calculated a SHA1
                                             |                  40-hex [0–9A–F] --> 20 bytes --> 160 bit number (2^160) 
-                                            |               4. the CONTENT is 'indexed' by its SHA1 (its a list of dirs under.git/objects/)
+                                            |               4. the CONTENT is 'indexed' by its SHA1 (its a list of dirs under .git/objects/)
                                             | 
                                             |               NB: so 2 or more identical files (spread around in the repo dirs)
                                             |                   will be 1 single BLOB and SHA1 index
                                             |                   (they will have a separate TREE node each)
                                             |            
                                             | 
-                                            | git hash-object pippo.txt      # calculate the SHA1 of file pippo.txt 
+                                            | git hash-object pippo.txt      # calculates the SHA1 of file pippo.txt 
                                             | git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
                                             | 
                                             | 
@@ -182,21 +179,25 @@ git gc --prune     # to remove garbaged collection
                                             | 
                                             | >>>>>>N.B.  EACH COMMIT INTRODUCES A TREE OBJECT THAT REPRESENTS THE ENTIRE REPOSITORY.
                                             | 
-                                            | Blobs            Binary Large Object: the content of a file, no other metadata (ex no file-name !)
-                                            |                  So each time a file changes, a new BLOB is created, oterwise it's reused the old one.
-                                            | Trees            stores Blob-id (the SHA1), file path, link to other trees
-                                            |                  A Tree is conceptually the 'BLOB of a dir'. Each time a dir changes (new files, less files
-                                            |                  file rename, different SHA1 for any of its file) a new TREE is created.
-                                            | Commits          store metadata (author, reason of change...) and a link to the most root TREE node.
-                                            |                  Normally 1 Commit has 1 other 'parent'-Commit but can have more 'parents'
-                                            | Tags             add a human readbale identification to a Commit to avoid using Commit-SHA1-id
-                                            | 
                                             |                            TAG --->     (C)    COMMIT (TREE_SHA1, author, message)
                                             |                                          |
                                             |                                         /T\    TREE   (BLOB_SHA1, filename)
                                             |                                        -----  
                                             |                                          |
                                             |                                        [ B ]   BLOB   (flat bytes content)
+                                            | 
+                                            | Blobs            Binary Large Object: the content of a file, no other metadata (ex no file-name !)
+                                            |                  So each time a file changes, a new BLOB is created, oterwise it's reused the old one.
+                                            |
+                                            | Trees            stores Blob-id (the SHA1), file path, link to other trees
+                                            |                  A Tree is conceptually the 'BLOB of a dir'. 
+                                            |                  Each time a dir changes (new files, less files
+                                            |                  file rename, different SHA1 for any of its file) a new TREE is created.
+                                            |
+                                            | Commits          store metadata (author, reason of change...) and a link to the most root TREE node.
+                                            |                  Normally 1 Commit has 1 other 'parent'-Commit but can have more 'parents'
+                                            |
+                                            | Tags             add a human readbale identification to a Commit to avoid using Commit-SHA1-id
                                             |   ______________________________
                                             | 
                                             |   this is the COMMIT            this is the TREE                this is the BLOB
@@ -227,13 +228,14 @@ git gc --prune     # to remove garbaged collection
                                             |                                                                      |                    |
                                             |                                                                      |____________________|
                                             | 
-                                            | COMMITs are chained (to 1 ore more parents) in a COMMIT history
+                                            | COMMITs are chained (to 1 or more parents) in a COMMIT history
                                             |     --------
                                             |     DAG 
                                             |     --------
                                             |     
                                             |     DAG (Directed Acyclic Graph) is the type of graph built by the GIT Commits chain.
-                                            |                                  where there are no LOOPs and arrows are only in 1 direction (not also back).
+                                            |                                  where there are no LOOPs 
+                                            |                                  and arrows are only in 1 (forward)direction 
                                             |     
                                             | 
                                             |           98ca9                     ac77b                     6f37a
@@ -305,7 +307,7 @@ git gc --prune     # to remove garbaged collection
                                             |                              .git/refs/heads/master
                                             | 
                                             | git symbolic-ref      # plumbing command to manage ref
-                                            | git show-ref       # lists all references
+                                            | git show-ref          # lists all references
                                             | 
                                             |                          
                                             |      special references:
@@ -374,8 +376,8 @@ git gc --prune     # to remove garbaged collection
                                             | 
                                             | 
                                             |       A...B (using three periods)   set reachable from A or B but not from both
-                                            |                                     said oterwise is the sum of Commits not common
-                                            |                                     (present in only one of the two)
+                                            |                                     said otherwise is the sum of Commits not in common
+                                            |                                     (presented in one only)
                                             | 
                                             |          A -- B -- C -- D -- E -- F -- G -- H -- I     ----- master
                                             |                      \               / 
