@@ -1,3 +1,4 @@
+
 ------------------------------------------------------ TABs in VIM
      vim -p a.txt b.txt          open vim tabbed with 2 files
      vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
@@ -136,8 +137,11 @@ let @a=system("ls") to do the same, with 2 commands
                     nb. the keysequence !$ is a shorthand for :.!
                     nb. the keysequence !! "       "         "
                         if you write a command in a line (or that line is already a command)
-                        ex 'ls' or 'date' executing !$sh or !!sh  substitute that line
+                        ex 'ls' or 'date' or even do it now on the following line: 
+                              ls -lt | awk '{print $9}' | sort 
+                        executing !$sh or !!sh  substitute that line
                         with the output of the command
+  
                     nb. '.' (current line) is a special case of the general form
                         :range! where there is a range of lines, ex:
                                         :10,85!sort  
@@ -153,15 +157,16 @@ let @a=system("ls") to do the same, with 2 commands
                                     (which can anyhow specify now with   :set binary)
                         :%!xxd -r    rever to ascii 
                                     
+insert num of line in a substitution pattern match:
+              :%s/----------- ok 1/\=line(".")/
+              :%s/^/\=line(".")/                 <--- just add lines in front of each line
 
+
+------------------------------------------------------ debug vim
 
 --startuptime       is the option to debug vim. It works like this
                     1/2     vim --startuptime log.txt pippo.pm    # open pippo.pm logging all into file log.txt
                     2/2     :tabe log,txt                         # show log.txt
-
-insert num of line in a substitution pattern match:
-              :%s/----------- ok 1/\=line(".")/
-              :%s/^/\=line(".")/                 <--- just add lines in front of each line
 
 ------------------------------------------------------ In Insert Mode
   :scriptnames         I see all the .vim (as also my .vimrc) that vim reads at the moment
@@ -716,3 +721,93 @@ Managing Strings
                       :echom toupper("Foo")
 
 Execute                evaluate a string as if it was a Vim command. 
+
+
+times in msec
+ clock   self+sourced   self:  sourced script
+ clock   elapsed:              other lines
+
+000.006  000.006: --- VIM STARTING ---
+000.141  000.135: Allocated generic buffers
+000.276  000.135: locale set
+000.283  000.007: window checked
+001.014  000.731: inits 1
+001.022  000.008: parsing arguments
+001.024  000.002: expanding arguments
+001.040  000.016: shell init
+001.522  000.482: Termcap init
+001.573  000.051: inits 2
+001.775  000.202: init highlight
+002.302  000.366  000.366: sourcing /usr/share/vim/vim74/debian.vim
+003.021  000.406  000.406: sourcing /usr/share/vim/vim74/syntax/syncolor.vim
+003.272  000.760  000.354: sourcing /usr/share/vim/vim74/syntax/synload.vim
+036.077  032.702  032.702: sourcing /usr/share/vim/vim74/filetype.vim
+036.148  033.743  000.281: sourcing /usr/share/vim/vim74/syntax/syntax.vim
+036.186  034.338  000.229: sourcing $VIM/vimrc
+036.668  000.226  000.226: sourcing /usr/share/vim/vim74/syntax/syncolor.vim
+037.270  000.456  000.456: sourcing /usr/share/vim/vim74/ftoff.vim
+037.947  000.278  000.278: sourcing /home/stiv/.vim/bundle/Vundle.vim/autoload/vundle.vim
+038.315  000.245  000.245: sourcing /home/stiv/.vim/bundle/Vundle.vim/autoload/vundle/config.vim
+061.516  021.386  021.386: sourcing /usr/share/vim/vim74/filetype.vim
+061.626  000.029  000.029: sourcing /usr/share/vim/vim74/ftplugin.vim
+061.716  000.024  000.024: sourcing /usr/share/vim/vim74/indent.vim
+061.836  000.007  000.007: sourcing /usr/share/vim/vim74/filetype.vim
+061.904  000.005  000.005: sourcing /usr/share/vim/vim74/ftplugin.vim
+061.968  000.005  000.005: sourcing /usr/share/vim/vim74/indent.vim
+062.033  000.005  000.005: sourcing /usr/share/vim/vim74/filetype.vim
+062.248  026.004  003.338: sourcing $HOME/.vimrc
+062.253  000.136: sourcing vimrc file(s)
+062.678  000.083  000.083: sourcing /home/stiv/.vim/bundle/nerdtree/autoload/nerdtree.vim
+063.419  000.339  000.339: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/path.vim
+063.538  000.082  000.082: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/menu_controller.vim
+063.655  000.085  000.085: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/menu_item.vim
+063.758  000.069  000.069: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/key_map.vim
+063.966  000.178  000.178: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/bookmark.vim
+064.236  000.236  000.236: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/tree_file_node.vim
+064.530  000.260  000.260: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/tree_dir_node.vim
+064.710  000.147  000.147: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/opener.vim
+064.895  000.153  000.153: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/creator.vim
+064.955  000.029  000.029: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/flag_set.vim
+065.047  000.064  000.064: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/nerdtree.vim
+065.351  000.273  000.273: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/ui.vim
+065.398  000.012  000.012: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/event.vim
+065.449  000.023  000.023: sourcing /home/stiv/.vim/bundle/nerdtree/lib/nerdtree/notifier.vim
+065.788  000.304  000.304: sourcing /home/stiv/.vim/bundle/nerdtree/autoload/nerdtree/ui_glue.vim
+075.045  000.067  000.067: sourcing /home/stiv/.vim/bundle/nerdtree/nerdtree_plugin/exec_menuitem.vim
+075.330  000.268  000.268: sourcing /home/stiv/.vim/bundle/nerdtree/nerdtree_plugin/fs_menu.vim
+075.459  013.127  010.455: sourcing /home/stiv/.vim/bundle/nerdtree/plugin/NERD_tree.vim
+075.584  000.081  000.081: sourcing /home/stiv/.vim/bundle/lightline.vim/plugin/lightline.vim
+075.788  000.078  000.078: sourcing /home/stiv/.vim/bundle/python-mode/autoload/pymode.vim
+075.862  000.007  000.007: sourcing /usr/share/vim/vim74/filetype.vim
+075.932  000.005  000.005: sourcing /usr/share/vim/vim74/ftplugin.vim
+076.562  000.007  000.007: sourcing /usr/share/vim/vim74/filetype.vim
+076.630  000.005  000.005: sourcing /usr/share/vim/vim74/ftplugin.vim
+076.713  001.057  000.955: sourcing /home/stiv/.vim/bundle/python-mode/plugin/pymode.vim
+076.922  000.058  000.058: sourcing /usr/share/vim/vim74/plugin/getscriptPlugin.vim
+077.099  000.163  000.163: sourcing /usr/share/vim/vim74/plugin/gzip.vim
+077.263  000.150  000.150: sourcing /usr/share/vim/vim74/plugin/matchparen.vim
+077.630  000.352  000.352: sourcing /usr/share/vim/vim74/plugin/netrwPlugin.vim
+077.670  000.009  000.009: sourcing /usr/share/vim/vim74/plugin/rrhelper.vim
+077.711  000.025  000.025: sourcing /usr/share/vim/vim74/plugin/spellfile.vim
+077.863  000.134  000.134: sourcing /usr/share/vim/vim74/plugin/tarPlugin.vim
+077.955  000.072  000.072: sourcing /usr/share/vim/vim74/plugin/tohtml.vim
+078.089  000.117  000.117: sourcing /usr/share/vim/vim74/plugin/vimballPlugin.vim
+078.265  000.156  000.156: sourcing /usr/share/vim/vim74/plugin/zipPlugin.vim
+078.587  000.230  000.230: sourcing /home/stiv/.vim/bundle/indentLine/after/plugin/indentLine.vim
+078.618  000.634: loading plugins
+078.625  000.007: inits 3
+078.756  000.131: reading viminfo
+078.774  000.018: setting raw mode
+078.788  000.014: start termcap
+078.809  000.021: clearing screen
+079.370  000.246  000.246: sourcing /home/stiv/.vim/bundle/lightline.vim/autoload/lightline.vim
+079.698  000.051  000.051: sourcing /home/stiv/.vim/bundle/lightline.vim/autoload/lightline/tab.vim
+080.058  000.139  000.139: sourcing /home/stiv/.vim/bundle/lightline.vim/autoload/lightline/colorscheme.vim
+080.481  000.673  000.534: sourcing /home/stiv/.vim/bundle/lightline.vim/autoload/lightline/colorscheme/wombat.vim
+082.685  002.906: opening buffers
+082.712  000.027: BufEnter autocommands
+082.713  000.001: editing files in windows
+082.804  000.091: VimEnter autocommands
+082.804  000.000: before starting main loop
+083.436  000.632: first screen update
+083.437  000.001: --- VIM STARTED ---

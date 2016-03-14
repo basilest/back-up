@@ -988,13 +988,13 @@ __  chown
        
        allows to change UID (user) and GID (group) as the owner of a file.
 
-          chwon  elen      a.txt       from stiv to elem   (works with numeric)
-          chown  625       a.txt       from 1000 to 625    (works with text)
-          chown  elen.g2   a.txt       change user & group (as separator can be used . or :)
+          chwon  elen      a.txt       from stiv to elem   (works with text)
+          chown  625       a.txt       from 1000 to 625    (works with numeric)
+          chown  elen.g2   a.txt       change user & group (as separator between user and group can be used . or :)
           chown  .g2       a.txt       change only group
 
                
-                 man chown    (other options  -R (recursice) --reference  --from)
+                 man chown    (other options  -R (recursive) --reference  --from)
                
 ____________________
 __  chmod
@@ -1028,11 +1028,14 @@ __  chmod
                 as the root priviledge is set but there is no x rights, 
                 so add them and the S becomes s:  chmod u+x a.sh    --> rws r-x r--
                 (The same applies on SGID)
+                SGID: instead of 'root' as in SUID, when SGID is set for a 
+                   - file: that file has rights like that group
+                   - dir : any file or subdir created inside has rights like that group
 
- Sticky bit     't' can replace the 'x' of o, meaning that each user can delete
+ Sticky bit     't' can replace the 'x' of o, meaning that each user can DELETE
                 only its own files. Even if it can be set on a file, usually has
                 no real sense, so it's set on a dir. Any file/subdir and the dir itself
-                can be deleted only by its owner
+                can be DELETED only by its owner
 
                 chmod o+t   or  chmod 1...  (ex 1755)      ... ... r-t
 
@@ -1047,6 +1050,118 @@ umask           the umask command (ex in .bashrc: umask 022) set a value that
                 files are 666 and not 777 for security reasons, (no 'x').
 
 
+____________________
+__  SELINUX
+
+               is a set of kernel modules (LSM- Linux Security Modules) which add security features.
+               If installed, the following command works:
+
+                    %getenforce            # to give the info if SELINX is in my box returns the strings "Enabled" or "Disabled"
+
+                    %sestatus   -b         # when SELINUX is "Enabled", gives the config
+                                               SELINUX can be configured to be 
+                                                  - Enforcing: stops any breaking attemps
+                                                  - Permissive: only warns on "     "
+                                             option -b, if specified, adds verbose output
+
+               static config:     
+               edit /etc/selinux/config   -->    SELINUX=disabled  /   SELINUX=enforcing 
+
+               runtime config:     
+               echo 0 > /selinux/enforce      (or also: setenforce 0
+               echo 1 > /selinux/enforce      ( "   "   setenforce 1
+
+
+____________________
+__  .Xauthority  
+
+               ls -l ~/.Xauthority  
+               -rw------- 1 stiv stiv 107 Mar 13 18:12 /home/stiv/.Xauthority
+
+               The .Xauthority  file can be found in each home dir 
+               It stores credentials in cookies used by xauth for authentication of X sessions. 
+               Once an X session is started, the cookie is used to authenticate connections to that specific display. 
+
+               So, if you are not the owner of this file you can't login since you can't store your credentials there. 
+               This is the reason why gui commands must not be started with sudo but with gksudo
+               that copies /.Xauthority in a temp dir
+____________________
+__  sudo
+               sudo allows you to run commands with the rights of another user (root or anyother ex amanda)
+               ex 
+                  sudo /etc/init.d/networking restart
+               
+               sudo commands always requires YOUR user password (so there is never another to remember)
+                    a 15 minutes default period allows to run other sudo without asking again the password.
+                    This timer can be changed (with 'sudo visudo')
+                    -k         # sudo -k  closes the timer (whatever is is) so next sudo command for sure 
+                                                                           asks the password again.
+
+    /var/log/auth.log         sudo commands are logged in:  /var/log/auth.log
+
+               user amanda can run sudo if someone with rights on command 'adduser' did:
+                   sudo adduser amanda sudo 
+
+               -i   instead of running a command I can log-in as another user as 
+                    sudo -i -u amanda 
+                    that gives all the 'env' vars of amanda (so a consistent state)
+
+                    su -i      # without a -u it's intended root  (deprecated)
+
+               -s   means shell. Is the same as running 'sudo bash' In this case a complete shell
+                    is opened with root rights (deprecated) 
+
+               shell root    there are 3 ways (all deprecated) they differ in the value of var $PATH
+                             (and the other 'env' vars) so also $HOME
+
+                                          $HOME      $PATH     env (untainted by amanda's env ?) 
+                          -----------------------------------------
+                          sudo -i         /root        1        Y <----
+              sudo bash / sudo -s         ~amanda      1        N
+                          sudo su         /root        2        N
+
+                          so the only clean env is obtainted with sudo -i
+
+    /etc/sudoers              Is the file where users and rghts are configured.
+              "sudo visudo"    opens it with your $EDITOR 
+              As in a program, there are first some sections to define some vars (called ALIAS) then
+              they are mixed togheter to defined who can do what, with the format
+              <user list> <host list> = <operator list> <tag list> <command list>
+              ex
+              USERS WORKSTATIONS=(ADMINS) ADMIN_CMDS
+              myuser ALL = (root) NOPASSWD:NOEXEC: /usr/bin/vim
+              
+
+              User_Alias    (specifies users by name)     User_Alias USERS = tom, dick, harry  
+                            system groups (prefixed by a %) and 
+                            netgroups (prefixed by a +)   User_Alias ADMINS = %admin
+              Runas_Alias   (specifies users by id)       Runas_Alias ROOT = #0                
+              Host_Alias     Host_Alias SERVERS = 192.168.0.1, 192.168.0.2, server1
+              Cmnd_Alias     list some commands (if a dir is specified all inside cmd are considered
+                             but NOT the subdirs) Cmnd_Alias PRINTING_CMDS = /usr/sbin/lpc, /usr/sbin/lprm 
+
+              !       You can also use ! to exclude 
+                      User_Alias LIMITED_USERS = USERS, !WEBMASTERS, !ADMINS
+
+              ALL     builtin alias which matches everything
+                      ALL ALL=(ALL) NOPASSWD: PRINTING_CMDS
+              
+              <tag list>    NOPASSWD:  no password is required (ex to print)
+                            NOEXEC:    no shell can be executed as a child (as it will be a su shell
+                                                                            then bypassing all sudo settings)
+____________________
+__  w
+
+
+                     (a)      (b)       (c)                                                        (a) current time
+                  13:28:28 up  4:54,  2 users,  load average: 0.01, 0.21, 0.65                     (b) time from boot
+                 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT               (c) num of connected users
+                 stiv     :0       :0               08:44   ?xdm?   2:34m  0.10s init --user       (d) from where connected
+                 stiv     pts/5    :0               13:21    2.00s  0.03s  0.00s tmux              (e) JCPU: CPU time used from boot
+                                  (d)                                (e)   (f)   (g)               (f) PCPU: used by that proc
+                                                                                                   (g) proc
+                 w -i      # gives IP addr for col (d)
+                 w -s      # gives short output
 ____________________
 __  ls
 
@@ -1121,7 +1236,7 @@ __  rsync
 
       -z          --compress
       -r          --recursive
-      -d          --dirs         opposite of recursive,  any dir is skippedr
+      -d          --dirs         opposite of recursive,  any dir is skipped
       -l          --links        copy links (only as symbolic)
       -L          --copy-links   copy links (copying real pointed object)  nb. if the pointed object is external, it is NOT copyed
       --copy-unsafe-links        copy all links even external
@@ -1212,6 +1327,27 @@ a way to copy to another server
      crontab -l | ssh $remote_host crontab
 
 
+--------------------------------------------------- snippets
+
+---- send a mail when CPU usage > 75%
+
+    SUBJECT="WARNING CPU USAGE HIGH"
+    TO=yourteam@companiesemailcom
+    MESSAGE=/tmp/messages
+    echo "#######################" > $MESSAGE
+    echo "CPU statistics as follows.." >> $MESSAGE
+    mpstat >> $MESSAGE
+    echo "#######################" >> $MESSAGE
+    CPU_USAGE=$(top -b -n1 | awk '/^Cpu/ {print $2}' | cut -d. -f1)
+    [ $CPU_USAGE -gt 75 ] && mail -s "$SUBJECT" "$TO" < $MESSAGE
+
+     
+
+    give execute permissions to that script and add to crontab.
+
+    0-59 * * * *  bash /pathtoscript.sh
+
+---- send a mail when CPU usage > 75%
 --------------------------------------------------- date
   date  +%s    ->     1445293970       num sec 01.01.1970
 
@@ -1966,6 +2102,70 @@ ld.so   it's the dynamic lynker. Search each library in
                ldconfig -p        list what is inside the cache
 ldconfig       ldconfig dirs...   add new dir in the cache.
 
+
+below 3 cmds used in: pmap `pgrep -u 1000` | grep total | awk '{print $2}'
+
+______________ free
+         show the RAM 
+                       Options:
+                        -b, --bytes         show output in bytes
+                        -k, --kilo          show output in kilobytes
+                 ---->  -m, --mega          show output in megabytes 
+                        -g, --giga          show output in gigabytes
+                            --tera          show output in terabytes
+                        -h, --human         show human-readable output
+                            --si            use powers of 1000 not 1024
+                        -l, --lohi          show detailed low and high memory statistics
+                        -o, --old           use old format (without -/+buffers/cache line)
+                        -t, --total         show total for RAM + swap  
+                        -s N, --seconds N   repeat printing every N seconds
+                        -c N, --count N     repeat printing N times, then exit
+
+______________ pmap
+         show the RAM used by 1 proc
+
+                      Options:
+                       -x, --extended              show details
+                       -X                          show even more details
+                                  WARNING: format changes according to /proc/PID/smaps
+                       -XX                         show everything the kernel provides
+                       -c, --read-rc               read the default rc
+                       -C, --read-rc-from=<file>   read the rc from file
+                       -n, --create-rc             create new default rc
+                       -N, --create-rc-to=<file>   create new rc to file
+                                  NOTE: pid arguments are not allowed with -n, -N
+                       -d, --device                show the device format
+                       -q, --quiet                 do not display header and footer
+                       -p, --show-path             show path in the mapping
+                       -A, --range=<low>[,<high>]  limit results to the given range
+
+______________ pgrep
+         grep on proc  (ex instead of ps -ef | grep basil  -->     pgrep -u $(id -u basil)
+
+                      Options:
+                       -d, --delimiter <string>  specify output delimiter
+                 ----> -l, --list-name           list PID and process name
+                       -v, --inverse             negates the matching
+                       -w, --lightweight         list all TID
+                       -c, --count               count of matching processes
+                       -f, --full                use full process name to match
+                       -g, --pgroup <id,...>     match listed process group IDs
+                       -G, --group <gid,...>     match real group IDs
+                       -n, --newest              select most recently started
+                       -o, --oldest              select least recently started
+                       -P, --parent <ppid,...>   match only child processes of the given parent
+                       -s, --session <sid,...>   match session IDs
+                       -t, --terminal <tty,...>  match by controlling terminal
+                 ----> -u, --euid <id,...>       match by effective IDs
+                       -U, --uid <id,...>        match by real IDs
+                       -x, --exact               match exactly with the command name
+                       -F, --pidfile <file>      read PIDs from file
+                       -L, --logpidfile          fail if PID file is not locked
+                       --ns <pid>                match the processes that belong to the same
+                                                 namespace as <pid>
+                       --nslist <ns,...>         list which namespaces will be considered for
+                                                 the --ns option.
+                                                 Available namespaces: ipc, mnt, net, pid, user, uts
 
 ____________________________________________________________ packegs
 

@@ -423,21 +423,37 @@ git gc --prune     # to remove garbaged collection
                                             |                                     (NB is only named "config" not ".gitconfig")
                                             | 
                                             | git config -l      to list the settings   (almost like a simple cat  .gitconfig)
+                                            |
+                                            |--------------------------------------------------------------------------------------------------
                                             |                    git config -l:                                                cat .git/config:   
-                                            | 
+                                            |--------------------------------------------------------------------------------------------------
                                             |         user.rmail=basile.stef@gmail.com                                           [core]                                            
-                                            |         user.email=basile.stef@gmail.com                                           repositoryformatversion = 0                     
-                                            |         core.repositoryformatversion=0                                             filemode = true                                 
-                                            |         core.filemode=true                                                         bare = false                                    
-                                            |         core.bare=false                                                            logallrefupdates = true                         
+                                            |         user.email=basile.stef@gmail.com                                                  repositoryformatversion = 0                     
+                                            |         core.repositoryformatversion=0                                                    filemode = true                                 
+                                            |         core.filemode=true                                                                bare = false                                    
+                                            |         core.bare=false                                                                   logallrefupdates = true                         
                                             |         core.logallrefupdates=true                                                 [remote "origin"]                                 
-                                            |         remote.origin.url=https://github.com/basilest/back-up.git                  url = https://github.com/basilest/back-up.git   
-                                            |         remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*                    fetch = +refs/heads/*:refs/remotes/origin/*     
+                                            |         remote.origin.url=https://github.com/basilest/back-up.git                         url = https://github.com/basilest/back-up.git   
+                                            |         remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*                           fetch = +refs/heads/*:refs/remotes/origin/*     
                                             |         branch.master.remote=origin                                                [branch "master"]                                 
-                                            |         branch.master.merge=refs/heads/master                                      remote = origin                                 
-                                            |                                                                                    merge = refs/heads/master
+                                            |         branch.master.merge=refs/heads/master                                             remote = origin                                 
+                                            |               ^                                                                    ^      merge = refs/heads/master
+                                            |               this dot '.' notation is the long name of the sections structure here
+                                            |       
+                                            |         to work as ssh instead of https (and so to avoid filling user/password each time) set the url type in config:
+                                            |
+                                            |                              ex. git config -l | grep -i url
+                                            |                                  remote.origin.url=https://github.com/companieshouse/chl-database.git
+                                            |                                                ^    ^
+                                            |                                  
+                                            |                                  change to :
+                                            |                                  remote.origin.url=git@github.com:companieshouse/chl-database.git
+                                            |                                                ^    ^
                                             | 
-                                            | 
+                                            |                                  git config --edit
+                                            |                                  [remote "origin"]
+                                            |                                        url = https://github.com/companieshouse/chl-database.git
+                                            |                                        git config -l | grep -i url
                                             | 
                                             | git config --global user.name "Dan"
                                             | git config --global user.name "Jon Loeliger"           # in $HOME/.gitconfig
