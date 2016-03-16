@@ -1,3 +1,60 @@
+                                            | $GIT_DIR
+                                            | $GIT_EDITOR      to set a preferred editor (ex.  export GIT_EDITOR=vim   # .bashrc)
+                                            | $GIT_AUTHOR_NAME        anothe way instead of setting 
+                                            | $GIT_AUTHOR_EMAIL       in .gitconfig
+---------------------------------------------------------------
+                                            | git --version
+                                            | git hash-object pippo.txt      # calculates the SHA1 of file pippo.txt 
+                                            | git rev-parse 3b18e512d        # to get all the hash (ex. obtaining 3b18e512dba79e4c8300dd08aeb37f8e728b8dad)
+                                            | git fsck           # to check integrity (of the pack)
+                                            | git add a.txt           # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
+                                            | git add .               # add this dir and any sub-dir   (more general: git add dirA    add all the tree rooted by dirA)
+                                            | git add --interactive   # useful to check one by one
+                                            | git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   to see the content of any node (blob tree or commit)
+                                            | git cat-file -t 3b18e...        shows type (ex. commit)
+                                            | git cat-file -s 3b18e...          "   size (bytes) (ex. 443))
+                                            | git cat-file -e 3b18e...          "   0 if node is 0K (echo $?)
+                                            | git ls-files -s            to see which files are in the index:
+                                            | git ls-files --stage       # long form
+                                            | git log --pretty=short --abbrev-commit master~12..master~10        range ~12 ~10 
+                                            | git show HEAD~2             to see a Commit
+                                            | git show master:Makefile    to see a Blob  (here file Makefile)
+                                            | git show        HEAD~2:APPUNTI/appunti.GIT.txt  <-------   they 
+                                            | git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------       do, the same
+                                            | git help --all             to list all sub-commands 
+                                            | git help -a                to list all sub-commands (short form)
+                                            | git help -g                the guide form
+                                            | git config -l      to list the settings   (almost like a simple cat  .gitconfig)
+                                            | git config --global user.name "Dan"
+                                            | git config --global user.name "Jon Loeliger"           # in $HOME/.gitconfig
+                                            | git config --global user.email "uuuuu@ddddd.com"
+                                            | git config --edit <----    open the file ex in vim 
+                                            | git config --help
+                                            | git config --unset --global user.email  
+                                            | git config --global alias.show-graph \           # to define alias 
+                                            |                     'log --graph --abbrev-commit --pretty=oneline' 
+                                            |           2.     % git init                   create an empty repo ( the dir .git/  )
+                                            |  2' way: git clone <url>  [dir_name]
+                                            |          git clone https://github.com/A
+                                            |          git clone https://github.com/A  B    # if I want a dir named B instead of the REPO dir name
+                                            |         git clone dir1  dir2     # copy the repository full path dir1 into the path dir2.
+                                            | git add a.txt           # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
+                                            | git add .               # add this dir and any sub-dir   (more general: git add dirA    add all the tree rooted by dirA)
+                                            | git add --interactive   # useful to check one by one
+                                            | 
+                                            | git status              # SHOW INDEX: shows what is staged and is going to be committed.
+                                            |                           to see which files are in which state
+                                            | git status -s    or --short   (for less verbose output)
+                                            | 
+                                            |                               % git reset HEAD a.txt  <--------------------
+                                            | git rm                  rm is the opposite of add.
+
+
+
+
+                                            | git symbolic-ref      # plumbing command to manage ref
+                                            | git show-ref          # lists all references
+---------------------------------------------------------------
 git fetch origin --prune              to remove, all old branches, deleted on remote but still
                                       present on my local env.
 
@@ -591,7 +648,7 @@ git gc --prune     # to remove garbaged collection
                                             |                                             by Larry Wall)
                                             |                                             diff a.txt  a2.txt  > p.txt
                                             |                                             patch < p.txt               (modifies a.txt in current dir
-                                            |                                                                          generating an a.txt=a2.txt)
+                                            |                                                                          generating a2.txt)
                                             |                                             patch -R < p.txt             reverts, modifies back a.txt)
                                             |
                                             |

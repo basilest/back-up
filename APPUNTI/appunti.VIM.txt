@@ -1,22 +1,29 @@
-
------------------------------------------------------- TABs in VIM
-     vim -p a.txt b.txt          open vim tabbed with 2 files
-     vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
-         -c :$   a.txt                goto last line
-         -c /xxx a.txt                search for xxx
-
-     :tabs    show the list
-     gt       go to tab AFTER    
-     gT       go to tab BEFORE    
-     3gt      go to tab n.3
 ------------------------------------------------------ 
------------------------------------------------------- 
+CtrlP - vim plugin
 
+Note the the search provided by CtrlP is not a:
+     find . -iname '*xxx*'
 
+but is trimmed at N:
+     find . -iname '*xxx*' | head -N
 
+     (where N is the var [g:ctrlp_max_height]
+      default N=10, I set to 70)
 
+1. install with vundle
+   a. add in .vimrc the line:   Plugin 'ctrlp.vim'
+   b. :PluginUpdate
 
+2. add these config in .vimrc
+   a. set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+      (to exclude some files)
+   b. let g:ctrlp_max_height=70
 
+3. ^f: search in files (fuzzy logic in the FULL path)
+   ^b: search in buffers
+   ^d: search in files  (fuzzy logic in FILENAME only)
+
+------------------------------------------------------ HELP
 
 :set conceallevel=0              to avoid 'hidden' behaviour (ex hide the |bars| in help pages.
 
@@ -35,8 +42,7 @@
 :help E37                        to have help for vim errors (here code E37)
 :help xxxx + Tab                 like bash (...autocomplete)
 :help xxxx + Ctrl-D              to have ALL the list of possible helps starting with xxxx
-:help E37                        to have help for vim errors (here code E37)
-:helpgrep xxxx                   to search xxxx text INSIDE help pages. It will the jump to the 1st.
+:helpgrep xxxx                   to search xxxx text INSIDE help pages. It will the jump to the 1'.
                                  I can then move between the helps as 
                                       :cn         next match
                                       :cN         previous    (also :cprev)
@@ -44,19 +50,6 @@
                                       :clast      jumo to last
                                       :copen      jump to item under curson (like Ctrl-]
                                       :close      (like Ctrl-O, CTRl-T
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------ GET VIM
@@ -265,26 +258,6 @@ insert num of line in a substitution pattern match:
   |   [     start of last change
   |   ]     end         idem
   |____________________________________ to see the list of marks:         :marks
-
-  
-
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-  ------------------------------------- moving
-
 
 
 ------------------------------------------------------ In Insert Mode
@@ -811,3 +784,28 @@ times in msec
 082.804  000.000: before starting main loop
 083.436  000.632: first screen update
 083.437  000.001: --- VIM STARTED ---
+
+------------------------------------------------------ TABs 
+     vim -p a.txt b.txt          open vim tabbed with 2 files
+     vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
+         -c :$   a.txt                goto last line
+         -c /xxx a.txt                search for xxx
+
+     :tabs    show the list
+     gt       go to tab AFTER    
+     gT       go to tab BEFORE    
+     3gt      go to tab n.3
+------------------------------------------------------ BUFFERS
+:ol        (list (read only) the last 100 old opened files)
+:bro ol    (browse old files)
+           (I can then enter 'q' a number to open that file)
+
+:ls        (list the opened buffers
+            #the same are   :files   :buffers
+
+------------------------------------------------------ COLOR
+:color| |<Tab>   (:color+1 space+ 1 Tab)
+            (shows all the available color schemes)
+:color desert (set the color scheme to the scheme 'desert')
+            (useful if vimdiff has crazy colors)
+:hi         (shows the settings of the current color scheme)

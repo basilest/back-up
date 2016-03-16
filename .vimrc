@@ -23,23 +23,35 @@ Plugin 'gmarik/vundle'
 "
 "  To ident code with |
 "<INDENT LINE>
-Plugin 'Yggdroot/indentLine'
-let g:indentLine_color_term = 239
-let g:indentLine_color_gui = '#09AA08'
-let g:indentLine_char = '│'
-let g:indentLine_fileTypeExclude = ['text', 'sh']
-:set list lcs=tab:\|\ 
+"              Plugin 'Yggdroot/indentLine'
+"              let g:indentLine_color_term = 239
+"              let g:indentLine_color_gui = '#09AA08'
+"              let g:indentLine_char = '│'
+"              let g:indentLine_fileTypeExclude = ['text', 'sh']
+"              :set list lcs=tab:\|\ 
 "</INDENT LINE>
 "
 "<NERDTREE>
 Plugin 'scrooloose/nerdtree.git'
 "</NERDTREE>
-"<LIGHTLINE>
-Plugin 'itchyny/lightline.vim'
+"<AIRLINE>
+Plugin 'vim-airline/vim-airline'
 set laststatus=2
-let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \}
+set ttimeoutlen=50        "fast transition from Insert mode to Normal
+
+"Plugin 'vim-airline/vim-airline-themes'  "temes fo airtime 
+"</AIRLINE>
+"<CTRLP>
+Plugin 'ctrlp.vim'
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+let g:ctrlp_max_height=70
+"</CTRLP>
+"<LIGHTLINE>
+"                  Plugin 'itchyny/lightline.vim'
+"                  set laststatus=2
+"                  let g:lightline = {
+"                        \ 'colorscheme': 'wombat',
+"                        \}
 "if !has('gui_running')
 "      set t_Co=256
 "endif
@@ -47,54 +59,54 @@ let g:lightline = {
 "</LIGHTLINE>
 "<PYTHON-MODE>   plugin for Python
 " Python-Mode ---------------------- {{{
-Plugin 'klen/python-mode'
- " Keys:
- " K             Show python docs
- " <Ctrl-Space>  Rope autocomplete
- " <Ctrl-c>g     Rope goto definition
- " <Ctrl-c>d     Rope show documentation
- " <Ctrl-c>f     Rope find occurrences
- " <Leader>b     Set, unset breakpoint (g:pymode_breakpoint enabled)
- " <Leader>r     run
- " [[            Jump on previous class or function (normal, visual, operator modes)
- " ]]            Jump on next class or function (normal, visual, operator modes)
- " [M            Jump on previous class or method (normal, visual, operator modes)
- " ]M            Jump on next class or method (normal, visual, operator modes)
- let g:pymode_rope = 1
-"let g:pymode_rope_complete_on_dot = 0 when working with YouCompleteMe plugin
-"let g:pymode_rope_completion = 0  to cancel the pymode completion totally.
- let g:pymode_rope_complete_on_dot = 0
-
- " Documentation
- let g:pymode_doc = 1
- let g:pymode_doc_key = 'K'
-
- "Linting
- let g:pymode_lint = 1
- let g:pymode_lint_checker = "pyflakes,pep8"
- " Auto check on save
- let g:pymode_lint_write = 1
-
- " Support virtualenv
- let g:pymode_virtualenv = 1
-
- " Enable breakpoints plugin
- let g:pymode_breakpoint = 1
- let g:pymode_breakpoint_bind = '<leader>b'
-
- " syntax highlighting
- let g:pymode_syntax = 1
- let g:pymode_syntax_all = 1
- let g:pymode_syntax_indent_errors = g:pymode_syntax_all
- let g:pymode_syntax_space_errors = g:pymode_syntax_all
-
- " Don't autofold code
- let g:pymode_folding = 0
+"                    Plugin 'klen/python-mode'
+"                    " Keys:
+"                    " K             Show python docs
+"                    " <Ctrl-Space>  Rope autocomplete
+"                    " <Ctrl-c>g     Rope goto definition
+"                    " <Ctrl-c>d     Rope show documentation
+"                    " <Ctrl-c>f     Rope find occurrences
+"                    " <Leader>b     Set, unset breakpoint (g:pymode_breakpoint enabled)
+"                    " <Leader>r     run
+"                    " [[            Jump on previous class or function (normal, visual, operator modes)
+"                    " ]]            Jump on next class or function (normal, visual, operator modes)
+"                    " [M            Jump on previous class or method (normal, visual, operator modes)
+"                    " ]M            Jump on next class or method (normal, visual, operator modes)
+"                    let g:pymode_rope = 1
+"                   "let g:pymode_rope_complete_on_dot = 0 when working with YouCompleteMe plugin
+"                   "let g:pymode_rope_completion = 0  to cancel the pymode completion totally.
+"                    let g:pymode_rope_complete_on_dot = 0
+"                   
+"                    " Documentation
+"                    let g:pymode_doc = 1
+"                    let g:pymode_doc_key = 'K'
+"                   
+"                    "Linting
+"                    let g:pymode_lint = 1
+"                    let g:pymode_lint_checker = "pyflakes,pep8"
+"                    " Auto check on save
+"                    let g:pymode_lint_write = 1
+"                   
+"                    " Support virtualenv
+"                    let g:pymode_virtualenv = 1
+"                   
+"                    " Enable breakpoints plugin
+"                    let g:pymode_breakpoint = 1
+"                    let g:pymode_breakpoint_bind = '<leader>b'
+"                   
+"                    " syntax highlighting
+"                    let g:pymode_syntax = 1
+"                    let g:pymode_syntax_all = 1
+"                    let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+"                    let g:pymode_syntax_space_errors = g:pymode_syntax_all
+"                   
+"                    " Don't autofold code
+"                    let g:pymode_folding = 0
 
 "</PYTHON-MODE>
 " }}}
 "<FUGITIVE>   plugin for Git
-"Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-fugitive'
 "</FUGITIVE>
 "
 " A plugin can be installed referencing with its name
@@ -129,13 +141,13 @@ Plugin 'klen/python-mode'
 "
 " <SETTINGS FOR C/C++>
 "Plugin 'Valloric/YouCompleteMe'
-let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
-augroup project
-      autocmd!
-      autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
-augroup END
-call vundle#end()
-filetype plugin indent on
+"             let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+"             augroup project
+"                   autocmd!
+"                   autocmd BufRead,BufNewFile *.h,*.c set filetype=c.doxygen
+"             augroup END
+"             call vundle#end()
+"             filetype plugin indent on
 "</SETTINGS FOR C/C++>
 "
 "
@@ -209,6 +221,8 @@ filetype on
 :nnoremap <leader>f   :call My_Jump_to_file(expand("<cWORD>"))<cr>
 ":nnoremap <leader>d  :call My_Date()<cr>
 :nnoremap <leader>m  :call My_Menu_Item(2)<cr>
+
+:nnoremap <leader>F  :CtrlP .<cr>
 " }}}
 
 " Vimscript MY file settings AUGROUP TYPE-VIM  ---------------------- {{{
@@ -226,21 +240,22 @@ filetype on
 ":set tags=./tags;~/legislative2015/
 let g:tex_conceal = ""
 
+color desert
 
 
-set gcr=a:block
-
-" mode aware cursors
-set gcr+=o:hor50-Cursor
-set gcr+=n:Cursor
-set gcr+=i-ci-sm:InsertCursor
-set gcr+=r-cr:ReplaceCursor-hor20
-set gcr+=c:CommandCursor
-set gcr+=v-ve:VisualCursor
-
-set gcr+=a:blinkon0
-
-hi InsertCursor  ctermfg=15 guifg=#fdf6e3 ctermbg=37  guibg=#2aa198
-hi VisualCursor  ctermfg=15 guifg=#fdf6e3 ctermbg=125 guibg=#d33682
-hi ReplaceCursor ctermfg=15 guifg=#fdf6e3 ctermbg=65  guibg=#dc322f
-hi CommandCursor ctermfg=15 guifg=#fdf6e3 ctermbg=166 guibg=#cb4b16
+"                set gcr=a:block
+"                
+"                " mode aware cursors
+"                set gcr+=o:hor50-Cursor
+"                set gcr+=n:Cursor
+"                set gcr+=i-ci-sm:InsertCursor
+"                set gcr+=r-cr:ReplaceCursor-hor20
+"                set gcr+=c:CommandCursor
+"                set gcr+=v-ve:VisualCursor
+"                
+"                set gcr+=a:blinkon0
+"                
+"                hi InsertCursor  ctermfg=15 guifg=#fdf6e3 ctermbg=37  guibg=#2aa198
+"                hi VisualCursor  ctermfg=15 guifg=#fdf6e3 ctermbg=125 guibg=#d33682
+"                hi ReplaceCursor ctermfg=15 guifg=#fdf6e3 ctermbg=65  guibg=#dc322f
+"                hi CommandCursor ctermfg=15 guifg=#fdf6e3 ctermbg=166 guibg=#cb4b16
