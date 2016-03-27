@@ -193,13 +193,14 @@ function! My_Jump_to_file(word)
     let file_path = system (cmd)
     :exe "split " . file_path
 endfunction
+
 " }}}
 " Vimscript MY file settings MAIN ---------------------- {{{
 set mouse=a
 set nu
 "set relativenumber
 set hlsearch
-set ic
+"set ic
 
 set tabstop=4
 set shiftwidth=4
@@ -223,6 +224,25 @@ filetype on
 :nnoremap <leader>m  :call My_Menu_Item(2)<cr>
 
 :nnoremap <leader>F  :CtrlP .<cr>
+:nnoremap <leader>g :set operatorfunc=<SID>GrepOperator<cr>g@
+:vnoremap <leader>g :<c-u>call <SID>GrepOperator(visualmode())<cr>
+function! s:GrepOperator(type)
+    let saved_unnamed_register = @@
+
+    if a:type ==# 'v'
+        normal! `<v`>y
+    elseif a:type ==# 'char'
+        normal! `[v`]y
+    else
+        return
+    endif
+
+    "silent execute "grep! -R " . shellescape(@@) . " ."
+    echo  "grep! -R " . shellescape(@@) . " ."
+    copen
+
+    let @@ = saved_unnamed_register
+endfunction
 " }}}
 
 " Vimscript MY file settings AUGROUP TYPE-VIM  ---------------------- {{{
