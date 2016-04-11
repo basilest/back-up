@@ -1,0 +1,131 @@
+
+
+
+    CONTROLS:      - each ELEMENT in the Page "IS" a Control  (ex a Date, an Address)
+                   - Controls can be NESTED.  (1 Panel includes 1 button & 1 input field)
+                   - root Control is the 'Page'
+                   - 'Pager' Control is the controls when the results is on + Pages
+                      and must manage the line of 'previous, next, first, last ....'
+                   - they generates HTML-code
+                   - they run on the SERVER (so besides the HTML, they have also Perl-code)
+                   - Perl-code acts to - Produce the HTML-code
+                                       - Validation
+                   - the methods defined in each Controls are the following 6 functions:
+                                  ---------------------------------
+                                                      MANDATORY
+                                  ---------------------------------
+                                  new()                   . 
+                                  createChildControls()   .
+                                  onLoad()               YES
+                                  validateControl()       .
+                                  saveControl()           .
+                                  renderControl()        YES
+
+                             . the functions are called in that order.
+                             . they are called on an 'event' base
+                             . new: is usually intended only to register the properties and call SUPER:
+                                    sub new
+                                    {
+                                        my ($caller, %arg) = @_;
+                                          
+                                        Framework::objectBase::registerProperties( __properties, \%arg );
+                                        return $caller->SUPER::new(%arg);
+                                    } 
+
+                             . createChildControls:  creates its direct children. In a top-down order, that is
+                                                     Children can create their other children and so on.
+                                                     This creates a names-chain (ex. SAIL.SAILAddress.Postcode)
+
+                                                     In some cases, when dynamc values are retrieved from 
+                                                     DB, the creation of Children is deferred in the onLoad
+
+                             . onLoad:  - to initialise    all fields with flag 'WebInput'
+                                        - to store/restore all fields with flag 'serial'
+                                                           the 're'-store occurs during the 'POST'-back
+                                                           that code is inside this block:
+
+                                                               if( $self->isPropertyTrue( 'isPostBack' ) ) {
+
+
+                                                               }
+                                       
+
+                             . validateControl: is called after the POST sent by the client, so that 
+                                                othet SERVER-side validation can be performed.
+                                               
+                                                .vld files perform SERVER-side control. 
+                                                .vld files perform mainly only single-field validation.
+
+                                                validateControl does what a .vld file cannot do.
+                                                validateControl in unix style,for OK! returns: undef/blank/zero/false
+                                                (any other values means ERROR)
+                                                    - Error must be called with $self->reportError (fieldName, textCode)
+                                                      ex ... ('SameAsServiceAddress', 'RASAMEASAUNDEFERR');
+                                                                      ^
+                                                                      the property associated to 1 HTML filed
+                                                                      When there is a PAGE error or it's related to
+                                                                      more than 1 field ==> use the keyword: 'DUMMY'
+
+                                                validateControl MUST call SUPER::validateControl() when
+                                                   - the Parent has one
+                                                   - the Parent is 'autoPage' (so I'm a Page at 1' level)
+                                                 Otherwise the call to SUPER can be skipped.
+
+                             . renderControl:  - called to build the HTML. 
+                                               - il calls a .....tmpl file  (a template) ex registers/xx2.tmpl
+                                               - a property (ex _xxP_1)  must have the same filename 
+                                                           ...
+                                                          _xxP_1 => [ 'registers/xx2.tmpl', 'read', 'string' ],
+
+                                               - when _xxP_1 is initialised, a TAG (in "controlName => xxxxxx") is defined:
+
+                                                         $self->set_xxP_1( new ExampleAverage( controlName => 'xxxxxx' ) );
+
+                                                 that TAG is used as a PLACEHOLDER in the  xx2.tmpl file with the syntax
+                                                                 <!-- Control: xxxxxx -->
+
+                                               - that ...tmpl file can have nested ...tmpl files:
+                                                          <TMPL_INCLUDE controls/registers/xx18.tmpl>
+
+                                               - when there are controls the property 'hasControls'  (inherited 
+                                                 from Framework::UI::control) is used in renderControl
+                                                 to exit directly when 'false'
+
+                                                             return unless $self->isPropertyTrue( 'hasControls' );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

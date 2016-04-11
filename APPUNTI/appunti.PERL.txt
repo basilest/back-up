@@ -185,7 +185,7 @@ INSTALL                                                       another way is per
 
                                                   to add a path in INC ex to use A::B
                                                   perl -I A  (<--- it's the dir)
-                                                  or inside the code (use lib "/.../.../A";  or use lib qw((...)
+                                                  or inside the code (use lib "/.../.../A";  or use lib qw(...)
                                                                       use A::B;)
                                                   nb. I can also push on the array @INC:
                                                       push(@INC, (...))
@@ -221,9 +221,9 @@ Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
 nb. 'glob' is the nick name for *. ('globally') In the unix shell it means FILE-glob,
      all files in a dir. TYPE-glob means all entries in a Symbol Table.
 
-symbol table: where the compiler remembers symbols (variables, filehandles, and subroutines) 
-              A table, which is implemented in Perl using a hash table. 
-              1 symbol table for each package to give its own namespace.
+symbol-table: where the compiler stores symbols (variables, filehandles, and subroutines) 
+              A table, which is implemented in Perl using a HASH.
+              1 symbol-table for each package to give its own namespace.
 
 PRECEDENCE:     
      The sigils are not operators. 
