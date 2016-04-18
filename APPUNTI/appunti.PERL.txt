@@ -221,15 +221,16 @@ Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
 nb. 'glob' is the nick name for *. ('globally') In the unix shell it means FILE-glob,
      all files in a dir. TYPE-glob means all entries in a Symbol Table.
 
-symbol-table: where the compiler stores symbols (variables, filehandles, and subroutines) 
-              A table, which is implemented in Perl using a HASH.
-              1 symbol-table for each package to give its own namespace.
+symbol-table:  - where the compiler stores symbols (variables, filehandles, and subroutines) 
+               - is implemented in Perl using a normal HASH.
+               - there is 1 symbol-table for each package (to give its own namespace).
 
 PRECEDENCE:     
-     The sigils are not operators. 
-     They come always FIRST!
-     They identify a TERM. Once the TERM is identified
-     operators apply (with the usual Operator-Precedence-list (-> first, ....)).
+   - The sigils are not operators. 
+   - They come always FIRST!
+   - They identify a TERM. 
+   - Once the TERM is identified operators apply 
+     (with the usual Operator-Precedence-list (-> first, ....)).
 
 
 --------------------------
@@ -245,6 +246,7 @@ SCALAR VARIABLES
         In Perl, the operator determines both 
           - the context: SCALAR / LIST
           - the TYPE for scalars: (string / num)
+
         For example $x + $y is always a numeric addition of 2 SCALARs, 
         and if $x or $y do not contain numbers, an attempt is made to convert them to number first.
         ($x == $y I'm comparing 2 nums,  $x eq $y I'm comparing 2 strings)
@@ -253,7 +255,7 @@ SCALAR VARIABLES
         # Numerical operators:  <,  >, <=, >=, ==, !=, <=>, +, *
         # String operators:    lt, gt, le, ge, eq, ne, cmp, ., x
         nb. x for string. (ex. print "–" x 80;)
-            in list context instead of the strings, it replicates the list.
+            In LIST context instead of the strings, it replicates the LIST.
             This is useful to init an array or hash
                               @ones = (1) x 80;      #init with 80 1
                               @ones = (5) x @ones;   #change all 80 to 5
@@ -297,7 +299,7 @@ SCALAR VARIABLES
     |    or at command line -M... 
     |    ex >perl -Mbigrat -E 'say 10/3 == 1/3*10 ? "Y":"N"' ---> Y
     |
-    | literals used as ravlue in $x = ... can use 
+    | literals used as rvalue in $x = ... can use 
     |        0x.. ( for hex) 
     |        0... (     oct) 
     |        0b.. (     bin)
@@ -453,7 +455,7 @@ HASH
    Linguistically, a hash relationship is genitive or possessive, ( “of” in English)
    The wife of Adam is Eve: $wife{"Adam"} = "Eve";
 
-undef:   accessing a key that not exits or accessing outside 
+undef:   accessing a key that doen't exit or accessing outside 
          the hash gives  'undef'
 
             my %scientists = (                  %h = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
@@ -482,7 +484,7 @@ undef:   accessing a key that not exits or accessing outside
 
     - slice of hashes
             Given a HASH %H, a subset %h could be identified by a LIST of keys, ex ("a", "b", "f") or better qw/a b f/
-            An instruction like H{ qw/a b f/} is the array of values so it's @H{ qw/a b f}
+            An instruction like H{ qw/a b f/} is the array of values so it's @H{ qw/a b f/}
             To have a hash it's:
 
             my %h;
@@ -511,13 +513,13 @@ exist:  if (exists $books{"dino"}) {   # Test if such a key is presnt
 delete: delete $books{$person};        # Remove that pair key / value
 
 reverse: %ip_address = reverse %host_name;
-                               create a new has were the keys are
+                               create a new hash were the keys are
                                the values of the first, and the values
                                are the old keys.
                                N.B. as keys must be unique, if old hash
                                had equal value for different keys, they overwrite
                                each others(: the later items in the list
-                               overwrite any earlier ones).
+                               overwrites any earlier one).
 
 while / foreach:
             while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) { 
@@ -579,7 +581,7 @@ LIST
             neither by the array [] nor by the hash {}.
             A list is not a variable. 
             A list is an ephemeral value which can be assigned to 
-            an array or a hash variable. This is why the syntax 
+            an array or a hash var. This is why the syntax 
             for array and hash is identical. 
 
             The following are just lists. Identical lists.
@@ -590,7 +592,7 @@ LIST
              can be used to declare an empty array or an empty hash 
 
      list assignments: are called the assignments like:
-             my ($a, $b, $c) = @x;   # assign to scalars val from an array
+             my ($a, $b, $c) = @x;   # assign to scalars, vals from an array
              ($a, $b) = ($b, $a);    # swap 2 vars
 
      List values cannot be nested.            |Perl has no way of knowing so 
@@ -626,14 +628,14 @@ LIST
 CONTEXT
 --------------------------
             Perl code is context-sensitive. 
-            Every expression is evaluated in scalar or list context, 
-            depending on whether it is expected to produce a scalar or a list. 
+            Every expression is evaluated in SCALAR or LIST context, 
+            depending on whether it is expected to produce a SCALAR or a LIST. 
 
-          - A scalar assignment 
+          - A SCALAR assignment 
                      my $scalar = 
             evaluates in scalar context. 
 
-          - An array or hash assignment 
+          - An ARRAY or HASH assignment 
                      my @array = 
                      my %hash  = 
             evaluates in list context. 
@@ -665,7 +667,7 @@ CONTEXT
             if (my ($k,$v) = $string =~ m/(\w+)=(\w*)/) {
                          1.  =~  has higher precedence wrt =
                          2.  in list context =~ returns the strings matched
-                         3.  =, the list-assignemtn is done
+                         3.  =, the list-assignemnt is done
                          4.  as it's done in scalar context, if(), it returns 2 the num of elem list assigned
                              ex. DB<1> $a="aaa bbb"
                                  DB<2> $s=my($k,$v)=$a=~/(\w+) (\w+)/
@@ -714,7 +716,7 @@ REFERENCES
 
                           nb.  symbolic reference: is what I've used above:
                           a var whose value is the name of another var or subroutine. 
-                          Symbolic references are illegal under use strict "refs" .
+                         Symbolic references are illegal under use strict "refs" .
                                perl -e 'use strict "refs"; $b=2; $a=b; print "$a = ${$a}\n"'
                                Can't use string ("b") as a SCALAR ref while "strict refs" in use at -e line 1.
 

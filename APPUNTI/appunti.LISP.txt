@@ -1,0 +1,126 @@
+     Lisp:
+           - efficient on SYMBOL manipulation
+           - less efficient (than Fortran or C) on NUMERICAL manipulation
+             even if improvements have been done on the compilers
+             that translate Lisp code into machine code.
+           - LISt Processor, where a LISt is represented in the common notation ( )
+              functions are themselves written as lists, 
+              they can be processed exactly like data
+
+     data objects: 
+                  -atom       are numbers or strings
+                  -list       a finite series of atoms or lists
+                              it must be thought as a linked list:
+
+                                 ----------.     ----------.     ----------.
+                                 | .  | .--|-->  | .  | .--|-->  | .  | .--|--> 
+                                 --|-------.     --|-------.     --|-------. 
+                                   |               |               |
+                                  45               6              abc
+                              
+                               ----------.   
+                               | .  | .--|-->        <-- this is called 'cons'
+                               --|-------.               (in Scheme 'pair')
+                                 |                       the pointer to the value is 'car'
+                                                         the pointer to the next 'cons' is 'cdr'
+
+                              a cons can be written in the dotted notation (a . b) 
+                              to highligth 'car' and 'cdr' but is never used as
+                              (a b c)  would be less readable in this format (a . (b . (c nil)))
+
+                              cons, is the function to insert an element as 1st in a list
+                              (cons 1 '(2 3))  -->    (1 2 3)
+
+           - 1958 (MIT) implemneted on an IBM 704, with assembly macros
+             to manipulate list.
+             2 of these macros were:
+
+                'car' gives the 1' el of the list  (Contents of the Address   part of Register number)
+                'cdr' gives the rest  of the list  (Contents of the Decrement part of Register number)
+
+           - 1962  (MIT) 1' compiler
+           - 1975  (MIT) implements Scheme      (minimal LISP, defines a subset of LISP spec)
+           - 1984  'Common Lisp the Language' an influential book by Guy Steele to get rid of too many LISP dialects
+           - 1994  ANSI standard of Common LISP (defines the Full LISP spec)
+           - 1998  IEEE standard of Scheme (version R5RS)
+           - 2007  IEEE standard of Scheme (version R6RS)
+
+     pretty-printing: 
+                  -align and indent operators:
+                        (+ (* 2 4)
+                           (+ 3 5))
+
+     read-eval-print loop   (REPL)
+                            the mechanism can be synthesized in LISP notation
+                            (loop (print (eval (read))))
+
+     expression-oriented language:
+                                   - code and data are written as EXPRESSIONS. 
+                                     (called S-expression   S for Symbolic)
+                                   - an expression evaluated, produces a VALUE 
+                                     (in Common Lisp, possibly MULTIPLE values), 
+                                   - that value can so be EMBEDDED into other expressions. 
+                                   - in Common Lisp, evaluation is ('leftmost innermost'), 
+                                     in Scheme is undefined, leaving room for optimization by a compiler.
+
+
+     (1 2 foo)           list with 3 atoms
+     ()                  empty list 
+     nil                 syntax sugar for ()  
+                         so nil is at he same time an atom and a list
+     (quote foo)         also ('foo)
+                         returns without evaluating
+                         (so literally foo)
+                         without the ', LISP searches for a var foo to get its value
+                         with compile error if foo is missing.
+     (incf x)            x++
+     (defun ..)          defines a function. Ex:
+                         (defun foo (a b) (+ a b))
+                         function return value: is the value of the last expression
+     (list ..            returns a list. Ex
+                         (list 1 '(2 3) 4)  --> (1 (2 3) 4)
+     (cons ..            add an elem as 1'
+     (append ..          add as last    (append '(1 2 3) '() '(a) '(5 6))  -->  (1 2 3 a 5 6)
+     (push   ..          add as last    (push a 5)   add 5 to var a
+     (reverse ..         (reverse '(1 2 3)) --> (3 2 1)
+     (mapcar ..          takes as args 
+                               - function
+                               - some lists (each of the same len N)
+                         executes the function N times, each time with the i-th args from the lists
+                         Ex: (mapcar #'+ '(1 2 3 4 5) '(10 20 30 40 50)) --> (11 22 33 44 55)
+
+
+     format:             is the Lisp printf
+                         (format t ".....")      t: standard output (terminal)
+                         Ex. (defun hello-world () (format t "hello, world"))
+
+
+     a program:          1. write code in a file .list or .cl  (ex. test1.lisp)
+                         2. load that file: (load "test1.lisp") <-- NB the " "
+                            the load read and executes each line of the file
+                         3. another way is to first compile the file and load the result
+                            (load (compile-file "test1.lisp"))
+                                         ^
+                                         this will create a test1.fasl               ^
+
+     simple HASH         are lists where the keys have a ':' in front:
+                         (list :a 1 :b 2 :c 3)
+
+                         the (getf ... returns the value of a certain key
+                         (getf (list :a 1 :b 2 :c 3) :a)   --> 1
+
+     global var          (defvar *db* nil)        (defvar ...   
+                                                  *..*   is the naming convention
+
+     (dolist             (dolist (cd *db*)
+                                (format t "~{~a:~10t~a~%~}~%" cd)))
+
+                                            ~         is the % in C
+                                            ~%        is the new line
+                                            ~{  ~}    iterates on a list
+                                            10t       add enough spaces till col 10
+                         
+
+
+
+     OO in Lisp          Common Lisp Object System (CLOS)
