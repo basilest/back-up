@@ -1,4 +1,18 @@
+                          PERL CORE
 
+         _____________________________________________________________________________
+        |   ()  <-- $          SCALAR in LIST   ctx:        LIST of 1                 |
+        |                                                                             |
+        |    $  <-- @          ARRAY  in SCALAR ctx:        LEN                       |
+        |    $  <-- %          HASH   in SCALAR ctx:        used/avail buckets        |
+        |    $  <-- ()         LIST   in SCALAR ctx:        LAST elem                 |
+        |                                                                             |
+        |          **EMPTY** LIST()/HASH%/ARRAY@ GIVES SCALAR 0   $x = ()  <-- x:0    |
+        |                                                                             |
+        |    $  <-- ()=()      LIST-ASSIGN in SCALAR ctx: num of ASSIGNs              |
+        |                      @a=(1,2,3);                                            |
+        |                        '---------> $s= ($x,$w,$y,$k,$j)=@a   s:3            |
+        |_____________________________________________________________________________|
 
 
 
@@ -477,7 +491,7 @@ undef:   accessing a key that doen't exit or accessing outside
             so you can omit quotes:  $hash{key} instead of $hash{"key"} 
             ("" are required if the key has spaces).
 
-    - HASH into SCALAR   $s = %H
+    - HASH into SCALAR   $s = %H                                   $ <-- %
             $s = 0   if the HASH is EMPTY. Usefull in tests!!
             otherwise (HASH not EMPTY) return a vale x/y (ex 5/8) which is
             the situation of the hash table (5 used buckets on a total of 8 available)
@@ -595,8 +609,10 @@ LIST
              my ($a, $b, $c) = @x;   # assign to scalars, vals from an array
              ($a, $b) = ($b, $a);    # swap 2 vars
 
-     List values cannot be nested.            |Perl has no way of knowing so 
-             my @array = (                    |it manages it as a single long list.
+     NOT LIKE LISP:     List values cannot be nested.  
+     -------------      Perl manages it as A SINGLE LONG LIST.
+
+             my @array = (                    |
                            "apples",          |
                            "bananas",         |print $array[0]; # "apples"
                            (                  |print $array[1]; # "bananas"
@@ -640,33 +656,39 @@ CONTEXT
                      my %hash  = 
             evaluates in list context. 
 
-          - A scalar evaluated in list context 
-            is silently converted into a 1-element list:
+          - A scalar evaluated in list context                                        ()  <-- $
+            is silently converted into a 1-ELEMENT LIST:
 
                my @array = "Mendeleev"; 
                # same as 'my @array = ("Mendeleev");'
 
-          - An array evaluated in scalar context 
-            returns the len:
+          - An array evaluated in scalar context                                       $  <-- @
+            returns the LEN:
 
                my @array = ("Alpha", "Beta", "Gamma", "Pie");
                my $scalar = @array;
                print $scalar; # "4"
 
-          - A list expression (a list is different from an array, remember?) 
+          - Already seen that an HASH into a scalar                                    $  <-- %
+            returns the used/avail buckets
+
+          - A list-EXPRESSION (a list is different from an array, remember?)           $  <-- ()
             evaluated in scalar context returns 
                     not the len of the list 
             but 
-                    the final scalar in the list:
+                    the LAST scalar in the list:
 
             my $scalar = ("Alpha", "Beta", "Gamma", "Pie");
-            print $scalar; # "Pie"
+            print $scalar; # "Pie"                    ^
 
-          - A list-assignment evaluated in scalar context returns 
+            SO AT THE END: AN EMPTY LIST()/HASH%/ARRAY@ GIVES SCALAR 0   $x = ()  <-- x:0
+            ------------------------------------------------------
+
+          - A list-ASSIGNMENT evaluated in scalar context returns                     $  <-- ()=()
             the number of list elem. assigned
             if (my ($k,$v) = $string =~ m/(\w+)=(\w*)/) {
                          1.  =~  has higher precedence wrt =
-                         2.  in list context =~ returns the strings matched
+              =~ ------> 2.  in LIST context =~ returns the STRINGS matched <------
                          3.  =, the list-assignemnt is done
                          4.  as it's done in scalar context, if(), it returns 2 the num of elem list assigned
                              ex. DB<1> $a="aaa bbb"
@@ -796,6 +818,9 @@ INDIRECTION:    it's the problem to access a variable through another variable
 
                      $x = 'v';    'symbolic' reference
                      $x = \$v;    'hard'     reference  ($x is pointing directly to 'B')
+                                    ^
+                                    |
+                                    so now we know: the '\' creates a HARD ref
 
 POINTER:        in C for example it's solved, with the pointer type,
                 a var storing the memory address of the other.
@@ -820,7 +845,7 @@ REFERENT        is 'what' a reference is pointing to.
                        they are sending from C to Perl looks as they think it should look.
 
 SYMBOL TABLES   variable name lives in some kind of symbol table,
-                that hold 1 hard referenCE to its underlying (otherwise nameless) referenT.
+                that hold 1 HARD referenCE to its underlying (otherwise nameless) referenT.
 
 CREATE          - the operator \ (like the & in C) it gives the memory address.
   1               So the 1st way to create a scalar-var of TYPE 'reference' is:
@@ -836,7 +861,7 @@ CREATE          - the operator \ (like the & in C) it gives the memory address.
                       In fact, apart from the 'anonymous' case, the others cases are of the form:
                       $a = \$b;    so $a, after $b, is a 2nd reference name to the same referenT.
 
-                  NB.2 When used on a list, '\' returns a list as well (it applies to each elem):
+                  NB.2 WHEN USED ON A LIST, '\' RETURNS A LIST AS WELL (IT APPLIES TO ALL ELEMs):
 
                        @r = \($s, @a %h, &f);     <--- the same as  @r = (\$s, \@a, \%h, \&f);
                        @r = \(@x);                <--- When 1 array or 1 hash is written inside ()
@@ -903,9 +928,9 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
 
                   NB.3  'AUTOVIVIFICATION'
                      Is the process to automatic create (lvalues) if they are not defined.
-                     and regardless thei complexity (so any nested required struct is created)
+                     and regardless their complexity (so any nested required struct is created)
                      ex
-                         $a = 5   $a is an lvalue and if not yet defined is created now. 
+                         $a = 5   $a is a lvalue and if not yet defined is created now. 
                                   No magic till here.
 
                          $a[2][2][2] = "t"                 
