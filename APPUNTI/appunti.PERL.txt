@@ -14,6 +14,12 @@
         |                        '---------> $s= ($x,$w,$y,$k,$j)=@a   s:3            |
         |_____________________________________________________________________________|
 
+         _____________________________________________________________________________
+        |  AUTOVIVIFICATION:     .......... =      <--- whatever on the LEFT          |
+        |                                               is always first CREATED       |
+        |                                               if undefined/missing          |
+        |_____________________________________________________________________________|
+
 
 
 PERL SPECIAL VARs
@@ -647,32 +653,32 @@ CONTEXT
             Every expression is evaluated in SCALAR or LIST context, 
             depending on whether it is expected to produce a SCALAR or a LIST. 
 
-          - A SCALAR assignment 
+       1  - A SCALAR assignment 
                      my $scalar = 
             evaluates in scalar context. 
 
-          - An ARRAY or HASH assignment 
+       2  - An ARRAY or HASH assignment 
                      my @array = 
                      my %hash  = 
             evaluates in list context. 
 
-          - A scalar evaluated in list context                                        ()  <-- $
+       3  - A scalar evaluated in list context                                        ()  <-- $
             is silently converted into a 1-ELEMENT LIST:
 
                my @array = "Mendeleev"; 
                # same as 'my @array = ("Mendeleev");'
 
-          - An array evaluated in scalar context                                       $  <-- @
+       4  - An array evaluated in scalar context                                       $  <-- @
             returns the LEN:
 
                my @array = ("Alpha", "Beta", "Gamma", "Pie");
                my $scalar = @array;
                print $scalar; # "4"
 
-          - Already seen that an HASH into a scalar                                    $  <-- %
+       5  - Already seen that an HASH into a scalar                                    $  <-- %
             returns the used/avail buckets
 
-          - A list-EXPRESSION (a list is different from an array, remember?)           $  <-- ()
+       6  - A list-EXPRESSION (a list is different from an array, remember?)           $  <-- ()
             evaluated in scalar context returns 
                     not the len of the list 
             but 
@@ -684,11 +690,11 @@ CONTEXT
             SO AT THE END: AN EMPTY LIST()/HASH%/ARRAY@ GIVES SCALAR 0   $x = ()  <-- x:0
             ------------------------------------------------------
 
-          - A list-ASSIGNMENT evaluated in scalar context returns                     $  <-- ()=()
+       7  - A list-ASSIGNMENT evaluated in scalar context returns                     $  <-- ()=()
             the number of list elem. assigned
             if (my ($k,$v) = $string =~ m/(\w+)=(\w*)/) {
                          1.  =~  has higher precedence wrt =
-              =~ ------> 2.  in LIST context =~ returns the STRINGS matched <------
+              =~ ______> 2.  in LIST context =~ returns the STRINGS matched <------ N.B.
                          3.  =, the list-assignemnt is done
                          4.  as it's done in scalar context, if(), it returns 2 the num of elem list assigned
                              ex. DB<1> $a="aaa bbb"
@@ -738,7 +744,9 @@ REFERENCES
 
                           nb.  symbolic reference: is what I've used above:
                           a var whose value is the name of another var or subroutine. 
-                         Symbolic references are illegal under use strict "refs" .
+
+                         SYMBOLIC REFERENCES ARE ILLEGAL UNDER use strict "refs" .
+
                                perl -e 'use strict "refs"; $b=2; $a=b; print "$a = ${$a}\n"'
                                Can't use string ("b") as a SCALAR ref while "strict refs" in use at -e line 1.
 
@@ -816,14 +824,16 @@ INDIRECTION:    it's the problem to access a variable through another variable
 
                 ex.  $v='B';
 
-                     $x = 'v';    'symbolic' reference
-                     $x = \$v;    'hard'     reference  ($x is pointing directly to 'B')
-                                    ^
-                                    |
-                                    so now we know: the '\' creates a HARD ref
-
-POINTER:        in C for example it's solved, with the pointer type,
-                a var storing the memory address of the other.
+                     $x = 'v';    'symbolic' reference .....................................
+                     $x = \$v;    'hard'     reference  ($x is pointing directly to 'B')    |
+                                    ^                                                       |
+                                    |                                                       |
+                                    so now we know: the '\' creates a HARD ref              |
+                                                                                            |
+                     perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2  <----------------'
+                                                                                            
+POINTER:        in C for example it's solved, with the pointer type,                       
+                a var storing the memory address of the other.                            
 
 REFERENCE (hard)  in Perl 
                 - it's the 3rd basic type (after 'number' and 'string')
@@ -913,7 +923,8 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                      with he above definition, we have associated a new semantic meaning to both [ ]
                      and { }. Up to now they were ACCESSIBLE-OPERATORS ('numerical' and 'string' operators)
                      to a TERM xxx, accessing it: $xxx[3]  $xxx{'key'}
-                     The above give them also a CREATOR-OPERATOR meaning. 
+                     The above gives them also a CREATOR-OPERATOR meaning. 
+
                      When Perl is expecting an xxx TERM that is missing, in that case they act as CREATION-OPERATORs
 
                   NB.2
@@ -926,9 +937,9 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                               sub f { return {@_}} # it creates an anonymous HASH and returns the reference
                               sub f { +{@_}}       #       "                  "                     "
 
-                  NB.3  'AUTOVIVIFICATION'
+                  NB.3  'AUTOVIVIFICATION'               l = ...
                      Is the process to automatic create (lvalues) if they are not defined.
-                     and regardless their complexity (so any nested required struct is created)
+                     and regardless their complexity (so any required nested struct is created)
                      ex
                          $a = 5   $a is a lvalue and if not yet defined is created now. 
                                   No magic till here.
@@ -961,7 +972,7 @@ PERL-1-DIMENSIONAL   references, as 'scalars', (so 1 dimensional) are what allow
                     still be internally 1-dimensional, but building up complex data structures
                     of array-of-array-of-hashes......  
 
-a real POINTER      Perl reference are like real C pointers, so if $b is a reference to $a
+a real POINTER      Perl references are like real C pointers, so if $b is a reference to $a
                     and $a changes it's value, then dereferencing $b (that is $$b) I get the 
                     updated last $a value:
 
@@ -1014,7 +1025,7 @@ BLESS               bless ($r, PACKAGE_NAME)   bless ($r)
 
 NEW                 as an Object-creator(), it can be used any function name.
                     new() is only normally found as programmers have the habit from other languages.
-                    Anyone of the following 4 syntax can be used, even if the last pair with :: at the end
+                    Any of the 4 following syntaxes can be used, even if the last pair with :: at the end
                     is to prefer as less ambiguos.
 
                     $o_ref   =   PACK_NAME–>new(a => "xxxx", b => "yyy");      1
@@ -1041,7 +1052,7 @@ REF cast to STRING  A ref in "string" context, dumps TYPE and ADDRESS in the for
                     This is because internally a ref var stores other info (like
                     the ref count) and not only the TYPE and the address.
 
-                    So refs cannot for instance used as hash-keys if you want them back,
+                    So refs cannot be used, for instance, as hash-keys if you want them back,
                     becouse they are unique, so good for keys, but to retrieve them back
                     you need something like:
                          $r = \@a;
@@ -1163,13 +1174,13 @@ DE-REFERENCE         Briefly if $r is a reference $$r is the value.
                    
 REFER (Symbolic)     Symbolic REFERENCES, instead of the address of the var, contain its name.
                      
-                          $name = "bam";            #  Sets $bam
-                          $$name = 1;               #  Sets the first element of @bam
-                          $name–>[0] = 4;           #  Sets the X element of %bam to Y
-                          $name–>{X} = "Y";         #  Clears @bam
-                          @$name = ();              #  Yields the keys of %bam
-                          keys %$name;              #  Calls &bam
-                          &$name;
+                          $name = "bam";            
+                          $$name = 1;               #  Sets $bam
+                          $name–>[0] = 4;           #  Sets the first element of @bam
+                          $name–>{X} = "Y";         #  Sets the X element of %bam to Y
+                          @$name = ();              #  Clears @bam
+                          keys %$name;              #  Yields the keys of %bam
+                          &$name;                   #  Calls &bam
 
                      As their usage can be somehow dangerous, it can be blocked as:
 
@@ -1183,14 +1194,15 @@ REFER (Symbolic)     Symbolic REFERENCES, instead of the address of the var, con
 
                      Symbolic REF only on GLOBAL-vars:
                         
-                        A symbolic reference always go through the package symbol table
+                        A symbolic reference always goes through the package symbol table
                         to search the name (ex "bam")
-                        Only package var are accessible through symbolic ref,  
-                        while lexical var (that aren’t in a package symbol table), are 
+                        Only package vars are accessible through symbolic ref,  
+                        while lexical var (<--'my' = lexical. 
+                        'my' vars are NEVER  in a package symbol table), are 
                         therefore invisible to this mechanism.
                        
 ${x}  vs  ${"x"}     The first form is the typical UNIX-shell way to keep
-                     well isolated (not ambiguos) the  var name .
+                     well isolated (not ambiguos) the  var name.
                      so $x and ${x} are the sam thing, 
                      in UNIX shell and also Perl decided to keep this meaning.
 
