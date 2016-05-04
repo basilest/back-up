@@ -1,3 +1,44 @@
+--------------------------------------------------- / ipcs 
+    
+    ipcs    (System V) inter-process communication
+             shows the info.
+             Alone or with explicit -a (default) shows ALL info
+
+             otherwise can extract only 
+                    -m      shared memory
+                    -q      msg-queues 
+                    -s      semaphores-array
+
+            ex:
+
+            ------ Semaphore Arrays --------
+            key        semid      owner      perms      nsems
+            0x00000000 895877189  sbasile   600        1
+            0x00000000 895909958  sbasile   600        1
+            0x00000000 895942730  sbasile   600        1
+            0x00000000 895975500  sbasile   600        1
+
+     ipcrm      to remove some resources
+                -m  id
+                -q  id
+                -s  id
+
+                there is the version UPPERCASE (-M -Q -S)
+                where I can submit the 'key' instead of the 'id'
+ 
+--------------------------------------------------- / ssh 
+
+     ENTER ~ .          ENTER: to be sure to have a newline
+                        ~      starts the submission of ssh control char
+                        .      ssh control char to mean END session
+
+                        The above close a stuck ssh session.
+
+          ~?            help (list of avail escapes)
+
+          ~^Z           suspend the remote ssh connection and
+                        allow to be at 'local' prompt.
+                        Once I'm over, a fg bring me back into remote.
 --------------------------------------------------- /
 To know Ubuntu version
     cat /etc/issue
@@ -630,8 +671,8 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
                    If we assign a var that doesn't exist,  a=34
                    the shell will create a SHELL var.
                    (as it's known in that shell only)
-                   It is similar to an ENV v. but does not influence
-                   the behaviour of other apps.
+                   It is similar to an ENV v. but doesn't influence
+                   other apps.
 
         SHELL --> ENV
                    A SHELL v. can be exported to become an ENV v.
@@ -983,6 +1024,11 @@ __  id
        id -gn     stiv       (gives the gid - text    format)
        id -Gn     stiv adm cdrom sudo dip plugdev lpadmin sambashare      (gives all groups - text    format)
 
+
+       nb.  3 possible ways to have user name:
+            - whoami
+            - ${USER}
+            - id -un   <-- the more portable ?
 ____________________
 __  chown
        
@@ -1213,8 +1259,24 @@ __  find
 
 
 
+____________________
+__  ps
 
+to see the command line (with the args passed) of a specified command:
 
+   1/5 $ ps -efw       --> sbasile  22065 22057  0 Apr27 ?        00:00:04 /usr/sbin/httpd -DPROJ_XMLGW -f /home/sbasile/apache2/conf/sbasile_httpd.conf -k start
+   2/5 $ ps -efww      -->     "                    "                   "              "                           "
+   3/5 $ ps -evfww     <------ VERY MASSIVE OUTPUT
+
+   4/5 $ ps -eao args  --> /usr/sbin/httpd -DPROJ_XMLGW -f /home/sbasile/apache2/conf/sbasile_httpd.conf -k start
+
+   5/5 with the pid of the proc (ie 22065):
+
+       $ cat /proc/22066/cmdline   --> /usr/sbin/httpd-DPROJ_XMLGW-f/home/sbasile/apache2/conf/sbasile_httpd.conf-kstart
+            
+       this second option removes all the spaces
+
+             
 ____________________
 __  dd
 

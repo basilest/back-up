@@ -84,9 +84,14 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
   exit ex:     :vi     go back to vi
   
   p            print                       10p         # print line 10
-  ,            range of lines:             10,30p  
+  ,            (comma) range of lines:     10,30p  
+  
+  :=           display TOT lines of file
+  :.=             "    CURRENT line (also ^G)
+  :/pattern/=  display FIRST found line with that pattern
 
-  #            line number                  10,30p#     or only 10,30#
+  #            display specified lines     10,30p#     or only 10,30#
+               ex :=
 
   d            delete                      :3,18d
   co   t       copy      (t  alias)        :23,29co100
@@ -97,6 +102,10 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
   %            any lines                   %d     delete all the file        
                                            %t$    double the file (copy any line to the end)
   
+               addresses can be 
+                 - absolute  (exact num of lines)
+                 - relative (to the current line whose symbol is '.'):
+
   +n           for relative paths (to address n lines after)          :.,+20#      print following 20 lines
   -n                                          n lines before          :226,$m.-2   move 2 lines above, block 226-EOF
           N.B. if n = 1   can be used only + or - instead of +1  -1
@@ -111,13 +120,23 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
   :/patter/+d                    "   line following the 1st line with pattern
   :/pattern1/,/pattern2/d
   
-       N.B.      in  vi    d/pattern        del from CURSOR till char before 1st pattern
-                 in  ex    :.,/pattern/d    del ALL the linex (where is the curso) up and including where is the 1st pattern
+       N.B.      in  vi    d/pattern        del from CURSOR till char before 1st pattern (leaving rest of both lines) 
+                 in  ex    :.,/pattern/d    del fully both lines (regardless cursor and /pattern/ position in the line)
   
-  
-  ;              to separate cmd.   ex.   :100;+5p     print 5 linex after 100.
-  
-  
+   
+  ;              (';' semicolon) instead of (',' comma) allows to
+                 specify RANGE where the right bound is relative to left bound
+                 
+                 ex    100,+5    doesn't work as expected as it says range from
+                                 line 100 to +5 lines after CURRENT
+                       100;+5    says properly: range from line 100 to 100+5
+                                 (even if I run it from line 7)
+
+ g/pattern       move me to the LAST occur. of pattern
+
+ g!              NEGATE the search
+ 
+ |               separate more ex cmds (like normally ';' does)
 ------------------------------------------------------ to get info from the bash
 
 
@@ -214,7 +233,9 @@ insert num of line in a substitution pattern match:
    |  
    |  200z ENTER       line n.200 at top
    |  
-   |  
+   |  10H              10' line after  High screen line
+   |  10L              10' line before Low  screen line
+   |
    |  (    )           move between sentences     N.B. possible usage with them
    |  {    }                        parag.             ex 2y}    copy 2 parag. ahead.
    |  [[   ]]                       sections
@@ -225,12 +246,12 @@ insert num of line in a substitution pattern match:
    |  
   ------------------------------------- moving
 
-   CTRL-B    Back    1 page
-   CTRL-F    Forward 1 page
-   CTRL-U    Half Up
-   CTRL-D    Half Down
-   CTRL-E    Scroll up
-   CTRL-Y    Scroll down
+   ^B    Back    1 page
+   ^F    Forward 1 page
+   ^U    Half Up
+   ^D    Half Down
+   ^E    Scroll up
+   ^Y    Scroll down
 
   ------------------------------------- serach / ?
 
@@ -246,8 +267,8 @@ insert num of line in a substitution pattern match:
   |  ``     (back-ap-)   move me back where I was   (a last edit or also only a find, which moved me out of there)
   |  ''                  the same, but move at that line, but also at the beginning of line.
   |
-  |  CTRL-O  move back
-  |  CTRL-I  move forw.
+  |  ^O  move back
+  |  ^I  move forw.
   |____________________________________ to see the list of marked-jumps:  :jumps
   
   ____________________
@@ -273,7 +294,7 @@ C-A  C-@   redo the last input written in insert mode (C-@ then exit Insert mode
 R                        start overwriting
 yl yh                    NOT very useful: still is the way to yank 1 char (current / before)
 
------------------------------------------------------- buffer
+------------------------------------------------------ buffer (here they are intended as registries)
 
                The are 9 DELETION (& YANKING)  BUFFERS for 'LINES' <----------- !!!!!!
                Words, or a portion of a line, are not saved in a buffer
@@ -282,6 +303,8 @@ yl yh                    NOT very useful: still is the way to yank 1 char (curre
 
                So remember that DELETE (d) and YANK (y) use the same buffer
 
+:reg           to see all the registry (easy and powerfull way)
+               second way:
 "1pu.u.u ecc   to see all the buffers one after the other and found the right one
 
                The 9 buffers are said 'unnamed'.
@@ -295,9 +318,9 @@ yl yh                    NOT very useful: still is the way to yank 1 char (curre
 
 
 ------------------------------------------------------ open 
-vi +              open and go to bottom file          | According to the POSIX standard, 
-vi +10                     go to line 10              | vi should use -c command instead of +command 
-vi +/xxxxxxx               go to 1st occ. of xxxxx    | For backward compatibility, both versions are accepted.
+vi +         f    open and go to bottom file f        | According to the POSIX standard, 
+vi +10       f             go to line 10              | vi should use -c command instead of +command 
+vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibility, both versions are accepted.
 
 
 ---------------------------- INSANE EDITING

@@ -305,6 +305,14 @@ git gc --prune     # to remove garbaged collection
                                             |  |committer   ste     |    |committer   ste     |    |committer   ste     |
                                             |  |____________________|    |____________________|    |____________________|
                                             |
+                                            |       
+                                            |      a way to see that CHAIN could be dump hash (%h)  tree (%t) and parent (%p):
+                                            |
+                                            |                             git log --pretty="%h %t %p %s" :
+                                            |
+                                            |                              6f37a   505fe   ac77b commit 3
+                                            |                              ac77b   0b11f   98ca9 commit 2
+                                            |                              98ca9   92ec2    ...  commit 1
                                             | ______________________________
                                             |
                                             |
@@ -370,7 +378,9 @@ git gc --prune     # to remove garbaged collection
                                             |
                                             |      special references:
                                             |
-                                            |                       HEAD:         a symref to last Commit
+                                            |                       HEAD:         a symref to last Commit (it is NOT always a ref to "current branch",
+                                            |                                     as some operations 'detach' HEAD')
+                                            |                                     (since git 1.8.5 @ is an alias for HEAD):  git log @
                                             |                       ORIG_HEAD     stores prev val of HEAD (on a merge) (if a recovery is needed)
                                             |                       FETCH_HEAD    valid only immediately after a 'git fetch'. Git stores in the file:.git/FETCH_HEAD
                                             |                                     all the HEADS of the remote branches fetched.
@@ -1353,7 +1363,7 @@ git gc --prune     # to remove garbaged collection
                                             | git reset            : it acts on Commits like checkout acts on branches. This means that I can
                                             |                        switch HEAD to point to a Commit different from the last one.
                                             |                        As a checkout changes both the Index and the files in wd, 'git reset'
-                                            |                        can change also Index and wd. The behaviour is related to which of the
+                                            |                        can change also Index and wd. The behaviour is related to  with which of the
                                             |                        3 options it is executed:
                                             |                        HEAD is switched. The previous values is stored in ORIG_HEAD.
                                             |
@@ -1364,7 +1374,7 @@ git gc --prune     # to remove garbaged collection
                                             | git reset --hard  commit     # already seen above.      Y       Y         Y
                                             |
                                             |   ex 1 - remove a file from the index (leaving all unchanged)
-                                            |         git ad foo.c                     # I accidentally stage a file
+                                            |         git add foo.c                    # I accidentally stage a file
                                             |         git ls-files -->  ... foo.c      # I see it among other
                                             |         git reset HEAD foo.c             # Remove from index (set HEAD as if it was before it was present)
                                             |         git ls-files -->  ...            # removed

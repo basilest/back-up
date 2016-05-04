@@ -1,0 +1,252 @@
+   VERSION          tmux -V
+
+
+
+   STARTING         tmux
+
+
+
+   SESSIONS
+              - create new:    tmux new -s xxxx  (long: tmux new-session -s xxxx)
+                                            ^<-- the name I want
+
+
+              - list all the sessions:  tmux ls        (long: tmux list-sessions)
+
+              - detach         Ctl-B d    (d)etach
+              - attach         tmux attach       <-- if I have only 1 session is enough just this
+                               tmux attach -t xxxx
+              - kill           tmux kill-session -t xxxx
+
+
+   WINDOWS & PANES
+
+              - name a window  - on session creation: tmux new -s xxxx -n yyyy   yyyy: the name of the window
+                               - PREFIX + ,  (comma)
+
+              - move           PREFIX + n     next
+                (windows)      PREFIX + p     previous
+                               PREFIX + 5     number 5
+                               PREFIX + f     to to search by window NAME
+                               PREFIX + w     to list all
+
+               - move          PREFIX + q     to idsplay nums in each pane
+                (panes)        PREFIX + o     to move between panes
+                               PREFIX + s.bar to cycle between preformatted layout
+                               PREFIX + x     to close a pane
+
+                               PREFIX + :     to enter command mode (like vi)
+
+                               new-window -n xxxx "top"  <-- create a new win named xxxx and with the command "top" executed inside
+                                                             anyhow when the program ends, the win is closed.
+   CONFIG
+              - first checks for /etc/tmux.conf
+              - then ~/.tmux.conf 
+                
+                changes can be sourced from inside tmux from command mode:
+                    source-file ~/.tmux.conf
+
+                    set -g ...                              to GLOBALLY set for all sessions
+                    set -g prefix C-a                       to change PREFIX (I bind C-a)
+                    unbind C-a                              to remove a binding 
+                    set -sg escape-time 1                   to remove the delay after PREFIX
+                                                            so for ex. vi can benefit.
+                    set -g base-index 1                     to set as 1 not 0 the start of WINDOWS in a session
+                    setw -g pane-base-index 1               to  "               "          PANES   in a window
+                       ^
+                       nb. it's a short for the longer "set-window-option"
+
+                    display                                 print a message in the status bar 
+                                                            (ex. display "Good Morning")
+                    bind                                    I can bind command to a key       
+                                                            (it will work when pressing PREFIX + key
+                                                            ex. bind r source-file ~/.tmux.conf
+                                                            )
+                        \;                                  to separate more commands in a bind
+                                                            ex. bind r source-file ~/.tmux.conf \; display "Reloaded!"
+                        -n                                  to bind without the PREFIX 
+                                                            ex. bind-key -n C-r source-file ~/.tmux.conf
+                                                            (anyhow this will remove C-r from any application)
+                        -r                                  to repeat the command without PREFIX in the following
+                                                            (in they occur within 0.5 sec)
+                                                            usefull when I bind to change sieze of panes (see below
+                                                                    bind -r H resize-pane -L 5
+                                                            )
+
+
+                        send-prefix                         C-b is the default prefix. As such it already behaves
+                                                            to send a C-b to the applications if I type it twice
+                                                            (ex vi needs it)
+                                                            If I change the PREFIX (ex set -g prefix C-a) I must add
+                                                            this behaviour with:
+                                                                    bind C-a send-prefix
+                                                            So now also for my new C-a, if I type it twice, the 2nd
+                                                            is sent to the applications.
+                        bind | split-window -h              to bind the vertical split to | instead of %
+                        bind - split-window -v                   "                "       -            "
+                                             ^   
+                                             nb  -h means 2 panes next to each other (and so the window is divided vertically)
+                                                 -v       2       one above the other                              horizontally
+
+                    select-pane -L                          to move to focus to the Left pane
+                                                            -R right
+                                                            -U up
+                                                            -D down
+
+                    resize-pane -L                          resize the pane Leftward 1 line  (same for -D  -U  -R)
+                                                            resize-pane -L 5   (5 increments)
+
+
+                    set -g mode-mouse on                    to enable mouse usage
+                    set -g mouse-select-pane on             ... enable to select panes
+                    set -g mouse-resize-pane on             ...    "      resize   "
+                    set -g mouse-select-window on           ...    "      select window
+                                               ^
+                                               off to turn it
+
+                    set -g default-terminal "screen-256color"     to have the 256 color
+
+                    
+                 ________________ status bar:
+
+                    set -g status-bg blue                   to change the back-ground in status-bar
+                    set -g status-fg white                  "             fore-ground      "
+                                                            "black", 
+                                                            "red", 
+                                                            "green", 
+                                                            "yellow", 
+                                                            "blue", 
+                                                            "magenta", 
+                                                            "cyan", 
+                                                            "white"
+                                                                         but also 
+                                                                                "colour0" 
+                                                                                ...
+                                                                                to "colour255"
+                    set -g status-left "#[fg=green]#S"      the bar is divided in
+                                                           -------------|-------------|----------
+                                                                ^            ^            ^
+                                                             left       window list     right
+                                                           
+                                                           The vars that can be used are:
+
+                                                              #H   Hostname of local host
+                                                              #h   Hostname of local host without the domain name #F Current window flag
+                                                              #I   Current window index
+                                                              #P   Current pane index
+                                                              #S   Current session name
+                                                              #T   Current window title
+                                                              #W   Current window name
+                                                              ##   A literal #
+                                                              #(shell-command) First line of the shell command’s output 
+                                                              #[attributes] Color or attribute change
+
+                    set -g status-right "#[fg=cyan]%d %b %R"
+
+                    set -g status-left-length 40             to increase the default length
+                    set -g status-utf8 on                    to enable unicode
+                    set -g status-interval 60                to spercify refresh interval (default 15 sec)
+                                                             nb. if I use the #()   that is the shell command
+                                                                 that command/script will be executed at this interval each time
+                    set -g status-justify centre             to align the |-- windows list ---|
+
+                    setw -g monitor-activity                 these 2 lines highlight on the status bar ..
+                    set -g visual-activity on                .... activity on the windows
+
+
+
+
+
+
+                 ________________ panes:
+
+                    set -g pane-active-border-bg yellow    Panes are divided by a solid gap with a line inside    
+                    set -g pane-active-border-fg black     The line is the 'fg', the gap arounf the line is the 'bg'
+
+                    set -g pane-border-fg green            the above set the actibe pane, these 2 lines
+                    set -g pane-border-bg black            ... set the other panes.
+
+
+                 ________________ command line:
+
+                    set -g message-fg white 
+                    set -g message-bg black 
+                    set -g message-attr bright
+
+   SCRIPT
+                    tmux split-window -h -t ssss          split horiz. the window in tmux session ssss
+                    tmux split-window -v -p 10 -t ssss    split vert. and by a percentage 10%
+
+                    
+                    tmux send-keys -t ssss 'cd ~/dir' C-m   to send a command to a session (C-m is
+                                                                   the carriage return)
+                                                            the general format is:
+                                                              session ':' window '.' pane
+
+                                                            so for instance
+                                                            tmux send-keys -t ssss:1.2 'cd ~/dir' C-m
+                                                                                   ^
+                                                                                   pay attention to win & panes NUMBERs
+                                                                                   if you changed the original 0 starting num
+
+                    
+                    tmux select-layout -t ssss  main-horizontal   to send the pane dividing layout
+
+                    tmux new-window -n console -t ssss            to create a new window
+
+                    tmux select-window -t ssss:1                  to select the win
+
+                    tmux has-session -t ssss                      to test if a session ssss exists
+                                                                  ex. in a bash script I can do:
+
+                                                                          tmux has-session -t ssss
+                                                                          if [ $? != 0 ]
+                                                                          then
+                                                                            ...
+
+                    tmux -f xxxx attach                           execute tmux reading all the commands
+                                                                  in the script xxxx
+
+
+   TEXT (COPY / PASTE)
+
+                    setw -g mode-keys vi                          to move in buffer the same way than in file with vi
+                                                                  (use usual vi cmds: gg G / ? n N w f ...)
+
+                    PREFIX [                                      enter in buffer mode
+                    SPACE ...... ENTER                            to COPY text 
+                                                                  in the '....' there are the arrows to select the text to Copy
+                    PREFIX ]                                      to PASTE the copied text
+
+
+                                                                  The above default settings can be remapped in vi style as
+
+                                                                  unbind [
+                                                                  bind Escape copy-mode
+                                                                  unbind p
+                                                                  bind p paste-buffer
+                                                                  bind -t vi-copy 'v' begin-selection 
+                                                                  bind -t vi-copy 'y' copy-selection
+
+
+
+                    capture-pane                                  from :Command mode (so even directly from bash as "tmux capture-pane ..."
+                                                                  it copies the visible area of the pane.
+
+                    save-buffer f.txt                             save the buffer in a file
+                                                                  ex. In bash:
+                                                                      tmux capture-pane && tmux save-buffer f.txt
+
+                    show-buffer                                   to show what is in the buffer
+                    list-buffers                                  like a professional clipboard there is a stack of copied text
+                                                                  with list-buggers I see the stack
+                                                                  When I paste is always the entry 0 of the stack but I can use
+                                                                  the command:
+
+                    choose-buffer                                 to select one
+
+
+
+
+
+
