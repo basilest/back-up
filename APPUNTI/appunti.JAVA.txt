@@ -264,6 +264,51 @@ current version Framework 4.0 (December 2013)
                          }
                       }
 ----------------------------------------------------------------------------------------------------
+JSF   / JSP
+----------------------------------------------------------------------------------------------------
+1998: Java Servlets             On the server
+                                The HTML code is generated inside the Java class (Servlet)
+1999: JavaServer Pages (JSP)    On the server
+                                The Java code is executed inside the HTML page  (Scriptlet)
+Model-View-Controller (MVC)     design pattern that used together
+                                  - Servlet (for the business logic)
+                                  - JSP (for dynamic view generation)
+
+                                The development in this age, required a lot of stuff
+                                   - binding (linking input user fields with java code)
+                                   - validation
+                                   - templating
+                                And many frameworks were proposed (Apache Struts, Spring MVC)
+
+2004: JSF 1.0 (Java Server Faces)  Sun decided to create a new way from scratch.
+          1.1
+          1.2 (in 2006)
+          2.0 (in 2009) AJAX support & GET request support
+          2.1
+          2.2 (in 2013)
+
+
+
+
+      - 2) Pages Prototype and Design
+               - once only visio was enough to model the application in the analysis phase
+               - now a prototype for the application is required in the very eraly stage
+
+               - suggested solution: HTML 5
+                 (JSF will be used only for binding input fields)
+
+      - 3) Development and Debugging
+                The approach is:
+                    - MVC through views and managed beans
+                    - binding is automatic using a script language called 'expression language' (EL)
+                    - Validators, Convertors, and Navigation rules are built-in
+
+      - 3) Development and Debugging
+                many serious performance issues, including:
+                1. The overhead of including all the static resources 
+                   (Images, CSS, and JavaScript) in JSF components tree.
+                2. Missing standard and transparent caching functionalities.
+----------------------------------------------------------------------------------------------------
 Struts
 ----------------------------------------------------------------------------------------------------
 The web application programmer is responsible for writing the model code, and for creating

@@ -1361,6 +1361,8 @@ is store in the following dirs:
 /var/spool/cron/crontabs/   HP-UX Unix Debian / Ubuntu Linux
 /usr/lib/cron/tabs/         Mac OS X
 
+and output (ex error messages) is logged in files /var/log/cron  ..cron.1  ..cron.2 ...
+
 crontab [-u user] [ -elri ] <file>
 
 -e     crontab files (for each user) are not edited directly but with crontab -e
@@ -1388,6 +1390,9 @@ a way to copy from an user to another:
 a way to copy to another server
      crontab -l | ssh $remote_host crontab
 
+     NB. cron is not run as YOU. So for instance the PATH or any othet vars
+         defined in profile or bashrc could not be defined when running the
+         same script during a cron session. (ex. add full path of the exe)
 
 --------------------------------------------------- snippets
 
@@ -2358,74 +2363,6 @@ ____________________________________________________________ network
   cat /et/resol.conf  (dns info)
   cat /etc/hosts      (preloaded hostnames)
 
-____________________________________________________________CRONTAB
- crontab means cron table, that is where root or any user
- can add some rows (with the cron syntax) to specify periodic tasks
- to be executed.
- The syntax for each row is:
-
-  * * * * *  command to execute
-  │ │ │ │ │
-  │ │ │ │ │
-  │ │ │ │ └───── day of week (0-6) (Sunday=[0 or 7], or use names SUN-SAT)  - SC
-  │ │ │ └────────month (1-12 or JAN-DEC) - SC
-  │ │ └──────────day of month (1 - 31)   - SC
-  │ └────────────hour (0-23)             - SC
-  └──────────────min  (0-59)             - SC
-
-SC (Special Chars) are
-      *    value skipped
-      ,    when the value is a list  (ex. MON,WED,FRI)
-      -    when the value is a range (ex. 2000-2010)
-      /    (only on some cron implementations) the syntax */<value>
-           means only 'mod' <value>. ex an hour */3 means any hour mod-3 (0,3,6,9,...)
-ex:
-   0 20 * * * /home/oracle/scripts/export_dump.sh      (run each day at 20:00)
-   1 0  1,2 * *  printf > /var/log/apache/error_log    (run on 1st and 2nd days of each month at 00:01)
-
-/etc/cron.allow        can list on rows, the usernames with    the rights to run cron
-/etc/cron.deny              "        "         "       without      "          "
-
-File location depends on the Unix distribution. A file named with the user name (`whoami`)
-is store in the following dirs:
-
-/var/cron/tabs/             FreeBSD/OpenBSD/NetBSD
-/var/spool/cron/            IBM AIX Unix CentOS/Red Hat/RHEL/Fedora/Scientific Linux
-/var/spool/cron/crontabs/   HP-UX Unix Debian / Ubuntu Linux
-/usr/lib/cron/tabs/         Mac OS X
-
-and output (ex error messages) is logged in files /var/log/cron  ..cron.1  ..cron.2 ...
-
-crontab [-u user] [ -elri ] <file>
-
--e     crontab files (for each user) are not edited directly but with crontab -e
-       which opens the editor specified in env var (VISUAL or EDITOR)
-
--l     to list the entries
-
--r     to clean all the tables (any crontab row)
-       -i      (prompt before deleting user's crontab)
-
-[-u user]   to do the above commands as associated to user
-            (used by root to add to some of the users)
-
-<file>   instead of -e, I can load a crontab directly from a file
-
-
-
-a way to backup and restore is:
-     1. crontab -l > c.txt
-     2. crontab  c.txt
-
-a way to copy from an user to another:
-     crontab -u <user1> -l | crontab -u <user2>
-
-a way to copy to another server
-     crontab -l | ssh $remote_host crontab
-
-     NB. cron is not run as YOU. So for instance the PATH or any othet vars
-         defined in profile or bashrc could not be defined when running the
-         same script during a cron session. (ex. add full path of the exe)
 ____________________________________________________________
 
 /proc  list info like

@@ -26,11 +26,11 @@
 
               - move           PREFIX + n     next
                 (windows)      PREFIX + p     previous
-                               PREFIX + 5     number 5
-                               PREFIX + f     to to search by window NAME
+                               PREFIX + 4     number 4
+                               PREFIX + f     to search by window NAME
                                PREFIX + w     to list all
 
-               - move          PREFIX + q     to idsplay nums in each pane
+               - move          PREFIX + q     to display nums in each pane
                 (panes)        PREFIX + o     to move between panes
                                PREFIX + s.bar to cycle between preformatted layout
                                PREFIX + x     to close a pane
@@ -48,6 +48,7 @@
 
                     set -g ...                              to GLOBALLY set for all sessions
                     set -g prefix C-a                       to change PREFIX (I bind C-a)
+                    C-B ?                                   to see all the current mappings
                     unbind C-a                              to remove a binding 
                     set -sg escape-time 1                   to remove the delay after PREFIX
                                                             so for ex. vi can benefit.
@@ -192,7 +193,7 @@
                     
                     tmux select-layout -t ssss  main-horizontal   to send the pane dividing layout
 
-                    tmux new-window -n console -t ssss            to create a new window
+                    tmux new-window -n console -t ssss            to create a new window named 'console'
 
                     tmux select-window -t ssss:1                  to select the win
 

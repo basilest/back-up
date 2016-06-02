@@ -1,0 +1,102 @@
+DevOps  (from Agile)
+It aims to have an environment where 
+          building, 
+          testing, 
+          releasing software, 
+can happen 
+          rapidly, 
+          frequently, 
+          more reliably.
+
+DevOps refers to the  Continuous Delivery concept:
+small and quick changes (focused on the end customer, going live, or quick time to market).
+
+
+
+Here they are most of the 
+OpenSource tools used (DevOps toolchain):
+__________________________________
+ 1. (SCM) - Source Code Management
+
+     - GIT: 
+         - GitHub:     NOT free for private repos. 
+         - Git server: can be setup on-premise for free. 
+
+     - CodeCommit: from AWS
+
+
+
+__________________________________
+ 2. BUG Tracking
+    - Bugzilla                : mainly for BUGS, 
+                               but is feature rich to do other SW devel. phases
+                               even IT ticketing system
+    - JIRA       - (Altassian): for BUGS / Story
+    - Confluence - (Altassian); for collaborative documentation
+
+
+
+__________________________________
+ 3. Collaborative Docs
+    - MediaWiki  - out of the box features are limited
+                   but there are plenty of third-party extensions.
+
+
+
+__________________________________
+ 4. Continuous Integration
+    - Jenkins - (CloudBees) - many free plugins
+
+
+
+__________________________________
+ 5. Artifacts Management
+    - A lot of companies might not have it in their DevOps stack
+
+    Artifactory - stores built artifacts and 
+                - caches third-party tools.
+                - So it retrieves/upload proper versions
+                  for meeting build dependencies   (like Jenkins)
+                - Distributes packages for deployments.
+
+
+__________________________________
+ 6. Configuration Management (and Orchestration)
+    - Ansible - agentless
+              - can Configure & Deploy with no additional tool
+              - advanced handling of host inventory (dynamic generation of inventory lists)
+              - supports Python (more common than Ruby)
+
+    - Puppet  - Configure (requires additions for Deployment)
+              - Ruby
+
+    - Chef    - Configure (requires additions for Deployment)
+              - Ruby
+
+
+
+__________________________________
+ 7. Monitoring
+    - Nagios : lack of features out of the box
+               but 
+                   - tons of plugins
+                   - very easy to write your own
+
+
+__________________________________
+ 8. Log Management
+    - ELK : Elasticsearch, Logstash and Kibana stack
+
+            Elastichsearch: 
+                            - based on 
+                              'Lucene' (Free Apache software Licence)
+                                 full text indexing and searching capability
+                                 (widely used in the implementation of Internet search engines)
+                                  Twitter uses 'Lucene'
+                                 also for local/ singles-site searching.
+                                 Not contains crawling and HTML parsing functionality
+
+                            - extends 'Lucene' for crawling and HTML parsing functionality
+
+                            https://github.com/companieshouse/chl-database/pull/60 
+                            https://github.com/companieshouse/chl-database/pull/59

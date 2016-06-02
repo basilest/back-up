@@ -378,9 +378,9 @@ git gc --prune     # to remove garbaged collection
                                             |
                                             |      special references:
                                             |
-                                            |                       HEAD:         a symref to last Commit (it is NOT always a ref to "current branch",
+                                            |                       HEAD:         a symref to LAST COMMIT (it is NOT always a ref to "current branch",
                                             |                                     as some operations 'detach' HEAD')
-                                            |                                     (since git 1.8.5 @ is an alias for HEAD):  git log @
+                                            |                                     (since git 1.8.5,  '@' is an alias for HEAD):  git log @
                                             |                       ORIG_HEAD     stores prev val of HEAD (on a merge) (if a recovery is needed)
                                             |                       FETCH_HEAD    valid only immediately after a 'git fetch'. Git stores in the file:.git/FETCH_HEAD
                                             |                                     all the HEADS of the remote branches fetched.
