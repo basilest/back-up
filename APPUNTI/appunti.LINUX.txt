@@ -656,6 +656,34 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
      ----------------------------------
 
 
+-----------------------------------------
+LOGIN
+-----------------------------------------
+
+         1.  /etc/nologin    <---- if it's present (writen by 'shutdown' for maintenance) only root con login
+                                   Other users will receive its text content as denying-reason message
+
+         2.  /etc/usertty    or    read to see if there are any special constraints on you
+             /etc/securetty
+                             some also:
+             /etc/fbtab
+
+         3.  /var/log/failedlogin    some distros log here 'FAIL-login' attempts.
+
+         4.  /var/log/lastlog        some distros log here your login-'TIME'
+
+         5.  /var/run/utmp           adds 1 entry for your succesful login
+                                     (removed on logout)
+
+         6.  /var/log/wtmp           append utmp entry here
+                                     updated (not removed) on logout so there is the total log-time
+
+         7.  /etc/passwd             open the shell listed here for you.
+                                     If it's tagged as 'interactive' a prompt is available
+
+         8.  /etc/motd               stores the 'message'-of-the-day' to display on login-shell.
+
+
 ---------------------------------------------------
                    ENV & SHELL vars
 -----------------------------------
@@ -751,6 +779,32 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
                             so any setting here could be overwritten by ~/.profile
 
 
+     here the rules:
+              1. the FIRST shell opened (in a UNIX session hierarchy), is the
+                 shell through which you connected. 
+                 Its called LOGIn-SHELL
+
+             .---------------------
+             |2. ~/.profile        is read by a login shell (of any kind)
+  LOGIN.SH   |
+             |3. ~/.bash_profile   in case the login-shell is BASH, it reads this.
+             |                     if not present reads ~/.bash_login
+             |                     if not present reads ~/.profile
+             `---------------------
+
+  NOT-LOGIN   4. ~/.bashrc   is read by NOT-LOGIN_shells.
+
+           
+             So each SH reads 1 of them:
+                 -    LOGIN-SH:  doesn't read ~/.bashrc
+                 - NO-  "   ":     "      "   ~/.bash_profile
+
+             So:
+                 ~/.profile  : put here all the stuff that you want appies 
+                               to ALL THE SESSION (till you disconnect)
+
+                 ~/.bashrc   : put here what applies to BASH only
+                               NO-LOGIN shell
 
 ---------------------------------------------------
                    X server
@@ -977,35 +1031,6 @@ Cursor position:     is used the \0333[ ....f-s-u sequence (so as any sequence
                               }
 
                               PROMPT_COMMAND='set_prompt'  <--------------
-
-
-
------------------------------------------
-LOGIN
------------------------------------------
-
-         1.  /etc/nologin    <---- if it's present (writen by 'shutdown' for maintenance) only root con login
-                                   Other users will receive its text content as denying-reason message
-
-         2.  /etc/usertty    or    read to see if there are any special constraints on you
-             /etc/securetty
-                             some also:
-             /etc/fbtab
-
-         3.  /var/log/failedlogin    some distros log here 'FAIL-login' attempts.
-
-         4.  /var/log/lastlog        some distros log here your login-'TIME'
-
-         5.  /var/run/utmp           adds 1 entry for your succesful login
-                                     (removed on logout)
-
-         6.  /var/log/wtmp           append utmp entry here
-                                     updated (not removed) on logout so there is the total log-time
-
-         7.  /etc/passwd             open the shell listed here for you.
-                                     If it's tagged as 'interactive' a prompt is available
-
-         8.  /etc/motd               stores the 'message'-of-the-day' to display on login-shell.
 
 
 
@@ -1276,7 +1301,13 @@ to see the command line (with the args passed) of a specified command:
             
        this second option removes all the spaces
 
-             
+____________________
+__  iconv
+
+     cat a.txt | iconv -f utf-8 -t ucs-4le | od -tx4       (little endian)
+                                   ucs-4be                 (big endian)
+
+
 ____________________
 __  dd
 
@@ -1300,11 +1331,11 @@ __  rsync
       -r          --recursive
       -d          --dirs         opposite of recursive,  any dir is skipped
       -l          --links        copy links (only as symbolic)
-      -L          --copy-links   copy links (copying real pointed object)  nb. if the pointed object is external, it is NOT copyed
+      -L          --copy-links   copy links (copying real pointed object)  nb. if the pointed object is external, it is NOT copied
       --copy-unsafe-links        copy all links even external
 
       --times                    preserves timestamp   \
-      --perms                    permissions            |  these 4 flags are all on when using -a (archive)
+      --perms                    permissions            |  these 4 flags are all on if using -a (archive)
       --owner                                           |
       --group                                          /
 
