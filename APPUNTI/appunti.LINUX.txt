@@ -1283,7 +1283,39 @@ __  find
                  l     sym link
 
 
+____________________
+__  lsof
+             is an 'utility' not a bash builtin
+             installed usually in /usr/(bin,sbin)
+             so in case of 'command not found' check those dirs are in $PATH.
 
+    1. list all open files                   lsof
+
+    2. process which has opened a file       lsof /home/somefile
+
+    3. by users                              lsof -u user   
+                                             lsof -u user1 -u user2 -u user3
+                                             lsof -u user1,user2,user3    <--- same as above but only 1 -u)
+
+    4. by pid                                lsof -p 1245
+                                             lsof -p 1245 -p 4365
+                                             lsof -p 1245,4365
+                                             
+
+    5. by command                            lsof -c java
+                                             lsof -c httpd
+                                             lsof -c java -c httpd
+
+    6. -a (AND op. (to join more options))   lsof -a -u user -c httpd
+
+    7. ^ (negate op)                         lsof -u ^user1     
+
+    8. list network connections              lsof -i
+                                             lsof -i tcp
+                                             lsof -i udp
+                                             lsof -i :19500  <-- port
+                                             lsof -i :ftp    <-- for port i can use string defined (as usual)
+                                                                 in /etc/services
 ____________________
 __  ps
 

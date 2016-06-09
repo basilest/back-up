@@ -1053,7 +1053,7 @@ REF cast to STRING  A ref in "string" context, dumps TYPE and ADDRESS in the for
                     the ref count) and not only the TYPE and the address.
 
                     So refs cannot be used, for instance, as hash-keys if you want them back,
-                    becouse they are unique, so good for keys, but to retrieve them back
+                    because they are unique, so good for keys, but to retrieve them back
                     you need something like:
                          $r = \@a;
                          $x{ $r } = $r;    both as keys and values.
