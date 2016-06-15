@@ -60,13 +60,19 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |                     nb. instead of col names num position of cols can also be used
   |                     ORDER by 1,2 DESC
   |                      
+  |  - SELECT DISTINCT c1 from T1 ...    returns only different values of c1 
+  |
   |  - UNION                   T1 (Select)            T2  (Select)                         UNION (is an append 1 above the other)
-  |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |
+  |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |                        
   |                      r1   | a1 | a2 | a3 |     | b1 | b2 | b3 |    r2          r1   | a1 | a2 | a3 |
   |                           | a1 | a2 | a3 |                                          | a1 | a2 | a3 |   r3 <= r1 + r2      (is = (a real simple 'append') 
   |                                                                                    -----------------                       only with flag ALL
   |                                                                                r2   | b1 | b2 | b3 |                       normally 1 only row is kept 
   |                                                                                     | b1 | b2 | b3 |                       from 2 or more equal)
+  |
+  |     
+  |                                     (has  - rows = r1 + r2  <-- the actual num is decided as (ALL, INTERSECT,MINUS)
+  |                                           - cols = c1 = c2) <-- the actual num is decided by the select (ex. select *)
   |
   |                      A UNION operator, combines (Selects) from T1 and T2 where the 2 select returns
   |                                 the same NUMBER (and TYPES)  of cols:   (TYPE ai = TYPE bi  for each i)
@@ -320,8 +326,16 @@ ________FUNCTIONs THAT WORK ON A SET OF ROWS
 
       ex. SELECT COUNT(DISTINCT manager_id) "Managers" FROM employees;
 -------------------------------------------
-JOINS:
+JOINS:        to remember  JOIN = FROM T1,T2 ...
 
+   
+                                   T1                   T2                   JOIN T1 x T2   (has  - rows = r1 x r2  <-- the actual num is decided by the WHERE
+                              | a1 | a2 | a3 |     | b1 | b2 |                                    - cols = c1 + c2) <-- the actual num is decided by the select (ex. select *)
+                         r1   | a1 | a2 | a3 |     | b1 | b2 | r2      
+                              | a1 | a2 | a3 |                               | a1 | a2 | a3 || b1 | b2 |
+                                                                        r1   | a1 | a2 | a3 || b1 | b2 |
+                                                                        x         ....                     
+                                                                        r2 
       A J is performed each time the FROM clause has > 1 Table:
 
            the ROWS of that SELECT come from T1, T2, ...
