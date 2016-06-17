@@ -26,18 +26,197 @@
                 there is the version UPPERCASE (-M -Q -S)
                 where I can submit the 'key' instead of the 'id'
  
+--------------------------------------------------- / OpenSSL
+       library (written in C) containing the implementation of the protocols 
+                    SSL    Secure Sockets Layer (SSL),    - predecessor
+                    TLS    Transport Layer Security (TLS) - more modern
+
+       Snowden, revealed that since 2010, the NSA had effectively broken/bypassed SSL/TLS 
 --------------------------------------------------- / ssh 
+       ________            _________ 
+      |        |          |         | 
+      |  sshd  |  <=====> |   ssh   |
+      |________|          |_________|
+  
+    - 'sshd':   is the real OpenSSH SSH daemon (on the server)
+                that interacting with the other program ssh (on the client)
+                they together  allow a secure encrypted communication 
+                over an insecure network.
 
-     ENTER ~ .          ENTER: to be sure to have a newline
-                        ~      starts the submission of ssh control char
-                        .      ssh control char to mean END session
+                -D   sshd will not detach and does not become a daemon.  
+                     This allows easy monitoring of sshd.
+                -f   to specify a config file diff. from /etc/ssh/sshd_config
+                -p   a port different from 22
+                     
 
-                        The above close a stuck ssh session.
+    ~/.ssh    <--- is a dir (on th client) (N.B. chmod must be 700 for this dir)
+                   containing usually something like:.
 
-          ~?            help (list of avail escapes)
+                          -rw-r--r--  1 sbasile  staff   182 10 Jul  2015 config
+                          -rw-------  1 sbasile  staff   668  2 Jul  2015 id_dsa <---- keys for SSH version 2 <--- DEFAULT
+                          -rw-r--r--  1 sbasile  staff   626  2 Jul  2015 id_dsa.pub
+                          -rw-------  1 sbasile  staff  3243 29 Jun  2015 id_rsa <---- keys for SSH version 1
+                          -rw-r--r--  1 sbasile  staff   753 29 Jun  2015 id_rsa.pub
+                          -rw-------  1 sbasile  staff  1468  6 Jan 13:00 known_hosts
+                          -rw-r--r--  1 sbasile  staff    45  3 Jun  2015 ssh_configo
 
-          ~^Z           suspend the remote ssh connection and
-                        allow to be at 'local' prompt.
+                          the convention is
+                            |    ~/.ssh/identity     rsa  SSH ver. 1
+                       (D)  |    ~/.ssh/id_rsa       rsa  SSH ver.   2
+                            |    ~/.ssh/id_dsa       dsa  SSH ver.   2
+                            |    ~/.ssh/id_ecdsa   ecdsa  SSH ver.   2
+                                                   
+                                                   ec : elliptic curve
+
+
+    - 'ssh-keygen': the above files are created by 'ssh-keygen':
+                    ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+                              -t : rsa1            for SSH v.1
+                                   rsa,dsa,ecdsa   for SSH v. 2
+                              -b : min is    768
+                                   default  2048
+                                   ecdsa: ec sizes are 256 384  521
+
+                              -O
+                                      clear Clear all enabled permissions.  This is useful for clear-
+                                              ing the default set of permissions so permissions may be
+                                              added individually.
+
+                                      force-command=command
+                                              Forces the execution of command instead of any shell or
+                                              command specified by the user when the certificate is
+                                              used for authentication.
+
+                                      no-agent-forwarding     Disable ssh-agent(1) forwarding 
+                                      no-port-forwarding      Disable port forwarding 
+                                      no-pty                  Disable PTY allocation 
+                                      no-user-rc              Disable execution of ~/.ssh/rc by sshd(8) 
+                                      no-x11-forwarding       Disable X11 forwarding 
+
+   
+                          config
+                               1	KeepAlive yes
+                               2	ServerAliveInterval 20
+                                	
+                               3	Host github.com
+                               4	  User git
+                               5	  ProxyCommand /usr/local/bin/corkscrew wsproxy.internal.ch 8080 %h %p
+                                	
+                               6	Host wswebdev1
+                               7	  HostName %h.orctel.internal
+                          id_dsa
+                               1	-----BEGIN DSA PRIVATE KEY-----
+                               2	MIIBugIBdAKBgQCpHnP/mm59BzhOKjelK+BqozuwK3Li804qXkOfW0PC1em2CXAn
+                               3	Al2AVYG/5ydl5uNuW1NEb+phcuLkhNhXYbf0fs7+q6Xbm/9Nt3I74Z4OFkSEUYfV
+                               4	ax6C5klFOIhKPdPsQrw2WTY7qxlCkDr35iM5aX6QMmXwlcjQEcBzApd0ewIVAJfM
+                               5	XS0/jtJxOsHyiDgbbdNtMHKNAoGADtHGS8AjQStl3l3hRpTPnXTW1hEeGZq6uKVO
+                               6	rWIQnu7VDra6EWP9b8MbLd+oe5DLJ4TaBt72NJvUnEpoOy+KGEyXcJs6j7gz9uzQ
+                               7	6JEo0m3qPI2LdD3mzhWQQnZIfdBRTOveWX6mJjQhYQrB/8mpLZmW/AZPul5WOyGm
+                               8	jZf4NsgCdYBodeUlJUEug4kxfsbVUdLct6ZPKaJFJZB2x5cvfhUP/Ytn7fQNjxiD
+                               9	v7NyFi0WGl3h3x8J8z6tdglbU0m1/Ei2iclOiew8w0PMXPYITW1rUk2hqzWz0lMj
+                              10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
+                              11	v5Iq6mWKZqVm0sEniWY=
+                              12	-----END DSA PRIVATE KEY-----
+                          id_dsa.pub
+                               1	ssh-dss AAAAB3NzaC1kc3MAAACBAKkdc/+abn0HO....== sbasile@pd12682.companieshouse.local
+                          id_rsa
+                               1	-----BEGIN RSA PRIVATE KEY-----
+                               2	MIIJKQIBAAKCAgEA8zHExVpDqZNOBO38byaIrFZn1vaNRj+lAvkNEL6HZIZYaVyc
+                              50	            ....
+                              51	-----END RSA PRIVATE KEY-----
+                          id_rsa.pub
+                               1	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ....== sbasile@pd12682.internal.ch
+                          known_hosts
+                               1	wswebdev2.orctel.internal,192.168.60.202 ssh-rsa AAAAB3NzaC1yc2....
+                               2	wswebdev1.orctel.internal,192.168.60.201 ssh-rsa AAAAB3NzaC1yc2....
+                               3	github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDb....
+                               4	chl-dev,10.100.100.102 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwZak....
+                          ssh_config
+                               1	ServerAliveInterval 15
+                               2	ServerAliveCountMax 3
+
+    - 'ssh-agent':     it can be started to run in background,
+
+                 eval "$(ssh-agent -s)"  --> Agent pid 3319
+                 echo $SSH_AGENT_PID     --> 3319
+                 lsof | grep -i 3318     --> ssh-agent 3319 sbasile    3u    unix 0x6b706d27656c46d7  0t0  /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
+                 echo ${SSH_AUTH_SOCK}   --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
+                                             the default values is $TMPDIR/ssh-XXXXXXXXXX/agent.<ppid>
+                 echo $TMPDIR            --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T/
+
+                       it can be started to run in background, eval "$(ssh-agent -s)"
+                       having a pid (which is then stored in var  $SSH_AGENT_PID).
+                       This agent opens a UNIX socket in $TMPDIR (full name in ${SSH_AUTH_SOCK}
+                       but it can be changed with option -a: ssh-agent -a ...).
+                       On this read-only-by-the-user SOCKET channel,
+                       the agent intercats with the others utilities of the ssh- family:
+
+                           ssh-add   
+                           ssh-keygen   
+                           ssh
+                           sshd
+                       
+                 ssh-agent -k        <-- it exits (kill) the running instance of shh-agent
+                                        (the pid is still in $SSH_AGENT_PID))
+                                        the output is unset SSH_AUTH_SOCK;
+                                                      unset SSH_AGENT_PID;
+                                                      echo Agent pid 3319 killed;
+
+    - 'ssh-add':   adds any desired keys to the agent  (ex. ssh-add ~/.ssh/id_rsa)
+
+                       ssh-add         with no arguments adds the 4 files (D) above, (or what present of them)
+                       ssh-add -l      list of the keys inside the agent
+
+    - The sequence is usually:
+                               1. eval "$(ssh-agent -s)"       create a running instance of ssh-agent
+                               2. ssh-add                      add any desired keys
+                               3. 
+
+    - Configure SSH server:  add a 'git' user shared among all the project developers:
+                             sudo adduser git
+                             su git
+                             cd
+                             mkdir .ssh && chmod 700 .ssh
+                             touch .ssh/authorized_keys && chmod 600 .ssh/authorized_keys
+                             cat /tmp/id_rsa.john.pub    >> ~/.ssh/authorized_keys
+                             cat /tmp/id_rsa.josie.pub   >> ~/.ssh/authorized_keys
+                             cat /tmp/id_rsa.jessica.pub >> ~/.ssh/authorized_keys
+                             cd /opt/git
+                             mkdir project.git
+                             cd project.git
+                             git init --bare
+                             cat /etc/shells    <--- store all possible shells (add the path of git limited shell)
+                             which git-shell    /usr/bin/git-shell
+                             sudo vim /etc/shells
+                             sudo chsh git      <--- add git to user able to login with a shell (chsh: change login shell)
+                                                     user xxx can log from remote: ssh git@gitserver
+    - 'ssh':   
+                ssh -v git@github.com     -v verbose   -vv   -vvv (max)
+
+
+                -1    try SSH ver 1
+                -2         "     2
+                -4    IPv4 addr only
+                -6    IPv6      only
+
+                -p                 to connect to a port different from 22
+                -i keyfile         do specify something diff from the defualts ~/.ssh/id_dsa ...
+                -g                 Allows remote hosts to connect to local forwarded ports.
+                -e escape_char     can change the escpae default char ~ (see below, session manag.) to another
+
+
+    - session commands:
+                        ENTER ~ .          ENTER: to be sure to have a newline
+                                           ~      starts the submission of ssh control char
+                                           .      ssh control char to mean END session
+                   
+                                           The above close a stuck ssh session.
+                   
+                             ~?            help (list of avail escapes)
+                   
+                             ~^Z           suspend the remote ssh connection and
+                                           allow to be at 'local' prompt.
                         Once I'm over, a fg bring me back into remote.
 --------------------------------------------------- /
 To know Ubuntu version

@@ -100,3 +100,54 @@ __________________________________
 
                             https://github.com/companieshouse/chl-database/pull/60 
                             https://github.com/companieshouse/chl-database/pull/59
+
+
+
+
+
+
+
+
+_________________________ (Config. Manag)   ANSIBLE  (1.9)
+
+        Ansible is a free SW platform for configuring and managing computers (nodes) 
+        over SSH or PowerShell and requires Python (2.4 or later) to be installed on them. 
+
+        Modules work over JSON and standard output and can be written in any programming language. 
+
+        The system uses YAML to express reusable descriptions of systems.
+        
+        It is included as part of the Fedora distribution of Linux, owned by Red Hat inc., 
+        and is also available for Red Hat Enterprise Linux, CentOS, and 
+        Scientific Linux via Extra Packages for Enterprise Linux (EPEL) 
+        as well as other operating systems.
+        
+        Ansible is commercially supported and sponsored by Ansible, Inc. 
+        On 16 October, 2015, Red Hat Inc. announced that it had signed a definitive agreement to acquire Ansible, Inc.
+        
+        It was named "Ansible" after the fictional instantaneous hyperspace communication system featured in Orson Scott Card's Ender's Game,
+        and originally invented by Ursula K. Le Guin for her 1966 novel Rocannon's World.
+
+1. brew install ansible
+
+_________________________ 2   VAGRANT  (1.6.4 or better)  build
+
+        Vagrant creates and configures VMs.  
+        It can be seen as a higher-level wrapper around VirtualBox, VMware, KVM and Linux Containers (LXC), 
+        and around configuration management software such as Ansible, Chef, Salt, and Puppet.
+        
+        Vagrant was originally tied to VirtualBox, but version 1.1 added support for others 
+        such as VMware and KVM, and for server environments like Amazon EC2. 
+        
+        Vagrant is written in Ruby, but can be used in projects written in other languages 
+        such as PHP, Python, Java, C# and JavaScript.
+        
+        Since version 1.6, Vagrant natively supports Docker containers, 
+        which in some cases can serve as a substitute for a fully VMs
+
+        Vagrant plugins also exist, including 
+           vagrant-libvirt that adds support for libvirt, 
+           vagrant-lxc     that adds support for lxc,
+           vagrant-vsphere that adds support for VMware's ESXi.
+        
+        
