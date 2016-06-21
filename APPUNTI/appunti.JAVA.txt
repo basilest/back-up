@@ -125,7 +125,7 @@ The process of serializing an object (also called marshalling an object) is the 
 into a format that can be stored (file,  memory buffer, or transmitted across a network)
 and reconstructed later (when the series of bits is reread according to the serialization format:
 deserialization or unmarshalling)
-
+|[Ma|[Ma||
 For example, for maximal use of distribution, a computer running on a different hardware
 should be able to reliably reconstruct a serialized data stream, regardless of endianness.
 This means that the simpler and faster procedure of directly copying the memory layout of the data structure
@@ -189,7 +189,7 @@ is the sections of code that have to be included in many places with little or n
 The JavaBeans functionality is provided by a set of classes and interfaces in the java.beans package.
 
 ----------------------------------------------------------------------------------------------------
-Hibernate       4.3.7    (20014.30.10)
+Hibernate       4.3.7    (2014.30.10)
 ----------------------------------------------------------------------------------------------------
 We can certainly do this by employing Object Relational Mapping (ORM) tools. These
 tools’ main job is to transform the Java objects to relational data and vice versa. There
@@ -452,8 +452,8 @@ Static import declaration
 
 if, then ... do while...:  the same as in C (also label:   break;  continue [label optional];  return;)
 Enhanced for                    (available since J2SE 5.0.)
-                for (int i : intArray) {                       //built-in iterators over arrays and collections 
-                    doSomething(i);
+                for (int i : intArray) {    //Assuming "intArray" is defined to be an array of int
+                    doSomething(i);         //ex2: for (String e : a) { ..
                 }
 
 finally:         'return' statement ends execution immediately, except for one case:
@@ -539,10 +539,40 @@ throw:       is used to throw an exception and end block (or method) execution.
                         // Will not be called, if object was null
                         doSomethingWithObject(obj);
 
+Error:        take into consideration that IO can also throw Errors. 
+              Errors are not Exception, though both share the base class Throwable. 
+              Since IO can throw Errors, you may want to go so far as to catch Throwable
+              try{
+                   ...
+               } catch (Throwable t){
+                   if(t instanceof Exception){
+                       if(t instanceof IOException){
+                           // handle this exception type
+                       } else if (t instanceof AnotherExceptionType){
+                           //handle this one
+                       } else {
+                           // We didn't expect this Exception. What could it be? Let's log it, and let it bubble up the hierarchy.
+                           throw t;
+                       }
+                   } else if (t instanceof Error){
+                       if(t instanceof IOError){
+                           // handle this Error
+                       } else if (t instanceof AnotherError){
+                           //handle different Error
+                       } else {
+                           // We didn't expect this Error. What could it be? Let's log it, and let it bubble up the hierarchy.
+                           throw t;
+                       }
+                   } else {
+                       // This should never be reached, unless you have subclassed Throwable for your own purposes.
+                       throw t;
+                   }
+
 assert:       available since J2SE 1.4. the assert keyword followed by a conditional expression.
-              On false an exception is thrown.
+              On false an AssertionError is thrown.
+              Notice that this is an Error and not an Exception.
               This statement may include a colon followed by another expression,
-              which will act as the exception's detail message.
+              which will act as the error's detail message.
 
 assert n != 0;// If n equals 0, AssertionError is thrown
 assert n != 0 : "n was equal to zero";
@@ -555,13 +585,13 @@ Arrays:  length is defined at creation and cannot be changed.
                 int x = numbers[0];
 
 
-                int[] numbers = new int[] {20, 1, 42, 15, 34};        // Long syntax
-                int[] numbers2 = {20, 1, 42, 15, 34};                 // Short syntax
+                int[] numbers = new int[] {20, 1, 42, 15, 34};       // Long syntax
+                int[] numbers = {20, 1, 42, 15, 34};                 // Short syntax
 
                 int[][] numbers = new int[3][3];
                 numbers[1][2] = 2;
 
-                int[][] numbers2 = {{2, 3, 2}, {1, 2, 6}, {2, 4, 5}};
+                int[][] numbers = {{2, 3, 2}, {1, 2, 6}, {2, 4, 5}};
 
 multi-dimensional arrays are not bound to be rectangular unlike C:
 
@@ -713,9 +743,6 @@ JAR
    jar cvf0 ......  0 means NO_COMPRESSION
                     You might want to avoid compression, for example, to increase the speed with which a JAR file
                     could be loaded by a browser.
-                    Uncompressed JAR files can generally be loaded more quickly than compressed files because
-                    the need to decompress the files during loading is eliminated.
-
 
    jar cvf TicTacToe.jar TicTacToe.class audio images
 
@@ -770,22 +797,4 @@ Working with Manifest Files
 
          Class-Path: jar1-name jar2-name directory-name/jar3-name
 
-
-
-
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
