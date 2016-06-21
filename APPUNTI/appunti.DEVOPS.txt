@@ -108,7 +108,20 @@ __________________________________
 
 
 
-_________________________ (Config. Manag)   ANSIBLE  (1.9)
+_________________________ ( 4- Continuous Integration)   JENKINS
+
+        - written in Java
+        - server based
+        - runs in a servlet container (such as Apache Tomcat)
+        - supports SCM tools (ex. Git, Clearcase, ...)
+        - can compile (Ant, Maven)
+        - can run shell scripts.
+        - Builds can be triggered in many ways (ex by Git commit, cron tab, specific url ...)
+        - Builds can generate test reports in various formats 
+          supported by plugins (JUnit support is currently bundled)
+
+
+_________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
 
         Ansible is a free SW platform for configuring and managing computers (nodes) 
         over SSH or PowerShell and requires Python (2.4 or later) to be installed on them. 

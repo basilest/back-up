@@ -225,6 +225,221 @@ or otherwise
     lsb_release -a    # part of pkg 'lsb': Linux Standard Base support for Debian
 
 ---------------------------------------------------
+                   FILE SYSTEM     
+-----------------------------------
+
+  Filesystem Hierarchy Standard         FHS version 3.0   - 2015/03/19
+                                       (http://refspecs.linuxfoundation.org/fhs.shtml)
+
+  
+  - "Shareable"   files (stored on one host and used on others ex. home user files)
+                  so they can be 'mounted' by others
+  - "Unshareable" files not shareable. (device lock files)
+  - "Static"      files that do not change without root intervention, (binaries, libraries, docs ...)
+  - "Variable"    files not static.
+
+  Once both static and var were in /usr & /etc. Now var files should be placed in /var
+  and keep /usr mounted read-only in case it is on another host.
+
+  _____________________________
+  ROOT - Filesystem:  /
+  _____________________________
+           
+         - Must contain utilities to restore/repair/mount
+         - Must be kept minimal to be less prone to disk corruption as the result of a system crash.
+         - So as a guideline Applications must never create or require special files/subdir in the root dir.
+
+
+   / bin      33 most useful commands (sh, kill, rm, cp, cat, ls, sh, mount ...)
+              (less usefull ex 'id'  must be put in /usr/bin
+                 
+                 - sh : if is not the POSIX compatible, must be a link (hard or soft) to that.
+                 - '[' and 'test'  must be put TOGETHER in either / bin or /usr/bin
+
+   / bin      <--- still in /bin as themselves or symlinks
+                   csh  (usually to /bin/tcsh or /usr/bin/tcsh)
+                   tar, gzip, cpio    to make system restoration (if / is intact)
+                                      if no restoration from the root partition is ever expected
+                                      but maybe is expected from the network, then ftp or tftp
+                                      must be added
+
+              Linux has also /bin/setserial to manage a serial port
+
+   / sbin     (/usr/sbin /usr/local/sbin)
+              should contain root-onlyc-cmds to boot or recover the system. Ex
+                              - shutdown 
+                              - reboot
+                              - fastboot      (optional) reboot without disk check
+                              - fasthalt      (optional) stop     "           "
+                              - fdisk         partition tbl
+                              - fsck          disk repair
+                              - mkfs          build filesystem
+                              - mkswap        build swap area
+                              - route         IP routing tbl 
+                              - swapon/off    Enable/Disable paging
+              The division between /bin and /sbin
+              was not created for security reasons or to prevent users from 
+              seeing the operating system, but to provide a good
+              partition between user & root binaries. There is no inherent security advantage in
+              making /sbin off-limits for users.
+
+                   - so users should have no reason to add /sbin in their PATHs
+                   - moreover sbin must have no subdirs
+
+
+   / boot     what is required for the boot
+                   - the kernel    (can stay even directly in '/'
+                                    in this case is recommend to be named vmlinux or vmlinuz
+              
+              - progs required by boot                     --> /sbin
+              - config files not strictly required by boot --> /etc
+
+   / dev      for special / device files
+              MAKEDEV <-- a command that must be present if special
+                          files have to be added by hand.
+                          (maybe as a link to /sbin)
+
+              /dev/null    trash to write - EOF      when used to read
+              /dev/zero       "  "   "    - 0 bytes   "            "
+              /dev/tty     synonym for the controlling terminal of a process. Once this device is opened, 
+                           all reads and writes will behave as if the actual controlling terminal device 
+                           had been opened.
+
+   / etc      should contain (preferably in subdirs than directly in /etc)
+              config files of the programs, or even 'executables' but as
+              scripts (NOT BINARIES (ELF)) (ex. those called by init)
+
+              Following subdirs (even as a link) 
+              should be here if the corresponding subsystem is installed)
+
+              opt     (config files for dir  /opt)
+                      usually it contains subdirs xxx with same name of the
+                      prog's dir in /opt/xxx
+
+              X11    (containing xorg.conf  & Xmodmap)
+              sgml
+              xml
+
+              csh.login
+              exports        (NFS filesystem access control list)
+              ....
+              networks       (Static information about network names)
+              services       (standard PORTS)
+              shells         (PATH for valid shells)
+              syslog.con     (Configuration file for syslogd)
+
+
+   / home     On smaller systems, is usually a dir directly under /home (ex. /home/torvalds)
+              On larger  systems (can be simething like: /home/staff /home/guests /home/students
+
+              To find a user's home directory, use a library function such as 
+                               getpwent        C function:  man getpwent
+                               getpwent_r      <--- reetrant version
+                                                    A function is reentrant if it can be interrupted in the middle 
+                                                    of its execution and then safely be called again before 
+                                                    its previous invocations complete execution.
+              of fgetpwent
+              rather than relying on 
+                 /etc/passwd            (ex. cat /etc/passwd | grep -i basi
+                                             sbasile:x:875:600:Stefano Basile - Development User:/home/sbasile:/bin/bash)
+              because user information may be stored remotely using systems such as NIS
+
+
+              NIS: The Network Information Service, (originally called Yellow Pages or YP) is a client–server 
+              directory service protocol for distributing system configuration data such as user and host names 
+              between computers on a computer network. Sun Microsystems developed the NIS; the technology 
+              is licensed to virtually all other Unix vendors.
+              Because British Telecom PLC owned the name "Yellow Pages" trademark in the 
+              Sun changed to NIS, though all the commands and functions still start with “yp”.
+
+
+
+              User specific config files are stored in the user's home in a '.' files
+              If an application needs to create more than one dot file then they should
+              be placed in a '.' subdirectory (a "dot directory"). In this case the
+              config files should NOT start with the '.' 
+
+   / lib    -  shared libraries needed to boot and run the commands in the root filesystem (/bin /sbin)
+               Only the shared libraries for /bin /sbin  should stay here.
+
+               at least one of the following (as file or links)
+            -          libc.so.*      --> ex /lib/libc.so.6
+            -          ld*            --> ex ld-2.3.4.so    ld-linux.so.2  ld-lsb.so.3
+               If a C preprocessor is installed, 
+            -          /lib/cpp
+               must be a reference to it
+
+            -  modules/           Loadable kernel modules dir
+                                  ex.    2.6.9-89.EL  2.6.9-89.ELsmp  kabi-4.0-0  kabi-4.0-0smp
+
+
+   / media    contains subdir which are used as mount points for removable media such as 
+              floppy disks, cdroms and zip disks
+
+              Historically there have been a number of other different places used to mount 
+              removable media such as  /cdrom /mnt /mnt/cdrom
+              Placing the mount points for all removable  media
+              directly in '/' would  potentially  result in a large number of extra dirs
+              
+              Although the use of subdirs in /mnt has recently been common, 
+              it conflicts with a much older tradition of using /mnt directly as a TEMPORARY mount point.
+
+              A distribution with more drives (ex. 2 CDROM) usually numbers them from 0
+                      ex. /media/cdrom0 /media/cdrom1
+              with /media/cdrom a symlink
+
+   / mnt      so that the system admin may TEMPORARILY mount a filesystem
+
+   / opt      For additional SW (like the firefox addons)
+              in the form
+                    /opt/<packahe_name>
+                    /opt/<provider_name>     LANANA registered name.
+                                             The Linux Assigned Names And Numbers Authority
+                                             www.lanana.org/
+                    /opt/<pxxxx_name>/share/man if there are mans  
+
+              Reserved names for system admin:
+                                              /opt/bin
+                                              /opt/doc
+                                              /opt/include
+                                              /opt/info
+                                              /opt/lib
+                                              /opt/man
+
+   / root     (optional) the home for user root
+
+   / run      files here must be cleared (removed or truncated as appropriate) at boot.
+              Then it contains data related to the system since it was booted.
+              Each prog can have here its file (or its dir for > files)
+              Old versions used /var/run now most should have migrated to this.
+
+              PID - a file of type <prog>.pid   (ex. crond.pid)
+              containing that prog PID should stay here (once was in /etc )
+              PID files should contain the number + \n  (ex PID=25 --> a file of 3 bytes) 
+
+   / srv      should store data related to a system (ex. /srv/ftp /srv/www ...)
+              There is no consensus on the naming convention to use.
+
+   / tmp      recommended to be cleared on boot.
+
+   / usr       shareable, read-only.  
+               That  means is shareable between various FHS-compliant hosts 
+               and must not be written.
+
+                bin/       (perl, python, tclsh, wish, expect)
+                include/    C includes.
+                lib/        obj files and libs (usually not intended to be executed directly by users or shell scripts)
+                            ex /lib/perl5/
+                            - /usr/lib/sendmail
+                libexec/    used only by some distros like and together with lib/
+                local/      when installing locally some SW without the risk to be overwritten
+                            by SW upgrades in /usr.
+                sbin/       any non-essential binaries used exclusively by root.
+                share/      all read-only architecture independent data files
+
+   / var        contains  variable  data  files: spool  dir and files,  admin logging data, transient and temp files.
+
+---------------------------------------------------
                    KERNEL
 -----------------------------------
 
