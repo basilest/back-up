@@ -1,0 +1,163 @@
+----------------------------------------------------------------------------------------------------
+GRADLE
+----------------------------------------------------------------------------------------------------
+__________________________________
+GRADLE OVERVIEW
+__________________________________
+       1. like SPRING, the installation is a zip with inside many jar files and a bin/gradle
+       2. crate a dir (ex ~/GRADLE) unzip all the jars
+       3. add the dir ~/GRADLE/xxxxxx/bin/ to $PATH so that 'gradle' is found
+       4. gradle tasks    shows what gradle can build
+       5. go in a new empty dir, and run (gradle tasks)
+       6. add a file (build.gradle) containg 1 line: (apply plugin: 'java')
+       7. run again (gradle tasks)  to see there are new tasks (javadoc / check / test)
+          this is convention vs configuration:
+          Most is implicit and many rules have not to be explicitly written.
+       8. note there is even a new (.gradle) dir with some taskArtifacts/xxxxxx
+       9. run (gradle build): this creates a (build/) dir with some hierarchy like a build/libs/xxx.jar
+      10. gradle clean      : removes the dir build/
+      11. add now some java code (ex 2 java classes A.java B.java in ./src/main/java/hello/(A.java B.java))
+      12. with no configuration at all run (gradle build)
+          it's created the build with also the classes:
+          ./build/classes/main/hello/(A.class B.class)
+      13. configurations are done as:
+              - -D , -P at command line
+              - the files (gradle.properties) that can be more 
+                (in gradle home dir (~/.gradle), as well in any dir of a proj. tree)
+      14. proxy
+          add in ~/<GRADLE HOME>/gradle.properties the block (for both HTTP & HTTPS)
+                                  ________________________________
+                           systemProp.http.proxyHost=www.somehost.org
+                           systemProp.http.proxyPort=8080
+                           systemProp.http.proxyUser=userid
+                           systemProp.http.proxyPassword=password
+                           systemProp.http.nonProxyHosts=*.nonproxyrepos.com|localhost
+                           
+                           systemProp.https.proxyHost=www.somehost.org
+                           systemProp.https.proxyPort=8080
+                           systemProp.https.proxyUser=userid
+                           systemProp.https.proxyPassword=password
+                           systemProp.https.nonProxyHosts=*.nonproxyrepos.com|localhost
+                                  ________________________________
+      15. to link to external libs (jars) the 1-liner (build.grade) can be extended as:
+                                  ________________________________
+          
+                           apply plugin: 'java'
+                           
+                           
+                           repositories {
+                               mavenCentral()
+                           }
+                           
+                           sourceCompatibility = 1.7  <--- the version oj java I've installed
+                           targetCompatibility = 1.7
+                           
+                           dependencies {
+                               compile "joda-time:joda-time:2.2"
+                           }
+                           
+                           jar {
+                               baseName = 'gs-gradle'
+                               version =  '0.1.0'
+                           }
+                                  ________________________________
+                
+      16. Wrapper
+          adding the following (wrapper) section in the build.gradle and then executing 
+                           (gradle wrapper)
+                           (gradle build)
+          creates a wrapper/ dir and all is required to distribute my proj and allow others to run it
+          WITHOUT HAVING GRADLE INSTALLED
+          with the command (./gradlew run)
+                                  ________________________________
+                           task wrapper(type: Wrapper) {
+                               gradleVersion = '2.3'
+                           }
+                                  ________________________________
+      16. run
+          to run the build something more must be added in the (build.gradle) file that is:
+                                  ________________________________
+                           apply plugin: 'application'
+                           
+                           mainClassName = 'hello.HelloWorld'
+                                  ________________________________
+          the run the command (./gradle run)
+                     
+__________________________________
+GRADLE GUIDE
+__________________________________
+__________
+    Installing:   . requires JDK  (nb. JDK is the set of tools javac, java, jar, bundled and installed ex in /usr/bin)(
+                  . has its own Groovy library (so Groovy must not be installed)
+
+    4.1. Executing multiple tasks
+                  . gradle compile test      <--- like make, executes more targets in the order specified in the command line
+                  . Each task is executed once only, regardless of how 
+                    it came to be included in the build: 
+                    whether it was specified on the command-line, or 
+                    as a dependency of another task, or both.
+
+    4.2. Excluding tasks      gradle dist -x test    <--- -x
+
+    4.3. Continuing the build when a failure occurs       <--- run with option --continue
+
+                              normally gradle exits on 1st failure.
+                              with --continue carries on for ALL tasks of the makefile
+                              but only those that do not have failures in their dependencies
+
+    4.4. Task name abbreviation       <--- can be used any shortened name for the task
+                                           that let it be unuique in the makefile  (gradle d instead of gradle dist)
+                                           If it is camel case even 'cT' instead of 'compileTest'
+
+    4.5. Selecting which build to execute   <---- options -b  -p
+                              normally is searched a build.gradle in the current dir
+                              -b   can specify the fullpath for another file
+                              -p   can specify the fullpath for another dir
+
+    4.6. Forcing tasks to execute           <---- option --rerun-tasks
+                              normally, like make, gradle builds only the task modified since the last time
+                              (and writes otherwise  <task_name>: UP-TO-DATE)
+                              To force rebuild all the tasks anyhow use --rerun-tasks
+
+    4.7. Obtaining information about your build
+
+                              gradle projects      shows a tree of the projects
+                                                   for any project it's showed what specified in the makefile
+                                                   as (description = 'xxxx xxxxx  xxxx .... xxxx')
+
+                                                       tasks can be grouped in the makefile with (group='ggg')
+                              gradle tasks             list the tasks
+                              gradle tasks --all       add more info
+                              gradle help --task xxx   gives info only for task xxx
+
+                              gradle dependencies                        shows the relations
+                              gradle dependencies -configuration xxx     show dependency only for task xxx
+                              gradle xxx:dependencies                    if there are more projects in the makefile
+                                                                         I can select dependency on proj xxx
+
+                              gradle buildEnvironment    to show the env
+
+                              gradle dependencyInsight   to list only the depenencies that match specified criteria
+                                                         ex. gradle webapp:dependencyInsight --dependency groovy --configuration compile
+
+                              gradle properties          shows all the properties of the proj (a superset of ~/.m2/settings.xml)
+
+                              gradle --profile           builds creating even a report with the time required
+                                                         for any tasks
+    4.8. Dry Run    <---  -m
+__________
+Chapter 5. The Gradle Wrapper
+
+    5.1. Executing a build with the Wrapper         ./gradlew <task>     will download the proper gradle version 
+                                                                         and then run it. So there is no need to have gradle already installed
+                                                                        
+    5.2. Adding the Wrapper to a project
+                                                    task wrapper(type: Wrapper) {
+                                                        gradleVersion = '2.3'
+                                                    }
+    5.3. Configuration
+    5.4. Verification of downloaded Gradle distributions
+    5.5. Unix file permissions
+
+
+                  
