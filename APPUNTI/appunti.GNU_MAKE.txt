@@ -1,3 +1,77 @@
+   --------------------------------------------------------   COMPILER
+   
+   C prog p.c    ---> gcc -Wall p.c -o p   ---> EXE file 'p'
+                                                (without -o p   I get a.out default file)
+
+
+   1. Pre Processing
+            - expand MACRO
+            - expand includes
+            - removes comments
+
+            gcc -Wall -E p.c                  -E : dump the pre-proc output on standard out
+
+   2. Compilation
+            gcc -Wall -save-temps p.c -o p    -save-temps   (save temporary files: 
+                                                             .i  <--- the preproc output I can verify i
+                                                                      comments are remove, MACRO have been subst. & include expanded.
+                                                                      It the exact same file I can obtaining    gcc -Wall -E p.c > xxxx
+                                                             .s  <--- assembler  (still in TEXT)
+   3. Assembly reads .s to produce .o
+                                                             .o  <--- binary ELF (executable & linkable format)
+                                                                      the modern format vs old 'a.out'-format
+
+                                                                      nb. The a.out file preserves only the name 
+                                                                      not the format that is ELF
+                                                             )
+   4. Linking
+      plugs-in the real addresses for all the external unresolved place holders
+      It's sufficient to compare the size of the p.o (object) with the p (linked)
+      the see how much of the external has been built into p.
+
+                                               
+
+
+
+
+
+   --------------------------------------------------------
+   --------------------------------------------------------
+   --------------------------------------------------------
+   -------------------------------------------------------- Cross compiler
+   A cross compiler is a compiler capable of creating executable code 
+   for a platform other than the one on which the compiler is running.
+   ex.  . compile on FreeBSD an app for Android
+        . compile on 1 host for many virtualised different guests
+        . compile for a device (ex microwave, wachingmachine)
+
+   Virtual machines (like Java VM) tries to solve some of the reasons
+   to need a cross-compiler, as they run the same code everywhere the
+   VM has been ported.
+   Anyhow not in any place can be ported a VM, moreover it remains slower.
+
+
+   gcc = 
+         - COLLECTION of cross-compilers  
+         - supports many architectures & LANGUAGES
+         - requires a COMPILED copy of 'binutils' for each target platform.
+           (this means 'binutils' has been compiled with the switch
+                --target=xxxx    xxxx:name of the platform)
+         - gcc must then be CONFIGURED with the same --target=xxxx
+         - the target-platform C-standard-library must be present on host
+           but as it's big, normally is used a smaller one:'newlib'
+   
+   - GNU Assembler
+
+   - autoconf
+   - automake
+   - libtool
+   -------------------------------------------------------- GCC
+    Compiler for many languages:
+           C, C++ (1987)
+           Objective-C, Objective-C++, Fortran, Java, Ada, and Go among others.
+
+   --------------------------------------------------------
    make utility is not limited to programs. 
 
    It decides if some files must be updated automatically from others 
@@ -21,7 +95,7 @@
        target:   dependency  ;   rules         #to use in simple cases
 
 
-   phony target: have no dependency / they also are dependency for no target
+   phony target: have no dependency / they also aren't dependencies for any target
                  so they only have rules.
                   clean :
                           rm edit $(objects)
@@ -122,13 +196,14 @@
    -------------------------------------------------------- gcc -M      /    .d
 
        the have from each .c a file .d (depenency)
-       that is what shuld me made in the Makefile (so it writes dependendy for me)
+       that is what should be made in the Makefile (so it writes dependendy for me)
        is to launch gcc with option -M
 
    --------------------------------------------------------
    
-   when in 1 Makefile all the rule are default rule it's a matter of taste
-   to chose to group all the target on left separated by , and its common dependency after :
+   It can also be used the style:
+
+   to group all the target on left separated by , and its common dependency after :
    1 group for each deendency
         
        $(objects) : defs.h
@@ -251,7 +326,7 @@
              var =
 
    if we refer normally as $(var)  it's expanded already in the 1st phase
-   if we refer as $$(var)  (with double '$')  make wait the secodn phase to expand:
+   if we refer as $$(var)  (with double '$')  make waits the second phase to expand:
                 
                                                
                                                

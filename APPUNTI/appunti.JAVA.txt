@@ -17,7 +17,49 @@ THE SIMPLEST PROG:
       from ~:   java -cp class_dir org.basilest.My_class
 
 
+----------------------------------------------------------------------------------------------------
+JAR and CLASSPATH
+----------------------------------------------------------------------------------------------------
 
+    1. If I write a proj with 3 classes A.java B.java C.java defined as package "org.basilest"
+       I'll have a dir like  ~/....../current_dir/org/basilest/(A.java B.java. C.java)
+    2. If some API are in external jar files, I have to instruct javac, the compiler, how to locate them.
+       I have 2 options:
+               - define the ENV var $CLASSPATH (that is like PATH a list of dirs  separated by ':')
+               - pass the list of jar, in the command line as -cp ".....jar : .....jar : ....jar"
+                 to avoid listing ALL the jats, since java 1.6 the * is allowed:
+                               ________________________________________
+
+                     As a special convenience, a class path element containing a basename of * 
+                     is considered equivalent to specifying a list of all the files in the 
+                     dir with the extension .jar or .JAR.
+
+                     For example, if dir foo contains a.jar and b.JAR, then the 
+                     class path element foo/* is expanded to A.jar;b.JAR, except that the order 
+                     of jar files is unspecified. 
+                     All jar files in the specified dir, even hidden ones, are included 
+                     in the list. 
+                     A classpath entry consisting simply of * expands to a list of all the jar files 
+                     in the current dir.
+                               ________________________________________
+
+    3. Probably the current dir as :.: must also be added in the list fo dirs.
+    4. To compile A.java into A.class in the same dir ~/....../current_dir/org/basilest/
+       do, from ~/....../current_dir/
+
+             javac           -cp "dir1/a.jar:dir2/*:.:" org/basilest/A.java
+    5. To compile A.java into A.class in a different dir3 
+       do, always from ~/....../current_dir/
+             javac -d dir3/  -cp "dir1/a.jar:dir2/*:.:" org/basilest/A.java 
+
+       NB. It will not be .../dir3/A.class but (preserving the package hierarchy)
+           .../dir3/org/basilest/A.class
+
+    6. from ..../dir3   I can now execute it with    
+       java -cp "dir1/a.jar:dir2/*:.:"   org.basilest
+             ^                              ^
+            the same jars used by javac     NB it's . not /
+                                             
 
 ----------------------------------------------------------------------------------------------------
 Eclipse
@@ -672,7 +714,7 @@ Overriding methods:    Unlike C++, all non-final methods can be overridden
                         }
                     }
 
-Interfaces:   1 abstract class, with vars but function are with no body.
+Interfaces:   1 abstract class, with vars but functions are with no body.
               Classes that implement that Interface, override all the functions:
 
 interface ActionListener {                  class ActionHandler implements ActionListener, RequestListener {
@@ -709,9 +751,109 @@ The main difference is that method declarations must
               boolean networkOperations() default false;
           }
 
+     - Annotations are a way to add information that can be then used
+       by the compiler (compilation phase) or by the program at runtime (execution phase)
+     - The usage of these information at runtime is possible by the java 'reflection' mechanism.
+     - annotations are a '@' + name --> @name 
+       attached to classes, interfaces, methods, fields
+     - Annotations are often used by frameworks as a way of conveniently applying behaviours to 
+       user-defined classes and methods that must otherwise be declared in an external 
+       source (such as an XML configuration file) 
+     - When Java source code is compiled, annotations can be processed by compiler plug-ins called 
+                       annotation processors. 
+       Processors can produce informational messages or create additional Java source files or resources, 
+       which in turn may be compiled and processed, and also modify the annotated code itself. 
+       The Java compiler conditionally stores annotation metadata in the class files, 
+       if the annotation has a RetentionPolicy of CLASS or RUNTIME. 
+       Later, the JVM or other programs can look for the metadata to determine how to interact 
+       with the program elements or change their behavior.
+     - In addition to processing an annotation using an annotation processor, a Java programmer 
+       can write their own code that uses reflections to process the annotation.
+     - the built-in annotations are following 3:
+           - @Override         : this instructs the compiler to throw an exception
+                                 when the overriding link between the 2 methods (Parent/Child)
+                                 should be broken
+           - @Deprecated       : when a class, method, field is annotaed as Deprecated, the complier
+                                 should thow a warning when anyone is still carrying on using it.
+                                 Javadoc relies on a lowercase tag '@deprecated' to document the usage:
+                                 /**
+                                   * @deprecated
+                                   * reason for why it was deprecated
+                                   */
+                                  @Deprecated
+                                  public void anyMethodHere(){
+                                      // Do something
+                                  }
+                                  
+           - @SuppressWarnings: to suppress the warnings generation for the listed warinings.
+                                ex.
+                                 @SuppressWarnings("deprecation")
+                                    void myMethod() {
+                                        myObject.deprecatedMethod();
+                                }
 
-defter: getr io allow rte fget gtr art
+     - custom xxx annotations can be created as:
+                . defining a normal interface xxx, that is child of java.lang.annotation 
+                . the definition is done prepending the keyword "@interface"
+                               public @interface xxx {                  |  @interface yyy  {
+                                   int studentAge() default 18;         |      int      count();                                        
+                                   String studentName();                |      String[] books();                                        
+                                   String stuAddress();                 |  }                                                            
+                                   String stuStream() default "CSE";    |                                
+                               }
+                . importing it where it must be used: "import java.lang.annotation.xxx"                           
+                . calling it as 
+                                @xxx(
+                                    studentName="Chaitanya",  <--- nb. default val can be skipped
+                                    stuAddress="Agra, India"
+                                )
+                                @yyy(                         <--- nb. I can add more annotations
+                                    count=3,
+                                    books={"C++", "Java"}
+                                )
+                                public class MyClass {
+                                ...
+                                }
+     - @Target : limits the range of what an annotation can annotate to any element of this list
 
+                    ElementType.METHOD
+                    ElementType.PACKAGE
+                    ElementType.PARAMETER
+                    ElementType.TYPE
+                    ElementType.ANNOTATION_TYPE
+                    ElementType.CONSTRUCTOR
+                    ElementType.LOCAL_VARIABLE
+                    ElementType.FIELD
+
+                 ex. when defining xxx, add @Target({ElementType.METHOD})
+                      @Target({ElementType.METHOD})
+                               public @interface xxx {
+                               
+                               }
+     - @Inherited : adding this when defining xxx (ex.
+                    @Inherited                      <---
+                       public @interface xxx {
+                       
+                    ) means that when used in a class F
+                    @xxx                            <---
+                     public class F { 
+                       ... 
+                     }
+                     then any child C of C, will also inherited it.
+                     
+                     public class C extends F {    <---
+                        ... 
+                     }
+     - @Retention    when adding this during xxx definition
+                     I can specify till when the info of the annotation can be used
+                     @Retention(RetentionPolicy.SOURCE)  <--- it will keep only in the source and discarded already in the class object
+                         public @interface xxx
+                     
+                     @Retention(RetentionPolicy.CLASS)    : it is preserved in the object class, but not at runtime 
+                     @Retention(RetentionPolicy.RUNTIME)  : it is preserved even for runtime usge.
+
+     - @Documented   if added when defining xxx, it will make Javadoc including the annotation
+                     when generating doc for a class F that uses the annotation.
 
 
 ----------------------------------------------------------------------------------------------------

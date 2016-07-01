@@ -1,3 +1,94 @@
+----------------------------------------------------------------------------------------------------
+SPRING  Framework
+----------------------------------------------------------------------------------------------------
+
+  1 Spring framework comes as a set of jar, each including 1 of many functionalities.
+  The core functionality is 'spring-context ....jar'
+  so at least that jar must be downloaded.
+  2 All the functionalities (jar) files can be downloaded in any dir by hand, but
+    a better way is go in that dir and use maven with the following  pom.xml (which will download all)
+         2.a   configure mave for the proxy. 
+               Mave is configured in the ~/.m2/settings.xml 
+               That file should be something like
+               
+                               ________________________________________
+                               |  <settings>
+                               |    <proxies>
+                               |     <proxy>
+                               |        <id>example-proxy</id>
+           ~/.m2/settings.xml  |        <active>true</active>
+                               |        <protocol>http</protocol>
+                               |        <host>wsproxy.internal.ch</host>
+                               |        <port>8080</port>
+                               |      </proxy>
+                               |    </proxies>
+                               |  </settings>
+                               |_______________________________________
+
+         2.b   created a dir: mkdir ~/SPRING && cd ~/SPRING
+         2.c   vi pom.xml:
+
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" 
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                                http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                          <modelVersion>4.0.0</modelVersion>
+                          <groupId>spring-source-download</groupId>
+                          <artifactId>SpringDependencies</artifactId>
+                          <version>1.0</version>
+                          <properties>
+                            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                          </properties>
+                          <dependencies>
+                            <dependency>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-context</artifactId>
+                                <version>4.3.0.RELEASE</version>
+                            </dependency>
+                          </dependencies>
+                          <build>
+                            <plugins>
+                              <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                  <artifactId>maven-dependency-plugin</artifactId>
+                                    <version>2.10</version>
+                                    <executions>
+                                      <execution>
+                                        <id>download-dependencies</id>
+                                          <phase>generate-resources</phase>
+                                            <goals>
+                                              <goal>copy-dependencies</goal>
+                                            </goals>
+                                            <configuration>
+                                              <outputDirectory> ${project.build.directory}/dependencies </outputDirectory>
+                                            </configuration>
+                                      </execution>
+                                    </executions>
+                              </plugin>
+                            </plugins>
+                          </build>
+                        </project>
+
+         2.d   this will create something like:
+                           /Users/sbasile/SPRING
+                           /Users/sbasile/SPRING/pom.xml
+                           /Users/sbasile/SPRING/target
+                           /Users/sbasile/SPRING/target/dependencies
+                           /Users/sbasile/SPRING/target/dependencies/commons-logging-1.2.jar
+                           /Users/sbasile/SPRING/target/dependencies/spring-aop-4.3.0.RELEASE.jar
+                           /Users/sbasile/SPRING/target/dependencies/spring-beans-4.3.0.RELEASE.jar
+                           /Users/sbasile/SPRING/target/dependencies/spring-context-4.3.0.RELEASE.jar
+                           /Users/sbasile/SPRING/target/dependencies/spring-core-4.3.0.RELEASE.jar
+                           /Users/sbasile/SPRING/target/dependencies/spring-expression-4.3.0.RELEASE.jar
+                           /Users/sbasile/SPRING/target/maven-archiver
+                           /Users/sbasile/SPRING/target/maven-archiver/pom.properties
+                           /Users/sbasile/SPRING/target/SpringDependencies-1.0.jar
+
+         2.e   now Spring is installed. Add the
+               /Users/sbasile/SPRING/target/dependencies/*.jar
+               to the -cp both in (javac) and (java) 
+               so that the code can find he framework.
+
 ------------------------------------------------------------- SPRING
 
 Eclipse tree
@@ -37,7 +128,7 @@ Eclipse tree
 
          --------------------------  3 of 3 in java code you then can
          package org.basilest;                                       1. 'open' the xml file
-                                                                     2. get a class through it's bean-'id'
+                                                                     2. get a class through its bean-'id'
          import org.springframework.context.ApplicationContext;      3. use the class ex. triangle.draw()
          import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -78,7 +169,7 @@ spring.xml more fatures:
             2. in xml file instead of <property> use:
 
                  <constructor-arg value="Equilateral" />      Note
-                                                              If there are 2 constructors ex 1 receiv int, the
+                                                              If there are 2 constructors ex 1 receives int, the
                                                               other String, to disambiguate use attr "type"
                                                               <constructor-arg type="int" value="20" />
                                                               types are i.e.
@@ -86,7 +177,7 @@ spring.xml more fatures:
 
                                                               <constructor-arg type="java.lang.String" value="Equil" />
 
-                                                              If there are more parm in 1 cosntructor use "index"
+                                                              If there are more parm in 1 constructor use "index"
 
                                                               <constructor-arg index="0" value="Equil" />
                                                               <constructor-arg index="1" value="20" />

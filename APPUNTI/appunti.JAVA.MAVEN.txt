@@ -1,7 +1,67 @@
+---------------------------------------------- ANT
+  - ANT = Another Neat Tool
+  - July 2000
+  - invented by Apache to build Tomcat
+  - replacement of Unix make (which uses makefile syntax)
+  - uses XML syntax (file 'build.xml')
+  - written in Java  - so requires the JVM
+  - best suited to build Java proj
+  - trivial to integrate JUnit tests with the build process --> test-driven develop.
+
+  example of Hello.world proj
+
+  <?xml version="1.0"?>
+  <project name="Hello" default="compile">
+      <target name="clean" description="remove intermediate files">
+          <delete dir="classes"/>
+      </target>
+      <target name="clobber" depends="clean" description="remove all artifact files">
+          <delete file="hello.jar"/>
+      </target>
+      <target name="compile" description="compile the Java source code to class files">
+          <mkdir dir="classes"/>
+          <javac srcdir="." destdir="classes"/>
+      </target>
+      <target name="jar" depends="compile" description="create a Jar file for the application">
+          <jar destfile="hello.jar">
+              <fileset dir="classes" includes="**/*.class"/>
+              <manifest>
+                  <attribute name="Main-Class" value="HelloProgram"/>
+              </manifest>
+          </jar>
+      </target>
+  </project>
+                   <--- (complex, verbose, hierarchical, pervasively cross-linked) XML
+
+
+  Many Ant tasks delegate their work to external programs, either native or Java.
+
+  It's written to fix the portability issue of the makefile (ex. 
+        - makefile unix     : rm -rf classes/
+        - makefile windows  : rmdir /S /Q classes/
+  ). In Ant there are sp some builtin commands like <'delete' dir="classes" />
+
+
+---------------------------------------------- MAVEN 
+MAVEN (whose executable is /usr/local/bin//mvn) can be considered a modern make.
+      If make reads a MakeFile, 
+      maven reads an XML called pom.xml (Project Object Model)
+      which is stored in the dir which will then be considered the root for the project.
+      From there I can run mvn with all the required options and args.
+
+      Like a big project can have a tree struct, with different MakeFiles, the same way
+      there could be many Poms.xml, where all POMs inherits from the Super POM.
+
+      Gradle is a more powerfull alternative. It doens't use XML but another text file.
+      Moreover Gradle supports other languages, while Maven is mainly thought for Java.
+
+
+
+
 mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes \
                        -DarchetypeArtifactId=maven-archetype-quickstart
 
-JAVA based              Maven is a Java-based application and 
+JAVA based              (Apache) Maven is a Java-based application and 
                         requires the Java Development Kit (JDK)
 
 1. download:            http://maven.apache.org/download.html
@@ -14,8 +74,10 @@ JAVA based              Maven is a Java-based application and
                                                if you go out of memory with lot of memory errors
 4. mvn -v               ready to go!
 
-5. settings.xml         user-specific configuration. Locate din '~/.m2' dir
+5. settings.xml         user-specific configuration. Located in '~/.m2' dir
                         .m2 contains also JAR-plugin downloaded from internet
+                        thousands (!) of files under dir .m2/repository/
+
                         
                         <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -40,8 +102,8 @@ JAVA based              Maven is a Java-based application and
                                                        </proxy>     </proxies>     
                       
 ---------------------------------------------- MAVEN Dependency
-the problem:            if your application relys on external JARs, where each relys on other JARs
-                        insteda of download all, keep them up-to-date each time 1 changes, and 
+the problem:            if your application relies on external JARs, and each relies on other JARs
+                        instead of downloading all, keep them up-to-date each time 1 changes, and 
                         inlude by hand in the application. You can use Maven
                         which manage all the dependecies in  pom.xml 
 
@@ -81,7 +143,7 @@ remote Maven            Main remote repository are  repo.maven.apache.org / uk.m
                                      </repositories>
                                </profile>    </profiles>
 
-Depend. Indentification: Depend. are usually ZIP, JAR, WAR or also EAR (entreprise archive) 
+Depend. Identification: Depend. are usually ZIP, JAR, WAR or also EAR (entreprise archive) 
                          Are identified by:
                              groupId:    the organization (Ex org.hibernate, log4j, org.springframework.boot.
                              artifactId: Id (unique) among the proj (same groupId). Ex hibernate-tools, log4j, spring-core,
@@ -137,7 +199,7 @@ Install plug-in: allows to install a local JAR till the administrator put it som
                 
 ---------------------------------------------- MAVEN Basics
 
-standrad dir tree:                proj_name
+standar;d dir tree:                proj_name
                                    |
                                    |--- pom.xml
                                    |
@@ -161,37 +223,38 @@ standrad dir tree:                proj_name
 
 pom.xml       the only required acrtifact
 
-              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi=
-                             "http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-               <modelVersion>4.0.0</modelVersion>
-               
-               <groupId>com.apress.gswmbook</groupId>
-               <artifactId>gswm</artifactId>            <---- here the proj name
-               <version>1.0.0-SNAPSHOT</version>  
-               <packaging>jar</packaging>
-                
-                <name>Getting Started with Maven</name>
-                <url>http://apress.com</url>
-                 
-                 <developers>
-                     <developer>
-                         <id>balaji</id>
-                         <name>Balaji Varanasi</name>
-                         <email>balaji@inflinx.com</email>
-                         <properties>
-                             <active>true</active>
-                         </properties>
-                     </developer>
-                     <developer>
-                         <id>sudha</id>
-                         <name>Sudha Belida</name>
-                         <email>sudha@inflinx.com</email>
-                         <properties>
-                             <active>true</active>
-                         </properties>
+              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi=                                 1   <project xmlns="http://maven.apache.org/POM/4.0.0" i
+                             "http://www.w3.org/2001/XMLSchema-instance"                                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">                                                http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                                                                            2     <modelVersion>4.0.0</modelVersion>
+               <modelVersion>4.0.0</modelVersion>                                                           3     <groupId>uk.gov.ch</groupId>
+                                                                                                            4     <artifactId>ch-automated-testing</artifactId>
+               <groupId>com.apress.gswmbook</groupId>                                                       5     <packaging>jar</packaging>
+               <artifactId>gswm</artifactId>            <---- here the proj name                            6     <version>1.0-SNAPSHOT</version>
+               <version>1.0.0-SNAPSHOT</version>                                                            7     <name>CH Automated Testing</name>
+               <packaging>jar</packaging>                                                                   8     <url>http://maven.apache.org</url>
+                                                                                                            9     <properties>
+                <name>Getting Started with Maven</name>                                                    10         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                <url>http://apress.com</url>                                                               11         <maven-failsafe-plugin-version>2.19</maven-failsafe-plugin-version>
+                                                                                                           12         <concordion.extensions>org.concordion.ext.ScreenshotExtension</concordion.extensions>
+                 <developers>                                                                              13     </properties>
+                     <developer>                                                                           14     <build>
+                         <id>balaji</id>                                                                   15         <defaultGoal>verify</defaultGoal>
+                         <name>Balaji Varanasi</name>                                                      16         <directory>${basedir}/target</directory>
+                         <email>balaji@inflinx.com</email>                                                 17         <finalName>${project.artifactId}-${project.version}</finalName>
+                         <properties>                                                                      18         <sourceDirectory>src/main</sourceDirectory>
+                             <active>true</active>                                                         19         <testSourceDirectory>src/spec</testSourceDirectory>
+                         </properties>                                                                     20         <testResources>
+                     </developer>                                                                          21             <testResource>
+                     <developer>                                                                           22                 <directory>src/spec</directory>
+                         <id>sudha</id>                                                                    23                 <includes>
+                         <name>Sudha Belida</name>                                                         24                     <include>**/*.yml</include>
+                         <email>sudha@inflinx.com</email>                                                  25                     <include>**/*.css</include>
+                         <properties>                                                                      26                     <include>**/*.html</include>
+                             <active>true</active>                                                         27                     <include>**/*.htm</include>
+                         </properties>                                                                     28  
                      </developer>
                  </developers>
               </project>                                                _____ RC, alpha, beta, SNAPSHOT
@@ -218,7 +281,7 @@ JUnit:         .........      add a <dependencies>   section in the pom
 
 > mvn dependency:tree     to compile the dependecies
 
-<properties> and $()  : through the <prop..> tag you can define a value and then call it with  $()
+<properties> and ${}  : through the <prop..> tag you can define a value and then call it with  ${}
                ex. instead of the previous <version>4.11</version> we can write
                    ......
                <properties>
@@ -265,7 +328,7 @@ plug-in         int the following the args to mvn are in the form plugin:goal
                 (*) <build>   can have a son  <finalName>new_name</finalName>
                               if I want the output artifact named differenly from the default
 
-3 phases:   independent of the artifact being produced, Maven follows 3 phases:
+3 phases:   independently of the artifact being produced, Maven follows 3 phases:
                   Default: compile package, install & store the project
                   Clean:   deletion of temp files
                   Site:    generation of documentation and site generation.
@@ -387,7 +450,7 @@ mvn site           create an html documentation, applaying the default skin and 
 
                    now rebuild:  mvn clean site
 
-advanced site:     another way to configure the html instead inside pom is:
+advanced site:     another way to configure the html inside pom is:
 
                                           site
                                            |____ site.xml
@@ -396,7 +459,6 @@ advanced site:     another way to configure the html instead inside pom is:
                                                   |____ index.apt     Almost Plain Text (APT) format.
                    A way to have that tree
                    mvn archetype:create -DarchetypeArtifactId=maven-archetype-site-simple
-                   (to execute from dir where is pom)
 
 
 APT format        http://maven.apache.org/doxia/references/apt-format.html

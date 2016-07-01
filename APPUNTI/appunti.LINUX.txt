@@ -2610,6 +2610,81 @@ ____________________________________________________________ shared library
 
   If an exe has not the libraries it needs, it fails to run.
 
+  In a static library the final exe is a single file with all the code inside.
+  (static lib are files .a
+    .a is an archive files, containg 1 or more files
+       is created by the ar (deprecated by tar) command.
+       ar is currently used only to create .a static libs.
+       gcc is able to read the .a format and extract the .o files
+       it needs.
+  )
+
+  Anyhow it could even be, that if the memory page of a static library is not already
+  paged in cache, the load+call could be slower that the call of a shared-library where
+  for any reason (lib already used, or loaded by other progs that uses it)
+  the page is already loaded.
+
+  A shared lib. has 3 names according to who uses it:
+  
+  REAL name
+      lib xxxxx . so . n . n . n                   (ex. libpthread.so.1.1)
+                       ^   ^   ^
+                               release number (optional)
+                           minor number : for changes that DON'T make prev. version incompatible
+                                          (ex. bug fixes)
+                       version number : numbers are added (so new versions are delivered)
+                                        if a change makes the previous library incompatible
+                                        (ex. a function is removed)
+      - MANY VERSIONS: So, many versions of the same lib can be present in a system.
+                       The last succesfully installed version is the one to which all the progs then link to.
+
+  SONAME (or 'Fully qualified name') keeps only lib xxxxx . so . n        (ex .libpthread.so.1)
+  LINKER NAME : it only uses lib xxxxx . so                               (ex. libpthread.so)
+
+  LINKER NAME is a SYMLINK ---> to SONMAE that is a SYMLINK to REAL NAME:
+  ex. looking in /lib:
+
+     lrwxrwxrwx  1 root root      14 Dec  9  2010 libuuid.so.1 -> libuuid.so.1.2
+     -rwxr-xr-x  1 root root   11296 Jan 27  2009 libuuid.so.1.2
+
+
+  - LOCATIONS: /lib             (the libs used at start-up & root file system)
+               /usr/lib         (the libs used internally by the system)
+               /usr/local/lib   (the libs NOT part of the standard distro (can be buggy))
+  
+ADD A NEW LIB:    1. add the dir in /etc/ld.so.conf 
+                  2.  "       "    $LD_LIBRARY_PATH
+                  3.  "       "  to the cache (ldconfig -n ...) <--- if 1. & 2. have been done, thi step will be
+                                                                     automatically re-done during boot
+
+loader:    is the file /etc/ld.so
+           it loads for an ELF exe all its libs. searching in a list of dirs.
+           conatined in the file  /etc/ld.so.conf
+           To optimise future searches a cache-file is created: /etc/ld.so.cache
+           So:
+
+           ld.so   Search each library in
+                   1. $LD_LIBRARY_PATH  that like $PATH, lists the dir separated by ':'
+                   2. list of dirs conatined in the file  /etc/ld.so.conf
+                   3. the file '/etc/ld.so.cache'  which is a bin file (fast to read) generated
+                      by 'ldconfig' 
+
+ldconfig:  Is the command to execute by hand when a shared lib is added/removed 
+           - it can be in /sbin (so normally not found in $PATH)
+
+                          ldconfig -p         list what is inside the cache
+                          ldconfig -n dirs... add new dir in the cache.
+
+  --------------------------------------------------------------------------------------------------------------------------
+  |CREATE A SHARED LIB:                                                                                                     |
+  |           - gcc -c -Wall -Werror -fPIC shared.c         <--- compile the code into 'position independent' format        |
+  |           - gcc -shared -o libshared.so shared.o        <--- create the actual lib: libshared.so                        |
+  |           - put the lib in the dir xxxx you want it should be installed (ex. /usr/local/lib)                            |
+  |           - gcc -Lxxxx   -Wall main.c -o main -lshared  <--- compile a prog main.c that uses the code inside shared.c   |
+  |                                                              -l    link the shared lib                                  |
+  |                                                              -L    clear in which dir it is                             |
+  --------------------------------------------------------------------------------------------------------------------------
+
 ldd:   is the prog that allow to know which libraries are required
        by an exe.
                ex.  ldd /bin/bash
@@ -2619,12 +2694,7 @@ ldd:   is the prog that allow to know which libraries are required
                 libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff4d0cb9000)
                 /lib64/ld-linux-x86-64.so.2 (0x00007ff4d14d0000)
 
-ld.so   it's the dynamic lynker. Search each library in
-        1. $LD_LIBRARY_PATH  that like $PATH, lists the dir to search separated by ':'
-        2. the file '/etc/ld.so.cache'  which is a bin file (fast to read) generated
-           by 'ldconfig' cmd
-               ldconfig -p        list what is inside the cache
-ldconfig       ldconfig dirs...   add new dir in the cache.
+
 
 
 below 3 cmds used in: pmap `pgrep -u 1000` | grep total | awk '{print $2}'
@@ -2691,7 +2761,7 @@ ______________ pgrep
                                                  the --ns option.
                                                  Available namespaces: ipc, mnt, net, pid, user, uts
 
-____________________________________________________________ packegs
+____________________________________________________________ packages
 
   ------------
   .deb     (Debian). They are in the form
