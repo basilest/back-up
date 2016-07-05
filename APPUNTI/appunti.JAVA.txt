@@ -667,6 +667,16 @@ Anonymous class                 class X {
                                     }
                                 }
 
+                                ___________________
+                                The anonymous class expression consists of;
+
+                                  . The new operator
+                                  . The name of an interface to implement or a class to extend. 
+                                  . ( args ) <--- to the constructor (if a class)
+                                    Note: as an interface, has no constructor I use only an empty pair of parentheses ()
+                                  . A body.
+
+
 Class Modifiers:     before the 'class':
 
     abstract - a class only serves as a base and cannot be instantiated.
@@ -730,6 +740,110 @@ Unlike classes it is allowed to inherit from multiple interfaces.
                         interface EventListener extends ActionListener, RequestListener {
 
                         }
+
+functional interface:  is any interface that 
+                       - contains only 1 abstract method.
+                         (--> you can omit the name of that method when you implement it)
+                       - can contain 1 or + default methods
+                       - can contain 1 or + static  methods
+                       - to enforce the compiler that is is a functional interface
+                         and so generate errors in case of misuse ther is a 
+                         dedicated annotation: @FunctionalInterface
+
+                         @FunctionalInterface
+                           public interface xxxx { ...
+
+                       - Java 8 defines 3 builtin:
+                                         abstract method to define
+                         Predicate<T>  : boolean test  (T t);
+                         Consumer <T>  : void    accept(T t);
+                         Function<T, R>: R       apply (T t); 
+
+---------------------- Generics:
+
+when defining a class (or interface) I can use the syntax class A<T,S,...> {...}
+where I list some "type parameters" that can be used as "generic-types" in any line of 
+code inside the class.
+ex.
+
+public interface Pair<K, V> {                   public class OrderedPair<K, V> implements Pair<K, V> { 
+    public K getKey();                          
+    public V getValue();                            private K key;
+}                                                   private V value;
+                                                
+                                                    public OrderedPair(K key, V value) {
+                                                           this.key = key;
+                                                           this.value = value;
+                                                    }
+                                                
+                                                    public K getKey()   { return key; }
+                                                    public V getValue() { return value; }
+                                                }
+
+
+when declaring (instanciating with real types) I go to substitute 
+the genreic type with "type arguments"
+        Pair<String, Integer> p1 = new OrderedPair<String, Integer>("Even", 8);
+        Pair<String, String>  p2 = new OrderedPair<String, String>("hello", "world");
+
+"type parameters":   the letters T,E,K,V used in definition
+"type arguments":    the real types used during delcaration
+                     they cannot be primitive types (so Integer is ok, 'int' not)
+
+A shorter <> (Diamond operator) can be used when the compiler can understand from the context 
+the "type": 
+            Pair<String, Integer> p1 = new OrderedPair <> ("Even", 8);
+The official word to refer to this compiler ability and its algorithm to identify
+the most specific type that fits is TYPE-INFERENCE
+
+Type erasure:  One the compiler has written the code, it deletes the Type arguments
+               so there is no way to determine it (ex Integer or any parent (Number or Object))
+
+               so the following will print "Equal [class java.util.ArrayList]"
+
+               ArrayList<Integer> li = new ArrayList<Integer>();
+               ArrayList<Float>   lf = new ArrayList<Float>();
+               if (li.getClass() == lf.getClass()) { // evaluates to true
+                   System.out.println("Equal ["+ li.getClass() + "]");
+               }
+
+               Type-erasure is done at compile time so tha the Java run-time environment 
+               does not know which parameterized type was used.
+
+---------------------- lambda expression
+           It introduces in Java some functional mechanism (like LISP and Javascript)
+           allowing the functions to be instanciated.
+
+           They are 
+             - anonimous functions, with a '->' instead of the { }
+               so it's:
+                    (args) -> body
+             - they cannot live alone. They are assigned to an object
+               that is of type functional-interface
+               (they implements the single abstract method)
+           ex: 
+               
+           numbers.forEach((Integer value) -> System.out.println(value));
+
+           The TYPE-INFERENCE allows to skip the type:
+           numbers.forEach(value -> System.out.println(value));
+
+           The Java-8 method-reference-operator (::) allows even only
+           numbers.forEach(System.out::println);
+               
+           public int sumAll(List<Integer> numbers, Predicate<Integer> p) {  |    sumAll(numbers, n -> true);
+                                                                             |    sumAll(numbers, n -> n % 2 == 0);
+               int total = 0;                                                |    sumAll(numbers, n -> n > 3);
+               for (int number : numbers) {                                  |                    ^
+                    if (p.test(number)) {                                    |              here the lambda expr.
+                        total += number;                                     |
+                    }                                                        |
+               }                                                             |
+               return total;                                                 |
+           }                                                                 |
+
+
+---------------------- Annotations:
 
 Annotations:  Java  (since J2SE 5.0) has a set of predefined annotation types, 
               but it is allowed to define new ones.

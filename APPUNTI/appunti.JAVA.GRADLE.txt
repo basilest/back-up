@@ -5,7 +5,7 @@ __________________________________
 GRADLE OVERVIEW
 __________________________________
        1. like SPRING, the installation is a zip with inside many jar files and a bin/gradle
-       2. crate a dir (ex ~/GRADLE) unzip all the jars
+       2. create a dir (ex ~/GRADLE) unzip all the jars
        3. add the dir ~/GRADLE/xxxxxx/bin/ to $PATH so that 'gradle' is found
        4. gradle tasks    shows what gradle can build
        5. go in a new empty dir, and run (gradle tasks)
@@ -148,16 +148,450 @@ __________
 __________
 Chapter 5. The Gradle Wrapper
 
-    5.1. Executing a build with the Wrapper         ./gradlew <task>     will download the proper gradle version 
-                                                                         and then run it. So there is no need to have gradle already installed
+    5.1. Executing a build with the Wrapper      ./gradlew <task>     will download the proper gradle version 
+                                                                      and then run it. So there is no need to have gradle already installed
                                                                         
     5.2. Adding the Wrapper to a project
-                                                    task wrapper(type: Wrapper) {
-                                                        gradleVersion = '2.3'
-                                                    }
+                                                 task wrapper(type: Wrapper) {
+                                                      gradleVersion = '2.3'
+                                                 }
     5.3. Configuration
+                                                 all options are available at
+                                                 https://docs.gradle.org/current/dsl/org.gradle.api.tasks.wrapper.Wrapper.html
+
     5.4. Verification of downloaded Gradle distributions
+                                                 a security feature is to add the property
+                                                    distributionSha256Sum = 371cb9fxxxxxx
+                                                 with the SHA-256 version of the gradle-zip to download
+                                                 so that the customer will use that if the check is ok.
+                                                 NB. a way to have a SHA-256: of a file (ex xxxx.zip):
+                                                     shasum -a 256 xxxxxx.zip
     5.5. Unix file permissions
+                                                 in case the ./gradlew has wrong file permissions
+                                                 as it is a script, it can be executed as (sh gradlew)
+                                                                                            ^
+
+__________
+Chapter 6. The Gradle Daemon
+
+                                                 A daemon is a computer program that runs as a background process, 
+                                                 rather than being under the direct control of an interactive user. 
+
+                                                 Gradle is normally inside the JVM. To make it faster and avoid bootstrap time
+                                                 it can be run the Daemon. There is no difference at all between the interactive
+                                                 or Daemon way, only some optimisations.
+
+                                                 More than 1 instance of the Daemon can be running, for different reasons
+                                                 (ex. different build with different Gradle versions, or differnt values
+                                                  in some config variables)
+
+    6.1. Enabling the Daemon                       org.gradle.daemon=true    (in ~/.gradle/gradle.properties)
+                                                 -Dorg.gradle.daemon=true    (in $GRADLE_OPTS env variable)
+                                                 --daemon  --no-daemon       (at command line)
+
+    6.2. Stopping an existing Daemon             gradle --stop               (verofy with command (jps))
+                                                 normal kill -9
+                                                 after 3 hours is killed by itself
+
+    6.3. FAQ
+                                                 
+    6.4. When should I not use the Gradle Daemon?
+                                                 Not to use in Coninuous Integrations as there is more important
+                                                 stability and predictability than execution time.
+    6.5. Tools & IDEs
+                                                 IDEs can use the Daeomon via the (Tooling API)
+    6.6. How does the Gradle Daemon make builds faster?
+                                                 - caching
+                                                 - incremental Optimisation. An algorithm 'HotSpot' keeps on
+                                                   optimising built after build. After 5-10 build it stabilize.
 
 
-                  
+__________
+Chapter 7. Dependency Management Basics
+
+    7.1. What is dependency management?          like make.
+                                                 Better than (Ant) where dependency can be identified only by 
+                                                 a (path) or a (url)
+    7.2. Declaring your dependencies
+                                                 ex.
+                                                 dependencies {
+                                                     compile group: 'org.hibernate', name: 'hibernate-core', version: '3.6.7.Final'
+                                                     testCompile group: 'junit', name: 'junit', version: '4.+'
+                                                 }                                                          ^ means >= 4.0
+    7.3. Dependency configurations
+                                                 It's a name of a group of dependecies.
+                                                 The are some default names (
+                                                     1 compile,      
+                                                     2 runtime,       by default includes 1 
+                                                     3 testCompile    by default includes 2,
+                                                     4 testRuntim     by default includes 3
+    7.4. External dependencies
+                                                     ex. compile group: 'org.hibernate', name: 'hibernate-core', version: '3.6.7.Final'
+                                                     Are identified by
+                                                     1 group: ggg    [optional]
+                                                     2 name:  nnn
+                                                     3 version: vvv  [optional]
+    7.5. Repositories
+                                                 repositories {       |    repositories {   |    repositories {
+                                                     mavenCentral()   |        jcenter()    |        maven {
+                                                 }                    |    }                |                url "http://repo.mycompany.com/maven2"
+                                                                                            |        }
+                                                                                            |    }
+                                                 repositories {
+                                                     ivy {
+                                                           url "../local-repo"    <-- URL can refer to a local directory
+                                                     }
+                                                 }
+                                            
+    7.6. Publishing artifacts                    They are the output of the build
+                                                 If they are files to publish somewhere another repositories can be
+                                                 defined in the section (uploadArchives):
+
+                                                 uploadArchives {
+                                                     repositories {
+                                                             ivy {
+                                                                   credentials {
+                                                                      username "username"
+                                                                      password "pw"
+                                                                   }
+                                                                   url "http://repo.mycompany.com"
+                                                             }
+                                                     }
+                                                 }
+__________
+Chapter 8. Introduction to multi-project builds
+
+    8.1. Structure of a multi-project build
+                                                 Apart for the HelloWorld.project normally a proj. is made
+                                                 by more builts related to each other.
+
+                                                 1. settings.gradle        (in the root or master dir of the project)
+                                                                           no need to open it, better to run (gradle projects)
+
+                                                 2. build.gradle           (in the root or master dir of the project)
+                                                                           is often used to share common configuration between 
+                                                                           the child projects (ex the same sets of plugins)
+
+                                                 NB. by default Gradle uses os root proj. name the name of the dir
+                                                 where setteings.gradle is found. 
+                                                 It can be overwritten with an explicit (rootProject.name=xxxx)
+
+                                                 NB. instead of build.gradle can be called xxxxx.gradle
+    8.2. Executing a multi-project build
+                                                  1st option: go in the child dir and run normally: gradle <task>
+                                                  2nd option: from master dir, specify the full path using : instead of /
+                                                 gradle :services:webservice:tasks
+__________
+Chapter 9. Continuous build
+
+    9.1. How do I start and stop a continuous build?
+                                                 -t
+                                                 --continuous     (can be stopped with normal C-D or kill -9)
+
+                                                 instead of exiting when done, it will wait for changes (ex Java code modified)
+                                                 and in case builds again.
+    9.2. What will cause a subsequent build?
+                                                 like a make
+    9.3. Limitations and quirks
+                                                 some mechanism avoids loops (when a dependency changes its own input)
+__________
+Chapter 10. Using the Gradle Graphical User Interface
+
+                                                 gradle --gui        open a windows with the following 4 tabs:
+
+    10.1. Task Tree       : list of task (I can filter, or double click to execute)
+    10.2. Favorites       : organise most used
+    10.3. Command Line    : a prompt
+    10.4. Setup           : to configure some vars (ex. Current Directory, so can be different wrt the one from where
+                                                    gradle --gui was executed)
+__________
+Chapter 11. The Build Environment
+
+    11.1. Configuring the build environment via gradle.properties
+                                                 Better than setting env vars. It remains consistent with the proj
+                                                 just exporting the all dir.
+                                                 org.gradle.daemon       (=true)
+                                                 org.gradle.java.home    (path to jdk)
+                                                 org.gradle.jvmargs      (settings of jvm like memory)
+
+    11.2. Gradle properties and system properties Are the command line -D (they act as they were used on java -D)
+    11.3. Accessing the web via a proxy          see above
+__________
+Chapter 12. Troubleshooting
+
+    12.1. Working through problems
+    12.2. Getting help                           http://forums.gradle.org.
+__________
+Chapter 13. Embedding Gradle using the Tooling API
+
+    13.1. Introduction to the Tooling API        used by IDEs (Eclipse and IntelliJ)
+    13.2. Tooling API Features
+    13.3. Tooling API and the Gradle Build Daemon : The Tooling API always uses the Gradle daemon. 
+    13.4. Quickstart
+    13.5. Gradle and Java version compatibility  not all features of the Tooling API are available for all versions of Gradle.
+                                                 Requires Java 6 or later. 
+
+__________
+Chapter 14. Build Script Basics
+
+    14.1. Projects and tasks
+    14.2. Hello world
+    14.3. A shortcut task definition
+    14.4. Build scripts are code
+    14.5. Task dependencies
+    14.6. Dynamic tasks
+    14.7. Manipulating existing tasks
+    14.8. Shortcut notations
+    14.9. Extra task properties
+    14.10. Using Ant Tasks
+    14.11. Using methods
+    14.12. Default tasks
+    14.13. Configure by DAG
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
+__________
+Chapter 7. T
+
+    .
