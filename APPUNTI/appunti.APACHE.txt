@@ -37,12 +37,9 @@
               _<(eval 27)[/var/local/cpan/perl/lib/perl5/site_perl/5.8.5//JSON.pm:353]   -1
 
 
-
-
-
-
   
-'httpd'          The httpd web server was developed by the 
+'httpd'          http-daemon
+                 The httpd web server was developed by the 
                  Centre d'Etudes et de Recherche Nucléaires (CERN) in Geneva, Switzerland
                  When CERN stopped funding the development of httpd, 
                  it was taken over by the Software Development Group of the 
@@ -62,11 +59,10 @@ _________________________ static / dynamic
 
            httpd is the APACHE executable
 
-           it can 
-           - be compiled static (old way)
+           it can be:
+           - compiled static (old way)
            - dynamic (DSO: Dinamyc Shared Object) 
              it loads runtime the required modules.
-
 _________________________  
 
 [sbasile@wswebdev1 ~]$ httpd -v
@@ -120,6 +116,8 @@ DSO (Dinamyc Shared Object) - mod_so.c.
           with httpd -l).
           But from version 1.3, it can be dynamically extended (DSO modules).
           This means some modules are loaded also at runtime.
+          (if compiled from source use ./configure .... -enable-so
+           before make & make install oterwise the exe will not support dynamic loading)
           So with the same httpd, I can sometime launch a version with 
           will load mod_perl, so specific for Perl CGI, while some other times
           I can run it loading some PHP specific modules, making the server
@@ -149,7 +147,7 @@ ServerRoot     (ex  ServerRoot "/etc/httpd")
                 are the relative to 'ServerRoot' value)
 
 PidFile        (ex PidFile /tmp/sbasile.pid)
-               the file where the server records its process ID (PID
+               the file where the server records its process ID 
 
 Timeout        (ex Timeout 120) 
                the time (in seconds) the servers wait answers.
@@ -176,7 +174,7 @@ KeepAliveTimeout      (ex KeepAliveTimeout 15)
                                  The server starts with this value, then adds
                                  or removes further proc as they are required.
 
-                MaxRequestsPerChild     (ex MaxRequestsPerChild 4000)
+                MaxRequestsPerChild     (ex MaxRequestsPerChild 4000) <--- this is the old name (still supported) the new : MaxConnectionsPerChild
                                   number of requests each child serves before dies.
 
                 MaxClients       (ex MaxClients 256)
@@ -195,10 +193,10 @@ KeepAliveTimeout      (ex KeepAliveTimeout 15)
                                  the same as above, referribg to the server treads.
 
 Listen          (ex Listen 192.168.60.201:4055)
-                addr &  the ports on which accept incoming requests
+                addr & port on which accept incoming requests
                 default port is 80  for non-secure Web communication
                                 443 for secure     Web communications. 
-                port under 1024, only the root user can start it
+                Only root can start on ports < 1024.
 
 Include         (ex Include /home/sbasile/apache2/conf.d/*.conf)
                 allows other configuration files to be included at runtime.
@@ -241,7 +239,7 @@ DocumentRoot    (ex DocumentRoot "/home/sbasile/htdocs/")
                  Usually options start with restricted values on /
                  and where required (specific dirs) they are lightened.
                  Ex in dirs where there are CGI scripts other than specified 
-                 with 'ScriptAlias' its commond to give them the +ExecCGI options.
+                 with 'ScriptAlias' its common to give them the +ExecCGI options.
 
                  <Directory /home/my_cgi_directory>
                      Options +ExecCGI

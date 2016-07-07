@@ -81,7 +81,7 @@ __________________________________
                            
                            mainClassName = 'hello.HelloWorld'
                                   ________________________________
-          the run the command (./gradle run)
+          then run the command (./gradle run)
                      
 __________________________________
 GRADLE GUIDE
@@ -334,264 +334,651 @@ Chapter 13. Embedding Gradle using the Tooling API
 __________
 Chapter 14. Build Script Basics
 
-    14.1. Projects and tasks
+    14.1. Projects and tasks                     1 build contains 1 or + proj
+                                                 1 proj is made of atomic tasks   (different terminology for the same thing:
+                                                                                   Ant target = Gradle task)
+                                                                                   Ant uses the name 'task' to refer to 'javac' 'copy' ...
     14.2. Hello world
+                                                 task hello {    <----- task name
+                                                     doLast {    <----  action to do (Groovy code)
+                                                             println 'Hello world!'
+                                                     }
+                                                 }
+
     14.3. A shortcut task definition
+                                                 task hello << {                <--- an alias of the above
+                                                     println 'Hello world!'
+                                                 }
+
     14.4. Build scripts are code
+                                                 a build script can have any possible Groovy code
+                                                 (Groovy is the script (like Ruby, Perl, Python) language for Java
+                                                  that can both dynamically and statically compiled)
+                                                  ex:
+                                                  task upper << {
+                                                      String someString = 'mY_nAmE'
+                                                      println "Original: " + someString 
+                                                      println "Upper case: " + someString.toUpperCase()
+                                                  }
+
     14.5. Task dependencies
+                                                 task hello << {                       task taskX(dependsOn: 'taskY') << {   <---- I can relate to a task
+                                                     println 'Hello world!'                println 'taskX'                         that is defined 'after'
+                                                 }                                     }                                           or in an external file.
+                                                 task intro(dependsOn: hello) << {     task taskY << {
+                                                     println "I'm Gradle"                  println 'taskY'
+                                                 }                                     }
+                                                 
     14.6. Dynamic tasks
+                                                 Still will Groovy I can create tasks:
+
+                                                 4.times { counter ->                                 
+                                                     task "task$counter" << {       <---- I can run (gradle task1)
+                                                             println "I'm task number $counter"
+                                                     }
+                                                 }
+
     14.7. Manipulating existing tasks
+                                                 I can add for example dependencies:                     or modify                     
+
+                                                 4.times { counter ->                                    task hello << {
+                                                     task "task$counter" << {                                println 'Hello Earth'
+                                                             println "I'm task number $counter"          }
+                                                     }                                                   hello.doFirst {
+                                                 }                                                           println 'Hello Venus'
+                                                 task0.dependsOn task2, task3                            }
+                                                                                                         hello.doLast {
+                                                                                                             println 'Hello Mars'
+                                                                             Hello Venus                 }
+                                                                             Hello Earth    <----------  hello << {
+                                                                             Hello Mars                      println 'Hello Jupiter'
+                                                                             Hello Jupiter               }
+                                                
     14.8. Shortcut notations
+                                                 A task can be accessed as $task.property
+                                                 ex
+                                                 task basilest {
+                                                         println "Greetings from the $basilest.name task."
+                                                 }
+                                                          
+
+
     14.9. Extra task properties
-    14.10. Using Ant Tasks
+                                                 with 'ext.'xxxx I can add my own properties to a task (and not only tasks)
+                                                 ex
+                                                 
+                                                 task basilest {
+                                                         println "Greetings from the $basilest.name task."
+                                                         ext.xxx = 'yyy'
+                                                 }
+                                                 task yy {
+                                                         println "look at this: $basilest.xxx"
+                                                 }
+
+
+    14.10. Using Ant Tasks                       Ant tasks can be called with ease from Groovy (through its internal 'AntBuilder')
+                                                 (Ch. 19)
+
     14.11. Using methods
+                                                 Groovy code can be written out and called from a task
+                                                 ex
+                                                 task loadfile << {
+                                                     fileList('../antLoadfileResources').each {File file ->
+                                                        |    ant.loadfile(srcFile: file, property: file.name)
+                                                        |    println "I'm fond of $file.name"
+                                                     }  |
+                                                 }      |
+                                                        |
+                                                 File[] fileList(String dir) {
+                                                        file(dir).listFiles({file -> file.isFile() } as FileFilter).sort()
+                                                 }
+
     14.12. Default tasks
+                                                 defaultTasks 'clean', 'run'       <---- I can then run only (gradle) 
+                                                                                         instead of (gradle clean run)
+
     14.13. Configure by DAG
+                                                 gradle works in 2 steps like make: 
+                                                        1 resolve all dependencies elationships
+                                                        2 go
+                                                 There is a 'whenReady' function that can be called between 1 and 2
+                                                 example of syntax:
+
+
+                                                 gradle.taskGraph.whenReady {taskGraph ->
+                                                             version = '1.0'
+                                                 }
+                                                 task xxx << {
+                                                     println "We build with version=$version"
+                                                 }
 __________
-Chapter 7. T
+Chapter 15. Build init plugin
+                                                 is a builtin plugin. So a task (named 'init' already available)
+    15.1. Tasks
+                                                 'init' & 'wrapper'
+    15.2. What to set up
+                                                 the types are the following parag.
+                                                 They can be set with --type xxx
+    15.3. Build init types
+                                                 gradle init --type  maven      : convert a maven (pom.xml) proj into a gradle (build.gradle)
+                                                 gradle init --type  basic      : create from scratch in an empty dir all ready templates and dir
+                                                                                  ex .gradle buuld.gradle settings.gradle  gradlew
+                                                 gradle init --type  java-library 
+                                                 gradle init --type  scala-library
+                                                 gradle init --type  groovy-library
+__________
+Chapter 16. Writing Build Scripts
+
+    16.1. The Gradle build language              is Groovy
+    16.2. The Project API                        Each project has these default properties:
+                                                                   |
+                                                  (Type)           |                             
+                                                  (Project)      project      The Project instance
+                                                  (String)       name         The name of the project directory.
+                                                  (Object)       group        unspecified
+                                                  (Object)       version      unspecified
+                                                  (String)       path         The absolute path of the project.
+                                                  (String)       description  A description for the project.
+                                                  (File)         projectDir   The directory containing the build script.
+                                                  (File)         buildDir     projectDir/build
+                                                  (AntBuilder)   ant          An AntBuilder instance
+     
+    16.3. The Script API                          gradle compiles the script in a class that implements 'Script'-gradle-interface
+                                                  As such I can use any of its properties
+
+    16.4. Declaring variables                     
+                                                  LOCAL var (defined by 'def')        GLOBAL var (defined by 'ext')
+                                                 ____________________________         _____________________________
+                                                  def dest = "dest"                   ext {
+                                                                                          springVersion = "3.1.0.RELEASE"
+                                                  task xxx << {                       }
+                                                      println "$dest"
+                                   even this ------>  //println dest                  ...
+                                                  }
+                                                  
+                                                  
+                                                  
+
+
+    16.5. Configuring arbitrary objects
+                                                 task configure << {
+                                                     def pos = configure(new java.text.FieldPosition(10)) {
+                                                         beginIndex = 1
+                                                         endIndex = 5
+                                                     }
+                                                     println pos.beginIndex
+                                                     println pos.endIndex
+                                                 }
+
+    16.6. Configuring arbitrary objects using an external script
+
+                                                 other.gradle:      task configure << {
+                                               -------------------      def pos = new java.text.FieldPosition(10)
+                                                 beginIndex = 1         // Apply the script
+                                                 endIndex = 5           apply from: 'other.gradle', to: pos
+                                                                        println pos.beginIndex
+                                                                        println pos.endIndex
+                                                                    }
+
+    16.7. Some Groovy basics                     Groovy presents some extension wrt standrad Java
+                                                 (ex. Iterable gets an each method, which iterates over the elements of the Iterable:
+                                                      onfigurations.runtime.each { File f -> println f })
+                                                      
+                                                      
+    16.8. Default imports                        Gradle automatically adds a set of import statements to the Gradle scripts
+                                                     (import org.gradle.***)
+
+__________
+Chapter 17. More about Tasks
+
+    17.1. Defining tasks
+                                                 task hello 
+                                                 task 'hello'
+                                                 task (hello)
+                                                 task ('hello')
+                                                 tasks.create(name: 'hello')  <--- using the internal 'tasks' collection
+    17.2. Locating tasks
+                                                 hello.xxx
+                                                 project.hello.xxx
+                                                 tasks['hello'].xxx           <--- using the internal 'tasks' collection
+                                                 tasks.getByPath('hello').path            <--- tasks + 'path' method
+                                                 tasks.getByPath('projectA:hello').path   <--- tasks + 'path' method
+
+    17.3. Configuring tasks
+                                                 task myCopy(type: Copy)
+
+                                                 myCopy {
+                                                    from 'resources'
+                                                    into 'target'
+                                                    include('**/*.txt', '**/*.xml', '**/*.properties')
+                                                 }
+    17.4. Adding dependencies to a task
+                                                 dependsOn.
+                                                 Between projects: use ':' full path:                  | even the form obj.dependsOn:
+                                                                                                       |
+                                                 project('projectA') {                                 | task taskX << {
+                                                     task taskX(dependsOn: ':projectB:taskY') << {     |     println 'taskX'
+                                                             println 'taskX'                           | }
+                                                     }                                                 | task taskY << {
+                                                 }                                                     |         println 'taskY'
+                                                 project('projectB') {                                 | }
+                                                     task taskY << {                                   | taskX.dependsOn taskY
+                                                             println 'taskY'
+                                                     }
+                                                 }
+                                                 _______________
+                                                 taskX.dependsOn {
+                                                     tasks.findAll { task -> task.name.startsWith('lib') } <--- it makes X depending on all taskas starting with 'lib'
+                                                 }
+
+    17.5. Ordering tasks
+                                                 already 'dependency' introduces an order between  the tasks
+                                                 Anyhow there are even the 2 following constructs
+
+                                                   taskY.mustRunAfter   taskX
+                                                   taskY.shouldRunAfter taskX
+    17.6. Adding a description to a task
+                                                 description 'xxxx'
+    17.7. Replacing tasks
+                                                 task xxx (overwrite: true) << {   <--- if not setting 'overwrite'
+                                                                                        gradle will throw an exception for replacing
+                                                                                        another task with the same name.
+    17.8. Skipping tasks
+                                                 hello.onlyIf { !project.hasProperty('skipHello') }  <--- onlyIf     
+                                                 if (true) { throw new StopExecutionException() }    <--- StopExecutionException
+                                                 hello.enabled = false               <--- Every task has an enabled flag which defaults to true.
+    17.9. Skipping tasks that are up-to-date
+                                                 Normally gradle, like make, can figure out if a dependency has changed
+                                                 and thenrebuild the proper tasks.
+                                                 Sometimes the actions inside a task make it difficult to understand.
+                                                 To explicit says what on which input, if cahnged, I must rebuilt and
+                                                 what output I'm going to modifi use 'inputs' 'outpits'
+                                                 ex
+                                                     task transform {
+                                                         ext.srcFile = file('mountains.xml')
+                                                         ext.destDir = new File(buildDir, 'generated')
+                                                         inputs.file srcFile
+                                                         outputs.dir destDir
+                                                         ...
+    17.10. Task rules
+                                                 Add some pattern matching (use 'Pattern: ....'
+
+                                                 tasks.addRule("Pattern: ping<ID>") {
+    17.11. Finalizer tasks
+                                                 The usual finalize idea. The syntax is
+                                                 taskX.finalizedBy taskY <---- (gradle taskX) will always execute taskY at the end.
+
+__________
+Chapter 18. Working With Files
+
+    18.1. Locating files
+                                                 use method 'file'  
+                                                 It return an object 'File' when receiving 
+                                                          a path (ex 'src/config.xml') 
+                                                          a url (ex file:/some/path.xml)
+                                                          a Object 'File'
+                                                 ex 
+                                                    File f = file('src/a.xml')
+                                                    File f = file(new File('src/a.xml')
+    18.2. File collections
+                                                 'FileCollection' is an interface implemented by many Gradle objs.
+                                                 The most common way to get it is with 'files' method.
+                                                 ex:
+                                                 FileCollection collection = files('src/file1.txt',
+                                                                                   new File('src/file2.txt'),
+                                                                                   ['src/file3.txt', 'src/file4.txt'])
+                                                 
+                                                 There is the possibility to add and subtract:
+
+                                                 def union     = collection + files('src/file3.txt')
+                                                 def different = collection - files('src/file3.txt')
+    18.3. File trees
+                                                 'FileTree' is a a special case of 'FileCollection' where the files
+                                                 are a hierarchy (ex filesystem or zip file)
+                                                 The most common way to get it is with 'fileTree' method.
+                                                 ex:
+                                                 FileTree tree = fileTree(dir: 'src/main')
+                                                 tree.exclude '**/Abstract*'
+                                                 tree.include '**/*.java'
+                                                 tree.includes ['**/*.java', '**/*.xml']
+                                                 FileTree sum = tree + fileTree(dir: 'src/test')
+                                                 FileTree filtered = tree.matching {
+                                                     include 'org/gradle/api/**'
+                                                     }
+
+    18.4. Using the contents of an archive as a file tree
+                                                 FileTree zip = zipTree('someFile.zip')
+                                                 FileTree tar = tarTree('someFile.tar')
+    18.5. Specifying a set of input files
+                                                 // Using a closure to specify the source files.
+                                                 compile {
+                                                     source = {
+                                                     // Use the contents of each zip file in the src dir
+                                                            file('src').listFiles().findAll {it.name.endsWith('.zip')}.collect { zipTree(it) }
+                                                     }
+                                                 }
+    18.6. Copying files
+                                                 basic syntax:                   |     Advanced use (ex. if from is a Task, it's copied its output once generated)
+                                                                                 |
+                                                 task A (type: Copy) {           |     task B (type: Copy) {
+                                                     from 'src/main/webapp'      |         from 'src/main/webapp'           Copy everything under src/main/webapp
+                                                     into 'build/explodedWar'    |         from 'src/staging/index.html'    Copy a single file
+                                                 }                               |         from A                           Copy the output of a task
+                                                                                 |         from copyTaskWithPatterns.outputs    Copy the output of a task using Task outputs explicitly.
+                                                                                 |         from zipTree('src/main/assets.zip')  Copy the contents of a Zip file
+                                                                                 |         into { getDestDir() }                Determine the destination directory later
+                                                                                 |     }
+
+                                                 I can even rename
+                                                 rename { String fileName -> fileName.replace('-staging-', '') }
+                                                 rename(/(.+)-staging-(.+)/, '$1$2')   <--- regex
+
+
+    18.7. Using the Sync task
+                                                 Is a Copy + delete (of files in 'from' not copied')
+                                                 So from and into contain the same thing.
+                                                 task libs(type: Sync) {
+                                                     from configurations.runtime
+                                                     into "$buildDir/libs"
+                                                 }
+    18.8. Creating archives
+                                                 task zip(type: Zip) {
+                                                     from 'src/dist'
+                                                     into('libs') {
+                                                           from configurations.runtime
+                                                     }
+                                                 }
+__________
+Chapter 19. Using Ant from Gradle
+
+    19.1. Using Ant tasks and types in your build
+    19.2. Importing an Ant build
+    19.3. Ant properties and references
+    19.4. Ant logging
+    19.5. API
+__________
+Chapter 20. The Build Lifecycle
+
+    20.1. Build phases
+    20.2. Settings file
+    20.3. Multi-project builds
+    20.4. Initialization
+    20.5. Configuration and execution of a single project build
+    20.6. Responding to the lifecycle in the build script
+__________
+Chapter 21. Wrapper Plugin
+
+    21.1. Usage
+    21.2. Tasks
+__________
+Chapter 22. Logging
+
+    22.1. Choosing a log level
+    22.2. Writing your own log messages
+    22.3. Logging from external tools and libraries
+    22.4. Changing what Gradle logs
+__________
+Chapter 23. Dependency Management
+
+    23.1. Introduction
+    23.2. Dependency Management Best Practices
+    23.3. Dependency configurations
+    23.4. How to declare your dependencies
+    23.5. Working with dependencies
+    23.6. Repositories
+    23.7. How dependency resolution works
+    23.8. Fine-tuning the dependency resolution process
+    23.9. The dependency cache
+    23.10. Strategies for transitive dependency management
+__________
+Chapter 24. Multi-project Builds
+
+    24.1. Cross project configuration
+    24.2. Subproject configuration
+    24.3. Execution rules for multi-project builds
+    24.4. Running tasks by their absolute path
+    24.5. Project and task paths
+    24.6. Dependencies - Which dependencies?
+    24.7. Project lib dependencies
+    24.8. Parallel project execution
+    24.9. Decoupled Projects
+    24.10. Multi-Project Building and Testing
+    24.11. Multi Project and buildSrc
+    24.12. Property and method inheritance
+__________
+Chapter 25. Gradle Plugins
+
+    25.1. What plugins do
+    25.2. Types of plugins
+    25.3. Applying plugins
+    25.4. Applying plugins with the buildscript block
+    25.5. Applying plugins with the plugins DSL
+    25.6. Custom Plugin Repositories
+    25.7. Plugin Marker Artifacts
+    25.8. Finding community plugins
+    25.9. More on plugins
+__________
+Chapter 26. Standard Gradle plugins
+
+    26.1. Language plugins
+    26.2. Incubating language plugins
+    26.3. Integration plugins
+    26.4. Incubating integration plugins
+    26.5. Software development plugins
+    26.6. Incubating software development plugins
+    26.7. Base plugins
+    26.8. Third party plugins
+__________
+Chapter 27. The Project Report Plugin
+
+    27.1. Usage
+    27.2. Tasks
+    27.3. Project layout
+    27.4. Dependency management
+    27.5. Convention properties
+__________
+Chapter 28. The Build Dashboard Plugin
+
+    28.1. Usage
+    28.2. Tasks
+    28.3. Project layout
+    28.4. Dependency management
+    28.5. Configuration
+__________
+Chapter 29. Comparing Builds
+
+    29.1. Definition of terms
+    29.2. Current Capabilities
+    29.3. Comparing Gradle Builds
+__________
+Chapter 30. Publishing artifacts
+
+    30.1. Introduction
+    30.2. Artifacts and configurations
+    30.3. Declaring artifacts
+    30.4. Publishing artifacts
+    30.5. More about project libraries
+__________
+Chapter 31. The Maven Plugin
+
+    31.1. Usage
+    31.2. Tasks
+    31.3. Dependency management
+    31.4. Convention properties
+    31.5. Convention methods
+    31.6. Interacting with Maven repositories
+__________
+Chapter 32. The Signing Plugin
+
+    32.1. Usage
+    32.2. Signatory credentials
+    32.3. Specifying what to sign
+    32.4. Publishing the signatures
+    32.5. Signing POM files
+__________
+Chapter 33. Ivy Publishing (new)
 
     .
 __________
-Chapter 7. T
+Chapter 34. Maven Publishing (new)
 
     .
 __________
-Chapter 7. T
+Chapter 35. The Distribution Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 36. The Announce Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 37. The Build Announcements Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 38. Writing Custom Task Classes
 
     .
 __________
-Chapter 7. T
+Chapter 39. Writing Custom Plugins
 
     .
 __________
-Chapter 7. T
+Chapter 40. The Java Gradle Plugin Development Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 41. Organizing Build Logic
 
     .
 __________
-Chapter 7. T
+Chapter 42. Initialization Scripts
 
     .
 __________
-Chapter 7. T
+Chapter 43. The Gradle TestKit
 
     .
 __________
-Chapter 7. T
+Chapter 44. Java Quickstart
 
     .
 __________
-Chapter 7. T
+Chapter 45. The Java Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 46. Web Application Quickstart
 
     .
 __________
-Chapter 7. T
+Chapter 47. The War Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 48. The Ear Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 49. The Jetty Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 50. The Application Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 51. The Java Library Distribution Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 52. Groovy Quickstart
 
     .
 __________
-Chapter 7. T
+Chapter 53. The Groovy Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 54. The Scala Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 55. The ANTLR Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 56. The Checkstyle Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 57. The CodeNarc Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 58. The FindBugs Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 59. The JDepend Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 60. The PMD Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 61. The JaCoCo Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 62. The Sonar Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 63. The SonarQube Runner Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 64. The OSGi Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 65. The Eclipse Plugins
 
     .
 __________
-Chapter 7. T
+Chapter 66. The IDEA Plugin
 
     .
 __________
-Chapter 7. T
+Chapter 67. Rule based model configuration
 
     .
 __________
-Chapter 7. T
+Chapter 68. Software model concepts
 
     .
 __________
-Chapter 7. T
+Chapter 69. Implementing model rules in a plugin
 
     .
 __________
-Chapter 7. T
+Chapter 70. Building Java Libraries
 
     .
 __________
-Chapter 7. T
+Chapter 71. Building Play applications
 
     .
 __________
-Chapter 7. T
+Chapter 72. Building native software
 
     .
 __________
-Chapter 7. T
+Chapter 73. Extending the software model
+
+    .
 
     .
 __________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .
-__________
-Chapter 7. T
-
-    .

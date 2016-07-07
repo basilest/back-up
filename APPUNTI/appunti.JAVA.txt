@@ -56,10 +56,15 @@ JAR and CLASSPATH
            .../dir3/org/basilest/A.class
 
     6. from ..../dir3   I can now execute it with    
-       java -cp "dir1/a.jar:dir2/*:.:"   org.basilest
+       java -cp "dir1/a.jar:dir2/*:.:"   org.basilest.A  <---- NB not .class
              ^                              ^
             the same jars used by javac     NB it's . not /
                                              
+     NB. javac is the compiler
+         java is the Virtual Machine (VM) that is going to run the bytecode.
+         Both can be executed as server (java[c] -server) or client (java[c] -client)
+         optimizing the appl. according if it will run as a server or client app.
+         (ex -client is better for GUI)
 
 ----------------------------------------------------------------------------------------------------
 Eclipse

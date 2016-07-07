@@ -1,3 +1,16 @@
+--------------------------------------------------- known files & places
+
+
+     /etc/services
+     /etc/passwd
+     /etc/environment 
+     /etc/profile.d/*.sh
+
+     ~/.bashrc  ~/.bash_profile  ~/.bash_login 
+     ~/.profile             
+     ~/.pam_environment
+
+
 --------------------------------------------------- / ipcs 
     
     ipcs    (System V) inter-process communication
@@ -1054,7 +1067,7 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
 LOGIN
 -----------------------------------------
 
-         1.  /etc/nologin    <---- if it's present (writen by 'shutdown' for maintenance) only root con login
+         1.  /etc/nologin    <---- if it's present (written by 'shutdown' for maintenance) only root con login
                                    Other users will receive its text content as denying-reason message
 
          2.  /etc/usertty    or    read to see if there are any special constraints on you
@@ -1455,7 +1468,7 @@ __  chown
 
           chwon  elen      a.txt       from stiv to elem   (works with text)
           chown  625       a.txt       from 1000 to 625    (works with numeric)
-          chown  elen.g2   a.txt       change user & group (as separator between user and group can be used . or :)
+          chown  elen.g2   a.txt       change user & group (both . and : can be used as separator)
           chown  .g2       a.txt       change only group
 
                
@@ -1559,7 +1572,7 @@ __  sudo
                sudo commands always requires YOUR user password (so there is never another to remember)
                     a 15 minutes default period allows to run other sudo without asking again the password.
                     This timer can be changed (with 'sudo visudo')
-                    -k         # sudo -k  closes the timer (whatever is is) so next sudo command for sure 
+                    -k         # sudo -k  closes the timer (whatever it is) so next sudo command for sure 
                                                                            asks the password again.
 
     /var/log/auth.log         sudo commands are logged in:  /var/log/auth.log
@@ -1589,8 +1602,8 @@ __  sudo
 
     /etc/sudoers              Is the file where users and rghts are configured.
               "sudo visudo"    opens it with your $EDITOR 
-              As in a program, there are first some sections to define some vars (called ALIAS) then
-              they are mixed togheter to defined who can do what, with the format
+              As usual, there are first some sections to define some vars (called ALIAS) then
+              they are mixed together to define who can do what, with the format
               <user list> <host list> = <operator list> <tag list> <command list>
               ex
               USERS WORKSTATIONS=(ADMINS) ADMIN_CMDS
@@ -2682,7 +2695,7 @@ ldconfig:  Is the command to execute by hand when a shared lib is added/removed
   |           - put the lib in the dir xxxx you want it should be installed (ex. /usr/local/lib)                            |
   |           - gcc -Lxxxx   -Wall main.c -o main -lshared  <--- compile a prog main.c that uses the code inside shared.c   |
   |                                                              -l    link the shared lib                                  |
-  |                                                              -L    clear in which dir it is                             |
+  |                                                              -L    in which dir it is                                   |
   --------------------------------------------------------------------------------------------------------------------------
 
 ldd:   is the prog that allow to know which libraries are required
@@ -2956,20 +2969,5 @@ MODULES:       cat -n /proc/modules     to see which is running
                                         taking care of dependency.
                                         So modprobe add mods
                         -r              modprobe -r remove mods
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
