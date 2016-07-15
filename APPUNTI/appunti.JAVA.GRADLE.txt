@@ -22,7 +22,7 @@ __________________________________
           ./build/classes/main/hello/(A.class B.class)
       13. configurations are done as:
               - -D , -P at command line
-              - the files (gradle.properties) that can be more 
+              - the files (gradle.properties) that can be more
                 (in gradle home dir (~/.gradle), as well in any dir of a proj. tree)
       14. proxy
           add in ~/<GRADLE HOME>/gradle.properties the block (for both HTTP & HTTPS)
@@ -32,7 +32,7 @@ __________________________________
                            systemProp.http.proxyUser=userid
                            systemProp.http.proxyPassword=password
                            systemProp.http.nonProxyHosts=*.nonproxyrepos.com|localhost
-                           
+
                            systemProp.https.proxyHost=www.somehost.org
                            systemProp.https.proxyPort=8080
                            systemProp.https.proxyUser=userid
@@ -41,29 +41,29 @@ __________________________________
                                   ________________________________
       15. to link to external libs (jars) the 1-liner (build.grade) can be extended as:
                                   ________________________________
-          
+
                            apply plugin: 'java'
-                           
-                           
+
+
                            repositories {
                                mavenCentral()
                            }
-                           
+
                            sourceCompatibility = 1.7  <--- the version oj java I've installed
                            targetCompatibility = 1.7
-                           
+
                            dependencies {
                                compile "joda-time:joda-time:2.2"
                            }
-                           
+
                            jar {
                                baseName = 'gs-gradle'
                                version =  '0.1.0'
                            }
                                   ________________________________
-                
+
       16. Wrapper
-          adding the following (wrapper) section in the build.gradle and then executing 
+          adding the following (wrapper) section in the build.gradle and then executing
                            (gradle wrapper)
                            (gradle build)
           creates a wrapper/ dir and all is required to distribute my proj and allow others to run it
@@ -78,11 +78,11 @@ __________________________________
           to run the build something more must be added in the (build.gradle) file that is:
                                   ________________________________
                            apply plugin: 'application'
-                           
+
                            mainClassName = 'hello.HelloWorld'
                                   ________________________________
           then run the command (./gradle run)
-                     
+
 __________________________________
 GRADLE GUIDE
 __________________________________
@@ -92,9 +92,9 @@ __________
 
     4.1. Executing multiple tasks
                   . gradle compile test      <--- like make, executes more targets in the order specified in the command line
-                  . Each task is executed once only, regardless of how 
-                    it came to be included in the build: 
-                    whether it was specified on the command-line, or 
+                  . Each task is executed once only, regardless of how
+                    it came to be included in the build:
+                    whether it was specified on the command-line, or
                     as a dependency of another task, or both.
 
     4.2. Excluding tasks      gradle dist -x test    <--- -x
@@ -148,9 +148,9 @@ __________
 __________
 Chapter 5. The Gradle Wrapper
 
-    5.1. Executing a build with the Wrapper      ./gradlew <task>     will download the proper gradle version 
+    5.1. Executing a build with the Wrapper      ./gradlew <task>     will download the proper gradle version
                                                                       and then run it. So there is no need to have gradle already installed
-                                                                        
+
     5.2. Adding the Wrapper to a project
                                                  task wrapper(type: Wrapper) {
                                                       gradleVersion = '2.3'
@@ -174,8 +174,8 @@ Chapter 5. The Gradle Wrapper
 __________
 Chapter 6. The Gradle Daemon
 
-                                                 A daemon is a computer program that runs as a background process, 
-                                                 rather than being under the direct control of an interactive user. 
+                                                 A daemon is a computer program that runs as a background process,
+                                                 rather than being under the direct control of an interactive user.
 
                                                  Gradle is normally inside the JVM. To make it faster and avoid bootstrap time
                                                  it can be run the Daemon. There is no difference at all between the interactive
@@ -194,7 +194,7 @@ Chapter 6. The Gradle Daemon
                                                  after 3 hours is killed by itself
 
     6.3. FAQ
-                                                 
+
     6.4. When should I not use the Gradle Daemon?
                                                  Not to use in Coninuous Integrations as there is more important
                                                  stability and predictability than execution time.
@@ -210,7 +210,7 @@ __________
 Chapter 7. Dependency Management Basics
 
     7.1. What is dependency management?          like make.
-                                                 Better than (Ant) where dependency can be identified only by 
+                                                 Better than (Ant) where dependency can be identified only by
                                                  a (path) or a (url)
     7.2. Declaring your dependencies
                                                  ex.
@@ -221,8 +221,8 @@ Chapter 7. Dependency Management Basics
     7.3. Dependency configurations
                                                  It's a name of a group of dependecies.
                                                  The are some default names (
-                                                     1 compile,      
-                                                     2 runtime,       by default includes 1 
+                                                     1 compile,
+                                                     2 runtime,       by default includes 1
                                                      3 testCompile    by default includes 2,
                                                      4 testRuntim     by default includes 3
     7.4. External dependencies
@@ -242,7 +242,7 @@ Chapter 7. Dependency Management Basics
                                                            url "../local-repo"    <-- URL can refer to a local directory
                                                      }
                                                  }
-                                            
+
     7.6. Publishing artifacts                    They are the output of the build
                                                  If they are files to publish somewhere another repositories can be
                                                  defined in the section (uploadArchives):
@@ -269,11 +269,11 @@ Chapter 8. Introduction to multi-project builds
                                                                            no need to open it, better to run (gradle projects)
 
                                                  2. build.gradle           (in the root or master dir of the project)
-                                                                           is often used to share common configuration between 
+                                                                           is often used to share common configuration between
                                                                            the child projects (ex the same sets of plugins)
 
                                                  NB. by default Gradle uses os root proj. name the name of the dir
-                                                 where setteings.gradle is found. 
+                                                 where setteings.gradle is found.
                                                  It can be overwritten with an explicit (rootProject.name=xxxx)
 
                                                  NB. instead of build.gradle can be called xxxxx.gradle
@@ -326,10 +326,10 @@ Chapter 13. Embedding Gradle using the Tooling API
 
     13.1. Introduction to the Tooling API        used by IDEs (Eclipse and IntelliJ)
     13.2. Tooling API Features
-    13.3. Tooling API and the Gradle Build Daemon : The Tooling API always uses the Gradle daemon. 
+    13.3. Tooling API and the Gradle Build Daemon : The Tooling API always uses the Gradle daemon.
     13.4. Quickstart
     13.5. Gradle and Java version compatibility  not all features of the Tooling API are available for all versions of Gradle.
-                                                 Requires Java 6 or later. 
+                                                 Requires Java 6 or later.
 
 __________
 Chapter 14. Build Script Basics
@@ -357,7 +357,7 @@ Chapter 14. Build Script Basics
                                                   ex:
                                                   task upper << {
                                                       String someString = 'mY_nAmE'
-                                                      println "Original: " + someString 
+                                                      println "Original: " + someString
                                                       println "Upper case: " + someString.toUpperCase()
                                                   }
 
@@ -368,18 +368,18 @@ Chapter 14. Build Script Basics
                                                  task intro(dependsOn: hello) << {     task taskY << {
                                                      println "I'm Gradle"                  println 'taskY'
                                                  }                                     }
-                                                 
+
     14.6. Dynamic tasks
                                                  Still will Groovy I can create tasks:
 
-                                                 4.times { counter ->                                 
+                                                 4.times { counter ->
                                                      task "task$counter" << {       <---- I can run (gradle task1)
                                                              println "I'm task number $counter"
                                                      }
                                                  }
 
     14.7. Manipulating existing tasks
-                                                 I can add for example dependencies:                     or modify                     
+                                                 I can add for example dependencies:                     or modify
 
                                                  4.times { counter ->                                    task hello << {
                                                      task "task$counter" << {                                println 'Hello Earth'
@@ -393,20 +393,20 @@ Chapter 14. Build Script Basics
                                                                              Hello Earth    <----------  hello << {
                                                                              Hello Mars                      println 'Hello Jupiter'
                                                                              Hello Jupiter               }
-                                                
+
     14.8. Shortcut notations
                                                  A task can be accessed as $task.property
                                                  ex
                                                  task basilest {
                                                          println "Greetings from the $basilest.name task."
                                                  }
-                                                          
+
 
 
     14.9. Extra task properties
                                                  with 'ext.'xxxx I can add my own properties to a task (and not only tasks)
                                                  ex
-                                                 
+
                                                  task basilest {
                                                          println "Greetings from the $basilest.name task."
                                                          ext.xxx = 'yyy'
@@ -434,11 +434,11 @@ Chapter 14. Build Script Basics
                                                  }
 
     14.12. Default tasks
-                                                 defaultTasks 'clean', 'run'       <---- I can then run only (gradle) 
+                                                 defaultTasks 'clean', 'run'       <---- I can then run only (gradle)
                                                                                          instead of (gradle clean run)
 
     14.13. Configure by DAG
-                                                 gradle works in 2 steps like make: 
+                                                 gradle works in 2 steps like make:
                                                         1 resolve all dependencies elationships
                                                         2 go
                                                  There is a 'whenReady' function that can be called between 1 and 2
@@ -463,7 +463,7 @@ Chapter 15. Build init plugin
                                                  gradle init --type  maven      : convert a maven (pom.xml) proj into a gradle (build.gradle)
                                                  gradle init --type  basic      : create from scratch in an empty dir all ready templates and dir
                                                                                   ex .gradle buuld.gradle settings.gradle  gradlew
-                                                 gradle init --type  java-library 
+                                                 gradle init --type  java-library
                                                  gradle init --type  scala-library
                                                  gradle init --type  groovy-library
 __________
@@ -472,7 +472,7 @@ Chapter 16. Writing Build Scripts
     16.1. The Gradle build language              is Groovy
     16.2. The Project API                        Each project has these default properties:
                                                                    |
-                                                  (Type)           |                             
+                                                  (Type)           |
                                                   (Project)      project      The Project instance
                                                   (String)       name         The name of the project directory.
                                                   (Object)       group        unspecified
@@ -482,11 +482,11 @@ Chapter 16. Writing Build Scripts
                                                   (File)         projectDir   The directory containing the build script.
                                                   (File)         buildDir     projectDir/build
                                                   (AntBuilder)   ant          An AntBuilder instance
-     
+
     16.3. The Script API                          gradle compiles the script in a class that implements 'Script'-gradle-interface
                                                   As such I can use any of its properties
 
-    16.4. Declaring variables                     
+    16.4. Declaring variables
                                                   LOCAL var (defined by 'def')        GLOBAL var (defined by 'ext')
                                                  ____________________________         _____________________________
                                                   def dest = "dest"                   ext {
@@ -495,9 +495,9 @@ Chapter 16. Writing Build Scripts
                                                       println "$dest"
                                    even this ------>  //println dest                  ...
                                                   }
-                                                  
-                                                  
-                                                  
+
+
+
 
 
     16.5. Configuring arbitrary objects
@@ -523,8 +523,8 @@ Chapter 16. Writing Build Scripts
     16.7. Some Groovy basics                     Groovy presents some extension wrt standrad Java
                                                  (ex. Iterable gets an each method, which iterates over the elements of the Iterable:
                                                       onfigurations.runtime.each { File f -> println f })
-                                                      
-                                                      
+
+
     16.8. Default imports                        Gradle automatically adds a set of import statements to the Gradle scripts
                                                      (import org.gradle.***)
 
@@ -532,7 +532,7 @@ __________
 Chapter 17. More about Tasks
 
     17.1. Defining tasks
-                                                 task hello 
+                                                 task hello
                                                  task 'hello'
                                                  task (hello)
                                                  task ('hello')
@@ -584,7 +584,7 @@ Chapter 17. More about Tasks
                                                                                         gradle will throw an exception for replacing
                                                                                         another task with the same name.
     17.8. Skipping tasks
-                                                 hello.onlyIf { !project.hasProperty('skipHello') }  <--- onlyIf     
+                                                 hello.onlyIf { !project.hasProperty('skipHello') }  <--- onlyIf
                                                  if (true) { throw new StopExecutionException() }    <--- StopExecutionException
                                                  hello.enabled = false               <--- Every task has an enabled flag which defaults to true.
     17.9. Skipping tasks that are up-to-date
@@ -612,12 +612,12 @@ __________
 Chapter 18. Working With Files
 
     18.1. Locating files
-                                                 use method 'file'  
-                                                 It return an object 'File' when receiving 
-                                                          a path (ex 'src/config.xml') 
+                                                 use method 'file'
+                                                 It return an object 'File' when receiving
+                                                          a path (ex 'src/config.xml')
                                                           a url (ex file:/some/path.xml)
                                                           a Object 'File'
-                                                 ex 
+                                                 ex
                                                     File f = file('src/a.xml')
                                                     File f = file(new File('src/a.xml')
     18.2. File collections
@@ -627,7 +627,7 @@ Chapter 18. Working With Files
                                                  FileCollection collection = files('src/file1.txt',
                                                                                    new File('src/file2.txt'),
                                                                                    ['src/file3.txt', 'src/file4.txt'])
-                                                 
+
                                                  There is the possibility to add and subtract:
 
                                                  def union     = collection + files('src/file3.txt')

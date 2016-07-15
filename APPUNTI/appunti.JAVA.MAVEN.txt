@@ -36,15 +36,15 @@
 
   Many Ant tasks delegate their work to external programs, either native or Java.
 
-  It's written to fix the portability issue of the makefile (ex. 
+  It's written to fix the portability issue of the makefile (ex.
         - makefile unix     : rm -rf classes/
         - makefile windows  : rmdir /S /Q classes/
   ). In Ant there are sp some builtin commands like <'delete' dir="classes" />
 
 
----------------------------------------------- MAVEN 
+---------------------------------------------- MAVEN
 MAVEN (whose executable is /usr/local/bin//mvn) can be considered a modern make.
-      If make reads a MakeFile, 
+      If make reads a MakeFile,
       maven reads an XML called pom.xml (Project Object Model)
       which is stored in the dir which will then be considered the root for the project.
       From there I can run mvn with all the required options and args.
@@ -61,14 +61,14 @@ MAVEN (whose executable is /usr/local/bin//mvn) can be considered a modern make.
 mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes \
                        -DarchetypeArtifactId=maven-archetype-quickstart
 
-JAVA based              (Apache) Maven is a Java-based application and 
+JAVA based              (Apache) Maven is a Java-based application and
                         requires the Java Development Kit (JDK)
 
 1. download:            http://maven.apache.org/download.html
-2. unzip                ex in ~/maven_inst  unzip create some tree 
+2. unzip                ex in ~/maven_inst  unzip create some tree
                         ex 'apache-maven-3.2.5/bin' <--- and inside 'mvn' exe
 3. configure env var    M2_HOME   to point to root dir prepared: ~/maven_inst
-                        update also $PATH 
+                        update also $PATH
                         MAVEN_OPTS=-Xmx512m    define JRE heap size
                                                this size can be incremented
                                                if you go out of memory with lot of memory errors
@@ -78,15 +78,15 @@ JAVA based              (Apache) Maven is a Java-based application and
                         .m2 contains also JAR-plugin downloaded from internet
                         thousands (!) of files under dir .m2/repository/
 
-                        
+
                         <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                         xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                         http://maven.apache.org/xsd/settings-1.0.0.xsd">
                             <localRepository/>   <--- to select other than  ~/.m2/repository
-                            <interactiveMode/>   
+                            <interactiveMode/>
                             <usePluginRegistry/>
-                            <offline/>           default: false    
+                            <offline/>           default: false
                             <pluginGroups/>
                             <servers/>           specify user:pswd to connect to Apache/Subversions/... servers
                             <mirrors/>
@@ -99,22 +99,22 @@ JAVA based              (Apache) Maven is a Java-based application and
                                                           <username>proxyusername</username>
                                                           <password>proxypassword</password>
                                                           <nonProxyHosts />
-                                                       </proxy>     </proxies>     
-                      
+                                                       </proxy>     </proxies>
+
 ---------------------------------------------- MAVEN Dependency
 the problem:            if your application relies on external JARs, and each relies on other JARs
-                        instead of downloading all, keep them up-to-date each time 1 changes, and 
+                        instead of downloading all, keep them up-to-date each time 1 changes, and
                         inlude by hand in the application. You can use Maven
-                        which manage all the dependecies in  pom.xml 
+                        which manage all the dependecies in  pom.xml
 
-          Note   Information can be provided in settings.xml or pom.xml. 
-                 There are pros and cons to each approach. 
+          Note   Information can be provided in settings.xml or pom.xml.
+                 There are pros and cons to each approach.
                        pom.xml:  make your builds portable. Developers download projects
-                                 and simply build them without any further modifications 
+                                 and simply build them without any further modifications
                                  to their local settings.xml.
-                                 Information like ex repository URL are hard coded there. 
-                                 If URLs ever change, consumers of these artifacts will run into errors 
-                                 due to broken paths. 
+                                 Information like ex repository URL are hard coded there.
+                                 If URLs ever change, consumers of these artifacts will run into errors
+                                 due to broken paths.
                         So settings.xml is typically recommended to put repository URL
 
 remote Maven            Main remote repository are  repo.maven.apache.org / uk.maven.org.
@@ -126,7 +126,7 @@ remote Maven            Main remote repository are  repo.maven.apache.org / uk.m
                              Sonatype Nexus       www.sonatype.com/nexus
                              Apache Archiva       http://archiva.apache.org/
                              Artifactory          www.jfrog.com/open-source/
-                      
+
                         ex. repository in settings.xml:
 
                                <profiles>     <profile>
@@ -143,14 +143,14 @@ remote Maven            Main remote repository are  repo.maven.apache.org / uk.m
                                      </repositories>
                                </profile>    </profiles>
 
-Depend. Identification: Depend. are usually ZIP, JAR, WAR or also EAR (entreprise archive) 
+Depend. Identification: Depend. are usually ZIP, JAR, WAR or also EAR (entreprise archive)
                          Are identified by:
                              groupId:    the organization (Ex org.hibernate, log4j, org.springframework.boot.
                              artifactId: Id (unique) among the proj (same groupId). Ex hibernate-tools, log4j, spring-core,
                              version:    Ex 1.0.0, 2.3.1-SNAPSHOT, 4.3.6.Final.
                              type:       the packing generated. Ex JAR, WAR, EAR.
-                      
-Direct and Transitive Dep:     Transitive are the Indirect Dep.which can comes from the Direct 
+
+Direct and Transitive Dep:     Transitive are the Indirect Dep.which can comes from the Direct
                                Direct:     A B C D E
                                Transitive: F G F H H I F B I
 
@@ -158,23 +158,23 @@ Direct and Transitive Dep:     Transitive are the Indirect Dep.which can comes f
                                rule 1: it's taken the closest: B  0.0.8
                                rule 2: if still on the same level there are more is taken the 1st: F  0.1.3
 
-                               it can cause problems and unpredictable side effects, as you might include unwanted JAR 
+                               it can cause problems and unpredictable side effects, as you might include unwanted JAR
                                or older versions. Always analyze your dependency tree and make sure you are bundling the
                                dependencies you need
-                      
+
                                         Proj ver.1.0.0
                  ____________________________________________________________
-                 |              |              |              |              |       
-                 A              B              C              D              E       
+                 |              |              |              |              |
+                 A              B              C              D              E
                2.3.3          0.0.8          1.4.3          1.0.1          1.0.0
              ________                      ________                     _________________
-             |       |                     |       |                    |       |       |    
-             F       G                     F       H                    H       I       F    
-           0.1.3   4.1.0                 1.0.0   0.9.9                1.0.0   2.0.0   2.2.0 
+             |       |                     |       |                    |       |       |
+             F       G                     F       H                    H       I       F
+           0.1.3   4.1.0                 1.0.0   0.9.9                1.0.0   2.0.0   2.2.0
                                                                    ________
-                                                                   |       |   
-                                                                   B       I   
-                                                                 1.0.0   1.2.3 
+                                                                   |       |
+                                                                   B       I
+                                                                 1.0.0   1.2.3
 
 Dep. Scope:      allows to specify when and where you need a particular dependency. (Ex JUinit only for testing
                  not include them in the final Build)
@@ -184,19 +184,19 @@ Dep. Scope:      allows to specify when and where you need a particular dependen
                          2    provided: (build test) Ex. Servlet api, JSP api,
                          3    runtime:  only run
                          4    test:     only test Ex. JUnit and TestNG
-                         5    system:   like provided: except that  are not retrieved from the repository. 
+                         5    system:   like provided: except that  are not retrieved from the repository.
                                         Instead, a hard-coded path (in the file system)
-                         6    import:   only in Maven 2.0.9 or later. Is applicable for .pom Dep only. 
+                         6    import:   only in Maven 2.0.9 or later. Is applicable for .pom Dep only.
                                         It allows to include Dep info rom a remote .pom file.
 
 Install plug-in: allows to install a local JAR till the administrator put it somewhere in the Central Repo
-                 ex. mvn install:install-file -DgroupId=com.apress.gswmbook 
-                                              -DartifactId=test 
-                                              -Dversion=1.0.0 
-                                              -Dfile=C:\apress\gswm-book\chapter3\test.jar 
-                                              -Dpackaging=jar   
+                 ex. mvn install:install-file -DgroupId=com.apress.gswmbook
+                                              -DartifactId=test
+                                              -Dversion=1.0.0
+                                              -Dfile=C:\apress\gswm-book\chapter3\test.jar
+                                              -Dpackaging=jar
                                               -DgeneratePom=true
-                
+
 ---------------------------------------------- MAVEN Basics
 
 standar;d dir tree:                proj_name
@@ -214,7 +214,7 @@ standar;d dir tree:                proj_name
 
                                     src/main/resources    such as Spring config and velocity templates
                                     src/main/config       config files, such as Tomcat, James Server
-                                    src/main/scripts      any administrator script 
+                                    src/main/scripts      any administrator script
                                     src/test/resources    config files testing.
                                     src/main/webapp       web assets such as .jsp files, style sheets, and images.
                                     src/it                integratio ntests for the application.
@@ -225,8 +225,8 @@ pom.xml       the only required acrtifact
 
 
               <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi=                                 1   <project xmlns="http://maven.apache.org/POM/4.0.0" i
-                             "http://www.w3.org/2001/XMLSchema-instance"                                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             "http://www.w3.org/2001/XMLSchema-instance"                                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">                                                http://maven.apache.org/xsd/maven-4.0.0.xsd">
                                                                                                             2     <modelVersion>4.0.0</modelVersion>
                <modelVersion>4.0.0</modelVersion>                                                           3     <groupId>uk.gov.ch</groupId>
@@ -254,7 +254,7 @@ pom.xml       the only required acrtifact
                          <email>sudha@inflinx.com</email>                                                  25                     <include>**/*.css</include>
                          <properties>                                                                      26                     <include>**/*.html</include>
                              <active>true</active>                                                         27                     <include>**/*.htm</include>
-                         </properties>                                                                     28  
+                         </properties>                                                                     28
                      </developer>
                  </developers>
               </project>                                                _____ RC, alpha, beta, SNAPSHOT
@@ -293,7 +293,7 @@ exclusion:    to not build some dependency after the <scope..> put this:
                    <exclusions>
                         <exclusion>
                              <groupId> org.hamcrest</groupId>
-                             <artifactId>hamcrest</artifactId> 
+                             <artifactId>hamcrest</artifactId>
                         </exclusion>
                    </exclusions>
 
@@ -334,20 +334,20 @@ plug-in         int the following the args to mvn are in the form plugin:goal
                   Site:    generation of documentation and site generation.
 
                     1  Validate: Runs checks that all dependencies are downloaded and available.
-                    2  Compile: Compiles 
-                    3  Test:    Runs unit tests using frameworks. 
+                    2  Compile: Compiles
+                    3  Test:    Runs unit tests using frameworks.
                     4  Package: Assembles compiled code into a distributable JAR or WAR.
                     5  Install: Installs the package into a local repo for use on that machine.
                     6  Deploy:  archive into a remote repo
-                 
-                 if you run 'mvn package' maven executes only 1 2 3 4
-                 if you want to skip test:  mvn package –Dmaven.test.skip=true  
 
-Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk about plug-in development, 
-                  we are essentially talking about developing goals. 
+                 if you run 'mvn package' maven executes only 1 2 3 4
+                 if you want to skip test:  mvn package –Dmaven.test.skip=true
+
+Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk about plug-in development,
+                  we are essentially talking about developing goals.
                   These goals are implemented using MOJOs, (Maven Old Java Object) so a .java file
                       ex. plugin name: gswm-plugin
-                          is a class: HelloMojo.Java 
+                          is a class: HelloMojo.Java
                           package:    com.apress.plugins
 
                   the tree is:  gswm-plugin/src/main/java/com/apress/plugins/HelloMojo.java
@@ -369,7 +369,7 @@ Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk 
                              </dependencies>
                           </project>
 
---------------------------------------------- MAVEN Archetypes 
+--------------------------------------------- MAVEN Archetypes
 
                   Maven archetypes are project templates that allow users to generate new projects easily.
                   Have tree dir build for free, and required plugin (ex approved Javascript classe to be
@@ -377,10 +377,10 @@ Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk 
 archetype plugin:  > 'mvn archetype:generate'  to see hundreads available
                       mvn archetype:generate -DarchetypeCatalog=local     to see only the local catalog
 
-           ex. to generate a web app:  
+           ex. to generate a web app:
                mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp
 
-                Then in the generated pom, add 
+                Then in the generated pom, add
 
                      <plugin>
                      <groupId>org.apache.tomcat.maven</groupId>
@@ -394,7 +394,7 @@ archetype plugin:  > 'mvn archetype:generate'  to see hundreads available
                 and open you browser: http://localhost:8080/xxxxxxx/.
                 xxxxxxx is tne name you called you artifact.
 
-multi-modules:  if a project is split in more child modules heach with its pom, and 1 father pom the 
+multi-modules:  if a project is split in more child modules heach with its pom, and 1 father pom the
                 the tree should be something like
 
                          proj_dir                          the father pom has a section
@@ -404,7 +404,7 @@ multi-modules:  if a project is split in more child modules heach with its pom, 
                             |      |___ pom                  <module>Mod3</module>
                             |                                </modules>
                             |---- Mod2                     </project>
-                            |      |___ pom                
+                            |      |___ pom
                             |                              while each son pom addres back with this section
                             |---- Mod3                      <parent>
                                    |___ pom                 <groupId>com.apress.gswmbook</groupId>
@@ -415,7 +415,7 @@ multi-modules:  if a project is split in more child modules heach with its pom, 
 
 mvn archetype:create-from-project       if I have a tree with a proj I can freeze that into a template
                                         and create an archetype with that command.
-                                        
+
                                         The ouput is stored in: .../target/generated-sources/archetype.
                                         modified the pom if needed
                                         then execute      mvn clean install
@@ -424,14 +424,14 @@ mvn archetype:create-from-project       if I have a tree with a proj I can freez
 
 mvn site           create an html documentation, applaying the default skin and CSS.
                    It uses the information provided in the pom.
-                   You will notice that pages such as About, Mailing Lists, and Project License 
+                   You will notice that pages such as About, Mailing Lists, and Project License
                    are missing. Let’s modify the pom:
 
                                <description>
                                This project acts as a starter project for the Introducing Maven book
                                (http://www.apress.com/9781484208427) published by Apress.
                                </description>
-                                
+
                                 <mailingLists>
                                 <mailingList>
                                 <name>GSWM Developer List</name>
@@ -440,7 +440,7 @@ mvn site           create an html documentation, applaying the default skin and 
                                 <post>developer@apress.com</post>
                                 </mailingList>
                                 </mailingLists>
-                                 
+
                                  <licenses>
                                  <license>
                                  <name>Apache License, Version 2.0</name>
@@ -455,7 +455,7 @@ advanced site:     another way to configure the html inside pom is:
                                           site
                                            |____ site.xml
                                            |
-                                           |____ apt                  The apt dir contains site content written in 
+                                           |____ apt                  The apt dir contains site content written in
                                                   |____ index.apt     Almost Plain Text (APT) format.
                    A way to have that tree
                    mvn archetype:create -DarchetypeArtifactId=maven-archetype-site-simple
@@ -471,27 +471,27 @@ APT format        http://maven.apache.org/doxia/references/apt-format.html
                         5  -----
                         6  Date Here
                         7  -----
-                        8 
+                        8
                         9 Maven Site for your project
-                       10 
+                       10
                        11  Congratulations! If you are looking at this page then you have successfully generated a
                        12  template site employing the site archetype and you have run:
-                       13   
+                       13
                        14 +-----+
-                       15 
+                       15
                        16 mvn site
-                       17 
+                       17
                        18 +-----+
 
 site.xml        http://maven.apache.org/doxia/references/apt-format.html
                   <?xml version="1.0" encoding="ISO-8859-1"?>
-                   
+
                    <project xmlns="http://maven.apache.org/DECORATION/1.6.0" xmlns:xsi=
                                   "http://www.w3.org/2001/XMLSchema-instance"
                                   xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0
                                   http://maven.apache.org/xsd/decoration-1.6.0.xsd"
                                   name="Getting Started With Maven" >
-                    
+
                     <bannerLeft>
                     <name>Apress</name>
                     <src>images/company.png</src>   <--- put an image in .../src/site/resources/images
@@ -522,7 +522,7 @@ site.xml        http://maven.apache.org/doxia/references/apt-format.html
 
 Java doc        Maven has a Java Doc plugin
                 use <reporting  in pom
-                
+
                  <project>
                     ......
                     <reporting>
@@ -544,7 +544,7 @@ JUnit           Test-driven development has become the norm in enterprises today
                 result in a failed build.
                 Maven offers the Surefire plug-in that provides a uniform interface for running tests
                 created by frameworks such as JUnit or TestNG. It also generates execution results in
-                various formats such as XML and HTML. 
+                various formats such as XML and HTML.
                 The Surefire plug-in is configured in the same way as the Javadoc plug-in in the
                 reporting section of pom:
 
@@ -587,7 +587,7 @@ Nexus:      open source Repository Manager  (www.sonatype.org/nexus/go/)
             Nexus 2.10 requires JRE 1.7
 
             1.  download and unzip
-            2.  nexus install  
+            2.  nexus install
             3.  nexus start
             4.  By default, Nexus runs on port 8081: http://localhost:8081/nexus.
                                                      user:admin  pswd: admin123
@@ -606,7 +606,7 @@ Nexus:      open source Repository Manager  (www.sonatype.org/nexus/go/)
                           <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
                       </snapshotRepository>
                       </distributionManagement>
-                      
+
             while user & password for servers are store in Settings.xml:
 
                                <servers>
@@ -622,11 +622,11 @@ Nexus:      open source Repository Manager  (www.sonatype.org/nexus/go/)
                                     </server>
                                </servers>
 
-                   
+
             now build:  mvn deploy
 
 SVN        :Maven has a release plug-in that provides a standard mechanism for Version Control.
-            Ex.  Subversion (SVN) 
+            Ex.  Subversion (SVN)
 
 
 

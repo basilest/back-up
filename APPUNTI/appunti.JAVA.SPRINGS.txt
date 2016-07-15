@@ -7,10 +7,10 @@ SPRING  Framework
   so at least that jar must be downloaded.
   2 All the functionalities (jar) files can be downloaded in any dir by hand, but
     a better way is go in that dir and use maven with the following  pom.xml (which will download all)
-         2.a   configure mave for the proxy. 
-               Mave is configured in the ~/.m2/settings.xml 
+         2.a   configure mave for the proxy.
+               Mave is configured in the ~/.m2/settings.xml
                That file should be something like
-               
+
                                ________________________________________
                                |  <settings>
                                |    <proxies>
@@ -28,9 +28,9 @@ SPRING  Framework
          2.b   created a dir: mkdir ~/SPRING && cd ~/SPRING
          2.c   vi pom.xml:
 
-                        <project xmlns="http://maven.apache.org/POM/4.0.0" 
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-                                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                                 http://maven.apache.org/xsd/maven-4.0.0.xsd">
                           <modelVersion>4.0.0</modelVersion>
                           <groupId>spring-source-download</groupId>
@@ -86,7 +86,7 @@ SPRING  Framework
 
          2.e   now Spring is installed. Add the
                /Users/sbasile/SPRING/target/dependencies/*.jar
-               to the -cp both in (javac) and (java) 
+               to the -cp both in (javac) and (java)
                so that the code can find he framework.
 
 ------------------------------------------------------------- SPRING
@@ -465,7 +465,7 @@ SPRINGS has many annotations. They help on different tasks.
 @PreDestroy
                  @PostConstruct
                  @PreDestroy                    <----   SPRING will iject that value as that param
-                 public void Set_xxxx (param) {     
+                 public void Set_xxxx (param) {
                  }
 
 @Component
@@ -473,7 +473,7 @@ SPRINGS has many annotations. They help on different tasks.
                  public class Circle {                With this tag, that Object is trated by SPRING
                  }                                    as it was a bean in XML (so the XML can not have
                                                       any line for that bean.
-                 With this approach some bean are in XML, someothers are sperad among the JAVA code as 
+                 With this approach some bean are in XML, someothers are sperad among the JAVA code as
                  @Componente Classes. To instruct SPRING that he must search both IN XML as in JAVA code
                  put in XML this:
                                     <context:component-scan base-package="org.basilest"/>
@@ -484,8 +484,8 @@ SPRINGS has many annotations. They help on different tasks.
               1. kkkeeeyyy="Hello!"  <---- create a text file in src (ex. messages.properties)
                                            of type key="String"
                  drawing.Circle=I'm drawing a Cirle         N.B. there are neither " not ' to manage spaces
-                 keeeexxx=Here received some args {0} {1}   
-                 
+                 keeeexxx=Here received some args {0} {1}
+
 
               2.     Link to these files in XML
 
@@ -499,7 +499,7 @@ SPRINGS has many annotations. They help on different tasks.
 
               3. st = context.getMessage ("kkkeeeyyy", null, "Default Msg", null); <-- in main method
                                                                                        where I have the context
-                                                                                       use method getMessage which 
+                                                                                       use method getMessage which
                                                                                        return a String that can
                                                                                        be printed.
                        2nd arg (here null) whould be a list of args if the printf is custom
@@ -510,7 +510,7 @@ SPRINGS has many annotations. They help on different tasks.
 
               If you are not in main() accessing the context you can define a variable of type 'MessageSource'
               which is a TYPE of the SPRING framework.
-                  MessageSource is an Interface. It has the method getMessage. 
+                  MessageSource is an Interface. It has the method getMessage.
               It's implemented both by ApplicationContext (that's why the above code has that getMessage())
               and by in the bean (by the class in 2. above: ResourceBundle.....)
 
@@ -539,12 +539,12 @@ SPRINGS has many annotations. They help on different tasks.
               }
 
            2. define a new class. This extends 'ApplicationEvent'
-              
+
               public class MyAppEvent extends ApplicationEvent {
                    public MyApEvent (ApplicationEvent arg0) {  <--- Constructor (which calls super(()
                           super(arg0))
                    }
-              
+
                    public String toString (){                  <--- overwrite toString()
                    }
               }
@@ -567,9 +567,9 @@ FUNCTIONAL PROGRAMMING:    C like  (a set of functions  chaining together in a c
 
 OBJECT     PROGRAMMIN:     a 1st way to exit the mess.  Still Supppose Object A, B, C, has some common task (ex. logging messages)
                            you can move out the common code of log() method into a new external object L. Still there is 1 (or more) lines of
-                           code in A, B, C, to declare each a var of type L, and then call its L.log method. 
+                           code in A, B, C, to declare each a var of type L, and then call its L.log method.
 
-ASPECT ORIENTED PROGRAMMIN:   'Aspects'can be considered classe (the L above) that can be (externally) linked to othet classes (A, B, C) 
+ASPECT ORIENTED PROGRAMMIN:   'Aspects'can be considered classe (the L above) that can be (externally) linked to othet classes (A, B, C)
                            through the usual XML configuration.
 
 A NEW ECLIPSE JAVA PROJECT SPRING AOP:
@@ -614,7 +614,7 @@ A NEW ECLIPSE JAVA PROJECT SPRING AOP:
                            4. Add a new User Lib (call ex. AspectJ) linking to the unzipped package
                            5. start writing the spring.xml (in src dir)
                               <beans xmlns="http://www.springframework.org/schema/beans"
-                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                   xmlns:aop="http://www.springframework.org/schema/aop" <----- Name Space 'aop' is added
 
                                      ....
@@ -630,7 +630,7 @@ A NEW ECLIPSE JAVA PROJECT SPRING AOP:
                               @Aspect
                               public class LoggingAspect {
 
-                                @Before ("execution(public String getName())")  <---- Any Class with a method like this will be 
+                                @Before ("execution(public String getName())")  <---- Any Class with a method like this will be
                                                                                       linked to this 'Advice' which will be called 'Before'
                                     public void LoggingAdvcice () {
                                             System.out.println("Called Advice Method in 'Aspect'");
@@ -640,7 +640,7 @@ A NEW ECLIPSE JAVA PROJECT SPRING AOP:
 
                                 Giving the full path, it will be call ONLY for functon of that Class:
 
-                                @Before ("execution(public String org.basilest.module.Circle.getName())")  
+                                @Before ("execution(public String org.basilest.module.Circle.getName())")
 
                                 @Before ("execution(public String get*())")   <--- here any function with name starting with 'get'
                                                                                    and returning a String
@@ -658,24 +658,24 @@ A NEW ECLIPSE JAVA PROJECT SPRING AOP:
 
                                    @Aspect
                                    public class LoggingAspect {
-                                   
+
                                        @Before ("allGetters()")                                    <--------   1nd call
                                        public void LoggingAdvcice () {
                                            System.out.println("Called Advice Method in 'Aspect'");
                                        }
-                                       
+
                                        @Before ("allGetters()")                                    <--------   2nd call
                                        public void secondAdvice () {
                                            System.out.println("Called secondAdvice in 'Aspect'");
                                        }
-                                   
-                                       
+
+
                                        @Pointcut ("execution(* get*(*))")         <---------- here dummy fun with tag @Pointcut
                                        public void allGetters () {}
-                                       
-                                   }                                                                               
 
-                                   @Pointcut ("within(org.basilest.module.Circle)") <-- 'within' allow to specify 
+                                   }
+
+                                   @Pointcut ("within(org.basilest.module.Circle)") <-- 'within' allow to specify
                                                                                         ANY method of that Class
 
                                    @Pointcut ("within(org.basilest.module.*)") <-- any methos of any Class inside that pkg

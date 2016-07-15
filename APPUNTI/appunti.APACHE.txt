@@ -1,6 +1,6 @@
 
 
-    dump all 'eval'uated entries of debugger internal table 
+    dump all 'eval'uated entries of debugger internal table
             p join "\n", map { "$_   $#{$_}" } grep /_<\(/, keys %::
     show something like this:
               DB<1> p join "\n", map { "$_   $#{$_}" } grep /_<\(/, keys %::
@@ -37,19 +37,19 @@
               _<(eval 27)[/var/local/cpan/perl/lib/perl5/site_perl/5.8.5//JSON.pm:353]   -1
 
 
-  
+
 'httpd'          http-daemon
-                 The httpd web server was developed by the 
+                 The httpd web server was developed by the
                  Centre d'Etudes et de Recherche Nucléaires (CERN) in Geneva, Switzerland
-                 When CERN stopped funding the development of httpd, 
-                 it was taken over by the Software Development Group of the 
-                 National Center for Supercomputing Applications (NCSA). 
-                 The NCSA also produced Mosaic, the first web browser, 
+                 When CERN stopped funding the development of httpd,
+                 it was taken over by the Software Development Group of the
+                 National Center for Supercomputing Applications (NCSA).
+                 The NCSA also produced Mosaic, the first web browser,
                  (later Netscape).
 
                  1. at the origin only static documents. Mosaic retrieved them from httpd
                  2. Rewritten to allow dynamic data (ex. submitted by the user in a form)
-                    NCSA developed the Common Gateway Interface (CGI) specification. 
+                    NCSA developed the Common Gateway Interface (CGI) specification.
 
 httpd     it receives args (stop, start, reload, restart)
           it read the a conf file (usually  /etc/httpd/conf/httpd.conf)
@@ -61,9 +61,9 @@ _________________________ static / dynamic
 
            it can be:
            - compiled static (old way)
-           - dynamic (DSO: Dinamyc Shared Object) 
+           - dynamic (DSO: Dinamyc Shared Object)
              it loads runtime the required modules.
-_________________________  
+_________________________
 
 [sbasile@wswebdev1 ~]$ httpd -v
 Server version: Apache/2.2.8 (Unix)
@@ -86,11 +86,11 @@ Options:
   -V                 : show compile settings
   -h                 : list available command line options (this page)
   -l                 : list compiled in modules          <---------------- -l
-  -L                 : list available configuration directives <---------- -L 
+  -L                 : list available configuration directives <---------- -L
   -t -D DUMP_VHOSTS  : show parsed settings (currently only vhost settings)
   -S                 : a synonym for -t -D DUMP_VHOSTS
   -t -D DUMP_MODULES : show all loaded modules <-------------------------- -t -D DUMP_MODULES
-  -M                 : a synonym for -t -D DUMP_MODULES <-----------------  -M     
+  -M                 : a synonym for -t -D DUMP_MODULES <-----------------  -M
   -t                 : run syntax check for config files
 
 _________________________  httpd -l
@@ -99,26 +99,26 @@ httpd -l   lists the static compiled modules.
            If there is mod_so.c
            it's in the DSO version.
            so it can be extended runtime.
-      with the -M (added from Apache version 2.2) I can see 
+      with the -M (added from Apache version 2.2) I can see
       all the mod for my configuration (no only the 'compiled'
       but also the loaded dynamically through the 'mod_so' command).
 
 _________________________  mod_perl
 
-           with httpd -l 
+           with httpd -l
            I can also see it mod_perl is already compiled
            inside or not.
            The module name is mod_perl.c
 
 
-DSO (Dinamyc Shared Object) - mod_so.c. 
+DSO (Dinamyc Shared Object) - mod_so.c.
           httpd is built by compiled static modules. (you can see them
           with httpd -l).
           But from version 1.3, it can be dynamically extended (DSO modules).
           This means some modules are loaded also at runtime.
           (if compiled from source use ./configure .... -enable-so
            before make & make install oterwise the exe will not support dynamic loading)
-          So with the same httpd, I can sometime launch a version with 
+          So with the same httpd, I can sometime launch a version with
           will load mod_perl, so specific for Perl CGI, while some other times
           I can run it loading some PHP specific modules, making the server
           optimized for PHP.
@@ -133,8 +133,8 @@ DSO (Dinamyc Shared Object) - mod_so.c.
                                <IfModule mod_perl.c>
                                   .....
                                </IfModule>
-                               
-                               the instructions inside, are executed only if 
+
+                               the instructions inside, are executed only if
                                that module is loaded (static or dynamic).
 
 
@@ -147,9 +147,9 @@ ServerRoot     (ex  ServerRoot "/etc/httpd")
                 are the relative to 'ServerRoot' value)
 
 PidFile        (ex PidFile /tmp/sbasile.pid)
-               the file where the server records its process ID 
+               the file where the server records its process ID
 
-Timeout        (ex Timeout 120) 
+Timeout        (ex Timeout 120)
                the time (in seconds) the servers wait answers.
 
 KeepAlive      (ex KeepAlive Off)
@@ -195,7 +195,7 @@ KeepAliveTimeout      (ex KeepAliveTimeout 15)
 Listen          (ex Listen 192.168.60.201:4055)
                 addr & port on which accept incoming requests
                 default port is 80  for non-secure Web communication
-                                443 for secure     Web communications. 
+                                443 for secure     Web communications.
                 Only root can start on ports < 1024.
 
 Include         (ex Include /home/sbasile/apache2/conf.d/*.conf)
@@ -211,7 +211,7 @@ IfDefine        (ex <IfDefine PERLDB> ..</IfDefine>)
 
 User            (User sbasile)
                  pass to the server the same rights this user has on files
-                 So the server is not allowed to manage files that this user 
+                 So the server is not allowed to manage files that this user
                  is not allowed to manage.
 
 Group           (ex Group devel)
@@ -238,7 +238,7 @@ DocumentRoot    (ex DocumentRoot "/home/sbasile/htdocs/")
                  to wrap instructions that refer to that dir + subdir
                  Usually options start with restricted values on /
                  and where required (specific dirs) they are lightened.
-                 Ex in dirs where there are CGI scripts other than specified 
+                 Ex in dirs where there are CGI scripts other than specified
                  with 'ScriptAlias' its common to give them the +ExecCGI options.
 
                  <Directory /home/my_cgi_directory>
@@ -247,9 +247,9 @@ DocumentRoot    (ex DocumentRoot "/home/sbasile/htdocs/")
 
 Options         (ex Options FollowSymLinks)
                  to give specific feature to a directory.
-                 Indexes        allows the server to generate a directory listing 
-                 FollowSymLinks allows the server to follow symbolic links in that directory. 
-                 AllowOverride  allows to override options with values 
+                 Indexes        allows the server to generate a directory listing
+                 FollowSymLinks allows the server to follow symbolic links in that directory.
+                 AllowOverride  allows to override options with values
                                 coming from files .htaccess present in that dir.
                  Allow          "all", a domain name, an IP address, a partial IP, ...
                                 specifies who can access that dir
@@ -263,7 +263,7 @@ UserDir         (ex UserDir "public_html")
                  /home/username/   +   public_html/   +  foo.html
                       711                   755            644
                        ^                     ^              ^   <-----the permissions
-                 
+
 DirectoryIndex  (ex DirectoryIndex index.html index.html.var)
                  a list of default files (the first that is found) to return
                  when a request is received requesting a dir (ending with /
@@ -272,7 +272,7 @@ DirectoryIndex  (ex DirectoryIndex index.html index.html.var)
 AccessFileName  (ex AccessFileName .htaccess)
                  The name for the files which extend control on the Options.
                  After this, there is usually an instruction:
-                             <Files ~ "^\.ht"> 
+                             <Files ~ "^\.ht">
                                     Order allow,deny
                                     Deny from all
                              </Files>
@@ -290,8 +290,8 @@ DefaultType     (ex DefaultType text/plain)
 HostnameLookups (ex HostnameLookups Off)
                  on    the server automatically resolves the IP address for each connection
                        This adds overhead for the extra DNS request
-                 double  a double-reverse DNS look up adding even more processing overhead. 
-                 off   (default) 
+                 double  a double-reverse DNS look up adding even more processing overhead.
+                 off   (default)
 
 ErrorLog        (ex /var/log/httpd/sbasile_error_log)
 
@@ -304,21 +304,21 @@ LogFormat       (ex LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{Use
                     LogFormat "%{User-agent}i" agent
                  To specify the format in log files (bot error_log and  /var/log/httpd/access_log)
                              %h   remote IP
-                             %u   authenticated user. Usually, not used, so a hyphen [-] appears for this field. 
+                             %u   authenticated user. Usually, not used, so a hyphen [-] appears for this field.
                              %t   date
                              %r   request string exactly as it came from the browser or client
-                             %s   status code which was returned to the client host. 
+                             %s   status code which was returned to the client host.
                              %b   size (bytes) of the document.
                              %\"%{Referer}i\" (referrer)    the URL the client referred to the server
-                             %\"%{User-Agent}i\" (user-agent)  the type of browser 
+                             %\"%{User-Agent}i\" (user-agent)  the type of browser
 
       (ex LoadModule perl_module modules/mod_perl.so)
                  to load in Dynamic Shared Object (DSO) modules.
 
 Alias           (ex Alias /images/ "/home/sbasile/htdocs/efiling/images/")
                  allows dir outside the DocumentRoot to be accessible.
-                 Any URL ending in the alias automatically resolves to the alias' path. 
-                 That dir can be accessed by the Web server, even if it's not in the DocumentRoot. 
+                 Any URL ending in the alias automatically resolves to the alias' path.
+                 That dir can be accessed by the Web server, even if it's not in the DocumentRoot.
 
 ScriptAlias      (ex ScriptAlias /cgi-bin/ "/var/www/cgi-bin/")
                  Generally, it is not good practice to leave CGI scripts within the DocumentRoot
@@ -333,11 +333,11 @@ IndexOptions    (ex IndexOptions FancyIndexing VersionSort NameWidth=*)
                  to decide how an index should be displaied
                     FancyIndexing   allows to resort clicking on column header
 AddDescription   (ex. AddDescription "GZIP compressed tar archive" .tgz)
-                 adds a short description to files, when a dir index must be returned. 
+                 adds a short description to files, when a dir index must be returned.
 
 AddIconByEncoding (ex AddIconByEncoding (CMP,/icons/compressed.gif) x-compress x-gzip)
 AddIconByType     (ex AddIconByType (TXT,/icons/text.gif) text/*)
-                 to associate icons to some MIME types. 
+                 to associate icons to some MIME types.
                  They will be used if a dir index must be returned.
 
 AddIcon         (ex AddIcon /icons/binary.gif .bin .exe)
@@ -362,20 +362,20 @@ AddLanguage     (ex AddLanguage de .de)
                  associates file name extensions with specific languages.
 
 LanguagePriority(ex LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW)
-                 sets precedence for different languages in case the client browser has no preference set. 
+                 sets precedence for different languages in case the client browser has no preference set.
 
 AddHandler      (ex AddHandler cgi-script .cgi)
                  maps file extensions to specific handlers.
 
 Action          (ex Action media/type /cgi-script/location)
-                  specifies a pair MIME type / CGI script, 
-                  so that whenever a file of that type is requested, 
-                  a particular CGI script is executed. 
+                  specifies a pair MIME type / CGI script,
+                  so that whenever a file of that type is requested,
+                  a particular CGI script is executed.
 
 ErrorDocument   (ex ErrorDocument 400 /error/HTTP_BAD_REQUEST.html.var)
-                 associates an HTTP response code with 
+                 associates an HTTP response code with
                            a message ( must be enclosed in "")
-                           an URL 
+                           an URL
                            a file
                  to be sent back to the client.
 
@@ -390,10 +390,10 @@ BrowserMatch    (ex BrowserMatch "^WebDAVFS/1.[012]" redirect-carefully)
 ProxyRequests   (ex ProxyRequests On)
                  To configure the Apache HTTP Server to function as a proxy server,
 
-Proxy           (ex  <Proxy *> 
-                       Order deny,allow 
+Proxy           (ex  <Proxy *>
+                       Order deny,allow
                        Deny from all
-                       from .example.com 
+                       from .example.com
                       </Proxy>
                  Many directives which are allowed within <Directory> may also be used
 
@@ -418,7 +418,7 @@ NameVirtualHost (ex NameVirtualHost *:4055)
 ------------------------------------
 You can always adjust contents of @INC before the server starts. There are several ways to do that.
 
-    - startup.pl: 
+    - startup.pl:
               use lib qw(/home/httpd/project1/lib /tmp/lib);
               use lib qw(/home/httpd/project2/lib);
 
@@ -429,26 +429,26 @@ You can always adjust contents of @INC before the server starts. There are sever
 
 PERL5LIB / PERLLIB Environment Variables
 
-    PERL5LIB / PERLLIB are ignored when the taint mode is on (PerlSwitches -T). 
-    Since you want to make sure that your mod_perl server is running under the taint mode, 
+    PERL5LIB / PERLLIB are ignored when the taint mode is on (PerlSwitches -T).
+    Since you want to make sure that your mod_perl server is running under the taint mode,
     you can't use the PERL5LIB and PERLLIB environment variables.
 
-    However there is the perl5lib module on CPAN, which, 
-    if loaded, bypasses perl's security and will affect @INC. 
+    However there is the perl5lib module on CPAN, which,
+    if loaded, bypasses perl's security and will affect @INC.
     Use it only if you know what you are doing.
 
 
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
 ------------------------ 11 PHASES
 When Apache receives a request, it processes it in 11 phases.
 Each has an handler. You can overwrite/extend this standard handler with any Perl code.
@@ -466,7 +466,7 @@ Each has an handler. You can overwrite/extend this standard handler with any Per
   10. Logging             : writes the configured logs (ex. error_log)
   11. Cleanup             : is the phase where modules are allowed to perfrom clean up code.
 
-                    
+
                  wait   __ 1
                        /      2
                       /  .       3
@@ -476,7 +476,7 @@ Each has an handler. You can overwrite/extend this standard handler with any Per
                10 __________     7
                             \ 8
                            9
-    Apache itself is a small core of functions. 
+    Apache itself is a small core of functions.
     It's then extended by MODULES (both static and dynamic)
     each of which can be enable at runtime.
     Each MODULE can subsrcibe its handlers, to one or more phases.
@@ -490,27 +490,27 @@ Each has an handler. You can overwrite/extend this standard handler with any Per
 
     mod_perl handlers are not limited to the Response phase (called "content generation")
     as mod_cgi or Apache::Registry but can be linked to any phase.
-    
------------------------- 
+
+------------------------
 
 to tun APACHE, execute the script "apachectl" with (start|stop)
-nb. if the port to listen on, is the default 80, 
+nb. if the port to listen on, is the default 80,
     (or any other under 1024) "apachectl" must be run as root.
 
-The dir wher APACHE is installed (ex /usr/local/apache), 
+The dir wher APACHE is installed (ex /usr/local/apache),
 must be the value "ServerRoot" in httpd.conf
 Many directives (like ErrorLog : logs/error_log) have relative path on it:
 error_log absolute path: /usr/local/apache/ + logs/error_log
 
 
 mod_perl in httpd.conf:  It is possible to place mod_perl’s con-
-                         figuration directives anywhere in httpd.conf, 
+                         figuration directives anywhere in httpd.conf,
                          but adding them at the end seems to
                          work best in practice.
 
 
-                        Alias /perl/ /home/ste/modperl/    <---- any Url starting with /perl 
-                        PerlModule Apache::Registry              will be managed by scripts 
+                        Alias /perl/ /home/ste/modperl/    <---- any Url starting with /perl
+                        PerlModule Apache::Registry              will be managed by scripts
                         <Location /perl/>                        in /home/ste/modperl
                             SetHandler perl-script
                             PerlHandler Apache::Registry
@@ -519,8 +519,8 @@ mod_perl in httpd.conf:  It is possible to place mod_perl’s con-
                             Allow from all
                         </Location>
 
-mod_perl and '#!'     the line #!/usr/bin/perl 
-                      can be skipped in Perl files executed 
+mod_perl and '#!'     the line #!/usr/bin/perl
+                      can be skipped in Perl files executed
                       by mod_perl has handlers.
 
 
@@ -550,18 +550,18 @@ mod_perl: 1996 Doug MacEachern (from Apache Software Foundation).
 
                              -x   says to skip all before line #!perl
                              -c   acts a syntax check (compilation only with no execution-interpretation)
-                                  the __END__ allow to stop 
-              
-        
+                                  the __END__ allow to stop
 
-CGI:             A CGI program can be written in virtually any language that can read from 
-                 STDIN and write to STDOUT, regardless of whether 
-                             it is interpreted (e.g., the Unix shell), 
-                             compiled (e.g., C or C++), 
-                             a combination of both (e.g., Perl). 
-                 The first CGI programs were written in C and needed to be compiled into binary executables. 
-                 For this reason, the directory from which the compiled CGI programs were executed was named cgi-bin, 
-                 and the source files directory was named cgi-src. 
+
+
+CGI:             A CGI program can be written in virtually any language that can read from
+                 STDIN and write to STDOUT, regardless of whether
+                             it is interpreted (e.g., the Unix shell),
+                             compiled (e.g., C or C++),
+                             a combination of both (e.g., Perl).
+                 The first CGI programs were written in C and needed to be compiled into binary executables.
+                 For this reason, the directory from which the compiled CGI programs were executed was named cgi-bin,
+                 and the source files directory was named cgi-src.
                  Nowadays most servers come with a preconfigured directory cgi-bin. (Ubuntu /usr/lib/cgi-bin/)
 
 HTTP             Interaction between the browser and the server is governed by the HyperText Transfer Protocol (HTTP)
@@ -574,14 +574,14 @@ HTTP             Interaction between the browser and the server is governed by t
                  HEADERS     BLANK_LINE     BODY
 
                  First come the headers, which hold descriptive information in a set of key-value pair.
-                 There are various types of headers (their contents are fully specified by the HTTP protocol) 
+                 There are various types of headers (their contents are fully specified by the HTTP protocol)
                  Headers are followed by a blank line, then by the message body.
-                 The body is the actual content of the message, such as an HTML page or a GIF image. 
+                 The body is the actual content of the message, such as an HTML page or a GIF image.
                  It's not HTTP to specify the standard for the body but each header describes its body structure.
 
-                 HTTP is a stateless protocol. This means that requests are not related to each other. 
+                 HTTP is a stateless protocol. This means that requests are not related to each other.
                  This makes life simple for CGI programs: they need worry about only the current request.
-                 
+
                  .---------------------------------------.
                  | #!/usr/bin/perl -Tw                   | -w (enable warning) -T (enable some checks)
         a.pl     |                                       |
@@ -589,9 +589,9 @@ HTTP             Interaction between the browser and the server is governed by t
                  | print "Hello world!\n";               |
                  '---------------------------------------'
 
-                   1.  text/plain is a Multipurpose Internet Mail Extensions (MIME) type. 
-                       Other examples of MIME types are 
-                                       text/html  (text in HTML format) 
+                   1.  text/plain is a Multipurpose Internet Mail Extensions (MIME) type.
+                       Other examples of MIME types are
+                                       text/html  (text in HTML format)
                                        video/mpeg (a MPEG stream).
                    2.  mv a.pl into a cgi-bin dir
                    3.  chmod +x
@@ -615,20 +615,20 @@ PASS DATA:        http://localhost/cgi-bin/a.pl?username=Doug  <-------- GET (pa
 
 CGI.pm :         The most widely used CGI library is the CGI.pm module.
                  it provides an easy API to generate the HTML response.
-                 
+
                    #!/usr/bin/perl
-                     
+
                    use CGI qw(:standard);  <------------------------    importing a group of functions called :standard
                    my $username = param('username') || "unknown";  <--  We use its param () function to retrieve the value of the key: username.
                                                                         (It retrieves whichever of the methos was used to pass the data:
                    print "Content-type: text/plain\n\n";                 GET-URI, GET-form, POST-form)
-                   print "Hello $username!\n";                   
-                   
+                   print "Hello $username!\n";
+
                  So the script can think to print plain text, not HTML
 
                    print header("text/plain");    can be used instead of  print "Content-type: text/plain\n\n";
-                   
-& ,             More params can be separated by both & and , 
+
+& ,             More params can be separated by both & and ,
                 ex.
                      http://           ...                 ?a=foo&b=bar&c=foobar
                 CGI.pm (as well as mod_perl and Apache::Request) can manage both.
@@ -639,28 +639,28 @@ CGI.pm :         The most widely used CGI library is the CGI.pm module.
                          print "$key => ", param($key), "\n";
                    }
 
-mod_cgi        Apache server processes CGI scripts via a module mod_cgi 
+mod_cgi        Apache server processes CGI scripts via a module mod_cgi
                (built by default with the Apache core)
-                the installation procedure also preconfigures a cgi-bin directory 
-                and populates it with a few sample CGI scripts. 
+                the installation procedure also preconfigures a cgi-bin directory
+                and populates it with a few sample CGI scripts.
 
                In Apache it could be configured as:
 
-               ScriptAlias /cgi-bin/ /home/httpd/cgi-bin/   <--- the association with the real path 
+               ScriptAlias /cgi-bin/ /home/httpd/cgi-bin/   <--- the association with the real path
 
                <Directory /home/httpd/cgi-bin>
                    Options FollowSymLinks   <--- follow links
-                   Order allow,deny         <--- open to everybody + 
+                   Order allow,deny         <--- open to everybody +
                    Allow from all           <---                    from eveywhere
                </Directory>
 
 %ENV           mod_cgi can access server vars by ENV var.
-               ex. 
+               ex.
                  for (keys %ENV) {
                        print "$_ => $ENV{$_}\n";
                  }
                 which produces:
-                
+
                 NLS_LANG => ENGLISH_UNITED KINGDOM.UTF8
          -----> SCRIPT_NAME => /bin/vars.pl
                 ORACLE_HOME => /usr/local/oracle/product/10.2.0
@@ -670,11 +670,11 @@ mod_cgi        Apache server processes CGI scripts via a module mod_cgi
                 LC_ALL => en_GB.UTF-8
          -----> SERVER_SOFTWARE => Apache/2.0.52 (Red Hat)
                 SESSION_TOKEN => DummyToken
-                QUERY_STRING => 
+                QUERY_STRING =>
                 REMOTE_PORT => 54075
                 HTTP_USER_AGENT => Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0
                 SERVER_SIGNATURE => <address>Apache/2.0.52 (Red Hat) Server at wswebdev1.orctel.internal Port 4055</address>
-                
+
                 HTTP_ACCEPT_LANGUAGE => en-GB,en;q=0.5
          -----> PATH => /usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/opt/CollabNet_Subversion/bin/:/usr/local/oracle/product/10.2.0/bin:/home/sbasile/bin
                 MOD_PERL_API_VERSION => 2
@@ -687,12 +687,12 @@ mod_cgi        Apache server processes CGI scripts via a module mod_cgi
          -----> SESSION_COOKIES => 1
                 HTTP_CONNECTION => keep-alive
                 SCRIPT_URI => http://wswebdev1.orctel.internal:4055/bin/vars.pl
-                SESSION_ID => 
+                SESSION_ID =>
          -----> SERVER_PORT => 4055
                 HTTP_COOKIE => _pk_id.6.f375=8cd80679a9c4d9ef.1433769921.2.1433831714.1433771233.; ch_session=1
                 REMOTE_ADDR => 172.19.231.106
-         -----> SERVER_PROTOCOL => HTTP/1.1 <---------    HTTP version agreed between client and server during the negotiation phase 
-                REQUEST_URI => //bin/vars.pl              
+         -----> SERVER_PROTOCOL => HTTP/1.1 <---------    HTTP version agreed between client and server during the negotiation phase
+                REQUEST_URI => //bin/vars.pl
          -----> SERVER_ADDR => 192.168.60.201
          -----> HTTP_HOST => wswebdev1.orctel.internal:4055
                 MOD_PERL => mod_perl/2.0.2
@@ -717,7 +717,7 @@ mod_cgi architecture:     It forks a Child for each request. Apache has somethin
                                    MaxSpareServers    2
                                    ServerLimit    256
                                    MaxClients    256 <-------- not more that this forks
-                                   MaxRequestsPerChild    4000    
+                                   MaxRequestsPerChild    4000
                                    </IfModule>
 
                           Each incoming request is forwarded by the mod_cgi process to an idle child.
@@ -730,11 +730,11 @@ mod_cgi architecture:     It forks a Child for each request. Apache has somethin
 
 1 CGI <--> 1 Perl         Each CGI script executed by the child is managed by a new instance of the Perl interpreter.
                           When the script exits (no matter how), the process
-                          and the interpreter exit as well, cleaning up on the way. 
+                          and the interpreter exit as well, cleaning up on the way.
                           When a new interpreter is started, it has no
                           history of previous requests. All the variables are
                           created from scratch, and all the files are reopened
-                          if needed. 
+                          if needed.
 
 DISADVANTAGES OF MOD_CGI: - overhead 1: forks (almost insignificant on modern Unix systems)
                           - overhead 2: Loading the Perl interpreter.
@@ -752,13 +752,13 @@ mod_perl 1.0:            The first improvement is to embed the Perl interpreter,
                          A copy of the Perl interpreter is also embedded into the Apache httpd executable
                          allowing to configure the overall server through Perl scripts.
                          Any mod_perl Apache directive in http.conf starts with 'Perl'.
-                         
-                         Adding a large executable (Perl) into another large executable (Apache) 
-                         creates a very, very large program. 
+
+                         Adding a large executable (Perl) into another large executable (Apache)
+                         creates a very, very large program.
                          mod_perl certainly makes httpd significantly bigger, and you
                          will need more RAM on your production server.
                          Techniques can reduce memory requirements.
-______________  
+______________
 
         Apache::Registry                             Apache::PerlRun
 
@@ -774,8 +774,8 @@ ______________
       </Location>                                     ..
    </IfModule>                                     ..
 
- 
-                          
+
+
 Apache::Registry        They are 2 mod_perl packages to run unmodified CGI scripts.
 Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun doesn't.
 
@@ -798,11 +798,11 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
          PerlSetupEnv On
       </Location>
    </IfModule>
-               
+
                   With the above configuration in http.conf, I can now
                   put some scripts (ex a.pl) in the dir marked by Alias (/usr/local/apache/cgi-bin/)
                   and call them as http://host + /perl + /a.pl
-                  
+
                   I can change in the above config the 2 lines 'Apache::Registry'
                   with 'Apache::PerlRun' .
 
@@ -839,11 +839,11 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
                                  as usual in any path of @INC)
 
            PerlRequire 'xxxx'    xxxx= is a quoted script file name (with an absoulte path or if relative
-                                 it will be searched in @INC). Has the same effect of PerlModule but 
+                                 it will be searched in @INC). Has the same effect of PerlModule but
                                  using filenames instead of module names.
-            
+
            Perl*Handler xxxx     they are a family of directives to associate one of the handler
-                                 of the typical APACHE multiphases loop 
+                                 of the typical APACHE multiphases loop
 
            PerlSendHeader {On|Off} intercepts any output and translates into HTTP/1.x header
 
@@ -859,11 +859,11 @@ Apache::PerlRun         Apache::Registry caches all scripts, and Apache::PerlRun
 
            PertTaintCheck {On|Off}   enables more check on all perl code modules.
 
-           PerlSetVar name value     allows to pass generic vars (not ENV) to perl modules. 
+           PerlSetVar name value     allows to pass generic vars (not ENV) to perl modules.
 
 
-        
-                                 
+
+
 
 internal module of mod_perl (it's searched that .pm file
                                  as usual in any path of @INC)
@@ -878,7 +878,7 @@ error_log           is the 1st place to look when there are errors
                     in particular each "Internal Server Error".
                     A local perl program print on the shell terminal
                     but on a server application the perl programm
-                    inside Apache, prints in 
+                    inside Apache, prints in
                         error_log
                         STDERR (the server terminal where I executed httpd)
 
@@ -902,12 +902,12 @@ warn "..."             The same works for warn (which is the sister of die
 
 
 1. in httpd.conf
-   PerlRequire /home/sbasile/modperl/db.pl    
-            
+   PerlRequire /home/sbasile/modperl/db.pl
+
    It should be a link to a perl file containing a function (the 'handler')
    that is specified right after:
 
-   PerlRequire /home/sbasile/modperl/db.pl    
+   PerlRequire /home/sbasile/modperl/db.pl
    <Location /mymod>
     SetHandler perl-script
     PerlHandler MyMod
@@ -932,17 +932,17 @@ warn "..."             The same works for warn (which is the sister of die
 
 3.  start Apache in single mode (-X)
     httpd -X -f myfile.conf
-   
+
 4.  connect to the server. The debug prompt is waiting.
     I can see the env var
     >p %ENV
   1 PATH/home/sbasile/bin/:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/opt/CollabNet_Subversion/bin/:/usr/local/oracle/product/10.2.0/bin:/home/sbasile/bin:/home/sbasile/perl5lib/lib/bin:/home/sbasile/perl5/perlbrew/bin:.MOD_PERL_API_VERSION2PERLDB_PIDS18210MOD_PERLmod_perl/2.0.2
-    
+
     I can see the backtrace
     >T
     $ = ModPerl::PerlRun::handler('ModPerl::PerlRun', ref(Apache2::RequestRec)) called from -e line 0
     $ = eval {...} called from -e line 0
-2. 
+2.
  ModPerl::PerlRun::handler(/usr/lib/perl5/vendor_perl/5.8.5/i386-linux-thread-multi/ModPerl/PerlRun.pm:28):
 
 

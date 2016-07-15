@@ -22,7 +22,7 @@
                           - Mango
 
   key: value        NB. a ' ' (space) must follow the ':'
-                        Quote if there is a : 
+                        Quote if there is a :
                         foo: "somebody said I should put a colon here: so I did"
                                                                      ^
 
@@ -42,7 +42,7 @@
   compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango]              <-- array (only values)
                     martin: {name: Martin D'vloper, job: Developer, skill: Elite}  <-- hash  (also keys)
                                  ^                     ^                 ^
- 
+
   {{  }}            As the single { } means a list (see above)
                     the VALUE of a VAR is written as {{ var }}
 
@@ -59,7 +59,7 @@
            h: Yes we have No bananas  # a string, "Yes" and "No" disambiguated by context.
 
 
-  &        add a mark (to then refer the item)  
+  &        add a mark (to then refer the item)
   *        refers a marked item
 
            - step:  &id001                  # defines anchor label id001
@@ -76,11 +76,11 @@
                repetition:      500
                spotSize:        2mm
 
-           - step: *id001                # refers to the 1' step 
+           - step: *id001                # refers to the 1' step
            - step: *id002                # refers to the 2' step
-           - step: 
+           - step:
                <<: *id001                # refers to 'id001'  but change only 'spotSize'
-               spotSize: 2mm   
+               spotSize: 2mm
            - step: *id002
 
 

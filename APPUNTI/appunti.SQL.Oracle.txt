@@ -1,10 +1,10 @@
   DBMS:               Database Management System. A collection of programs written to manage a database.
-R-DBMS:               R is Relational. 
-                      The father of Relational Data-Model was Dr. E.F. CODD. 
-                      He took the concept from Relational Algebra in June-1970. 
+R-DBMS:               R is Relational.
+                      The father of Relational Data-Model was Dr. E.F. CODD.
+                      He took the concept from Relational Algebra in June-1970.
 Logical / Physical    Tables are logical structures. Data are managed by Physical files in the filesystem.
                       Both the data files, and additional config files:
-                                     - control files, 
+                                     - control files,
                                      - redo-log files.
 
 Redo log  files        allow to manage failures, so if any write is broken, data can be restored.
@@ -14,7 +14,7 @@ Parameter files        contain info (DB name, Memory settings, path of its Contr
 DESIGN TABLES:
         - max 255 Columns (1000 from Oracle 8)
         - unlimited rows
-        - Normalize 
+        - Normalize
         - Move Optional cols (those allowing NULL) at the end to optimize space
 
 -------------------------------------------
@@ -42,7 +42,7 @@ ORACLE SQL SYNTAX:
   |                     WHERE c1 NOT IN ('text1', 'text2', ..)
   |                     AND / OR / NOT       WHERE c1=1000 AND c2='aaaa'
 S |                                          WHERE c1=1000 OR  c2='aaaa'
-  |                                          WHERE NOT c1=1000 
+  |                                          WHERE NOT c1=1000
 E |                     WHERE c1 IS NULL
   |                     WHERE c1 IS NOT NULL
 L |
@@ -56,21 +56,21 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |  - SELECT * from T1 ORDER by c1
   |                     ORDER by c1 DESC         descending
   |                     ORDER by c1, c2 DESC     sort on c1 (ascending) and for same c1 on c2 (descending)
-  |              
+  |
   |                     nb. instead of col names num position of cols can also be used
   |                     ORDER by 1,2 DESC
-  |                      
-  |  - SELECT DISTINCT c1 from T1 ...    returns only different values of c1 
+  |
+  |  - SELECT DISTINCT c1 from T1 ...    returns only different values of c1
   |
   |  - UNION                   T1 (Select)            T2  (Select)                         UNION (is an append 1 above the other)
-  |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |                        
+  |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |
   |                      r1   | a1 | a2 | a3 |     | b1 | b2 | b3 |    r2          r1   | a1 | a2 | a3 |
-  |                           | a1 | a2 | a3 |                                          | a1 | a2 | a3 |   r3 <= r1 + r2      (is = (a real simple 'append') 
+  |                           | a1 | a2 | a3 |                                          | a1 | a2 | a3 |   r3 <= r1 + r2      (is = (a real simple 'append')
   |                                                                                    -----------------                       only with flag ALL
-  |                                                                                r2   | b1 | b2 | b3 |                       normally 1 only row is kept 
+  |                                                                                r2   | b1 | b2 | b3 |                       normally 1 only row is kept
   |                                                                                     | b1 | b2 | b3 |                       from 2 or more equal)
   |
-  |     
+  |
   |                                     (has  - rows = r1 + r2  <-- the actual num is decided as (ALL, INTERSECT,MINUS)
   |                                           - cols = c1 = c2) <-- the actual num is decided by the select (ex. select *)
   |
@@ -87,7 +87,7 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |  - GROUP BY;  collapse a Select of 1 col  in distinct val only
                            a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
                            a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
-                                                                                             
+
 
   |        - SELECT c1 from T1 GROUP BY c1;  Without a GROUP BY a select returns all the rows (ex. 1000 rows with duplicated the col City)
   |                                          With    a GROUP BY it returns rows grouped by that col (ex. City, so only 3 rows 'Milan' 'Rome' 'Venice')
@@ -96,13 +96,13 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |        - select c1,c2 from T1 GROUP BY ROLLUP (c1,c2);  With 'superaggregate' rows - seldom used
   |        - select c1,c2 from T1 GROUP BY CUBE   (c1,c2);  With 'superaggregate' rows - seldom used
   |
-  |  CASE IF:   CASE expressions allows inline usage of 
+  |  CASE IF:   CASE expressions allows inline usage of
   |                  IF ... THEN ... ELSE  logic
   |             in SQL statements without having to invoke procedures.
   |  -  Select c1, c2, CASE c3  WHEN 10 THEN ‘Accounts’
   |                             WHEN 20 THEN ‘Sales’
   |                             WHEN 30 THEN ‘R&D’
-  |                             ELSE “Unknown’ 
+  |                             ELSE “Unknown’
   |                             END
   \           FROM T1;
 
@@ -133,17 +133,17 @@ L |  -  ALTER :   Alter the structure of the Table:
   |               truncate TABLE T1 reuse storage    # keep your own space for future usage, do not give back to other Tables.
   |
   \  -  RENAME :  rename T1 to T2
-   
-   
+
+
   /  - INSERT                     INSERT into T1 values (101,’Sami’,3400);
   |                               INSERT into T1 (c1, c5, c18) select cx, cy, cz from T2;
   |
   |                               #----- MULTI-TABLE insert:
-  |                               INSERT all 
+  |                               INSERT all
   |                                   into T1 (c1, c5, c18) values (x, y, z)   <-----  here I use some vars
   |                                   into T2 (c1, c3, c14) values (d, y, g)
 D |                                   into T4 (c2, c7, c16) values (x, a, b)
-  |                                   
+  |
   |                                   SELECT x, y, z, d, g, a, b from T2;      <-----  here the vars are defined
 M |
   |  -  UPDATE:    to modify values in a row
@@ -166,13 +166,13 @@ L |                UPDATE T1 set c1=10, c2='aaaa'                  # update 2 co
   |                       when not matched then insert values (c1, c2, c3);
   |
   |  -  TEMP TABLES:  It's possible to create TEMP Tables. They will be deleted by Oracle:
-  |                       - After a specified commit  (ex. DELETE:  ON COMMIT DELETE ROWS)  transaction-specific (default) 
+  |                       - After a specified commit  (ex. DELETE:  ON COMMIT DELETE ROWS)  transaction-specific (default)
   |                       - When the Session is cloed (ON COMMIT PRESERVE  ROWS)            session    -specific
   |
   |                       CREATE GLOBAL TEMPORARY TABLE T1
   |                               (c1 number(5),
   \                                c2 varchar2(20)) ON COMMIT DELETE ROWS;
-   
+
   /  -  COMMIT :  commit [WORK] [COMMENT 'blah blah'];    Commit is used to permanentely save modifications.
 T |                                                       the WORK keyword can be optionally added, as well as
   |                                                       an optional COMMENT.
@@ -183,16 +183,16 @@ C |  -  SAVEPOINT : savepoint a;            # adds some named points where I can
 L |
   |  -  ROLLBACK :  rollback;           # to undo last transaction
   \                 rollback to a;      # to undo up to savepoint a;
-   
+
   /  -  GRANT :     grant select, update, insert on T1 to sami;      # to give rights to user 'sami'
   |                 grant ALL on T1 to sami;                         # to give ALL rights to  'sami'
   |                 grant select on T1 to PUBLIC;                    # to give rights to ALL users
   |                 grant update (c1), insert (c1,c2) on T1 to sami; # to give rights to only some Cols
 D |                 grant select on T1 to sami WITH GRANT OPTION;    # to give to sami rights to forward rights
   |
-  |  -  REVOKE :    revoke select, update, insert on T1  from sami;  # to revoke previous rights    
-C |                 revoke select on T1  from public;                
-  |                
+  |  -  REVOKE :    revoke select, update, insert on T1  from sami;  # to revoke previous rights
+C |                 revoke select on T1  from public;
+  |
   |  -  ROLES :     1/3 create role R1                               # create a ROLE
 L |                 2/3 grant select, update on T1 to R1;            # give rights to the ROLE
   |                 3/3 grant R1 to sami, scott, ashi, tanya;        # add users to ROLE
@@ -200,23 +200,23 @@ L |                 2/3 grant select, update on T1 to R1;            # give righ
   |                     grant  delete on T1 to   R1;   # Now all the users in the role have 'delete' right
   |                     revoke update on T1 from R1;   # remove a rights from ROLE
   |                     drop role R1;
-  |                
-  |  -  look rights : 
+  |
+  |  -  look rights :
   |                      SELECT * FROM USER_TAB_PRIVS_MADE   # to see    TABLE rights I gave to       others
   |                      SELECT * FROM USER_TAB_PRIVS_RECD   # to see my TABLE rights I received from others
   |                      SELECT * FROM USER_COL_PRIVS_MADE   # to see    COLUM rights I gave to       others
   |                      SELECT * FROM USER_COL_PRIVS_RECD   # to see my COLUM rights I received from others
   \                      SELECT * FROM USER_ROLE_PRIVS;      # to see ROLES rights
-   
+
 -------------------------------------------
 DATA TYPES (for Columns)
 
      - ROWID              stores the automatic internal index of each ROW
 
      - CHAR (s)           Fixed num of char   (max len is 2000)
-     - NCHAR (s)          Fixed  "     Unicode  "         2000) 
-     - VARCHAR2 (s)       Var    "     char     "         4000) 
-     - NVARCHAR2 (s)      Var    "     Unicode  "         4000) 
+     - NCHAR (s)          Fixed  "     Unicode  "         2000)
+     - VARCHAR2 (s)       Var    "     char     "         4000)
+     - NVARCHAR2 (s)      Var    "     Unicode  "         4000)
 
      - CLOB / NCLOB       Big Text    (Strings up to 4 Giga!) NCLOB for Unicode
      - BLOB / BFILE       Big Binary  (Binary data   4 Giga)  BFILE: the content is stored in an external file
@@ -224,14 +224,14 @@ DATA TYPES (for Columns)
      - NUMBER (p,s)       Numbers  (precision, scale):   ex1: distance NUMBER
                                                          ex2: price NUMBER (8, 2)
 
-                                                         Input Data    Specified As   Stored As 
+                                                         Input Data    Specified As   Stored As
                                                          _______________________________________
-                                                         4,751,132.79  NUMBER         4751132.79 
+                                                         4,751,132.79  NUMBER         4751132.79
                                                          4,751,132.79  NUMBER (9)     4751133
-                                                         4,751,132.79  NUMBER (9,2)   4751132.79 
-                                                         4,751,132.79  NUMBER (9,1)   4751132.7 
-                                                         4,751,132.79  NUMBER (6)     (not accepted, exceeds precision) 
-                                                         4,751,132.79  NUMBER (7, -2) 4,751100 
+                                                         4,751,132.79  NUMBER (9,2)   4751132.79
+                                                         4,751,132.79  NUMBER (9,1)   4751132.7
+                                                         4,751,132.79  NUMBER (6)     (not accepted, exceeds precision)
+                                                         4,751,132.79  NUMBER (7, -2) 4,751100
 
      - DATE               DD-MM-YY                       (format specified by  NLS_DATE_FORMAT         parameter)
      - TIMESTAMP (p)      Date+Time (up to precision p of fractional seconds) (NLS_TIMESTAMP_FORMAT    par)
@@ -257,7 +257,7 @@ ________FUNCTIONs THAT WORK ON A SINGLE ROW
        POWER          - power(2,3) --> 8
        SQRT           - sqrt(16)   --> 4
        ROUND (number) - round(3.4573,2) --> 3.46
-       TRUNC (number) - trunc(3.4573,2) --> 3.45 
+       TRUNC (number) - trunc(3.4573,2) --> 3.45
 
        CEIL           - 1st > integer   ciel (3.456) --> 4
        FLOOR          - 1st <   "       floor(3.456) --> 3
@@ -292,12 +292,12 @@ ________FUNCTIONs THAT WORK ON A SINGLE ROW
        SOUNDEX        -  for pronunciation of names (you will never use this)
        RPAD           -  rpad(name,'*',10) -->  Smith*****
        LPAD           -  lpad(name,'*',10) -->  *****Smith
-       LTRIM          -  removes left 'blanks' 
-       RTRIM          -       "  right    "   
+       LTRIM          -  removes left 'blanks'
+       RTRIM          -       "  right    "
        TRIM           -  remove that char:  trim(0 from '00003443500') --> 34435
        CONCAT         -  concat(concat(c1,' is a '),c2)  -->  Smith is a clerk
 
-     ------- Miscellaneous 
+     ------- Miscellaneous
 
        GREATEST       -  greatest(10,20,50,20,30) --> 50
        LEAST          -  least   (10,20,50,20,30) --> 10     least('SAMI','RAVI') --> RAVI
@@ -328,21 +328,21 @@ ________FUNCTIONs THAT WORK ON A SET OF ROWS
 -------------------------------------------
 JOINS:        to remember  JOIN = FROM T1,T2 ...
 
-   
+
                                    T1                   T2                   JOIN T1 x T2   (has  - rows = r1 x r2  <-- the actual num is decided by the WHERE
                               | a1 | a2 | a3 |     | b1 | b2 |                                    - cols = c1 + c2) <-- the actual num is decided by the select (ex. select *)
-                         r1   | a1 | a2 | a3 |     | b1 | b2 | r2      
+                         r1   | a1 | a2 | a3 |     | b1 | b2 | r2
                               | a1 | a2 | a3 |                               | a1 | a2 | a3 || b1 | b2 |
                                                                         r1   | a1 | a2 | a3 || b1 | b2 |
-                                                                        x         ....                     
-                                                                        r2 
+                                                                        x         ....
+                                                                        r2
       A J is performed each time the FROM clause has > 1 Table:
 
            the ROWS of that SELECT come from T1, T2, ...
 
-      Cartesian Products T1 x T2 : combines each row of T1 with each row of T2. 
-               (ex. T1 & T2 both of 100 rows --> 10,000 rows). 
-               A Cartesian product always generates many rows and is rarely useful. 
+      Cartesian Products T1 x T2 : combines each row of T1 with each row of T2.
+               (ex. T1 & T2 both of 100 rows --> 10,000 rows).
+               A Cartesian product always generates many rows and is rarely useful.
 
       So Normally there is a JOIN_CONDITION (a WHERE)
 
@@ -353,33 +353,33 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
                SELECT ca,      cb,    cd,      cy  FROM T1, T2     WHERE   T1.ca=T2.ca;   # without FULL names
                SELECT          *                   FROM T1, T2     WHERE   T1.ca=T2.ca;   # to have all Cols
 
-      NON-EQUI-J   when it's not an EQUI-J 
-               
+      NON-EQUI-J   when it's not an EQUI-J
+
                SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T2 B WHERE   T1.ca BETWEEN T2.cx AND T2.cz
 
 
       SELF-J   The SAME Table appears more with different aliases
-               
+
                SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T1 B WHERE   A.ck = B.ca
 
 
-      INNER-J   (sometimes called a "simple join") 
+      INNER-J   (sometimes called a "simple join")
                 is a normal J, where rows satisfy the WHERE condition.
 
       OUTER-J  T1 & T2 Rows of condition + rows of only T1 or T2
 
                 left  OUTER J : all T1     ANSI LEFT  [OUTER]  or use +_op on T2
                 right OUTER J : all T2     ANSI RIGHT [OUTER]  or use +_op on T1
-                full  OUTER J : all T2     ANSI FULL  [OUTER]  
-               
+                full  OUTER J : all T2     ANSI FULL  [OUTER]
+
                SELECT A.cx, A.cy, A.cz, A.ca,  B.ck, B.cw  FROM T1 A, T2 B WHERE A.ca(+)=B.ca;    <-- right OUTER J
 
-                    returns rows from B even when 
+                    returns rows from B even when
                     A has no row to satisfy the J-condition A.ca=B.ca
                     (+) specify to bypass the lack of info from A
 
 
-      
+
 
 -------------------------------------------
 SEQUENCES:
@@ -397,7 +397,7 @@ SEQUENCES:
      NEXTVAL CURRVAL:   Once a var has been created of type SEQ, the values can be accessed as:
                           bills.NEXTVAL   bills.CURRVAL
 
-     DROP:                           to delete a SEQ:   drop sequence bills; 
+     DROP:                           to delete a SEQ:   drop sequence bills;
 
      SELECT * FROM USER_SEQUENCES;   to list all the created SEQs.
 
@@ -410,11 +410,11 @@ SEQUENCES:
 SYNONYMS:
      can be defined for all (Tables, views, SEQ, functions ....)
 
-     SYN can be PUBLIC or PRIVATE. 
+     SYN can be PUBLIC or PRIVATE.
      PRIVATE SYN are prepended by the FULL qualified name (with the Owner name)
 
      CREATE SYNONYM employee FOR scott.emp;
-                                  ^^^ 
+                                  ^^^
                                  owner
 
      SELECT * FROM employee;
@@ -423,25 +423,25 @@ SYNONYMS:
      SELECT * FROM USER_SYNONYMS;     to list all the created SYNs
 
      DROP SYNONYM employee;           to delete a SYN
- 
 
-     
+
+
 -------------------------------------------
 INDEXES:
       create indexes rules:
-           - on those columns which are often used in WHERE conditions. 
-           - not on Col with many NULL 
+           - on those columns which are often used in WHERE conditions.
+           - not on Col with many NULL
            - not for small tables
-           - if the operations return only small portion of data 
+           - if the operations return only small portion of data
                 i.e. < 15% of the table.
 
-      On one side INDX increases performance, but 
+      On one side INDX increases performance, but
       on the other side too many INDX slow down op. like CREATE/INSERT/DELETE
-      
+
      CREATE INDEX aaaa  ON T1 (c1);
      CREATE INDEX aaaa  ON T1 (c1, c2);
 
-     CREATE BITMAP INDEX aaaa  ON T1 (c1);   BITMAP Idx are usefull for c1 with 
+     CREATE BITMAP INDEX aaaa  ON T1 (c1);   BITMAP Idx are usefull for c1 with
                                            many repeated val (ex a col 'city')
 
      FUNCTION Idx:    If a function (ex c1+c2) is used often in a WHERE:
@@ -449,7 +449,7 @@ INDEXES:
                         CREATE INDEX aaaa ON T1 (c1+c2);
 
                     Oracle will make the call internally more effective.
-         
+
      DROP INDEX aaaa;           to delete an Idx
 
      SELECT * FROM USER_INDEXES;     to list all the created Idxs
@@ -490,10 +490,10 @@ KEYS / 'Integrity' Constraints:
                                );
 
     They can also be set ON/OFF at any time:      ALTER TABLE T1 ENABLE/DISABLE CONSTRAINT C1
-    They can also be DELETED:                     ALTER TABLE T1 DROP           CONSTRAINT C1               
-                                                   
+    They can also be DELETED:                     ALTER TABLE T1 DROP           CONSTRAINT C1
+
                                                   nb. On Deletion FOREIGN KEY must be DELETED before PRIMARY
-                                                      or otherwise us 'CASCADE'  
+                                                      or otherwise us 'CASCADE'
                                                              ALTER TABLE T1 DROP CONSTRAINT k1 CASCADE;
 
     They can also be VIEWED:    select * from USER_CONSTRAINTS;
@@ -507,20 +507,20 @@ KEYS / 'Integrity' Constraints:
                             Alter table T1 add constraint C1 PRIMARY KEY (c1);
 
     3   key (UNIQUE)      While there can be 1 only PRIMARY key per table, I can have Many UNIQUE key cols.
-                          They are just cols with NO-REPEATED values and that can also be NULL (left blank, 
-                          while PRIMARY key cannot be left NULL) 
+                          They are just cols with NO-REPEATED values and that can also be NULL (left blank,
+                          while PRIMARY key cannot be left NULL)
                             Alter table T1 add constraint C1 UNIQUE (c1);
-                         
+
 
     3 - key (FOREIGN)     # c2 col of T2 contains values from col c1 of T1
                             c2 has a constraint of 'foreign KEY'
                             and depends (REFERENTIAL INTEGRITY relation) from c1.
                             Normally I cannot delete rows from T1 if rows in T2 refers to them.
 
-                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1);                   
-                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1) ON DELETE CASCADE;   to automatically delete 
+                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1);
+                            Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1) ON DELETE CASCADE;   to automatically delete
                                                                                                                       rows in T2 when deleting
-                                                                                                                      linked rows in T1 
+                                                                                                                      linked rows in T1
                             Alter table T2 add constraint CX2 FOREIGN KEY (c2) references T1(c1) ON DELETE SET NULL;  Set automatically NULL in T2
                                                                                                                       when in T1 the row is deleted
                                                                                                                       (from Oracle 9.1)
@@ -531,29 +531,29 @@ KEYS / 'Integrity' Constraints:
                           Alter table T1 add constraint C1 CHECK (c1 <= 31);
                           Alter table T1 add constraint C1 CHECK (c1 between 1000 and 20000);
 
-                          
+
     5 - DEFAULT           create table T1 (  ....
                                              city varchar2(20) DEFAULT ‘Milan’);
 
-    flag DEFERRABLE:  can be added to all KEYs (primary, foreign, unique) 
+    flag DEFERRABLE:  can be added to all KEYs (primary, foreign, unique)
                       ex:  c1 number(5) constraint C1 Primary key DEFERRABLE
                       this means that the checks are performed not immediately (there are movements of big data)
                       but delayed (before, or after the COMMIT)
 
                       If constraint C1 has the DEFERRABLE flag, I can then set:
-                       
+
                          Set constraint C1 deferred;
 
 
 -------------------------------------------
 VIEWS:
-       They are LOGICAL Tables, based on 
-                 PHYSICAL Tables (or 
+       They are LOGICAL Tables, based on
+                 PHYSICAL Tables (or
                  other Views)
        All operations performed on a V are performed on the physical Table
        at the end of the Chain.
        The advantage of a V is so that they are like T but not occupy space.
-  
+
 
      CREATE VIEW V1 as select a.c1, a.c2, a.c5, b.cx, b.cy    # create a view from a long select
                        from T1 a, T2 b where a.c5=b.c5;
@@ -561,7 +561,7 @@ VIEWS:
      SELECT * from  V1;     # using the view, make now the above select simple.
 
 
-     WITH CHECK OPTION CONSTRAINT :       CREATE VIEW V1 AS SELECT 
+     WITH CHECK OPTION CONSTRAINT :       CREATE VIEW V1 AS SELECT
                                                            c1, c2 FROM T1 WHERE c1=7
                                                            WITH CHECK OPTION CONSTRAINT C1;
 
@@ -569,10 +569,10 @@ VIEWS:
                                      input data are against the VIEW:
                                          ex INSERT into V1 VALUES (5, 'aaa')  # error as 5 != 7
 
-     WITH READ ONLY :       Doesn't allow any mod (UPDATE or INSERT) 
+     WITH READ ONLY :       Doesn't allow any mod (UPDATE or INSERT)
 
      FORCE :       CREATE FORCE VIEW V1 AS ..
-                                    The FORCE allow to create a V even if the select is wrong 
+                                    The FORCE allow to create a V even if the select is wrong
                                     (ex no Table or no Col). The V is created with status 'INVALID'
                                     On any attemp to use it, Oracle, checks if the condition is
                                     now right and recompile the V on the fly.
@@ -583,15 +583,15 @@ VIEWS:
      REPLACE :    CREATE OR REPLACE V1 AS ...   It allows to modify then the view
                                                 without a DROP + CREATE again.
 
-     JOINN :      If the V comes from a JOIN-select, it can be that some  
+     JOINN :      If the V comes from a JOIN-select, it can be that some
                   INSERT\UPDATE operation are disallowd (common sense helps)
 
      SELECT * FROM USER_VIEWS;    To have info on all the V.
 
      SELECT * FROM   USER_UPDATABLE_COLUMNS;    ALL COL (in Tab and Views of the USER) that are MODIFIABLE
      SELECT * FROM    DBA_UPDATABLE_COLUMNS;      "                              DB                "
-     SELECT * FROM    ALL_UPDATABLE_VIEWS;        "     (in ANY Tab and View)                      " 
+     SELECT * FROM    ALL_UPDATABLE_VIEWS;        "     (in ANY Tab and View)                      "
 
-                       
+
 
 -------------------------------------------

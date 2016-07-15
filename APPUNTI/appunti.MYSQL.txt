@@ -1,9 +1,9 @@
 ------------------ INSTALLATION of MySQL
   sudo apt-get install mysql-server
 
------------------- TEST IT'S INSTALLED & RUNNING 
+------------------ TEST IT'S INSTALLED & RUNNING
 stiv@stiv-GP60-2PE:~/NEW_JOB$ sudo netstat -tap | grep mysql
-tcp        0      0 localhost:mysql         *:*                     LISTEN      10929/mysqld    
+tcp        0      0 localhost:mysql         *:*                     LISTEN      10929/mysqld
 
 ------------------ START  & STOP
   The server is already running (see above). If not running, execute:
@@ -21,13 +21,13 @@ shut down MySQL:
 /etc/mysql/my.cnf    <--------- stores basic settings (e.g. IP address to listent to)
                                 When changing this file, then restart MySQL:  sudo service mysql restart
 
-If you need to change the pswd: 
+If you need to change the pswd:
           sudo dpkg-reconfigure mysql-server-5.5
 
 ------------------ TUNING   (there is a tool to profile your MySQL DB)
       sudo apt-get install mysqltuner
       run it:    mysqltuner
-      
+
       It would produce a report like:
 
        -------- Recommendations -----------------------------------------------------

@@ -1,9 +1,9 @@
 
             ____________________________________
-               Test::Harness   is the test runner and output interpreter for Perl. 
+               Test::Harness   is the test runner and output interpreter for Perl.
                                It's the thing that powers 'make test' and where the 'prove' utility comes from.
 
-               Test::More      more advanced version of Test::Simple 
+               Test::More      more advanced version of Test::Simple
                                well..... remember there is Test::Most
 
                Test::Simple
@@ -12,7 +12,7 @@
   Other modules in Test::
 
 
-               Test::Differences    for more ways to test complex data structures. 
+               Test::Differences    for more ways to test complex data structures.
                Test::Class          is like xUnit but more perlish.
                Test::Deep           gives you more powerful complex data structure testing.
                Test::Inline         shows the idea of embedded testing.
@@ -22,17 +22,17 @@
 
                Other modules:
 
-               Mock::Quick          The ultimate mocking library. Easily spawn objects defined on the fly. 
+               Mock::Quick          The ultimate mocking library. Easily spawn objects defined on the fly.
                                     Can also override, block, or reimplement packages as needed.
 
 ----------------------
     Test::More
 ---------------
     ///////////////////////////////////////////////////////////
-    // 
+    //
     // N.B. MEANING of 'tests' and what a Test::More file actually is:
     //      When you write a Perl test using Test::More you write a Perl file ending with .t (ex xxx.t,
-    //      and by convention ofet located in a ./t/ directory) 
+    //      and by convention ofet located in a ./t/ directory)
     //      using one of its 20 constructs
     //      (e.g ok, is, like ...)
     //      Each time you write a line in xxx.t using one of its construct, then:
@@ -43,13 +43,13 @@
     //      that will be dumped on output when executing that test (instruction), for better reading the log
     //
     //      Then run it just as:  perl -I.... xxx.t     (-I with all the required include paths)
-    //                                                   If it's in dir t/ just add it: perl -I.... t/xxx.t   
+    //                                                   If it's in dir t/ just add it: perl -I.... t/xxx.t
     //      The text produced on output by running the script is called TAP (Test Anything Protocol)
     //      another way to  run the xxx.t is through the command 'prove'
-    //                   prove -I.... xxx.t             prove produces an output more short, parsing the TAP     
-    // 
+    //                   prove -I.... xxx.t             prove produces an output more short, parsing the TAP
+    //
     ///////////////////////////////////////////////////////////
-           
+
 
       use Test::More tests => 23;            <----- the plan is 23 test (I know the number)
                                                     At the end Test::More will so checks if the number of tests was this.
@@ -57,15 +57,15 @@
                                                     after, with the function plan()
 
       # or
-      use Test::More;   
+      use Test::More;
           ..
         done_testing( [1] number_of_tests );  <---- at the end of the tests execution add this line (the num of tests is not known)
-                                                    
+
                                                     Test::More will just print the number of tests executed
                                                     ex done_testing( 10 );
                                                        done_testing( $xxx );
                                                        done_testing( );
-                                                    
+
       # or
       use Test::More skip_all => $reason;     <---- this just exits the script
 
@@ -80,7 +80,7 @@ nb.   the check with the number of tests are not mandatory instructions to add.
       Without them Test::More just executes the tests and exits.
 
 
-TEST NAME   By convention, each test is automatically assigned a number in order. 
+TEST NAME   By convention, each test is automatically assigned a number in order.
             So the output would be ex:
                       ok 4
                       not ok 5
@@ -93,14 +93,14 @@ TEST NAME   By convention, each test is automatically assigned a number in order
 ---------------- SYNTAX:
 
 
- 1   ok         ok ([1] bool_condition, [2] test_name)                
+ 1   ok         ok ([1] bool_condition, [2] test_name)
 
                 ex.ok( $p->tests == 4, 'test is 4' );
 
- 2   is         is ([1] cmd, [2] expected_result, [3] test_name)     
+ 2   is         is ([1] cmd, [2] expected_result, [3] test_name)
                     execute cmd and compare with [2]. If it's different the test fails
                     it's short for    ok (cmd 'eq' expected_result, '..')
-                  
+
  3   isnt       short for ok (cmd 'ne' expected_result, '..')      (there is also isn't() the alias with the: ')
 
  4   like       like ([1] cmd, [2] regular_expr, [3] test_name)
@@ -120,8 +120,8 @@ TEST NAME   By convention, each test is automatically assigned a number in order
  7   isa_ok     isa_ok ([1] obj,       [2], class, [3] [obj_name])
                 isa_ok ([1] sub_class, [2], class, [3] [obj_name])
                 isa_ok ([1] ref,       [2], type,  [3] [ref_name])
-                
-                ex.1   isa_ok( $obj, 'Some::Module' );           
+
+                ex.1   isa_ok( $obj, 'Some::Module' );
                        short for     ok( defined $obj && $obj->isa('Some::Module') );
 
                 ex.2   use constant CLASS_UNDER_TEST => 'NetBanx::UI::Request';
@@ -135,7 +135,7 @@ TEST NAME   By convention, each test is automatically assigned a number in order
 
                 ex. new_ok( $nbx, CLASS_UNDER_TEST );
 
-                short for new ... +  isa_ok 
+                short for new ... +  isa_ok
 
  9   subtest    subtest 'some text for the subtest name'  =>  \&code
 
@@ -168,7 +168,7 @@ TEST NAME   By convention, each test is automatically assigned a number in order
 14   is_deeply  is_deeply([1] var, [2] expected_values, [3] test_name)    Compares a var with the expected content
                                                                           whene a simple ok with ok does not work.
                                                                           Know that there are more advanced modules:
-                                                                          Test::Differences and Test::Deep 
+                                                                          Test::Differences and Test::Deep
 
                 ex. is_deeply($output_r, $s->{expected}, "Output as expected");
 
@@ -178,13 +178,13 @@ TEST NAME   By convention, each test is automatically assigned a number in order
                 ex.         ok( grep(/foo/, @users), "There's a foo user" ) or
                             diag("Since there's no foo, check that /etc/bar is set up right");
 
-16   note       diag(message)         Like diag(), except the message will not be seen when 
-                                      the test is run in a harness. 
+16   note       diag(message)         Like diag(), except the message will not be seen when
+                                      the test is run in a harness.
                                       It will only be visible in the verbose TAP stream.
-                                      Handy for putting in notes which might be useful for debugging, 
+                                      Handy for putting in notes which might be useful for debugging,
                                       but don't indicate a problem.
 
-17   explain    explain ref           dump the contents of any references in a human readable format. 
+17   explain    explain ref           dump the contents of any references in a human readable format.
                                       Usually to pass this into note or diag .
 
                 ex.     is_deeply($have, $want) || diag explain $have;
@@ -205,15 +205,15 @@ TEST NAME   By convention, each test is automatically assigned a number in order
                 [2] allows Test::More to have at the end the right TOTAL for the tests
 
 
-19   TODO       like SKIP. The tests inside are expected to fail. 
-                Test::More runs them normally, but print out special flags indicating they are "todo". 
-                Test::Harness will interpret 
-                                failures:as being ok. 
-                                succees :unexpected success. 
+19   TODO       like SKIP. The tests inside are expected to fail.
+                Test::More runs them normally, but print out special flags indicating they are "todo".
+                Test::Harness will interpret
+                                failures:as being ok.
+                                succees :unexpected success.
 
-                As opposed to simply commenting out a block of tests, is it's like having a programmatic todo list. 
+                As opposed to simply commenting out a block of tests, is it's like having a programmatic todo list.
                 You know how much work is left to be done.
-                Once a todo test starts succeeding, simply move it outside the block. 
+                Once a todo test starts succeeding, simply move it outside the block.
                 When the block is empty, delete it.
 
                 ex.
@@ -228,24 +228,24 @@ TEST NAME   By convention, each test is automatically assigned a number in order
 
                 SKIP vs. TODO
 
-                If it's something the user might not be able to do, use SKIP. 
-                ie. optional modules not installed, running under an OS that doesn't have some feature (like fork() or symlinks), 
+                If it's something the user might not be able to do, use SKIP.
+                ie. optional modules not installed, running under an OS that doesn't have some feature (like fork() or symlinks),
                 or maybe you need an Internet connection and one isn't available.
 
-                If it's something the programmer hasn't done yet, use TODO. 
+                If it's something the programmer hasn't done yet, use TODO.
                 This is for any code you haven't written yet.
 
 20   BAIL_OUT   BAIL_OUT('message')      like a die
 ------------------------------------------------------
 PUT IT ALL TOGETHER
 ------------------------
-      use Test::More tests => 23;            
+      use Test::More tests => 23;
       # or
-      use Test::More;   
+      use Test::More;
           ..
-        done_testing( $number_of_tests ); 
+        done_testing( $number_of_tests );
       # or
-      use Test::More skip_all => $reason;    
+      use Test::More skip_all => $reason;
 
       require_ok( 'Some::Module' );
       # Various ways to say "ok"
@@ -288,7 +288,7 @@ PUT IT ALL TOGETHER
 
 -------------------------------------------
 
-           websystems/testing/testmodules/TestCommon.pm :  is our library file 
+           websystems/testing/testmodules/TestCommon.pm :  is our library file
                                                            with 13 useful functions:
 
             ____________________________________
@@ -300,16 +300,16 @@ PUT IT ALL TOGETHER
             2 sub test_new
 
                   my $obj_r = test_new([config=>\%c]);
-           
+
             ____________________________________
             3 sub test_moduleBaseIs
-                  
+
                   test_moduleBaseIs('Framework::UI::control');
 
             ____________________________________
-            4 sub test_methodsDefined 
-            
-                  test_methodsDefined([qw( 
+            4 sub test_methodsDefined
+
+                  test_methodsDefined([qw(
                       formType
                       validate
                       validateFormByNotificationDate
@@ -319,7 +319,7 @@ PUT IT ALL TOGETHER
                   )]);
 
                   $TestCommon::CLASS_NAME = 'CompaniesHouse::Filing::Validation::pscNotificationValidator';
-                   
+
             ____________________________________
             5 sub test_attributesDefined
 
@@ -331,13 +331,13 @@ PUT IT ALL TOGETHER
                   );
 
             ____________________________________
-            6 sub test_propertiesDefined 
-                  
+            6 sub test_propertiesDefined
+
                   test_propertiesDefined($obj_r, [qw(
                       config
                       CompanyType
                   )]);
-                  
+
             ____________________________________
             7 sub test_propertiesValues
 
@@ -363,14 +363,14 @@ PUT IT ALL TOGETHER
                   helper_clearWebInputs($obj_r);
             ____________________________________
            11 sub restoreMethods
-            
+
                   restoreMethods;
                   restoreMethods();
                   restoreMethods( 'getEmailFromCustID' );
                   restoreMethods( ['validateMandatoryNotes'] );
             ____________________________________
            12 sub test_propertyMetaData
-                  
+
                   test_propertyMetaData(
                       $obj_r, {
                           merchantReference => [ 'barclaysRequest', 'barclaysNotification' ],

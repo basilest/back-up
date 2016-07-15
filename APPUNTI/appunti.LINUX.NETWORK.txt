@@ -2,8 +2,8 @@
      PORT numbers
 -------------------------------
 
-/etc/services 
-    
+/etc/services
+
       cat  /etc/services | grep -i ftp
 
          ftp-data    20/tcp
@@ -34,9 +34,9 @@ as 1 socket (
  )
  1 socket is an API, implemented in the 'libc' C library
  in the Linux Kernel.
- Each API-Socket exports the standard methods 
-      'bind'   
-      'listen'  
+ Each API-Socket exports the standard methods
+      'bind'
+      'listen'
       'connect'
       'accept'
 
@@ -54,7 +54,7 @@ So if files have been changed you know.
 -------------------------------
 The first is the 'network' of the loopback address
 The second is the loopback interface, the address
-I can use to test my SW network stack 
+I can use to test my SW network stack
 without using a real network.
 
 -------------------------------
@@ -62,7 +62,7 @@ without using a real network.
 -------------------------------
 
 Address Resolution Protocol is the translation IP --> MAC.
-To discover the MAC of a given IP a broadcast request is 
+To discover the MAC of a given IP a broadcast request is
 sent. The host with that IP will answer.
 The MAC is then read from the answer and stored in
 an ARP-cache.
@@ -80,17 +80,17 @@ Entries of the cache are renewed after some timer elapses.
       Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
       default         routerlogin.net 0.0.0.0         UG        0 0          0 wlan0
       192.168.0.0     *               255.255.255.0   U         0 0          0 wlan0
-      
-      
+
+
 -n   print information in numbers (xxx.xxx.xxx.xxx) instead of names
 
       netstat -nr
-      
+
       Kernel IP routing table
       Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
       0.0.0.0         192.168.0.1     0.0.0.0         UG        0 0          0 wlan0
       192.168.0.0     0.0.0.0         255.255.255.0   U         0 0          0 wlan0
-      
+
 
                                                 G : the route uses a Gateway
                                                 U : the interface to use is "UP"
@@ -100,7 +100,7 @@ Entries of the cache are renewed after some timer elapses.
                                                 ! : reject route (packet will be dropped)
 
 
-                                                MSS : Maximum Segment Size 
+                                                MSS : Maximum Segment Size
                                             TCP Window : Data of a Burst (many messages, without ack)
                                                 irtt   : initial round trip time (the time to wait
                                                          an IP joins remote host. When a connctions
@@ -120,7 +120,7 @@ Entries of the cache are renewed after some timer elapses.
 
 
                      Met : Metric for that interface
-                     RX / TX  : packets received / transmitted 
+                     RX / TX  : packets received / transmitted
                      OK       :    "    error free
                      ERR      :    "    damaged
                      DRP      :    "    dropped
@@ -128,14 +128,14 @@ Entries of the cache are renewed after some timer elapses.
 
 
                      B  :     this interface   : a broadcast address has been set
-                     L  :        "             is a loopback 
+                     L  :        "             is a loopback
                      M  :        "             : all packets are accepted (promiscue mode)
                      O  :        "             : ARP is turned OFF
                      P  :        "             is a Point to Point connection
                      R  :        "             is Running
                      U  :        "             is UP
 
-SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num) 
+SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num)
                 any can have -a (to say all)
 -t      TCP
 -u      UDP
@@ -143,17 +143,17 @@ SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num)
 -x      UNIX socket
 
 -a      alone gives all (-t u w x )
-                   
+
         netstat -ta
 
         Active Internet connections (servers and established)
-        Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-        tcp        0      0 stiv-GP60-2PE:domain    *:*                     LISTEN     
-        tcp        0      0 localhost:ipp           *:*                     LISTEN     
+        Proto Recv-Q Send-Q Local Address           Foreign Address         State
+        tcp        0      0 stiv-GP60-2PE:domain    *:*                     LISTEN
+        tcp        0      0 localhost:ipp           *:*                     LISTEN
         tcp        0      0 192.168.0.3:40203       wm-in-f189.1e100.:https ESTABLISHED
-        tcp6       0      0 [::]:http               [::]:*                  LISTEN     
-        tcp6       0      0 ip6-localhost:ipp       [::]:*                  LISTEN     
-        tcp6       1      0 ip6-localhost:55006     ip6-localhost:ipp       CLOSE_WAIT 
+        tcp6       0      0 [::]:http               [::]:*                  LISTEN
+        tcp6       0      0 ip6-localhost:ipp       [::]:*                  LISTEN
+        tcp6       1      0 ip6-localhost:55006     ip6-localhost:ipp       CLOSE_WAIT
 
 
 
@@ -161,19 +161,19 @@ SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num)
         netstat -ua
 
         Active Internet connections (servers and established)
-        Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-        udp        0      0 stiv-GP60-2PE:domain    *:*                                
-        udp        0      0 *:bootpc                *:*                                
-        udp        0      0 *:12461                 *:*                                
-        udp        0      0 *:ipp                   *:*                                
-        udp        0      0 *:41658                 *:*                                
-        udp        0      0 *:mdns                  *:*                                
-        udp6       0      0 [::]:54052              [::]:*                             
-        udp6       0      0 [::]:50167              [::]:*                             
-        udp6       0      0 [::]:mdns               [::]:*                             
+        Proto Recv-Q Send-Q Local Address           Foreign Address         State
+        udp        0      0 stiv-GP60-2PE:domain    *:*
+        udp        0      0 *:bootpc                *:*
+        udp        0      0 *:12461                 *:*
+        udp        0      0 *:ipp                   *:*
+        udp        0      0 *:41658                 *:*
+        udp        0      0 *:mdns                  *:*
+        udp6       0      0 [::]:54052              [::]:*
+        udp6       0      0 [::]:50167              [::]:*
+        udp6       0      0 [::]:mdns               [::]:*
 
 
-         
+
         netstat -xa
 
         Active UNIX domain sockets (servers and established)
@@ -206,7 +206,7 @@ common grouping options:  -nnvvS  instead of -nn -vv -S
 -D           Show the list of available interfaces
 -e           dump Ethernet header as well.
 -n           show IP  (not resolve HOST names)
--nn          not resolve HOST + PORT names 
+-nn          not resolve HOST + PORT names
 
 -X           display packet also in HEX format (besides ASCII)
 -XX          like -X but dump HEX + ASCII also for Ethernet header
@@ -216,7 +216,7 @@ common grouping options:  -nnvvS  instead of -nn -vv -S
              -s0 (get everything)
 
 -S           the TCP field 'SEQUENCE number' is shown 'absolute' instead of 'relative'
--i eth0      select the interface to listen 
+-i eth0      select the interface to listen
              ex. -i wlan0
                  -i any     to specify ALL if.
 
@@ -242,8 +242,8 @@ net 172.5.0.0/24   dump packets of that subnet (use CIDR notation: /x)
 
 
 icmp         Only get ICMP packets.
-tcp            "      TCP    "     
-udp            "      UDP    "     
+tcp            "      TCP    "
+udp            "      UDP    "
 
 
 ip6          Only get IP v26 D packets.
@@ -271,8 +271,8 @@ not              also !
 - URGENT (URG)      bit 32         # tcpdump ‘tcp[13] & 32!=0‘
 - ACKNOWLEDGE (ACK) bit 16         # tcpdump ‘tcp[13] & 16!=0‘
 - PUSH (PSH)        bit 8          # tcpdump ‘tcp[13] & 8!=0‘
-- RESET (RST)       bit 4          
-- SYNCHRONIZE (SYN) bit 2 
+- RESET (RST)       bit 4
+- SYNCHRONIZE (SYN) bit 2
 - FINISH (FIN)      bit 1
 
 
@@ -283,7 +283,7 @@ not              also !
 ip link show
 
 
-       1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default 
+       1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default
            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
        2: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000
            link/ether 44:8a:5b:ed:d1:97 brd ff:ff:ff:ff:ff:ff
@@ -293,36 +293,36 @@ ip link show
 ip neigh show
 
        192.168.0.1 dev wlan0 lladdr c4:04:15:fa:12:6f REACHABLE
-       
 
-ip addr show wlan0      to see link speed 
+
+ip addr show wlan0      to see link speed
 
        3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
            link/ether 30:3a:64:d4:c1:37 brd ff:ff:ff:ff:ff:ff
            inet 192.168.0.3/24 brd 192.168.0.255 scope global wlan0
               valid_lft forever preferred_lft forever
-           inet6 fe80::323a:64ff:fed4:c137/64 scope link 
+           inet6 fe80::323a:64ff:fed4:c137/64 scope link
               valid_lft forever preferred_lft forever
 -------------------------------
      nslookup
 -------------------------------
 
 nslookup google.com
-    
+
        Server:    127.0.1.1
        Address:   127.0.1.1#53
-       
+
        Non-authoritative answer:
        Name:    google.com
        Address: 216.58.210.46     <---------------
 
--q=a 
+-q=a
       nslookup -q=a www.google.com 8.8.8.8
 
 
                Server:     8.8.8.8
                Address:    8.8.8.8#53
-               
+
                Non-authoritative answer:
                Name:    www.google.com
                Address: 62.253.72.183
@@ -366,14 +366,14 @@ ethtool eth0
 
          Settings for eth0:
              Supported ports: [ TP ]
-             Supported link modes:   10baseT/Half 10baseT/Full 
-                                     100baseT/Half 100baseT/Full 
-                                     1000baseT/Full 
+             Supported link modes:   10baseT/Half 10baseT/Full
+                                     100baseT/Half 100baseT/Full
+                                     1000baseT/Full
              Supported pause frame use: Symmetric Receive-only
              Supports auto-negotiation: Yes
-             Advertised link modes:  10baseT/Half 10baseT/Full 
-                                     100baseT/Half 100baseT/Full 
-                                     1000baseT/Full 
+             Advertised link modes:  10baseT/Half 10baseT/Full
+                                     100baseT/Half 100baseT/Full
+                                     1000baseT/Full
              Advertised pause frame use: Symmetric
              Advertised auto-negotiation: Yes
              Speed: Unknown!
@@ -393,11 +393,11 @@ ethtool eth0
 
 
 iptables :    set of utilities in user-space
-              process packets a Lev3. 
+              process packets a Lev3.
               Others (ex ebtables)
               process Ethernet-Bridge Lev2.
 
-Netfilter:   framework in the kernel, 
+Netfilter:   framework in the kernel,
              tightly coupled with iptables set
 
 
@@ -414,7 +414,7 @@ iptables -t nat   -A PREROUTING   -i eth1   -p tcp  --dport 80
          -j DNAT             jump to DNAT target
          --to ...            change IP addr and port
 ______________________________________________________ config
-   
+
    /etc/sysconfig/iptables              stores the rules
    chkconfig --list iptables            list the runlevel associated (3,4,5)
    chkconfig --levels 345 iptables on   associate runlevels
@@ -425,7 +425,7 @@ ______________________________________________________ config
    in Ubuntu chkconfig is replaced by 'sysv-rc-conf' and 'upstart'
 ______________________________________________________
                                defined in /usr/include/linux/netfilter_ipv4.h
-5 hooks          1. PREROUTING         
+5 hooks          1. PREROUTING
                  2. INPUT
                  3. FORWARD
                  4. OUTPUT
@@ -433,11 +433,11 @@ ______________________________________________________
 
        each is the start pointer to a seq of rules, chained together
 
-       each 'rule' describes what to do on 3 tables 
+       each 'rule' describes what to do on 3 tables
        where kernel stores data:
 
                    filter (defaul: if no tbl is specified
-                                   in iptables cmd, this tbl is used) 
+                                   in iptables cmd, this tbl is used)
                    mangle
                    nat
 
@@ -461,7 +461,7 @@ ______________________________________________________ match
 
 
 ______________________________________________________ target
-      
+
   4 targets (more can be others with extension modules)
 
   ACCEPT: stop processing current chain
@@ -492,10 +492,10 @@ ______________________________________________________ target
 
 
 
-       
-       
-       
-       
+
+
+
+
 
 
 

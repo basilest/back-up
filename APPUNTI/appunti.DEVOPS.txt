@@ -1,11 +1,11 @@
 DevOps  (from Agile)
-It aims to have an environment where 
-          building, 
-          testing, 
-          releasing software, 
-can happen 
-          rapidly, 
-          frequently, 
+It aims to have an environment where
+          building,
+          testing,
+          releasing software,
+can happen
+          rapidly,
+          frequently,
           more reliably.
 
 DevOps refers to the  Continuous Delivery concept:
@@ -13,14 +13,14 @@ small and quick changes (focused on the end customer, going live, or quick time 
 
 
 
-Here they are most of the 
+Here they are most of the
 OpenSource tools used (DevOps toolchain):
 __________________________________
  1. (SCM) - Source Code Management
 
-     - GIT: 
-         - GitHub:     NOT free for private repos. 
-         - Git server: can be setup on-premise for free. 
+     - GIT:
+         - GitHub:     NOT free for private repos.
+         - Git server: can be setup on-premise for free.
 
      - CodeCommit: from AWS
 
@@ -28,7 +28,7 @@ __________________________________
 
 __________________________________
  2. BUG Tracking
-    - Bugzilla                : mainly for BUGS, 
+    - Bugzilla                : mainly for BUGS,
                                but is feature rich to do other SW devel. phases
                                even IT ticketing system
     - JIRA       - (Altassian): for BUGS / Story
@@ -53,7 +53,7 @@ __________________________________
  5. Artifacts Management
     - A lot of companies might not have it in their DevOps stack
 
-    Artifactory - stores built artifacts and 
+    Artifactory - stores built artifacts and
                 - caches third-party tools.
                 - So it retrieves/upload proper versions
                   for meeting build dependencies   (like Jenkins)
@@ -78,7 +78,7 @@ __________________________________
 __________________________________
  7. Monitoring
     - Nagios : lack of features out of the box
-               but 
+               but
                    - tons of plugins
                    - very easy to write your own
 
@@ -87,8 +87,8 @@ __________________________________
  8. Log Management
     - ELK : Elasticsearch, Logstash and Kibana stack
 
-            Elastichsearch: 
-                            - based on 
+            Elastichsearch:
+                            - based on
                               'Lucene' (Free Apache software Licence)
                                  full text indexing and searching capability
                                  (widely used in the implementation of Internet search engines)
@@ -98,7 +98,7 @@ __________________________________
 
                             - extends 'Lucene' for crawling and HTML parsing functionality
 
-                            https://github.com/companieshouse/chl-database/pull/60 
+                            https://github.com/companieshouse/chl-database/pull/60
                             https://github.com/companieshouse/chl-database/pull/59
 
 
@@ -117,27 +117,27 @@ _________________________ ( 4- Continuous Integration)   JENKINS
         - can compile (Ant, Maven)
         - can run shell scripts.
         - Builds can be triggered in many ways (ex by Git commit, cron tab, specific url ...)
-        - Builds can generate test reports in various formats 
+        - Builds can generate test reports in various formats
           supported by plugins (JUnit support is currently bundled)
 
 
 _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
 
-        Ansible is a free SW platform for configuring and managing computers (nodes) 
-        over SSH or PowerShell and requires Python (2.4 or later) to be installed on them. 
+        Ansible is a free SW platform for configuring and managing computers (nodes)
+        over SSH or PowerShell and requires Python (2.4 or later) to be installed on them.
 
-        Modules work over JSON and standard output and can be written in any programming language. 
+        Modules work over JSON and standard output and can be written in any programming language.
 
         The system uses YAML to express reusable descriptions of systems.
-        
-        It is included as part of the Fedora distribution of Linux, owned by Red Hat inc., 
-        and is also available for Red Hat Enterprise Linux, CentOS, and 
-        Scientific Linux via Extra Packages for Enterprise Linux (EPEL) 
+
+        It is included as part of the Fedora distribution of Linux, owned by Red Hat inc.,
+        and is also available for Red Hat Enterprise Linux, CentOS, and
+        Scientific Linux via Extra Packages for Enterprise Linux (EPEL)
         as well as other operating systems.
-        
-        Ansible is commercially supported and sponsored by Ansible, Inc. 
+
+        Ansible is commercially supported and sponsored by Ansible, Inc.
         On 16 October, 2015, Red Hat Inc. announced that it had signed a definitive agreement to acquire Ansible, Inc.
-        
+
         It was named "Ansible" after the fictional instantaneous hyperspace communication system featured in Orson Scott Card's Ender's Game,
         and originally invented by Ursula K. Le Guin for her 1966 novel Rocannon's World.
 
@@ -145,22 +145,22 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
 
 _________________________ 2   VAGRANT  (1.6.4 or better)  build
 
-        Vagrant creates and configures VMs.  
-        It can be seen as a higher-level wrapper around VirtualBox, VMware, KVM and Linux Containers (LXC), 
+        Vagrant creates and configures VMs.
+        It can be seen as a higher-level wrapper around VirtualBox, VMware, KVM and Linux Containers (LXC),
         and around configuration management software such as Ansible, Chef, Salt, and Puppet.
-        
-        Vagrant was originally tied to VirtualBox, but version 1.1 added support for others 
-        such as VMware and KVM, and for server environments like Amazon EC2. 
-        
-        Vagrant is written in Ruby, but can be used in projects written in other languages 
+
+        Vagrant was originally tied to VirtualBox, but version 1.1 added support for others
+        such as VMware and KVM, and for server environments like Amazon EC2.
+
+        Vagrant is written in Ruby, but can be used in projects written in other languages
         such as PHP, Python, Java, C# and JavaScript.
-        
-        Since version 1.6, Vagrant natively supports Docker containers, 
+
+        Since version 1.6, Vagrant natively supports Docker containers,
         which in some cases can serve as a substitute for a fully VMs
 
-        Vagrant plugins also exist, including 
-           vagrant-libvirt that adds support for libvirt, 
+        Vagrant plugins also exist, including
+           vagrant-libvirt that adds support for libvirt,
            vagrant-lxc     that adds support for lxc,
            vagrant-vsphere that adds support for VMware's ESXi.
-        
-        
+
+

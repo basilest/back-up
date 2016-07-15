@@ -2,7 +2,7 @@
 
 interpreter:
 tiv@stiv-GP60-2PE:~$ python
-Python 2.7.8 (default, Oct 20 2014, 15:05:19) 
+Python 2.7.8 (default, Oct 20 2014, 15:05:19)
 [GCC 4.9.1] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
 >>> print "Hello World!"
@@ -43,8 +43,8 @@ ________________________________________
 
 += -= *= /=
 
-divmod         returns 2 num: div and also mod 
-               print "Months = %d Days = %d" % (divmod(days, 30))    
+divmod         returns 2 num: div and also mod
+               print "Months = %d Days = %d" % (divmod(days, 30))
 
 <  ... ==  !=    test on num
 
@@ -63,7 +63,7 @@ ________________________________________
 
                data = ("Kushal Das", "India", "Python")
                name, country, language = data      name:Kushal Das country:India language:Python
-     
+
                n.b.  tuple are immutable cannot be added\remove values
                      a tuple of 1 elem is (1,)  not (1)
 
@@ -73,7 +73,7 @@ named tuple    For readability I can give a name xxx to a tuple
                from collections import namedtuple
                Point = namedtuple('Point', ['x', 'y'])
                p = Point(10, y=20) <--- without the above line, here we had an error on undef Point
-                
+
 ________________________________________
 
 a = [ 1, 342, 2233423, 'India', 'Fedora']    <--- is a sequence (int and string here)
@@ -108,7 +108,7 @@ a.append(45)            ...., 45]     n.b.  is b is another list  a.append(b)
 a.insert(0, 1)          [1, .....
 a.count(45)             1    (number of occurrence of 45 in a)
 a.remove('India')
-a.pop()                 moves out the last elem 
+a.pop()                 moves out the last elem
 a.pop(i)                moves out the 'i'  elem       pop(0)  the 1st
 a.reverse()
 a.sort
@@ -136,7 +136,7 @@ while:
                f = float(raw_input("Enter f: "))
                i = int(raw_input("Enter i: "))
                while f <= i:
-                   print "INT %d FLOAT %.2f" % (i, f) 
+                   print "INT %d FLOAT %.2f" % (i, f)
                    f = f + 1
 ________________________________________ else on loops
          while / for :
@@ -260,7 +260,7 @@ def functionname(params):           def .... :
     ....
 
 def sum(a, b):                      args                default arg:  def sum(a , b=-99):
-    ...     return a + b                                
+    ...     return a + b
 
 def change(b):                      local var
     a = 90
@@ -276,7 +276,7 @@ print locals()     returns the var that I see in this scope (in a function the l
 print globals()    returns global vars
 
 
-n.b.  default args are evaluated only ONCE. 
+n.b.  default args are evaluated only ONCE.
       In some cases this can produce unexpected results:
 
       def f(a, L=[]):
@@ -288,12 +288,12 @@ n.b.  default args are evaluated only ONCE.
      print f(3)    -->  [1, 2, 3]
 
      args, are normally positional:  ...(a,b) means in a call ...(1,2)  a:1 b:2
-     but are also 'named', which means I can also call like ...(b=2, a=1) 
+     but are also 'named', which means I can also call like ...(b=2, a=1)
      so inverting the order, but still it works.
-     
+
 
 * args     both in a definition:  def f1(...,*args):    def f2(..., **args)
-** args    and in a subsequent call to fun:   
+** args    and in a subsequent call to fun:
                       t=(1, 2, 3)            h== {'x': 1, 'y': 2}
                       a=[1,2]                f2(**h)
                       f1(*t)
@@ -307,17 +307,17 @@ This means that I can pass a function as 'argument' to another function,
 or in the return statement.
 
                      >>> def apply(func, x, y):   <--- I the can call as applay(add, 2, 1)
-                     ...     return func(x, y)         where i.e. def add(x,y): 
+                     ...     return func(x, y)         where i.e. def add(x,y):
                                                                       return x+y
                     _______________________________
                    | def outer():
                    | ...     def inner():
                    | ...         print "Inside inner"
-                   | ...     return inner 
+                   | ...     return inner
                    |
                    | f = outer()
                    | f() -->  Inside inner
-                   |_______________________________  
+                   |_______________________________
                    |                            Closures: is the scope-envrionment saved
                    | def outer():               for inner functions. The above inner()
                    | ...     x = 1              once passed out, and used, should not anymore
@@ -341,7 +341,7 @@ map(fun, list)                  receives a fun to call for each elem of the list
 
 ________________________________________  Files
 
-fobj = open("love.txt")    open in read is the default, so I can skip long form 
+fobj = open("love.txt")    open in read is the default, so I can skip long form
                            fobj = open("love.txt", 'r')
 fobj           -->  <open file 'love.txt', mode 'r' at 0xb7f2d968>
 fobj.close()
@@ -375,7 +375,7 @@ seek(offset [,pos])     offset:num bytes from pos
 
                         fobj.seek(5)     # Goto 5th byte
                         fobj.seek(-3, 2) # goto 3rd byte from the end
-                        fobj.tell()      # return Long integer with position 
+                        fobj.tell()      # return Long integer with position
 
 ________________________________________ argc, argv
 
@@ -421,14 +421,14 @@ class nameoftheclass(parent_class):       class MyClass(object):
     statement3
 
 
-__init__                  the constructor  
+__init__                  the constructor
                           def __init__(self, name, branch, year):
                                        self.name = name
                                        self.branch = branch
                                        self.year = year
 
-del                       to remove an object.  
-                          It decreases reference count. When it becomes 0  
+del                       to remove an object.
+                          It decreases reference count. When it becomes 0
                           the garbage collector will delete that object.
 
 
@@ -446,7 +446,7 @@ Multiple Inheritance      class MyClass(Parentclass1, Parentclass2,...):
 ________________________________________ Modules
 
               module name to import = name of Python file without .py           xxx.py  (a file)
-              You can find it by accessing the global var __name__ 
+              You can find it by accessing the global var __name__
 __init__.py   A module xxx instead of a file xxx.py can also be a dir xxx       xxx     (a dir)
               In this case we have a dir xxx with + files .py and 1 special      |__  *.py
               file __init__.py                                                   |__  __init__.py
@@ -455,22 +455,22 @@ __init__.py   A module xxx instead of a file xxx.py can also be a dir xxx       
               is something as:
 
               from bars import simplebar      <---  if someone makes:
-              __all__ = [simplebar, ]                 from mymodule import * 
-                                                      it's the same as importing only simplebar 
+              __all__ = [simplebar, ]                 from mymodule import *
+                                                      it's the same as importing only simplebar
 
- 
+
 import:       import  bars
               .....
               bars.func (10) ...
- 
+
 from bars import simplebar, starbar      this syntax, import select functions only
                                          but it's a bad practice and should be avoided
- 
+
 help()        enter from python shell the interactive help
            1  >modules              I get the list of installed modules
            2  >xxx                  name of module (here xxx) to have doc on the module
 
-              instead of 1+2 I can directly do  help(xxx)   ex help(str) I've ALL the 
+              instead of 1+2 I can directly do  help(xxx)   ex help(str) I've ALL the
               list of functions on strings
 
 pip:       modules (external) are usuall managed by 'pip' which recursively means (pip install python)
@@ -483,7 +483,7 @@ yolk       list all the modules installed
            yolk -l
 
 virtualenv   sudo pip install virtualenv
-           allow to create a clean environment where I can develop (install new modules, 
+           allow to create a clean environment where I can develop (install new modules,
            without dirty the system Python installation).
            Create many env with virtualenv as many as are you developing projects.
 
@@ -516,7 +516,7 @@ work on dirs           os.getcwd()      -->  '/home/kushal'
                        names.sort()
                        for name in names:
                            print name,
-                       
+
 
 
 
@@ -533,7 +533,7 @@ z.elments()        returns a list from z, whit all elem of z, each duplicated n 
                    (its number of occurrences)
 
 
-                   
+
 ________________________________________ Test
 
 import unittest                  unittest is the python module for testing
@@ -556,17 +556,17 @@ class MyTestClass (unittest.TestCase):    define a test class (derived from unit
                                           asserTTTTT is one of many way unittest provides to test:
 
 assertEqual(a, b)           a == b                ex. self.assertEqual(res, 120)
-assertNotEqual(a, b)        a != b   
-assertTrue(x)               bool(x) is True      
-assertFalse(x)              bool(x) is False     
-assertIs(a, b)              a is b  
-assertIsNot(a, b)           a is not b  
-assertIsNone(x)             x is None   
-assertIsNotNone(x)          x is not None   
-assertIn(a, b)              a in b  
-assertNotIn(a, b)           a not in b  
-assertIsInstance(a, b)      isinstance(a, b)    
-assertNotIsInstance(a, b)   not isinstance(a, b)    
+assertNotEqual(a, b)        a != b
+assertTrue(x)               bool(x) is True
+assertFalse(x)              bool(x) is False
+assertIs(a, b)              a is b
+assertIsNot(a, b)           a is not b
+assertIsNone(x)             x is None
+assertIsNotNone(x)          x is not None
+assertIn(a, b)              a in b
+assertNotIn(a, b)           a not in b
+assertIsInstance(a, b)      isinstance(a, b)
+assertNotIsInstance(a, b)   not isinstance(a, b)
 
 assertRaises(....Error, ...)          ex. self.assertRaises(ZeroDivisionError, div, 0)
 
@@ -591,7 +591,7 @@ ________________________________________   develop a module 'basilest'
                         include README.rst
                         n.b. you can also use dir 'exclude'
      7. sudo pip install setuptools
-     8. vi setup.py        
+     8. vi setup.py
                         #!/usr/bin/env python
                         """ my module description here"""
                         from setuptools import find_packages, setup
@@ -614,15 +614,15 @@ ________________________________________   develop a module 'basilest'
 
 ________________________________________ Decorators
 
-                                         
-              def outer(fun_to_cut):              receives a fun to cut from  its old def 
-              ...     x = 1              
-              ...     def inner():       
-              ...         print x        
+
+              def outer(fun_to_cut):              receives a fun to cut from  its old def
+              ...     x = 1
+              ...     def inner():
+              ...         print x
               ...         r = fun_to_cut()        here call the original fun
               ...         return r;               return original r
               ...     return inner                outer returns the Closuer 'inner'
-                                         
+
               def f():         #1
                  bla bla bla
 
@@ -631,7 +631,7 @@ ________________________________________ Decorators
                                  and f() will call the Closuer inner where legacy f is in
               f() -->  Inside inner
 
-@             the f = outer(f) assignment can be left as it is, or 
+@             the f = outer(f) assignment can be left as it is, or
               can be also specified as
 
               @outer              which means, where there is the original def of f()

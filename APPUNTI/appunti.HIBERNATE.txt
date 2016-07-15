@@ -1,3 +1,16 @@
+So we have a SEVER ----- CLIENT architecture.
+
+- Tomcat is many things:
+    - like Apache + mod_perl for Perl (a web server that
+      allows to have Perl code executed on the SERVER side)
+      Tomcat is a web server that allows JAVA code to be executed on the SERVER.
+    - implements mane of the Java EE specifications including (Java servlet) and (JavaServer Pages)-JSP
+          .Catalina: servlet container
+          .Coyote: HTTP connector
+          .Jassper: JSP engine
+
+
+
 JDBC            Java Database Connectivity     (a set of API that allow Java to operate on DataBases)
 
                 1. create a DB Conection    (ex with a MySQL DB)
@@ -32,7 +45,7 @@ JDBC            Java Database Connectivity     (a set of API that allow Java to 
                    pst.setString(3, "Action Film");
                    pst.setString(4, "Tony Scott");
                    // Execute the statement
-                   pst.execute();                                                       <-----
+                   pst.execute();                                                      <-----
                    System.out.println("Movie persisted successfully!");
                    } catch (SQLException ex) {
                    System.err.println(ex.getMessage());
@@ -55,7 +68,7 @@ JDBC            Java Database Connectivity     (a set of API that allow Java to 
                    }
                    }
 
-Hibernate            
+Hibernate
           public class Movie {                     |public class BasicMovieManager {
                private int id = 0;                 |private void persistMovie(Movie movie) {
                private String title = null;        |Session session = sessionFactory.getCurrentSession();
@@ -64,14 +77,14 @@ Hibernate
                ...                                 |}
                // Setters and getters omitted      |...
           }                                        |}
-           
+
           1/3 Configure the DB connection:
               the details are put in one of these files:
                       - XML file hibernate.cfg.xml
                       - a txt    filehibernate.properties
 
 
-                      XML: 
+                      XML:
 
                       <hibernate-configuration>
                         <session-factory>
@@ -101,7 +114,7 @@ Hibernate
                      hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
 
           2/3  define how map   (Objcet fields)  <--->  (Table columns)
-              
+
                .This is done in a file ending with .hbm.xml (ex. Movie.hbm.xml).
                .The link to this file is added in 1/3
 
@@ -125,14 +138,14 @@ Hibernate
                                  </class>
                                  </hibernate-mapping>
 
-          3/3  .Hibernate creates 
-                  -a class 'SessionFactory' (is a thread-safe class and can be shared in your app: 
+          3/3  .Hibernate creates
+                  -a class 'SessionFactory' (is a thread-safe class and can be shared in your app:
                                              so 1 only for 1 MySQL DB). Then
                 creates Session obects. Session ob. take care of all database operations:
-                                             saving, loading, retrieving records 
+                                             saving, loading, retrieving records
                                             (not thread-safe class --> NOT share in your app)
 
-                      
+
                 As all information are stored in extrnal XML files (starting from
                 hibernate.cfg.xml which Hibernate load by default) no other specific reference is
                 written in Java code which would like:
