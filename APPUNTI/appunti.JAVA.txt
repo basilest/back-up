@@ -66,6 +66,45 @@ JAR and CLASSPATH
          optimizing the appl. according to if it will run as a server or client app.
          (ex -client is better for GUI)
 
+     NB. javap is the disassembler (shows the bythecode from a .class)
+         play with the options:
+                     -classpath ...  if the classes are somewhere
+                     -c              the code
+                     -l              also line numbers
+                     -p -private     priva. members
+                     -public         pub.    "
+                     -protected      prot    "
+                     -package        all the above
+
+
+         Moreover JIT is the link between a deeper transformation.
+         The bytecode is INTERPRETED by the JAVA VM, but is kept monitored by
+         JIT that runtime after some time COMPILEs it.
+         This optimization is not done permanently as the monitoring of the running
+         code carries on.
+         ex. Instruction like ' if (p == null) return; ... do something'
+             if after some time JIT notices that p is never null will be compiled
+             as if the code was '... do something'. If for some reason after some time
+             a p = null arrives, the code is for a while 'de-optimized' without triggering
+             a null-pointer-exception.
+             The uncommon event is intercepted by JIT by the 'uncommon trap' mechanism
+             that operates even when in an if--else branches JIT discovers that a branch
+             is much more unlikely than the other and can compiles alternating the code
+             ex if the code was if (x > y) {A} else {B} (where the else always requires a jump
+             after the test-instruction) but 99.99 % is always x <= y
+             JIT will compile reverting the test as if it was if (X <= y) {B} else {A}
+
+             At the end JIT is intended to kill JUMPS in the Assembly code.
+
+             Another JUMP killing is removing function-calls, compiling the
+             function INLINE if it's short enough. To decide what 'short enough' means
+             there are 2 flags
+                  -XX:MaxInlineSize   (default 35 bytes)  all function-calls will be
+                                      compiled inline if the function-code is <
+                  -XX:FreqInlineSize  all function that are called often will be also
+                                      compiled inline if its code is <
+
+
 ----------------------------------------------------------------------------------------------------
 Eclipse
 ----------------------------------------------------------------------------------------------------

@@ -1677,7 +1677,7 @@ ____________________
 __  find
 
 
-        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o
+        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o  (-o is short for -or, works also both: !  -not)
         find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
 
 
@@ -1689,7 +1689,10 @@ __  find
                  f     regular file
                  l     sym link
 
-
+        to exclude dirs:
+                  -name  '.....' -prune -o print
+                  -path  '.....'   "     "   "  <---- nb  dir doesn't work as the match should be full
+                                                          so works ./dir/*
 ____________________
 __  lsof
              is an 'utility' not a bash builtin
