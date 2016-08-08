@@ -196,7 +196,7 @@ HTTP Proxy
                 reverse proxy:  they stay on the destination side. It's the other site administrator
                                 to hide the internal servers putting as public visible a proxy.
                                 It will manage the requests, redirecting on the appropriate server
-                                whihch will answer again to the proxy whihc will return to the requester.
+                                whihch will answer again to the proxy which will return to the requester.
 
 
 
@@ -220,7 +220,7 @@ ______________________________________
 Sessions and Stateless
                  Unfortunately, HTTP is defined as a stateless protocol, which complicates matters:
                  many schemes have been invented to allow keeping track of sessions, none of which works perfectly.
-                 Even worse, sessions are critical in order to allow web-based applications to function correctly -
+                 Even worse, sessions are critical in order to allow web-based applications to function correctly-
                  it is vital that ONCE a session is established ALL subsequent requests from the same browser
                  be directed to the same back-end server.
 ______________________________________
@@ -228,9 +228,9 @@ HTTP/2
                  Did you notice that all HTTP headers is a bunch of text ?
                  HTTP/2 is a new RFC binary protocol that makes much easier to parse a HTTP/2 header.
                  Moreover it fixes some congestion problem of HTTP that requires 1 request per TCP connection.
-                 With HTTP/1, browsers open between four and eight connections per origin.
+                 With HTTP/1, browsers open between 4 and 8 connections per origin.
                  Since many sites use multiple origins, this could mean that a single page load
-                 opens more than thirty connections.
+                 opens more than 30 connections.
                  So many connections simultaneously breaks a lot of the assumptions that TCP was built upon.
 
                  HTTP/2 acts multiplexing, allowing multiple request and response messages to be in flight at the same time.
@@ -306,7 +306,7 @@ Sessions and Stateless solution with Pound
                           End
 
                 2 by Basic Authentication: Pound directs all requests from the same user
-                                          (as identified in the Basic Authentication header ) to the same back-end server.
+                                          (as identified in the Basic Authentication header) to the same back-end server.
                           Session
                               Type    Basic
                               TTL     300
@@ -406,7 +406,7 @@ WebSocket
                                                              Origin: http://example.com                   <---  Origin
 
                                                              1. the new HTTP header is Upgrade: websockt
-                                                             2. a ranom base64 key is added
+                                                             2. a random base64 key is added
                                                              3. a normal HTTP header, Origin is usually present (to identify the client)
 
        code 101 --> HTTP/1.1 101 Switching Protocols
