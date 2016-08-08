@@ -4,7 +4,7 @@
 
 
 $?              exit status
-$$              PID 
+$$              PID
 $a              better to use ${a}
 ${a/23/BB}      substitue in $a 23 with BB
 $(cmd)          better than `cmd`       $(ls -l)
@@ -17,7 +17,7 @@ $0              name of script
 $1              1st arg ...  after $9, ${10}, ${11}, ${12}.
 $#              NUMBER of args
 $*              string with ALL args (seen as a single word)
-$@              same as $* but each arg is quoted 
+$@              same as $* but each arg is quoted
 
 $_              last cmd name or if it had options last option
 
@@ -32,7 +32,7 @@ ${a?err_msg}  ${a:?err_msgl}
 
 
 When Linux boots, executes all scripts in dir
-                /etc/rc.d 
+                /etc/rc.d
 to restore the sys config and set up services.
 ____________________________________________________________
 how empty a file (e.g. named log.txt) with no char:
@@ -44,14 +44,14 @@ ____________________________________________________________
 
 A shell script is a TXT file starting with
                   #!
-The #! is actually a two-byte magic number she-bang or sh-bang: 
+The #! is actually a two-byte magic number she-bang or sh-bang:
 concatenation of tokens sharp (#) and bang (!)
 
 then followed by the executable file to launch
-usually it is '#!/bin/bash' but can be 
+usually it is '#!/bin/bash' but can be
 
 #!/bin/rm                # Self-deleting script.
-#!/bin/more              # self-listing documentation file. 
+#!/bin/more              # self-listing documentation file.
 
 #!/bin/sh
 #!/bin/bash
@@ -60,19 +60,19 @@ usually it is '#!/bin/bash' but can be
 #!/bin/sed -f
 #!/bin/awk -f
 
-/bin/sh invokes default shell, so /bin/bash in a Linux machine. 
-It makes the script portable to non-Linux machines, though you 
+/bin/sh invokes default shell, so /bin/bash in a Linux machine.
+It makes the script portable to non-Linux machines, though you
 sacrifice Bash-specific features
 
 
-A shell is launched as 
+A shell is launched as
                bash
 
 there are many options, each with a short symbol, or its long name.
-To use the long name, the syntax is 
+To use the long name, the syntax is
                 bash -o  ....long name ,,,,
 
-                ex.  
+                ex.
                     bash -v          (short)
                     bash -o verbose  (long form)
        nb.
@@ -82,8 +82,8 @@ To use the long name, the syntax is
        bash -p      run as root  (privileged)
        bash -t      run only 1st cmd and exit
        bash -s      run cmd from (stdin)
-       bash -n      like make -n    goes through all the script cmds 
-                    without executing them (it is used for making 
+       bash -n      like make -n    goes through all the script cmds
+                    without executing them (it is used for making
                     syntax check of the script....'compiling')
        bash -i      run the script (intercatively)
 
@@ -92,7 +92,7 @@ so for debugging a.sh:
       solution 1:    bash -x  a.sh
       solution 2:    modify 1st line inside a.sh :  #!/bin/bash -x
 ____________________________________________________________
-~      $HOME 
+~      $HOME
 ~+     $PWD      (current dir)
 ~-     $OLDPWD   (previous wd)
 
@@ -109,7 +109,7 @@ ____________________________________________________________
     7. export HISTSIZE=0    to make bash nt recording anything (no history)
     8. history -c   to clear all the previous history
     9. export HISTCONTROL=ignoredups         remember only 1 inst. of many consecutive = cmd
-   11. export HISTCONTROL=erasedups          remember only 1 inst. of many also non consecutive = cmd 
+   11. export HISTCONTROL=erasedups          remember only 1 inst. of many also non consecutive = cmd
    12. export HISTCONTROL=ignorespace        ignore (not remember) cmd that start with a space
    13. export HISTIGNORE="pwd:ls:ls -ltr:"   ignore (not remember) this list of cmds
    14.  vi !!:$  execut a cmd (here vi) taking the arg of the last cmd
@@ -133,10 +133,10 @@ ____________________________________________________________
 BUILTIN
 ____________________________________________________________
 
-A builtin is a command contained within the Bash tool set, literally built in. 
-This is either for 
-   - performance reasons -- builtins execute faster than external commands, 
-     which usually require forking a separate process -- 
+A builtin is a command contained within the Bash tool set, literally built in.
+This is either for
+   - performance reasons -- builtins execute faster than external commands,
+     which usually require forking a separate process --
    - builtin needs direct access to the shell internals.
 ____________________________________________________________
 SPECIAL CHARACTERS
@@ -144,23 +144,23 @@ ____________________________________________________________
 
 ;  Permits putting two or more commands on the same line.
 
-.       Equivalent to source. 
-        Invoked from the command-line, executes a script. 
+.       Equivalent to source.
+        Invoked from the command-line, executes a script.
         Invoked from a script, imports code into the script, appending.
-       (same effect as the C #include). 
+       (same effect as the C #include).
         This is useful when multiple scripts use a common data file:
 
 
 . data_file    # Load a data file.
                # Same as "source data_file", but more portable.
 
-"    partial quoting [double quote]. 
-     special characters (except $  \ (escape) and ` (backquote)) 
-     are preserved (from interpretation) 
+"    partial quoting [double quote].
+     special characters (except $  \ (escape) and ` (backquote))
+     are preserved (from interpretation)
 
-'    full quoting [single quote]. 
-     All of the special characters 
-     are preserved 
+'    full quoting [single quote].
+     All of the special characters
+     are preserved
      This is a stronger form of quoting.
 
         hello="A B  C   D"
@@ -168,20 +168,20 @@ ____________________________________________________________
         echo "$hello"      # A B  C   D    preserves whitespace.
         echo '$hello'      # $hello        preserve also $
 
-     N.B. use quoting a variable when whitespace are important 
+     N.B. use quoting a variable when whitespace are important
      ex.
                   List="one two three"
-                  
-                  # Splits the variable in parts at whitespace.    
+
+                  # Splits the variable in parts at whitespace.
                   # Preserves whitespace in a single variable.
-                  for a in $List                                     for a in "$List"  
+                  for a in $List                                     for a in "$List"
                   do                                                 do #     ^     ^
                     echo "$a"                                          echo "$a"
                   done                                               done
                   # one                                              # one two three
                   # two
                   # three
-                  
+
      Quoting can also suppress echo's "appetite" for newlines.
      echo $(ls -l)
           total 8 -rw-rw-r-- 1 bo bo 13 Aug 21 12:57 t.sh -rw-rw-r-- 1 bo bo 78 Aug 21 12:57 u.sh
@@ -192,24 +192,24 @@ ____________________________________________________________
            -rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh
 
 `    (backquote)  can be used a pair of ` like                  # it's better to use $(cmd)
-                          a=`cmd` 
+                          a=`cmd`
      to assign to a var the result of a command.
-     ` .. `  is also called (command substitution) 
+     ` .. `  is also called (command substitution)
 
 
 \    escape [backslash]. To quote a single character:
-     \X has the effect of 'X'. 
+     \X has the effect of 'X'.
      It may be used to quote " and '
-     
+
      It is also used when writing a command that continues on more lines
 
-:    null command ["NOP"] 
-     It may be also considered a synonym for true. 
+:    null command ["NOP"]
+     It may be also considered a synonym for true.
 
 
-     :   echo $?   # 0         
-     
-     
+     :   echo $?   # 0
+
+
      while :
      do
         ...          #Endless loop
@@ -219,8 +219,8 @@ ____________________________________________________________
      : > data.xxx   # Same effect as   cat /dev/null >data.xxx
 
      ex.
-     ------------  IF                                    case $1 in    
-     if [[ $1 = "directory" ]]                              "directory")   
+     ------------  IF                                    case $1 in
+     if [[ $1 = "directory" ]]                              "directory")
      then                                                     ..
          find / maxdepth 1 -type d                          ;;
      elif [[ $1 = "file" ]]                                 "file")
@@ -262,17 +262,17 @@ ____________________________________________________________
       do [ ! -f $F ] && continue     <--------- if NOT (!) a file, 'continue'  (exist also 'break', like C)
         DT=$(stat $F | grep -i access | tail -1 | cut -d " " -f2)
         echo "$F accessed at $DT"
-      done 
+      done
 
      look also at this:
      for U in $(lastlog | grep -vi never | awk '{print $1}' )
      -----------
      ------------
 
-!    from the command line triggers an history event. 
+!    from the command line triggers an history event.
      Not inside a script, as history it's disabled.
                   useful cmd for history
-                         !!                repeat last 
+                         !!                repeat last
                          !15                  "   15th (absolute)
                          !-15                 "   15th (relative, back from now)
                          !stef                "   last starting with 'stef'
@@ -285,17 +285,17 @@ ____________________________________________________________
                   to have the 'vi'-like setting while editing bash cmd
                   use: set -o vi
 
-         
+
 !    reverse (or negate) the exit status of the command
      needs a space after !
      ex
        ls | bogus_command     # bash: bogus_command: command not found
        echo $?                # 127
-       
+
        ! ls | bogus_command   # bash: bogus_command: command not found
        echo $?                # 0
 
-$?   holds the exit status of a command, a function, 
+$?   holds the exit status of a command, a function,
      or of the script itself.
 
 $$   holds the process ID of the script in which it appears.
@@ -308,21 +308,21 @@ $_   is the last arg passed to the last executed cmd
 
 ()   command group. List commands within parentheses starts a subshell.
      ex:   (a=hello; echo $a)
-     Var inside () are not visible to the rest of the script, 
+     Var inside () are not visible to the rest of the script,
      act like local var.
 
      - stands also for array initialization.
      Array=(element1 element2 element3)
 
-Globbing   Filename expansion: means expanding filename containing 
+Globbing   Filename expansion: means expanding filename containing
            special char ex: pippo.??? --> pippo.001 or pippo.txt
            Only a few char of Regular Expression are understood:
            ?    1 char
-           *    any char (N.B. not match filenames start with a dot, 
+           *    any char (N.B. not match filenames start with a dot,
                 ex: .bashrc)
            []   all char inside
            ^    for negating        ex. ls -l [^ab]*
-           
+
            So Globbing returns a list of names (file-names) and works
            also if it's not quoted
 
@@ -330,7 +330,7 @@ Globbing   Filename expansion: means expanding filename containing
 
 {}         (brace expansion)       # default is ON (like call bash -B
                                                          with bash +B    is OFF)
-           It creates string. The form is 
+           It creates string. The form is
                  S1{a,b,c}S2
            a,b,c is a list of strings separated by a comma ,
            S1 is an optional string named 'prefix' put before each elem
@@ -341,12 +341,12 @@ Globbing   Filename expansion: means expanding filename containing
              cp file22.{txt,backup}    #cp file22.txt file22.backup
 
              mkdir /usr/local/src/bash/{old,new,dist,bugs}    # -->
-             
-             mkdir /usr/local/src/bash/old 
-                   /usr/local/src/bash/new 
-                   /usr/local/src/bash/dist 
+
+             mkdir /usr/local/src/bash/old
+                   /usr/local/src/bash/new
+                   /usr/local/src/bash/dist
                    /usr/local/src/bash/bugs
-             
+
             Brace expansion is performed BEFORE any other. It's strictly text:
             any char (also special) is preserved:
 
@@ -360,13 +360,13 @@ Globbing   Filename expansion: means expanding filename containing
             echo {0..3} # 0 1 2 3
             base64_charset=( {A..Z} {a..z} {0..9} + / = )
 
-{}           Block of code. An anonymous function. 
-             However, unlike in a "standard" function, the variables inside 
+{}           Block of code. An anonymous function.
+             However, unlike in a "standard" function, the variables inside
              remain visible outside:
 
              a=123
              { a=321; }
-             echo "a = $a"   # a = 321 
+             echo "a = $a"   # a = 321
 
              This is usefull on I/O redirection:
              --------------- < IN
@@ -376,12 +376,12 @@ Globbing   Filename expansion: means expanding filename containing
              read line1
              read line2
              } < $File
-             
+
              echo "First & Second line in $File are:"
              echo "$line1"
              echo "$line2"
              --------------- > OUT
-             { 
+             {
                echo
                echo "Archive Description:"
                rpm -qpi $1       # Query description.
@@ -395,24 +395,24 @@ Globbing   Filename expansion: means expanding filename containing
                  echo "$1 can be installed."
                else
                  echo "$1 cannot be installed."
-               fi  
+               fi
              } > "$1.test"       # Redirects output of everything.
              ---------------
             N.B.  Unlike (), {} will NOT normally launch a subshell
             only exception is if it's in a pipe: ...| {..}
 
 
-{}   Used in 
+{}   Used in
       find  with option -exec
-      xargs with option -i  
+      xargs with option -i
 
       as a 'place holder', the full file path name is substituted for "{}".
 
 
-      find   -exec COMMAND \;               # Carries out COMMAND on each found file 
+      find   -exec COMMAND \;               # Carries out COMMAND on each found file
                                             # ";" is escaped to avoid shell interpreting.
 
-      find ~/ -name 'core*' -exec rm {} \; # Removes all core dump files from user home 
+      find ~/ -name 'core*' -exec rm {} \; # Removes all core dump files from user home
 
       ls . | xargs -i -t cp ./{} $my_dir   # copy current dir files into $my_dir
 
@@ -421,15 +421,15 @@ Globbing   Filename expansion: means expanding filename containing
 
 (( ))   integer expansion. Expand and evaluate int expression in (( )).
      ex. a=$(( 5 + 3 ))  # a=8
-     It replaces the deprecated usage of $[] 
+     It replaces the deprecated usage of $[]
      a=3; b=7;  echo $[$a+$b]    #10
 
-     It's a mechanism for allowing C-style 
+     It's a mechanism for allowing C-style
      (( a++ ))  (( a-- ))   (( ++a ))  (( --a ))
      (( t = a<45?7:11 )<--------------------------------- nb use of ?)
-     
-     N.B. If the expression evaluated in (()) = zero -->  exit status = 1 ("false"). 
-     A non-zero expression returns an exit status of 0, or "true". 
+
+     N.B. If the expression evaluated in (()) = zero -->  exit status = 1 ("false").
+     A non-zero expression returns an exit status of 0, or "true".
      This is in marked contrast with a C-like behaviour or with using the others
      construct : test and [ ]
 
@@ -440,7 +440,7 @@ ____________________________________________________________
 I/O Redirection
 ____________________________________________________________
                                 ----> stdout (screen fd=1)
-     stdin (keyboar fd=0) ----> 
+     stdin (keyboar fd=0) ---->
                                 ----> stderr (screen fd=2)
 
      Other 7 numbers (3-9) are available as fd
@@ -455,73 +455,73 @@ ____________________________________________________________
 
 
      1>filen   # redirect stdout to filen    ex ls 1> pippo
-     1>>filen  # redirect (with append)      
-     2>filen   # the same for stderr         ex ls 2> pippo  
-                                                     (any error is not added on video 
+     1>>filen  # redirect (with append)
+     2>filen   # the same for stderr         ex ls 2> pippo
+                                                     (any error is not added on video
                                                      but redirected to pippo)
      2>>filen  #   "   "   "   "
      &>filen   #  redirect both stdout and stderr
-     
-     N.B. the above commnands are automatically "reset" after each line, so stdout, 
-          sterr are back to video.
-    
-     i>filen   # create fd i to write       filen. If not set is 1 (stdout). 
-     i<filen   # create fd i to read        filen. If not set is 1 (stdout). 
-     i<>filen  # create fd i to read/write  filen. If not set is 1 (stdout). 
 
-     once a fd i is created to read or write use for each command the specification 
+     N.B. the above commnands are automatically "reset" after each line, so stdout,
+          sterr are back to video.
+
+     i>filen   # create fd i to write       filen. If not set is 1 (stdout).
+     i<filen   # create fd i to read        filen. If not set is 1 (stdout).
+     i<>filen  # create fd i to read/write  filen. If not set is 1 (stdout).
+
+     once a fd i is created to read or write use for each command the specification
      <&i when reading and >&i when writing.
 
      echo 1234567890 > pippo
-     3 <> pippo  
+     3 <> pippo
      read -n 4 <&3             # Read only 4 characters.
      echo -n . >&3             # Write a decimal point there.
      exec 3>&-                 # Close fd 3.
 
-     i>&j      # i and j are both fd. If i not set is 1 (stdout). 
-               # operations on i are the same than on j.   
-               # the command act conceptually as i=j 
+     i>&j      # i and j are both fd. If i not set is 1 (stdout).
+               # operations on i are the same than on j.
+               # the command act conceptually as i=j
 
      ex.  2>&1  redirect stderr to stdout
 
-     N.B. to remember & and >. Only case & is before > (&>) 
+     N.B. to remember & and >. Only case & is before > (&>)
           is whene I'm sending out+err to a filename
           otherwise (>&) in this case there are only numbers (descriptors)
 
-     fd can be closed. 
+     fd can be closed.
               0<&-   or   <&-       # close stdin
               1>&-   or   >&-       # close stdout
 
-              i<&-   # close input  fd i 
+              i<&-   # close input  fd i
               i>&-   # close output fd i
 
-     Child processes inherit open fd. This is why pipes work. 
-     To prevent a fd from being inherited, close it. 
+     Child processes inherit open fd. This is why pipes work.
+     To prevent a fd from being inherited, close it.
 
 
      >|  force redirection: forcibly overwrite an existing file.
-         When bash is called as 
-                          bash -C        (said 'noclobber') 
+         When bash is called as
+                          bash -C        (said 'noclobber')
          it means it's prevented file overwrite.
          Still, even if called as bash -C, the >| will overwrite !!!
 
-     -   redirection 
+     -   redirection
 
-         ex1. 
+         ex1.
          # move a tree of dirs  tar -p (preserves file permissions)
          (cd /source/directory && tar cf - . ) | (cd /dest/directory && tar xpvf -)
          other ways:
              cp -a /source/directory/* /dest/directory
              #or to wok also with .hidden files:
-             cp -a /source/directory/* /source/directory/.[^.]* /dest/directory  
+             cp -a /source/directory/* /source/directory/.[^.]* /dest/directory
 
-         ex2. 
+         ex2.
          #if tar has not builtin the bunzip2 option:
          bunzip2 -c linux-2.6.16.tar.bz2 | tar xvf -
 
          ex3. back up of files
          find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
-                
+
                 -mtime -1: mod in the last day
                 -type f  : regular file
                 -print0  : print filename ending with 'null char' instaed of '\n'
@@ -531,25 +531,25 @@ VARIABLES
 ____________________________________________________________
      a=some_value   # SET var a to some_value
      a=             # SET var a but leave it NULL
-     unset a        # delete a var 
+     unset a        # delete a var
      $a        #the value. A better use is ${a}
      ${a}      to be used when var & strings must be concatenated:
                   my_id=${USER}-on-${HOSTNAME}   #stiv-on-stiv-GP60-2PE
                   PATH=${PATH}:/opt/bin
-  
-   Bash var are UNTYPED, they are just text, even if in case the string is built by only digits 
-   bash undertsang they are 'numbers' and give sense to any related arithmetic operation. 
+
+   Bash var are UNTYPED, they are just text, even if in case the string is built by only digits
+   bash undertsang they are 'numbers' and give sense to any related arithmetic operation.
    NOTE: that the 'integer' value of a sting is 0.
    NOTE: usually is 0 also the 'integer' value of UNSET o NOT_EXIXSTING (not declared) var
 
-   Integer in older versions of Bash were signed long (32-bit) integers, [-2147483648  2147483647]. 
+   Integer in older versions of Bash were signed long (32-bit) integers, [-2147483648  2147483647].
    As of version >= 2.05b, Bash supports 64-bit integers.
 
-   Bash does not understand floating point arithmetic. It treats numbers containing 
+   Bash does not understand floating point arithmetic. It treats numbers containing
    a decimal point as strings.
 
 
-   
+
    a=2334                   # Integer.
    let "a += 1"             # a = 2335
    b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
@@ -557,32 +557,32 @@ ____________________________________________________________
 
      -------------- DEFAULT:
      ${a-val}       # return val (if var a is NOT_SET, not exist)
-     ${a:-val}      # return val (if var a is NOT_SET or SET_BUT_NULL) 
+     ${a:-val}      # return val (if var a is NOT_SET or SET_BUT_NULL)
                   ex. a=1;  echo ${a-2}   #1          a set not null
                       a=;   echo ${a-2}   # nothing   a set but null
-                      a=;   echo ${a:-2}  #2          "      "   
+                      a=;   echo ${a:-2}  #2          "      "
                             echo ${b-2}   #2          b not set
                             echo ${b:-2}  #2          "      "
 
                   defaults are used in script when user omits optional arg
 
-     ${a=val}       # if a is NOT_SET                 set it = val (so if a is null left it null) 
-     ${a:=val}      # if a is NOT_SET or SET_BUT_NULL set it = val 
-     
-     ${a+val}       # return val if a is SET 
+     ${a=val}       # if a is NOT_SET                 set it = val (so if a is null left it null)
+     ${a:=val}      # if a is NOT_SET or SET_BUT_NULL set it = val
+
+     ${a+val}       # return val if a is SET
      ${a:+val}      # return val if a is SET + NOT_NULL
-     
+
      ${a?err_msg}   # if a NOT_SET         abort script with err_msg
      ${a:?err_msg}  # if a NOT_SET or NULL abort script with err_msg
-     -------------- 
-     
-     ${#a}        # return len of char for value of a 
+     --------------
+
+     ${#a}        # return len of char for value of a
                   # for an array only the len of 1st elem
                   ex. a=12345ab;    echo ${#a}        #7
                       a=(e1 e2 e3); echo ${#a}        #2
 
-                  ${#array[*]}    both give the number of elements in the array. 
-                  ${#array[@]} 
+                  ${#array[*]}    both give the number of elements in the array.
+                  ${#array[@]}
 
                       a=(e1 e2 e3); echo ${#a[*]}        #3
                       a=(e1 e2 e3); echo ${#a[@]}        #3
@@ -590,19 +590,19 @@ ____________________________________________________________
 Numbers are usually decimal (base 10).
 Prefix 0      is octal (base 8).                   let "oct = 032"   # 26
 Prefix 0x     is hexadecimal (base 16).            let "hex = 0x32"  # 50
-BASE#NUMBER   is any base 
-              # range (2 - 64) : 10 digits + 26 lowercase characters 
+BASE#NUMBER   is any base
+              # range (2 - 64) : 10 digits + 26 lowercase characters
                                            + 26 uppercase characters + @ + _
 
               let "b64 = 64#@_"      # 4031
 
 
               #  Using a digit out of range gives error .
-              
+
               let "bad_oct = 081"
               # (Partial) error message output:
               #  bad_oct = 081: value too great for base (error token is "081")
-              
+
               exit $?   # Exit value = 1 (error)
 
 
@@ -612,24 +612,24 @@ b=${!var}  the new construct ${!var} replace the old less readable eval var1=\$$
 and return the value of the variable whose name is the value of var
 e.g.
                     t=table_cell_3       # var t conatins that string text
-                    table_cell_3=24      # 
-                    echo "t = ${!t}"     # t = 24  that is the value of the variable 
+                    table_cell_3=24      #
+                    echo "t = ${!t}"     # t = 24  that is the value of the variable
                                                    named by t value
 
 ____________________________________________________________
 ENV VARIABLES
 ____________________________________________________________
 
-As any unix process, the shell has an "environment", a group of variables 
-that the process may reference. 
-Even if the env-space is limited, you can add ("export") environmental variables. 
-Those var are accessible 
-only to child processes. A script invoked from the command-line 
-cannot export variables back to the command-line, 
+As any unix process, the shell has an "environment", a group of variables
+that the process may reference.
+Even if the env-space is limited, you can add ("export") environmental variables.
+Those var are accessible
+only to child processes. A script invoked from the command-line
+cannot export variables back to the command-line,
 like Child cannot export variables back to the parent.
 
                 W R O N G                  R I G H T
-                
+
                MYVAR="hello"           MYVAR="hello"
                echo $MYVAR             echo $MYVAR;  export MYVAR
                hello                   hello
@@ -653,9 +653,9 @@ ____________________________________________________________
 
 Arguments passed to the script:  $0, $1, $2, $3 . . .
 
-    $0 : the name of the script itself, 
+    $0 : the name of the script itself,
     $1 : the first argument, ...  after $9, must be enclosed in brackets, ${10}, ${11}, ${12}.
-    $# : the NUMBER of passed parameters              
+    $# : the NUMBER of passed parameters
     $* : the string with ALL the positional parameters, (seen as a single word)
     $@ : the same of $* but each parameter is a quoted (each parameter is seen as a separate word).
 
@@ -667,7 +667,7 @@ The shift command reassigns the parameters :
 
 $1 <--- $2 $2 <--- $3                    old $1 disappears. $0 never change.
 ex.
-                until [ -z "$1" ]  
+                until [ -z "$1" ]
                 do
                   echo -n "$1 "
                   shift
@@ -676,11 +676,11 @@ ex.
 shift can take a numerical parameter indicating how many positions to shift. (ex. shift 3)
 
      To go through an array $a is
-     for i in $a        
+     for i in $a
      do ...
      done
 
-     the simple: 
+     the simple:
                     for i            (omitting 'in $a')
                     do  ...          means I'm cycling through the args of the script
                     done
@@ -690,13 +690,13 @@ set       the set fun. allow to overwrite what was the args to the script.
           nb.  the better way when setting through a variable (like here $a) instead
                a normal text, is with '--'
                set -- $a
-          
+
           the most used form is however with the (command substitution) form
           set `.... cmd .....`   (ex.  set `uname -a`)
-          
+
           set           (alone, with neither args or options)
-                        list the env vars 
-          
+                        list the env vars
+
 unset     to delete a var. (it sets it as NULL)
 ____________________________________________________________
 EXIT STATUS
@@ -707,9 +707,9 @@ ____________________________________________________________
             exit
      the exit status will be the one of the last command in the script.
 
-     Reserved values: 
+     Reserved values:
           1	general errors	(such as "divide by zero": let "var1 = 1/0")
-          2	Misuse of shell builtins (ex. Missing keyword or permission problem 
+          2	Misuse of shell builtins (ex. Missing keyword or permission problem
                                      (diff failed on binary file comparison)).
           126	Permission problem or command not an exe(ex. invoke /dev/null)
           127	"command not found"	(ex.Possible problem with $PATH or a typo)
@@ -730,9 +730,9 @@ Condition can be used in 'if' 'else' statements as
 if test condition1       # using a form with the 'test' keyword
 if [ condition1 ]        # usign a form with [ alias for test keyword
 if [[ condition1 ]]      # usign the better [[ ]] than []
-if condition1            # allow to use nothing 
+if condition1            # allow to use nothing
 if (( ))                 # when evaluates arithmetic expression. N.B. (( )) and 'let'
-                          works on arithmetic. If expression gives 0, its exit status = 1 --> FALSE. 
+                          works on arithmetic. If expression gives 0, its exit status = 1 --> FALSE.
                           This is in marked contrast to using the test and [ ]
 then
    command1
@@ -751,39 +751,39 @@ Use ; when 'if' and 'then' are on same line
       if [ -x "$filename" ]; then
 
 
-test is a bash builtin which tests FILE types and compares STRINGS. 
-Therefore, script does not call the external /usr/bin/test binary, 
+test is a bash builtin which tests FILE types and compares STRINGS.
+Therefore, script does not call the external /usr/bin/test binary,
 (which is part of the sh-utils package)
 Likewise, [ does not call /usr/bin/[, which is linked to /usr/bin/test.
-[ is a short alias for test. 
+[ is a short alias for test.
 A closing ] should not be strictly necessary, however newer versions of Bash require it.
 
-The [[ ]] construct is the more versatile Bash version of [ ]. 
+The [[ ]] construct is the more versatile Bash version of [ ].
 This is the extended test command, adopted from ksh88.
-No filename expansion or word splitting takes place between [[ ]], 
+No filename expansion or word splitting takes place between [[ ]],
 but there is parameter expansion and command substitution.
-Using [[ ]] rather than [ ] can prevent many logic errors. 
+Using [[ ]] rather than [ ] can prevent many logic errors.
 For example, && || < and > work in [[ ]] despite giving error in [ ]
-Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]] 
+Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]]
 
-Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary. 
+Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary.
 
-if [ 0 ]  
+if [ 0 ]
 then         # 0 is true.
 ......
 if [ 1 ]
 then          # 1 is true.
 ......
-if [ -1 ]    
+if [ -1 ]
 then          # -1 is true.
 ......
 if [ ]        # NULL (empty condition)
-then 
+then
 else          # NULL is false.
 ......
 xyz=          # Initialized, but set to null value.
 if [ -n "$xyz" ]
-then 
+then
 else          # Null variable is false
 ......
 if [ xyz ]    # string
@@ -793,7 +793,7 @@ if [ $xyz ]   # $xyz an uninitialized variable.
 then
 else          # Uninitialized variable is false.
 ......
-if cmp a b &> /dev/null  
+if cmp a b &> /dev/null
 then echo "Files a and b are identical."
 ......
 if grep -q Bash file
@@ -833,27 +833,27 @@ fi
 -L        file is a symbolic link
 -S        file is a socket
 -t        file (descriptor) is associated with a terminal device
-          This test option may be used to check whether the stdin [ -t 0 ] 
+          This test option may be used to check whether the stdin [ -t 0 ]
           or stdout [ -t 1 ] in a given script is a terminal.
 -r        file has read permission    (for the user running the test)
 -w        file has write permission   (for the user running the test)
 -x        file has execute permission (for the user running the test)
 -g        set-group-id (sgid) flag set on file or directory
-          If a directory has the sgid flag set, then a file created within that directory 
-          belongs to the group that owns the directory, 
-          not necessarily to the group of the user who created the file. 
+          If a directory has the sgid flag set, then a file created within that directory
+          belongs to the group that owns the directory,
+          not necessarily to the group of the user who created the file.
 -u        set-user-id (suid) flag set on file    (an s in its permissions)
-          An executable owned by root with set-user-id flag set runs with 
-          root privileges, even when an ordinary user invokes it. 
-          This is useful for executables (such as pppd and cdrecord) 
-          that need to access system hardware. 
+          An executable owned by root with set-user-id flag set runs with
+          root privileges, even when an ordinary user invokes it.
+          This is useful for executables (such as pppd and cdrecord)
+          that need to access system hardware.
           Lacking the suid flag, these binaries could not be invoked by a non-root user.
 	      -rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
 
 -k        sticky bit set  (a t in its permissions)
-          the save-text-mode flag permission. 
-             If set on a file: that file will be kept in cache memory, for quicker access. 
-             If set on a directory: restricts write permission. 
+          the save-text-mode flag permission.
+             If set on a file: that file will be kept in cache memory, for quicker access.
+             If set on a directory: restricts write permission.
              Olny the owner of a file can alter or delete files in that directory.
 	      drwxrwxrwt    7 root         1024 May 19 21:26 tmp/
           On Linux systems, the sticky bit is no longer used for files, only on directories.
@@ -887,24 +887,24 @@ ____________________________________________________________
 Using an unquoted string normally works, however, this is an unsafe practice.
 Always quote a string.
 
-=       is equal to       if [ "$a" = "$b" ]   
-                          Note the whitespace    if [ "$a"="$b" ] is not equivalent 
+=       is equal to       if [ "$a" = "$b" ]
+                          Note the whitespace    if [ "$a"="$b" ] is not equivalent
 ==      is equal to       if [ "$a" == "$b" ]   This is a synonym for =.
                           The == behaves differently within [[]] []
-                          
+
                               [[ $a == z* ]]   # True if $a starts with a "z" (pattern matching).
                               [[ $a == "z*" ]] # True if $a is equal to z*    (literal matching).
-                          
+
                               [ $a == z* ]     # File globbing and word splitting take place.
                               [ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
 
-!=      is not equal to   if [ "$a" != "$b" ]    
+!=      is not equal to   if [ "$a" != "$b" ]
         This operator uses pattern matching within a [[ ... ]] construct.
-<       is less than, in ASCII alphabetical order 
-         if [[ "$a" < "$b" ]] 
+<       is less than, in ASCII alphabetical order
+         if [[ "$a" < "$b" ]]
          if [ "$a" \< "$b" ]            Note that the "<" needs to be escaped within a [ ]
->       is greater than, in ASCII alphabetical order 
-         if [[ "$a" > "$b" ]] 
+>       is greater than, in ASCII alphabetical order
+         if [[ "$a" > "$b" ]]
          if [ "$a" \> "$b" ]
 -z      string is null, (zero length)
 
@@ -924,7 +924,7 @@ TEST WITH   AND  OR   -a  -o    &&  ||
 ____________________________________________________________
 
 Tests conditions can be chained with boolena opertors NOT (!)   AND   OR
-Remeber once again that what Bash uses for each test condition is its EXIT STATUS 
+Remeber once again that what Bash uses for each test condition is its EXIT STATUS
 
 
 -a      logical and          exp1 -a exp2 returns true if both  are true.
@@ -942,11 +942,11 @@ else
   echo "Either expr1 or expr2 is false."
 fi
 
-     &&   (AND logical operator). 
+     &&   (AND logical operator).
            returns 0 (success) only if both conditions are true.
 
-     a=$(( 0 && 1 )) ; echo $a     # 0 
-     (( 0 && 1 )) ;    echo $?     # 1 
+     a=$(( 0 && 1 )) ; echo $a     # 0
+     (( 0 && 1 )) ;    echo $?     # 1
 
 
 Caution	:
@@ -987,8 +987,8 @@ ____________________________________________________________
            if ....       while :    until ...    for a in [list]
            then :        do         do           do
            else            ...        ...         ...
-           elif          done       done         done 
-           fi: 
+           elif          done       done         done
+           fi:
 
 
 
@@ -1012,20 +1012,20 @@ ____________________________________________________________
                 ex cut -d: -f1 /etc/passwd
         -c  only these columns
                 ex cut -b "1 2 3 4"   /etc/passwd
-         
+
    join     with 2 files f1 f2 which have the same values in each line
-            (like the same key) join produce a file where each line is 
-            obtained from the line of f1 and f2 (appended) 
+            (like the same key) join produce a file where each line is
+            obtained from the line of f1 and f2 (appended)
              with the same value for the key
 
    paste    like join but work on line without any key
             so 1 outpute line is line f1 + append line f2
-            
+
    expand     tab into spaces (default 8)        (the opposite is unexpand -a -t)
         -t4   to define another values instead of 8
         -i    only first tab on a line
 
-   split    creates more files each containing n lines 
+   split    creates more files each containing n lines
         -n  num of lines (default 1000)
 
    tr  s1 s2     changes string s1 with corresponding char fo s2 (s1 len = s2  len)
@@ -1043,12 +1043,12 @@ ____________________________________________________________
 OPERATE ON FILES
 ____________________________________________________________
 
-   bzip2    
+   bzip2
         -d   decompress
-        -1 .. -9  100k ... 900k (block size) 
+        -1 .. -9  100k ... 900k (block size)
                   -1 fast (larger size)
 
-   cpio     creates archives .cpio (with no compression) 
+   cpio     creates archives .cpio (with no compression)
             It uses -o with > to create the archive
 
                cpio < [filenames ...] > [archive]
@@ -1056,7 +1056,7 @@ ____________________________________________________________
 
             It uses -i with < to extract the archive
                cpio –i < [archive]
-               cpio –iv < /tmp/archive.cpio 
+               cpio –iv < /tmp/archive.cpio
 
    dd
         one of the few cmd that operates on disk without filesystem
@@ -1072,12 +1072,12 @@ ____________________________________________________________
    tee
         write both on stndio and in a file specified
         so that in a pipe:
-        
+
         cmd1 | cmd2 | cmd3 > file1
 
         I can intercept some output and store in a file
 
-        cmd1 | tee file_cmd1 | cmd2 | cmd3 > file1  
+        cmd1 | tee file_cmd1 | cmd2 | cmd3 > file1
 
         The output of cmd1 still travels through the pipe, but
         it's also saved in file_cmd1
@@ -1090,7 +1090,7 @@ ____________________________________________________________
   to use for nice and renice
 
 
-   ps 
+   ps
        -f  to see also the args passed to a cmd  (anoher way strings -1 /proc/$pid/cmdline)
        -x  to see also daemons
 
@@ -1115,7 +1115,7 @@ ____________________________________________________________
    free      show the RAM usage
        -m, -g, -h to see in Mega, Giga, human readable
 
-   uptime  info on how long sys is running / logged users / 
+   uptime  info on how long sys is running / logged users /
        average of blocked proc (waiting for resouces) (average on last 1,5,15 min)
        A system relatively busy (web server) presents somehing as:
 
@@ -1144,11 +1144,11 @@ ____________________________________________________________
    nice   a proc is nice with respect to the other procs if it decreases its priority
           Thus the term nice to indicate with positive num (more niceness) I want
           less priority. Negative num, increment the priority (only superuser can do)
-         
+
           nice -n val cmd     val -20 +19  (each proc start with 0. default value is 10)
           nice -val   cmd     -n can be omitted and give only the value with a -
 
-              nice -n -10 vi /etc/hosts.deny     
+              nice -n -10 vi /etc/hosts.deny
               nice --10 vi /etc/hosts.deny    nb. -- (1st to not have -n, 2nd is the minus)
 
           nice is used only when the cmd is launched. When a proc is already running
@@ -1159,7 +1159,7 @@ ____________________________________________________________
 ____________________________________________________________
 GREP / SED
 ____________________________________________________________
-   
+
    grep -E   or egrep    (GNU extensions of grep)
                           grep            egrep
                           \?                ?
@@ -1168,7 +1168,7 @@ ____________________________________________________________
                           \|                |
                           \(regex\)        (regex)   to catch vars \1 .. \9
 
-   sed  
+   sed
        -e  'cmd'                      sed '3,5d' file
        -f  file_with_sed_cmds         sed '1~2d' file      n~m  is a GNU extension for addressing lines
                                                                 it means start at line n and go at step m
@@ -1184,10 +1184,10 @@ ____________________________________________________________
       nb. cmds are executed 1 AFTER the other (so operates on output of previous)
           if I write a script like
           1,10{                   to replace 3th and 4th " in first 10 lines with ( and )
-          s/"/(/3                 it wouldn't work as expected, as 
+          s/"/(/3                 it wouldn't work as expected, as
           s/"/)/4                 once the 3th " has been changed to (
           }                       what was the 4th " is now the 3th!!!
-         
+
 ____________________________________________________________
 TO MANIPULATE TXT FILES
 ____________________________________________________________

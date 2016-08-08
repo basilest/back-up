@@ -3,8 +3,8 @@
 vim plugin:
            JSLint
             jshint.com
-           Syntastic Vim plugin - Best syntax-checker around for plenty of languages, 
-                                  plus it integrates with Vim's location-list (==quickfix) window. 
+           Syntastic Vim plugin - Best syntax-checker around for plenty of languages,
+                                  plus it integrates with Vim's location-list (==quickfix) window.
            jsl (JSLint executable)
             tern.js
 
@@ -13,16 +13,16 @@ vim plugin:
 
 
 
-                        JavaScript is part of the triad of technologies that all Web developers must learn: 
-.HTML        the content of web pages, 
-.CSS         the presentation 
-.JavaScript  the behavior.    (with the advent of Node (http://nodejs.org), 
+                        JavaScript is part of the triad of technologies that all Web developers must learn:
+.HTML        the content of web pages,
+.CSS         the presentation
+.JavaScript  the behavior.    (with the advent of Node (http://nodejs.org),
                                JavaScript has also become an important programming language for web servers
 
--UNICODE        JavaScript programs are written in Unicode (a 16.bit superset of ASCII supportings 
+-UNICODE        JavaScript programs are written in Unicode (a 16.bit superset of ASCII supportings
                                                            virtually every written language currently used on the planet)
 -case-sensitive.
-                       Note on string comparison: all capital ASCII letters are “less than” all lowercase. 
+                       Note on string comparison: all capital ASCII letters are “less than” all lowercase.
                        According to < the string “Zoo” comes before the string “aardvark”
 
 -comments           //  1 line             /*   block  */
@@ -32,8 +32,8 @@ vim plugin:
 -reserved word:
                  break  case          catch       continue       debugger      default      delete
                  do     else          false       finally        for           function     if
-                 in     instanceof    new         null           return        switch       this   
-                 throw  true          try         typeof         var           void         while         
+                 in     instanceof    new         null           return        switch       this
+                 throw  true          try         typeof         var           void         while
                  with
                  ECMAScript 5 reserves :
                  class  const         enum        export         extends       import       super
@@ -44,7 +44,7 @@ vim plugin:
                                             .last command before }
 
 -primitive types:
-                N.B. JavaScript converts from one type to another. 
+                N.B. JavaScript converts from one type to another.
                      (ex. a function expects a string, and you give it a number: it's converted into a string)
 
 -untyped:       you can assign a value of any type to a variable, and you can later assign another
@@ -63,7 +63,7 @@ vim plugin:
 
 -scope:         In C-like each block of code {} has its own scope, (var are not visible outside)
                 This is called block scope.
-                JavaScript instead, uses function scope: 
+                JavaScript instead, uses function scope:
                 var are visible in the fun where defined and in any nested fun in that function.
 
 
@@ -80,14 +80,14 @@ vim plugin:
                   Math.ceil(.6)       => 1.0: round up to an integer
                   Math.floor(.6)      => 0.0: round down to an integer
                   Math.abs(-5)        => 5: absolute value
-                  Math.max(x,y,z)     Return the largest argument            
-                  Math.min(x,y,z)     Return the smallest argument           
+                  Math.max(x,y,z)     Return the largest argument
+                  Math.min(x,y,z)     Return the smallest argument
                   Math.random()       Pseudo-random number 0 <= x < 1.0
 
                   Math.PI                   π
                   Math.E                    e: The base of the natural logarithm
                   Math.sqrt(3)              The square root of 3
-                  Math.pow(3,1/3)           The cube root of 3 
+                  Math.pow(3,1/3)           The cube root of 3
                   Math.sin(0)               Trig: also Math.cos, Math.atan, etc.
                   Math.log(10)              Natural logarithm of 10
                   Math.log(100)/Math.LN10   Base 10 logarithm of 100
@@ -99,9 +99,9 @@ vim plugin:
                     octal_string  = "0" + n.toString(8);     // "021"
                     hex_string    = "0x" + n.toString(16);   // "0x11"
 
-                parseInt() parseFloat() 
-                              skip leading whitespace, 
-                              parse as many numeric characters as they can, 
+                parseInt() parseFloat()
+                              skip leading whitespace,
+                              parse as many numeric characters as they can,
                               and ignore anything that follows.
 
                        parseInt("3 blind mice")       //    3
@@ -118,10 +118,10 @@ vim plugin:
 
 -Strings:       - array of 16.bit Unicode Char starting from pos.0 to len-1
                   char must be accessed by s.charAt(). In ECMAScript 5 also as s[0]  or s[s.length-1]
-                - Delimit them with both "" or '' 
+                - Delimit them with both "" or ''
                 - s.length  to have the len
                 - '+' to concatenate:   msg = "Hello, " + "world";
-                - usual escape   \n \t \\ 
+                - usual escape   \n \t \\
 
                   var s = "hello, world"
                   s.charAt(0)                   => "h": the first character.
@@ -137,12 +137,12 @@ vim plugin:
                   s.toUpperCase()               => "HELLO, WORL"
 
                   Note that any value other than 'null' or 'undefined' has a
-                                 toString() method 
-                  and the result of this method is usually the same as that returned by the 
+                                 toString() method
+                  and the result of this method is usually the same as that returned by the
                                  String() function
 
--'+':             + give priority to string concatenation: if either of the operands is a string
-                    or an object that converts to a string, the other operand is converted to a string and 
+-'+':             + gives priority to string concatenation: if either of the operands are strings
+                    (or an object that converts to a string), the other operand is converted to a string and
                     concatenation is performed. Addition is performed only if neither operand is string-like.
 
 -Boolean:         'true' 'false'  a == 4
@@ -161,7 +161,7 @@ vim plugin:
                                is the value of var never initialized
                                the return value of fucntions which have no return
                                the value of var that not exist (field of an object, or par of a function)
-                      Despite these differences, null and undefined both indicate an absence of value 
+                      Despite these differences, null and undefined both indicate an absence of value
                       and can often be used interchangeably. The equality operator == considers them to be equal (and 'false')
                      (Use the strict equality operator === to distinguish them.)
 
@@ -171,11 +171,11 @@ vim plugin:
 
                          x + "" // Same as String(x)
                          +x     // Same as Number(x). Also x-0
-                         !!x    // Same as Boolean(x). Note double !
+                         !!x    // Same as Boolean(x). NB: double !
 
 -eval()              Like any interpreted language also javascript has the 'eval()'
                      eval() expects one argument. If its is a:
-                      . value it simply returns that value. 
+                      . value it simply returns that value.
                       . string, it attempts to parse the string as JavaScript code  # ex. eval("3+2")
                          throwing a SyntaxError if it fails to parses the string
 
@@ -183,7 +183,7 @@ vim plugin:
                      overwritten with possible code snippetes like the following
 
                          eval("var y = 3;")      # var y would hide any other local var y
-                         eval("function f() { return x+1; }");   # define on the fly a inner function
+                         eval("function f() { return x+1; }");   # defines on the fly an inner function
 
 -The Global Object:  A J. program when started has a Global Object (like a unix environment) instantiated. Any
                      user global var is a field of the Global Object. You can refer in any time to the Global Object
@@ -198,14 +198,14 @@ vim plugin:
                      var q = {};              // Empty object; no properties
                      var p = { x:2, y:1 };    // An object with 2 properties
                      q.x = 2; q.y = 1;        // Now q has the same prop as p
-                     
+
                      var rectangle = { upperLeft:  { x: 2, y: 2 },
                                        lowerRight: { x: 4, y: 5 } };
-                     
+
                      property names may be quoted strings (this is useful to use names that are reserved words)
                      var square = { "ul": { x: p.x, y: p.y },
                                     'lr': { x: p.x + side, y: p.y + side}};
-                     
+
                      Moreover property can be accessed with 2 notations:
                          object . prop
                          object [prop]
@@ -228,8 +228,8 @@ vim plugin:
                               var o = { x: 1 }
                               o.x !== undefined;     true
                               o.y !== undefined;     false
-                      
-                     this doesn't work if propertie exists but have been set to undefined
+
+                     this doesn't work if property exists but have been set to undefined
                              var o = { x: undefined }
                              o.x !== undefined    false
                              "x" in o             true
@@ -241,7 +241,7 @@ vim plugin:
                              d instanceof Date;        //  true
                              d instanceof Object;      //  true
                              d instanceof Number;      //  false
-                         var a = [1, 2, 3];        
+                         var a = [1, 2, 3];
                              a instanceof Array;       //  true
                              a instanceof Object;      //  true
 
@@ -249,15 +249,15 @@ vim plugin:
 Strict equality ( === )   If both operands have different types                              --> false
                           If both operands are primitive types and their values are the same --> true
                           If both operands refer to the same object, array, or function      --> true
-                          If they refer to different objects 
+                          If they refer to different objects
                              even if both objects have identical properties                  --> false
                          two arrays that have the same elements in the same order            --> false
                          NaN not equal to any other value, including itself!
 
-Strict inequality ( !== ) is the exact opposite of the === 
+Strict inequality ( !== ) is the exact opposite of the ===
 
-Loose equality ( == )    If the values of the two operands are not the same type, 
-                         it attempts conversions and tries again. 
+Loose equality ( == )    If the values of the two operands are not the same type,
+                         it attempts conversions and tries again.
                          null ==  undefined  --> true
                                                                  1     == "1"  \
                                                                  true  == 1     |
@@ -265,10 +265,10 @@ Loose equality ( == )    If the values of the two operands are not the same type
                                                                  false == 0     |
                                                                  []    == 0    /
 
-&&  ||:     As J. can interpret any type for boolean (according to type conversion) && and || have 
+&&  ||:     As J. can interpret any type for boolean (according to type conversion) && and || have
             deep meaning in J. The rules are:
-                1. As soon as a result can be returned the interpretation is stopped 
-                   (so following operands of && || are not considered)
+                1. As soon as a result can be returned the interpretation is stopped
+                   (so following operands of && || are not considered) - short circuit as C & Perl
                 2. The return value is the operands that make the interpretation stopped
 
                    var o = { x : 1 };
@@ -281,7 +281,7 @@ Loose equality ( == )    If the values of the two operands are not the same type
                    function copy(o, p) {
                                         p = p || {};               // If no object passed for p, use a new one
                                         ...... }
-                                        
+
 typeof:        it returns a String:
                                         x                 typeof x
                                  ----------------------------------------
@@ -303,7 +303,7 @@ delete:         attempts to delete the object property or array element
 with            with (object)
                      statement
                 The with statement is:
-                 forbidden in strict mode 
+                 forbidden in strict mode
                  deprecated in nonstrict mode
 
 "use strict";   <---  This 13 chars mark in the code the position, from which on the
@@ -320,15 +320,15 @@ for/in        a form of iteration usefull when iteration the properties of an ob
                       for(var p in o)
                            console.log(o[p]); // Print each property
 
-              The ECMAScript specification does not describe the order in which the loop 
-              enumerates the properties of an object. 
-              In practice, JavaScript implementations from all major browser 
+              The ECMAScript specification does not describe the order in which the loop
+              enumerates the properties of an object.
+              In practice, JavaScript implementations from all major browser
               enumerate  the properties of simple objects in the order in which they were defined
 
 throw         The syntax is:    throw expression;        expression may be a value of any type:
 
-                                          - a number (that represents an error code) 
-                                          - a string (that contains a human-readable error message). 
+                                          - a number (that represents an error code)
+                                          - a string (that contains a human-readable error message).
                                           - an Error() object: used by J. but you can use them as well. Has:
                                                        . a name property (that specifies the type of error)
                                                        . a String message property passed to the constructor
@@ -348,8 +348,8 @@ try/catch/finally
                    // method that throws an exception.                      |}
                    }                                                        |
                    catch (e) {                                              |
-                   // The statements in this block are executed if, andp    |  catch (ex) {
-                   // only if, the try block throws an exception. These     |           alert(ex);  
+                   // The statements in this block are executed if, and     |  catch (ex) {
+                   // only if, the try block throws an exception. These     |           alert(ex);
                    // statements can use the local variable e to refer      |  }
                    // to the Error object or other value that was thrown.   |
                    // This block may handle the exception somehow, may      |
@@ -365,8 +365,8 @@ try/catch/finally
 
 
 --------------------------------------------------------------- OBJECS
-                          Objects are manipulated by reference rather than by value: 
-                          var y = x; y holds a reference to x, not a copy. 
+                          Objects are manipulated by reference rather than by value:
+                          var y = x; y holds a reference to x, not a copy.
                           Any modifications through y modifies also x
 
 create:      1.   use the syntax { name_field : value }
@@ -390,20 +390,20 @@ create:      1.   use the syntax { name_field : value }
                  var d  =  new  Date();          // A Date for the current time.
                  var r  =  new  RegExp("js");    // A pattern matching object.
 
-             4.  prototype:  It's like a 'father class for an object.              
+             4.  prototype:  It's like a 'father class for an object.
                              any object has a 'Object.prototype' object behind
-                             primitive types most often has this: Object.prototype  
+                             primitive types most often has this: Object.prototype
                              but they can have others (ex. Date as both Date.prototype
-                             and Object.prototype) so ther can be 'chains' of 
+                             and Object.prototype) so there can be 'chains' of
                              prototypes associated to an object
 
-                             So it's like javascript as a multiple inheritance.
-                             
-                             using the following 3-steps core code I can make an 
-                             'inheritance function:
+                             So it's like javascript has a multiple inheritance.
+
+                             using the following 3-steps core code I can make an
+                             'inheritance' function:
 
                              1. function f() {};
-                             2. f.prototype = p; 
+                             2. f.prototype = p;
                              3. return new f()
 
                           function inherit(p) {
@@ -420,7 +420,7 @@ create:      1.   use the syntax { name_field : value }
                              return new f();            // Use it to create an "heir" of p.
                           }
 
-             3.  (ECMAScript 5)  create()  
+             3.  (ECMAScript 5)  create()
                              Object.create() is a static function. The args are:
                              1st: the list of prototypes I want to associate to that object.
                              2nd (optional)  the same type as specified in  Object.defineProperties()
@@ -432,12 +432,12 @@ create:      1.   use the syntax { name_field : value }
                              when I write o.x  J goes through all the chain of prototypes
                              to serach for field 'x' if it's not present directly in 'o'.
 
-                                 
+
                                  var o = {}           // o inherits object methods from Object.prototype (ex. toString()
                                  o.x = 1;             // and has an own property x.
                  see above f <-- var p = inherit(o);  // p inherits properties from o and Object.prototype
                                  p.y = 2;             // and has an own property y.
-                              
+
                                  var q = inherit(p);   // q inherits properties
                                  q.z = 3;              // and has an own property z.
                                  var s = q.toString(); // toString is inherited from Object.prototype
@@ -458,7 +458,7 @@ create:      1.   use the syntax { name_field : value }
                                 function extend(o, p) {
                                          for(prop in p) {  // go through all the (enumerable) prop of p
                                          o[prop] = p[prop]; // Add the property to o.
-                                         }  
+                                         }
                                          return o;
                                 } // this function add to o all the prop of p
                                      o mantains what it had before
@@ -473,7 +473,7 @@ create:      1.   use the syntax { name_field : value }
 
 --------------------------------------------------------------- Serialization
 
-JSON.stringify()         to have a string from an object  s = JSON.stringify(o);
+JSON.stringify()         to have a string from an object    s = JSON.stringify(o);
 JSON.parse()             to reread back an build an object  p = JSON.parse(s);
 
 JSON stands for “JavaScript Object Notation,”
@@ -484,34 +484,34 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
       var p = {
                 x: 1.0,
                 y: 1.0,
-                get r() { 
+                get r() {
                      return ...
                 },             <--- comma
                 set r( ...) {
                      this.x *= ...
                      this.y *= ...
                 },             <--- comma
-                           
+
 --------------------------------------------------------------- Property Attributes
             each field of an object has 4 properties:
 
-                                             value 
+                                             value
                                              writable
                                              enumerable
                                              configurable
 
             they are conatined in what (ECMAScript 5) calls a 'property descriptor'
 
-         -  to get it there is the fun Object.getOwnPropertyDescriptor()
-            ex. for the above p is 
-            Object.getOwnPropertyDescriptor(p, "x");  --> Returns {value: 1.0, writable:true, 
+         -  to get this 'property descriptor' there is the fun Object.getOwnPropertyDescriptor()
+            ex. for the above p is
+            Object.getOwnPropertyDescriptor(p, "x");  --> Returns {value: 1.0, writable:true,
                                                                    enumerable:true, configurable:true}
 
-         -  it's possible to create or modify fields and thei prop through the fun
+         -  it's possible to create or modify fields and their prop through the fun
             Object.defineProperty():
 
             var o = {}; // Start with no properties at all
-            
+
             Object.defineProperty(o, "x", { value : 1,  // Add a nonenumerable x with value 1.
                                             writable: true,
                                             enumerable: false,
@@ -533,11 +533,11 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
                                             get: function() { return 0; }
                                             });
             o.x                 // => 0
-             
-             
-    If you want to create or modify more than one property at a time, use 
-                          Object.defineProperties() . 
-    1st argument is the object that is to be modified. 
+
+
+    If you want to create or modify more than one property at a time, use
+                          Object.defineProperties() .
+    1st argument is the object that is to be modified.
     2nd argument is an object that maps the names of the properties to be created or modified
 
     For example:
@@ -556,26 +556,26 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
                                           });
 
 --------------------------------------------------------------- Object Attributes
-          
+
           Every object has associated 3 attributes
-                                                    prototype, 
-                                                    class, 
+                                                    prototype,
+                                                    class,
                                                     extensible
-             
+
           prototype: we have seen that each object has behind a prototype obj. It is
-                     1.  Object.prototype   when the obj is created 
+                     1.  Object.prototype   when the obj is created
                                             literally:    var point = { x:0, y:0 };
 
-                     2.  Date.prototype  (for ex)   when the obj is created 
+                     2.  Date.prototype  (for ex)   when the obj is created
                                                     with a new():     var d = Date();
 
-                     3. any obj spec. as 1st arg when the obj is created 
+                     3. any obj spec. as 1st arg when the obj is created
                                                  with a create()      var o = Object.create(p);
 
                      Object.getPrototypeOf() : return the prototype chain of 1 obj
                      p.isPrototypeOf(o):  returns 'true' if p is prototype of o
 
-                     var p = {x:1};                 
+                     var p = {x:1};
                      var o = Object.create(p);         // Inherit from p (prototype).
                      p.isPrototypeOf(o)                // true.
                      Object.prototype.isPrototypeOf(p) // true for any object.
@@ -591,13 +591,13 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
                      }
 
           extensible: allow or avoid an object can be modified/ extended in the future.
-                     There is a set of functions. 
+                     There is a set of functions.
                      nb. there is no way to undo their effects
                                 Object.preventExtensions() :     avoid future mods
-                                Object.seal()              :     more strict 
+                                Object.seal()              :     more strict
                                 Object.freeze()            :     even more strict
-           
-                                Object.isExtensible()      
+
+                                Object.isExtensible()
                                 Object.isSealed()
                                 Object.isFrozen()
 --------------------------------------------------------------- Classes
@@ -608,7 +608,7 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
     "a class is a set of objects that inherit properties
      from the same prototype obj"
 
-    Thus, if we define a prototype object, and then use Object.create() 
+    Thus, if we define a prototype object, and then use Object.create()
     to create objects that inherit from it, we have defined a JavaScript class.
 
 
@@ -622,13 +622,13 @@ the sugar syntax is used the keyword 'get' and 'set' and a comma after the fun d
 
 
 --------------------------------------------------------------- DOM
-   
+
    Content of a Web page = Document Object (DO). It's the central object
    of a larger model (DOM: (Document Object Model)) that is a set of API
    around DO.
 
 tree:   the HTML / XMTL docs are modelled as a 'hierarchy tree', where
-        the 'NODES' are both 
+        the 'NODES' are both
               the '<tag>s'   (called ELEMENTS-nodes)    (1)
               the text 'String' representing some values (called TEXT-nodes) (2)
         The 'root' of the tree is the 'DOCUMENT'-node (3)
@@ -643,7 +643,7 @@ Javascript:  provides a lot of functions to manipulate the node of the tree
         There are different ways to select:
             1. by 'id'
             2. by 'name'
-            3. by 'tag' 
+            3. by 'tag'
             4. by CSS class/ classes
             5. by CSS selector
 
@@ -661,7 +661,7 @@ Javascript:  provides a lot of functions to manipulate the node of the tree
 
 
      - getElementsByName()      var btns = document.getElementsByName("color");
-                         
+
                                 as 'name' can be not unique in the 'document'
                                 the fun can return 1 entry or a list of all the
                                 nodes (with that 'name')   (the list is of type 'NodeList')
@@ -671,7 +671,7 @@ Javascript:  provides a lot of functions to manipulate the node of the tree
                                         ^  ^^^^^^^^^^^^
     ----------------- 3. by tag
 
-    ex get all the nodes for a specific <tag>  (ex <span>) 
+    ex get all the nodes for a specific <tag>  (ex <span>)
 
      - getElementsByTagName()             var spans = document.getElementsByTagName("span");
                                           It returns a list (ordered like they are in the doc).
@@ -680,62 +680,63 @@ Javascript:  provides a lot of functions to manipulate the node of the tree
      '*'           to get all the tags: getElementsByTagName("*")
 
      The list can be of type 'NodeList' or also for some tag of type 'HTMLCollections'.
-     (<img> <form>  <a>). Anyhow they works with the same functions.  These lists are 
-     read-only. 
+     (<img> <form>  <a>). Anyhow they works with the same functions.  These lists are
+     read-only.
                             // Loop through all images and hide them
                             for(var i = 0; i < document.images.length; i++)
                             document.images[i].style.display = "none";
 
+--------------------------------------------------------------- .
+   (Apache) Subversion [SVN]
+
+   2000 created by CollabNet to replace CVS
+   2009 accepted in (Apache) Incubator
+        Apache Incubator is the gateway for open-source projects
+        intended to become fully fledged Apache Software Foundation projects.
 
 
-
---------------------------------------------------------------- Object Attributes
---------------------------------------------------------------- Object Attributes
-
-             
-             
-             
-             
-             
-             
-             
-               
-               
-               
-               
+   2016: ver 1.9
 
 
+   Repository : SNC calls them 'filesystem'
 
+   Repository type: FSFS "FileSystem atop the FileSystem" is since 2004
+                    the new format replacing the 2000 original 'Berkley DB'
+                    It stores the FSF repo structure, the 'filesystem'
+                    as a file in the normal Linux filesystem
 
+   Accesses:        To access the repo, there are 3 protocols:
+                       . file:///....    access the filesystem local or network)
+                       . http[s]://      using inside Apache 2 the module (mod_dav_svn)  (WebDAV)
+                       . svn://          custom protocol over TCP (port 3690)
+                                         it becomes 'svn+ssh://' when tunneling over ssh
 
+   Architecure:    is built as a stack of layers:
+                       . FS     : lowest level, is the versioned filesystem
+                       . Repos    wrapper araound the bare Filesystem (FS)
+                                  it's a set of scripts that run on some events
+                                  FS + Repos constitute  the 'filesystem interface'
+                       . mod_dav_svn  implements the http[s] protocol interface
+                       . RA       Repos Access, implements the other accesses (protocols: file, & svn)
+                       . Client:  the most abstract level to manage high level client tasks (authentication, ...)
 
+   Revisions:     a filesystem_path + number
 
+   Transactions  operations on the Repo are
+                   - atomic operations on revisions (any, not necessarily the last)
+                   - done as a series of these atomic steps (transactions).
 
+   Properties    are text pairs 'name=value' that user can add with no limit
+                 to any node of the tree.
+                 Some built in properties are available.
+                 They have tha form: 'svn:xxxxxxx'=value (so a 'name' starting with 'svn:')
+                 ex: svn:executable=....
+                     svn:ignore=....
+                     svn:eol-style=....
 
+                 Properties are themself versioned.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   Rename        are implemented as 'copy + delete'
 
 
 

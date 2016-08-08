@@ -1,6 +1,6 @@
 SPACES                1 space = blanks | tabs
                       Several consecutive whitespace characters are treated as
-                      1 “space". 
+                      1 “space".
 
 PARAGRAPH             1 blank-line defines end of PARAGRAPHs
 
@@ -8,10 +8,10 @@ SPECIAL CHARS         # $ % ^ & _ { } ~ \
                       as they have special meaning to insert them, they must be escaped
                       with \   ex \#
 
-\textbackslash        to escape \  (it's not used \\. \\ forces a new-line)                      
+\textbackslash        to escape \  (it's not used \\. \\ forces a new-line)
 
 \COMMANDS             - LateX commands start with a \
-                      - are CASE SENSITIVE 
+                      - are CASE SENSITIVE
                       - are formed by {letters} only
                       - so they end at 1st non-letter char {ex space or numbers...}
                       - args: after the command name, some parameters may follow
@@ -24,7 +24,7 @@ COMMENTS              %  comments out :
 GENERAL DOC STRUCTURE                     ______________
                        \documentclass{...}                 PREAMBLE
                        \usepackage{...} _________________
-                       \begin{document} 
+                       \begin{document}
                            ..                              BODY
                        \end{document}___________________
                            ..                              anything following is ignored
@@ -38,18 +38,18 @@ COMPILATION            1. write the doc in a file A.tex
                        4. transform to postscript:
                           dvips -Pcmz A.dvi -o A.ps
                        5. transform to pdf:
-                          dvipdf A.dvi 
+                          dvipdf A.dvi
 
-Doc CLASSES           
-                       article    for articles in scientific journals, presentations, 
+Doc CLASSES
+                       article    for articles in scientific journals, presentations,
                                   short reports, program documentation, invitations, . . .
                        proc       a class for proceedings based on the article class.
-                       minimal    is as small as it can get. It only sets a page size and 
+                       minimal    is as small as it can get. It only sets a page size and
                                   a base font. It is mainly used for debugging purposes.
-                       report     for longer reports containing several chapters, 
+                       report     for longer reports containing several chapters,
                                   small books, PhD theses, . . .
                        book       for real books
-                       slides     for slides. The class uses big sans serif letters. 
+                       slides     for slides. The class uses big sans serif letters.
                                   You might want to consider using the Beamer class instead
 
 Doc CLASSES OPTIONS    are separated by commas ,
@@ -65,18 +65,18 @@ Doc CLASSES OPTIONS    are separated by commas ,
                        onecolumn, twocolumn    1 or 2 cols
                        twoside, oneside        Specifies whether double or single sided
                                                article and report are single sided
-                                               and the book double sided by default. 
+                                               and the book double sided by default.
                        landscape               Changes the layout in landscape
                        openright, openany      chapters begin only on right pages or
-                                               on the next available.  
+                                               on the next available.
                                                not works with article as it does not know about chapters.
 
-PACKAGES               to enhance the capabilities of LateX 
+PACKAGES               to enhance the capabilities of LateX
                        (ex. graphics, coloured text)
                        It's possible  to write your own extensions
 
-PAGE style             \pagestyle{ style }  
-                                  - plain      page num on the bottom (in the middle of the footer). 
+PAGE style             \pagestyle{ style }
+                                  - plain      page num on the bottom (in the middle of the footer).
                                                This is the default page style.
                                   - headings   page num in the header
                                   - empty      header / footer empty
@@ -91,7 +91,7 @@ INCLUDE                To split a big project in more files
                        \include{ filename }   include a file in a new page
                        \input{ filename }     like \include but not in a new page
                        \includeonly{ filename, filename, ...}  if added in the preamble limits
-                                              the range of subsequent \include 
+                                              the range of subsequent \include
                                               to only these listed files
 
 \usepackage{syntonly}  to only check consistency fo the doc (pre-processing) without
@@ -101,7 +101,7 @@ INCLUDE                To split a big project in more files
 line/page breaks       \\ or \newline    forces a new line
                        \newpage          forces a new page
                        ~                 a space to not enlarge (ex in Fig. 5
-                                         after the . LateX enlarges the space 
+                                         after the . LateX enlarges the space
                                          as it thinks a new sentence it's starting.
                                          To inhibit that, write Fig.~5)
                        \@                To enlarge a space. (ex I like BASIC.
@@ -111,14 +111,14 @@ line/page breaks       \\ or \newline    forces a new line
 
 
 \linebreak[n] \nolinebreak[n] \pagebreak[n] \nopagebreak[n]
-                       ask to break or nobreak (a line or a page) at the point where the 
+                       ask to break or nobreak (a line or a page) at the point where the
                        command is issued.
                        The optional n from 0 to 4 makes the request more o less strong
                        4 is strongest.
 
 -                      there are 4 types of -
                           .hyphen        a single - (insert it writing -)
-                          .en-dash       a longer - (insert it, writing --) 
+                          .en-dash       a longer - (insert it, writing --)
                           .em-dash       an even longer - (insert it writing ---)
                           .minus sign    the minus for numbers (insert it writing $-$)
 
@@ -128,9 +128,9 @@ line/page breaks       \\ or \newline    forces a new line
 /                      \slash
 
 °                      degree symbol. \usepackage{textcomp}
-                                      then \textdegree{}  
+                                      then \textdegree{}
                                       \textdegree{}C can be also written directly as
-                                      \textcelsius{} 
+                                      \textcelsius{}
 
 €                      euro symbol. \usepackage{textcomp}
                                     \texteuro
@@ -143,10 +143,10 @@ accents                \^o      o with ^ above
                        \o       barred o (sweden)
                        \~o      o with tilde above
                        \ss      the german B (Schloss)
-                       
+
 
 \mbox{ text }          to force 'text' to stay on the same line (ex. a phone num)
-                       it is also used in 'Ligatures', when ex ff fi ffl ffi 
+                       it is also used in 'Ligatures', when ex ff fi ffl ffi
                        special symbols which are better printed without writing the chars
                        together. ex instead of ff, f\mbox{}f (with an empty \mbox{})
 
@@ -156,7 +156,7 @@ accents                \^o      o with ^ above
 
 \Tex                   to print those symbols
 \LaTeX
-\LaTeXe     
+\LaTeXe
 
 Quoting                single quote:  open with  ` close with  '
                        double quotes: open with `` close with ''
@@ -171,18 +171,18 @@ Chapter/sections ..   \chapter{...}       only for book
                                    _____________________
                       \part{...}              to split in parts with no numbering
 
-                      \appendix 
+                      \appendix
                       \tableofcontents        take all the chapters and pages.
                                               If a chapter tile is to long specify with
                                               the optional [text for TOC] {long name}
                                               \chapter[]{}
                       \listoffigures
                       \listoftables
-                      
+
 CROSS REFERENCES      I can mark anything adding a label to it:  \label {....}
                       In the .... I write any text I like, to use then to
                       jump at that position.
-                      I can use to jump the commands \ref {...} or 
+                      I can use to jump the commands \ref {...} or
                       \pageref{...} which will jump to the page.
 
 FOOTNOTES             \footnote[number]{text}  the number is optional
@@ -193,9 +193,9 @@ FOOTNOTES             \footnote[number]{text}  the number is optional
 \emph{ text }        to Emphasize (it depends on the context if it comes with  undeline or in italics)
 
 LISTS                \begin{enumerate}               \begin{itemize}
-                     \item xxxxx                     \item xxxxx  
+                     \item xxxxx                     \item xxxxx
                      \item xxxxx                     \item xxxxx   or \item[-] \item[sss]
-                     \end{enumerate}                 \end{itemize}          ^         ^  bold this text 
+                     \end{enumerate}                 \end{itemize}          ^         ^  bold this text
                                                                             |___________ use a - for each bullet
 
                      \begin{description}        to add a description in an \item on more lines
@@ -218,7 +218,7 @@ VERBATIM            to have the text as written without ant LaTeX intervention
                     \end{verbatim}                                ex \verb|...|
 
 TABLES              \begin{tabular} [pos] {spec}
-                    \end{tabular}  
+                    \end{tabular}
                            - the lines of cols must be drawn indicating that with a |
                            - the line of a full row is drawn with \hline
                            - the line of a short row (affecting only from col i to j
@@ -232,7 +232,7 @@ TABLES              \begin{tabular} [pos] {spec}
                                    text spec inside {}. If no text is specified, it only
                                    kills inter-col spaces.
 
-                      ex.  
+                      ex.
                       \begin{tabular}{|r|l|}               \begin{tabular}{|p{4.7cm}|}
                       \hline                               \hline
                       7C0 & hexadecimal \\                 Welcome to Boxy’s paragraph.
@@ -269,13 +269,13 @@ $ ... $              a pair of $ is used to encapsulate a formula ex. $a^2 + b^2
 \begin{equation}     To start en equation and have also a number reference on the right
 \end{equation}
 
-\begin{equation *}     only including this package: 
+\begin{equation *}     only including this package:
                                    \usepackage{amsmath}
                        equation *  means to skip numbering equations
 
-\lable {text_A}        to mark for future reference  (\eqref{text_A})that equation 
+\lable {text_A}        to mark for future reference  (\eqref{text_A})that equation
                        (what is displayed is anyhow a number, not text_A)
-\tag {text_A}          to mark for future reference  (\eqref{text_A})that equation 
+\tag {text_A}          to mark for future reference  (\eqref{text_A})that equation
                        (what is displayed is literally "text_A")
 
 align                  \begin{align*}         to align all included equations
@@ -284,7 +284,7 @@ align                  \begin{align*}         to align all included equations
                                   \begin{align*}
                                     1 + 2 &= 3\\         1 + 2 = 3
                                       1 &= 3 - 2             1 = 3 -2
-                                  \end{align*}                 
+                                  \end{align*}
 
 
 
@@ -294,7 +294,7 @@ square root           \sqrt{x}
 
 braces ( [ \{          \left(    \left[     \left\{      \right)   \right]   \right\}
 
-integral [a-b]        \int^a_b  
+integral [a-b]        \int^a_b
 
 matrix                \begin{matrix}        to fix brakets:      \left[  \begin{matrix }
                         1 & 0\\                                            1 & 0\\

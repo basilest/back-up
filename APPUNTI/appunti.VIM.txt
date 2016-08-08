@@ -1,4 +1,4 @@
------------------------------------------------------- 
+------------------------------------------------------
 CtrlP - vim plugin
 
 Note the the search provided by CtrlP is not a:
@@ -43,7 +43,7 @@ but is trimmed at N:
 :help xxxx + Tab                 like bash (...autocomplete)
 :help xxxx + Ctrl-D              to have ALL the list of possible helps starting with xxxx
 :helpgrep xxxx                   to search xxxx text INSIDE help pages. It will the jump to the 1'.
-                                 I can then move between the helps as 
+                                 I can then move between the helps as
                                       :cn         next match
                                       :cN         previous    (also :cprev)
                                       :cfirst     jump to 1st
@@ -57,12 +57,12 @@ but is trimmed at N:
 UPDATE VIM & PLUGIN
 If you have an old VIM version, then do this
 1.  download the zip new version from vim.org
-2.  unpack 
+2.  unpack
 3.  go to src dir
 4.  edit Makefile uncommenting the line ‘prefix’ (a good vale could be “$HOME”)
 5.  make (to compile)
 6.  make install to have it in $HOME/bin
-To install Vundle follow the instruction of Vundle GitHub repo/README. Anyhow they could not work 
+To install Vundle follow the instruction of Vundle GitHub repo/README. Anyhow they could not work
 if linking at ~/.vim/bundle/ as written in the instructions.
 A workaround is:
 1.  link to ~/.vim/plugin/:
@@ -75,17 +75,17 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
 
 ------------------------------------------------------ ex
   enter ex:    :
-               Q   
+               Q
                gQ
                vim -e
                vim -E   (extended ex)
 
-               
+
   exit ex:     :vi     go back to vi
-  
+
   p            print                       10p         # print line 10
-  ,            (comma) range of lines:     10,30p  
-  
+  ,            (comma) range of lines:     10,30p
+
   :=           display TOT lines of file
   :.=             "    CURRENT line (also ^G)
   :/pattern/=  display FIRST found line with that pattern
@@ -95,38 +95,38 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
 
   d            delete                      :3,18d
   co   t       copy      (t  alias)        :23,29co100
-  m            move                        :160,224m23 
+  m            move                        :160,224m23
 
-  .            current line        
+  .            current line
   $            last line                   1,$    is all the file
-  %            any lines                   %d     delete all the file        
+  %            any lines                   %d     delete all the file
                                            %t$    double the file (copy any line to the end)
-  
-               addresses can be 
+
+               addresses can be
                  - absolute  (exact num of lines)
                  - relative (to the current line whose symbol is '.'):
 
   +n           for relative paths (to address n lines after)          :.,+20#      print following 20 lines
   -n                                          n lines before          :226,$m.-2   move 2 lines above, block 226-EOF
           N.B. if n = 1   can be used only + or - instead of +1  -1
-  
+
   0     line 0 can be used to addrees before 1st line
         :-,+t0    move 3 linex at the beginning
-  
-  
-  
+
+
+
   :/patter/d                     del 1st line with pattern
   :g/patter/d                    g means : in all the files --> del ALL lines with pattern
   :/patter/+d                    "   line following the 1st line with pattern
   :/pattern1/,/pattern2/d
-  
-       N.B.      in  vi    d/pattern        del from CURSOR till char before 1st pattern (leaving rest of both lines) 
+
+       N.B.      in  vi    d/pattern        del from CURSOR till char before 1st pattern (leaving rest of both lines)
                  in  ex    :.,/pattern/d    del fully both lines (regardless cursor and /pattern/ position in the line)
-  
-   
+
+
   ;              (';' semicolon) instead of (',' comma) allows to
                  specify RANGE where the right bound is relative to left bound
-                 
+
                  ex    100,+5    doesn't work as expected as it says range from
                                  line 100 to +5 lines after CURRENT
                        100;+5    says properly: range from line 100 to 100+5
@@ -135,40 +135,40 @@ also in .vimrc link to ~/.vim/plugin/:    set rtp+=~/.vim/plugin/Vundle.vim/
  g/pattern       move me to the LAST occur. of pattern
 
  g!              NEGATE the search
- 
+
  |               separate more ex cmds (like normally ';' does)
 ------------------------------------------------------ to get info from the bash
 
 
-let @a=system("ls") to do the same, with 2 commands 
+let @a=system("ls") to do the same, with 2 commands
 "ap                 nb however that with this way instead the line below (p)
                     it can be above P
 
 :r !ls              to insert the output of a bash cmd in the line below
-:.!ls               to replace the current line with output ...   
+:.!ls               to replace the current line with output ...
                     nb. the keysequence !$ is a shorthand for :.!
                     nb. the keysequence !! "       "         "
                         if you write a command in a line (or that line is already a command)
-                        ex 'ls' or 'date' or even do it now on the following line: 
-                              ls -lt | awk '{print $9}' | sort 
+                        ex 'ls' or 'date' or even do it now on the following line:
+                              ls -lt | awk '{print $9}' | sort
                         executing !$sh or !!sh  substitute that line
                         with the output of the command
-  
+
                     nb. '.' (current line) is a special case of the general form
                         :range! where there is a range of lines, ex:
-                                        :10,85!sort  
+                                        :10,85!sort
                                         :%!sort
 
                     nb. like 5dd delete 5 lines, the same works for !!
-                                    5!!sh    
+                                    5!!sh
                                     5!!cmd
-                        
+
                     nb. :%!xxd     switch into binary editor
                                    (be careful that a save can damage the file if vi was
-                                    not start as vi -b 
+                                    not start as vi -b
                                     (which can anyhow specify now with   :set binary)
-                        :%!xxd -r    rever to ascii 
-                                    
+                        :%!xxd -r    rever to ascii
+
 insert num of line in a substitution pattern match:
               :%s/----------- ok 1/\=line(".")/
               :%s/^/\=line(".")/                 <--- just add lines in front of each line
@@ -183,13 +183,13 @@ insert num of line in a substitution pattern match:
 ------------------------------------------------------ In Insert Mode
   :scriptnames         I see all the .vim (as also my .vimrc) that vim reads at the moment
   :set wm=10           wrapmargin
-  :set hlsearch        higlight  serach  
+  :set hlsearch        higlight  serach
   :set relativenumber  lines num are set relative +/- to current
   :set ruler           show stat bar
                        CTRL-G                   shows stat:    "practice" line 3 of 6 --50%--
 
   Vim modes:           to see on status bar  which is running mode:   :set showmode (is usually already SET)
-                       - Normal           
+                       - Normal
                        . Insert
 
   u                    undo
@@ -198,14 +198,14 @@ insert num of line in a substitution pattern match:
   ------------------------------------- moving
   w                    START of next word
   e                    END   of this word
-  
+
   b                    START of prev word
   ge                   END   of prev word
 
-  W   E                skip  punctuation 
-  B   gE               skip  punctuation 
-  
-  ^                    1st (not blank) char of a line 
+  W   E                skip  punctuation
+  B   gE               skip  punctuation
+
+  ^                    1st (not blank) char of a line
   _                              idem
   $                    end of line (including \n)
   g_                   end of line (without   \n)
@@ -214,7 +214,7 @@ insert num of line in a substitution pattern match:
   ENTER                1st char of next line
   +                     "    "      "    "
   -                               previous
-  
+
   number $             end of next num lines     2$       (the same cannot work for 0 to go at prev lines
                                                            as number 0   cannot understand 0 is out)
 
@@ -224,26 +224,26 @@ insert num of line in a substitution pattern match:
   %                    brackets
   number %             move at the percentage (line) of file (50%)
    |----------------------------------------------------- move cursor
-   |  
+   |
    |  20G              goto line 20   / :20
-   |  
+   |
    |  z ENTER          the line with the cursor goes  at top
    |  z -                                             at middle
    |  z +                                             at bottom
-   |  
+   |
    |  200z ENTER       line n.200 at top
-   |  
+   |
    |  10H              10' line after  High screen line
    |  10L              10' line before Low  screen line
    |
    |  (    )           move between sentences     N.B. possible usage with them
    |  {    }                        parag.             ex 2y}    copy 2 parag. ahead.
    |  [[   ]]                       sections
-   |  
+   |
    |  i(               select text inside ( braces     ex di(      delete text inside
    |  i[
    |  i{
-   |  
+   |
   ------------------------------------- moving
 
    ^B    Back    1 page
@@ -255,11 +255,11 @@ insert num of line in a substitution pattern match:
 
   ------------------------------------- serach / ?
 
-  *     forward on cursor word  
+  *     forward on cursor word
   #     back         idem
 
   N.B. 3*     go forw. for 3rd instance of cursor word.
-  
+
   N.B. posible usage:
        d?stefano
        delete from where is the cursor back to 1 word stefano
@@ -270,10 +270,10 @@ insert num of line in a substitution pattern match:
   |  ^O  move back
   |  ^I  move forw.
   |____________________________________ to see the list of marked-jumps:  :jumps
-  
+
   ____________________
-  |   ma    26 letters vi / vim also other 26: CAPITAL 
-  |  `a     move to bookmark a (at old column)    
+  |   ma    26 letters vi / vim also other 26: CAPITAL
+  |  `a     move to bookmark a (at old column)
   |  'a     the same  (begin of line)
   |   "     cursor position  when last editing a file
   |   [     start of last change
@@ -317,9 +317,9 @@ yl yh                    NOT very useful: still is the way to yank 1 char (curre
 
 
 
------------------------------------------------------- open 
-vi +         f    open and go to bottom file f        | According to the POSIX standard, 
-vi +10       f             go to line 10              | vi should use -c command instead of +command 
+------------------------------------------------------ open
+vi +         f    open and go to bottom file f        | According to the POSIX standard,
+vi +10       f             go to line 10              | vi should use -c command instead of +command
 vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibility, both versions are accepted.
 
 
@@ -340,7 +340,7 @@ vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibili
          silent!  %s/^\s\{8}\zs-/#/
          silent!  %s/^\s\{8}\zs-/#/
     endfunction
----------------------------- 
+----------------------------
 :echo   "Hello, world!"
 :echom  "Hello, world!"    <-- persistent
 :messages                  <-- only see echom messages, the others are gone
@@ -358,7 +358,7 @@ vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibili
           ?                          <-- to watch the current value  (:set nu? )
           :set numberwidth=4         <-- set the width of the left col for number-lines.
           :set relativenumber        <-- num lines are counted relative respect my position
-          :set matchtime=5           <-- tens of seconds to show matching ( [ { 
+          :set matchtime=5           <-- tens of seconds to show matching ( [ {
 
           :set nu  matchtime=3       <-- I can set more options with only 1 set command.
 
@@ -374,20 +374,20 @@ vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibili
                        insert         insert
                        mode           mode
 
-          
-          :nmap   for normal mode       ex. :nmap \ dd     delete a line whene pressing \ 
+
+          :nmap   for normal mode       ex. :nmap \ dd     delete a line whene pressing \
           :vmap       visual                :vmap \ U      UPPERCASE the selection when pressing \
           :imap       insert                :imap <c-d> <esc>ddi  delete a line when pressing Ctrl-C
                                                                   N.B. with esc I exit 'insert' and go to 'normal'
                                                                        withoud esc I would have 2 char 'd written
 
           N.B. the opposite:  unmap       :unmap <space>
-                             nunmap       
+                             nunmap
                              vunmap       :vunmap \
                              iunmap
 
 
-          One downside of the *map commands is the danger of recursing:  
+          One downside of the *map commands is the danger of recursing:
                      :nmap dd O<esc>jddk     <--- here the second dd enter an infinte loop
 
           SO TO AVOID RECURSION TROUBLE, ABOVE ALL IT COULD HAPPEN WHEN INSTALLING PLUGINS
@@ -412,11 +412,11 @@ vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibili
 
                  :let maplocalleader = "\\"
 
- <buffer>      :nnoremap <buffer> <leader>x dd    <buffer> keyword means that the mapping acts only 
+ <buffer>      :nnoremap <buffer> <leader>x dd    <buffer> keyword means that the mapping acts only
                                                   in this file. If I change file (buffer) it's not present.
 
-               N.B. A local mapping hides more general ones 
-                    (ex. :nnoremap  Q dd 
+               N.B. A local mapping hides more general ones
+                    (ex. :nnoremap  Q dd
                          :nnoremap <buffer> Q x <--- this hides the above)
 
  :setlocal     Set only in that buffer. So in another files I can set that var in other ways
@@ -433,7 +433,7 @@ vi +/xxxxxxx f             go to 1st occ. of xxxxx    | For backward compatibili
                                     would occur as soon as the sequence ... occurs. While with iabbrev
                                     the change occurs only if ... is a detached word.
 
-                                    ex. :iabbrev @@  basile.stef@gmail.com 
+                                    ex. :iabbrev @@  basile.stef@gmail.com
 
                                     with <buffer> it's local to the buffer when I run the cmd
                                     :iabbrev <buffer> @@  basile.stef@gmail.com
@@ -463,7 +463,7 @@ autocommand:       With this feature vim can execute command when some events oc
                            :autocmd BufWritePre,BufRead *.html :normal gg=G    here how to add 2 events with ','
                            :autocmd BufNewFile,BufRead *.html setlocal nowrap  here set nowrap only in .html
 
-                           the following map the same <localleader>c to comment with correct syntax 
+                           the following map the same <localleader>c to comment with correct syntax
                            javascript and python
 
                            :autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
@@ -479,13 +479,13 @@ autocommand:       With this feature vim can execute command when some events oc
                               as name-scoping, include each autoc. in a block:
 
                               :augroup xxxxxx            xxxxx is a name I choose for this group of cmd
-                              :   autocmd .....          here put all my autcmd  
+                              :   autocmd .....          here put all my autcmd
                        (1)    :   autocmd .....
                               :augroup END
 
                               the 2nd step is init the block with the autocmd!  (to clear this block)
-                       (2)    :augroup xxxxxx            
-                              :   autocmd!   <-------- 
+                       (2)    :augroup xxxxxx
+                              :   autocmd!   <--------
                               :   autocmd .....
                               :augroup END
 
@@ -504,7 +504,7 @@ autocommand:       With this feature vim can execute command when some events oc
    (:onoremap)         and my mapped sequence than the effect is to have the command operating on my selection
 
                        The block of text on which vim will operate is:
-                          
+
                           1. if I used VISUAL to define a selection it will operate on that
                           2. otherwise FROM where is the cursor (START point) till where I stop moving (END point)
 
@@ -521,7 +521,7 @@ autocommand:       With this feature vim can execute command when some events oc
                                             |     |      |________ go with cursor to 1st (
                                             |     |_______________ think entering normal mode
                                             |_____________________ <c-u> this will work on ALL the file
-                                                               
+
 
                        :onoremap ih :<c-u>execute "normal! ?^==\\+$\r:nohlsearch\rkvg_"<cr>
                                             ^                ^  ^   ^      ^       ^
@@ -541,7 +541,7 @@ autocommand:       With this feature vim can execute command when some events oc
                                                              :set statusline+=\ -\      " Separator
                                                              :set statusline+=FileType: " Label
                                                              :set statusline+=%y        " Filetype of the file
- 
+
                      %l        current line
                      %L        TOT file lines
                      %4xxxx    print the xxxx option in a num with of 4 chars  (align right)
@@ -550,12 +550,12 @@ autocommand:       With this feature vim can execute command when some events oc
                      %.20xxx   print xxx option truncating it if exceeds 20 chars woidth
                      %=        align all the following options to the right of the statusline
 
-                                    
+
 :setlocal foldmethod=marke     once this command is submitted, any text block rounded by this special syntax
                                " bla bla bla ... commente ... bla bla bla ... {{{
                                    block of text
                                "}}}            will be open/close like Eclips fashion with cmd:  za
-                               
+
                                to have it working only on .vim filetypes, add:
                                  :autocmd FileType vim setlocal foldmethod=marker
 
@@ -568,15 +568,15 @@ autocommand:       With this feature vim can execute command when some events oc
              :let foo = "bar"        |   :set nowrap
              :echo foo               |   :echo &wrap  --> 0  N.B. '&' so VIM access its option instead of
                                      |                       a possible my var with the same name
-             :let foo = 42           |   
+             :let foo = 42           |
              :echo foo               |   :set wrap
-                                     |   :echo &wrap  --> 1 
+                                     |   :echo &wrap  --> 1
 
 
              N.B.  Vim Options can be then also set with 'let'  :let &textwidth = 100
-                   It's not visible, this new power from there 
+                   It's not visible, this new power from there
                    (as you could have used the shorter :set textwidth = 100)
-                   but you can see when relying on power of var-usage as: 
+                   but you can see when relying on power of var-usage as:
                                                        :let &textwidth = &textwidth + 10
 
                    let &wrap = 0            ok = 0
@@ -593,9 +593,9 @@ autocommand:       With this feature vim can execute command when some events oc
                    "Evfmmmf"  is not considered TRUE (or 1) so neither "a10". They are both FALSE or 0
                    while "1"   "1a"  "342shdfhs"    are all TRUE
 
-l:  b:          'l:' and 'b' prefix means local and   :let &l:xxx = ...      :let &b:xxx = 
+l:  b:          'l:' and 'b' prefix means local and   :let &l:xxx = ...      :let &b:xxx =
                   instead of                          :let &xxx   = ...      :let &xxx   =
-                  set var xxx only for that buffer  
+                  set var xxx only for that buffer
                   There are other char besides 'l' and 'b' to define the 'scope' of a var:   :help internal-variables
 
 @             registers can be reference as variables the syntax is:
@@ -623,7 +623,7 @@ if            the syntax is
 ==?           :if 10 == 10          TRUE
 ==#           :if "foo" == "bar"          FALSE
               :if "foo" == "FOO"     (1)   (2)              (1) if :set   ignorecase
-                                                            (2) if :set noignorecase 
+                                                            (2) if :set noignorecase
 
                            SO IT'S DANGEROUS USE == AS YOUR PLUGIN WOULD NOT WORK EVERYWHERE
                            DEPENDING OF RUNNING VIM SETTINGS (:set ignorecase)
@@ -632,7 +632,7 @@ if            the syntax is
 
                            TRY TO ALWAYS USE ==?  (it also work on numbers!!!)
 
-           The same applies fot > <    ># >? 
+           The same applies fot > <    ># >?
 
 ----------------------------------------------- Function
 definition:     A L W A Y S   begin the name with UPPERCASE: otherwise Vim put you out of scope
@@ -642,12 +642,12 @@ definition:     A L W A Y S   begin the name with UPPERCASE: otherwise Vim put y
                       :function Meow()    |     :function GetMeow()
                       :  echom "Meow!"    |     :  return "Meow String!"
                       :endfunction        |     :endfunction
-                                          |     
-call it:              call Meow()         |     :echom GetMeow()    N.B. withuut echom, it doesn't display anything. 
-                                                                         The return value is thrown away 
+                                          |
+call it:              call Meow()         |     :echom GetMeow()    N.B. withuut echom, it doesn't display anything.
+                                                                         The return value is thrown away
 
-return 0              if a function doesn't return a value, 
-                      it implicitly returns 0. Let's use this to our advantage. 
+return 0              if a function doesn't return a value,
+                      it implicitly returns 0. Let's use this to our advantage.
 
                             :function TextwidthIsTooWide()
                             :  if &l:textwidth ># 80
@@ -655,7 +655,7 @@ return 0              if a function doesn't return a value,
                             :  endif
                             :endfunction
 
-arguments             
+arguments
                       :function DisplayName(name)
                       :  echom "Hello!  My name is:"
                       :  echom a:name                <--- N.B. the scope is a:  it's an argument
@@ -668,7 +668,7 @@ arguments
                       :  echom foo_tmp
                       :endfunction
 
-variable  args       
+variable  args
                       :function Varg2(foo, ...)
                       :  echom a:foo   <--- a
                       :  echom a:0     <--- 2  (numof var args: b c)
@@ -682,7 +682,7 @@ variable  args
 
 numbers
                       :echom 100
-                      :echom 0xff    
+                      :echom 0xff
                       :echom 017       ocatl -> 15 decimal
                       :echom 019       19 !!!! N.B. 019 cannot be octat (there is 9)
                       :echo 100.1
@@ -692,7 +692,7 @@ numbers
 
 
 Strings
-                      :echom "Hello, " . "world"   Concatenation 
+                      :echom "Hello, " . "world"   Concatenation
                       :echom 10 . "foo"            string 10foo  (int converted in String)
                       :echom 10.1 . "foo"          error: Float cannot be converted to String
                       :echom "Hello, " + "world"   '0'  (+ is a numeric operator)
@@ -716,7 +716,7 @@ Managing Strings
                       :echom tolower("Foo")
                       :echom toupper("Foo")
 
-Execute                evaluate a string as if it was a Vim command. 
+Execute                evaluate a string as if it was a Vim command.
 
 
 times in msec
@@ -808,15 +808,15 @@ times in msec
 083.436  000.632: first screen update
 083.437  000.001: --- VIM STARTED ---
 
------------------------------------------------------- TABs 
+------------------------------------------------------ TABs
      vim -p a.txt b.txt          open vim tabbed with 2 files
      vim -c :10  a.txt           open vim and the execute an 'ex cmd' (here goto line 10)
          -c :$   a.txt                goto last line
          -c /xxx a.txt                search for xxx
 
      :tabs    show the list
-     gt       go to tab AFTER    
-     gT       go to tab BEFORE    
+     gt       go to tab AFTER
+     gT       go to tab BEFORE
      3gt      go to tab n.3
 ------------------------------------------------------ BUFFERS
 :ol        (list (read only) the last 100 old opened files)

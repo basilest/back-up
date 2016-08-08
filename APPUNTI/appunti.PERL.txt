@@ -28,18 +28,18 @@ PERL SPECIAL VARs
 
 _____________ SCALAR
 
-     LONG NAME 
+     LONG NAME
 
-$_     $ARG                            The default 
+$_     $ARG                            The default
                                                   - input (the line read from a file)
-                                                  - pattern-searching space.  
-                                                  - built-in iterator used instead of normal $i in a for / foreach ... 
-                                       In other words, if you read from a file at the top of a 
-                                       while, for or foreach 
-                                       $_ is set up for you. 
-                                       Then any regular expression matches, chops (and lcs and many more) 
+                                                  - pattern-searching space.
+                                                  - built-in iterator used instead of normal $i in a for / foreach ...
+                                       In other words, if you read from a file at the top of a
+                                       while, for or foreach
+                                       $_ is set up for you.
+                                       Then any regular expression matches, chops (and lcs and many more)
                                        without a parameter, and even prints assume you want to work on $_. Thus:
-                                       it can be omitted:  
+                                       it can be omitted:
 
                                            while ($line = <FH>) {          while (<FH>) {
                                              if ($line =~ /Perl/) {          /Perl/ and
@@ -55,26 +55,26 @@ $_     $ARG                            The default
                                                                                3. [0]   it's the 1st (and only) el of the list
                                                                                4. b{..} it's the key to enter hash b
                                                                                5. --    that hash entry is decremented
-                                                                      
 
-$.     $NR                             The current input line num of the last filehandle that was read. 
+
+$.     $NR                             The current input line num of the last filehandle that was read.
                                        An explicit close on the filehandle resets the line number.
-$/     $RS                             The input record separator; newline by default. 
+$/     $RS                             The input record separator; newline by default.
                                        If set to the null string, it treats blank lines as delimiters.
 $,     $OFS                            The output field separator for the print operator.
 $\     $ORS                            The output record separator for the print operator.
-$"     $LIST_SEPARATOR                 Like "$," except that it applies to list values interpolated into 
-                                       a double-quoted string (or similar interpreted string). 
+$"     $LIST_SEPARATOR                 Like "$," except that it applies to list values interpolated into
+                                       a double-quoted string (or similar interpreted string).
                                        Default is a space: $a = join( $", @ARGV );   .
 $;    $SUBSCRIPT_SEPARATOR             The subscript separator for multidimensional array emulation. Default is "\034".
 $^L   $FORMAT_FORMFEED                 What a format outputs to perform a formfeed. Default is "\f".
-$:    $FORMAT_LINE_BREAK_CHARACTERS    The current set of characters after which a string may be broken 
+$:    $FORMAT_LINE_BREAK_CHARACTERS    The current set of characters after which a string may be broken
                                        to fill continuation fields (starting with ^) in a format. Default is "\n"".
 $^A   $ACCUMULATOR                     The current value of the write accumulator for format lines.
 $#    $OFMT                            Contains the output format for printed numbers (deprecated).
 $?    $CHILD_ERROR                     The status returned by the last pipe close, backtick (``) command, or system operator.
-$!    $OS_ERROR or $ERRNO              If used in a numeric context, yields the current value of the errno variable, 
-                                       identifying the last system call error. 
+$!    $OS_ERROR or $ERRNO              If used in a numeric context, yields the current value of the errno variable,
+                                       identifying the last system call error.
                                        If used in a string context, yields the corresponding system error string.
 $@    $EVAL_ERROR                      The Perl syntax error message from the last eval command.
 $$    $PROCESS_ID or $PID              The pid of the Perl process running this script.
@@ -83,8 +83,8 @@ $>    $EFFECTIVE_USER_ID or $EUID      The effective user ID of this process.
 $(    $REAL_GROUP_ID or $GID           The real group ID (gid) of this process.
 $)    $EFFECTIVE_GROUP_ID or $EGID     The effective gid of this process.
 $0    $PROGRAM_NAME                    Contains the name of the file containing the Perl script being executed.
-$[                                     The index of the first element in an array and 
-                                       of the first character in a substring. 
+$[                                     The index of the first element in an array and
+                                       of the first character in a substring.
                                        Default is 0.
 $]    $PERL_VERSION                    Returns the version plus patchlevel divided by 1000.
 $^D   $DEBUGGING                       The current value of the debugging flags.
@@ -92,9 +92,9 @@ $^E   $EXTENDED_OS_ERROR               Extended error message on some platforms.
 $^F   $SYSTEM_FD_MAX                   The maximum system file descriptor, ordinarily 2.
 $^H                                    Contains internal compiler hints enabled by certain pragmatic modules.
 $^I   $INPLACE_EDIT                    The current value of the inplace-edit extension. Use undef to disable inplace editing.
-$^M                                    The contents of $M can be used as an emergency memory pool in case Perl dies 
-                                       with an out-of-memory error. 
-                                       Use of $M requires a special compilation of Perl. 
+$^M                                    The contents of $M can be used as an emergency memory pool in case Perl dies
+                                       with an out-of-memory error.
+                                       Use of $M requires a special compilation of Perl.
                                        See the INSTALL document for more information.
 $^O   $OSNAME                          Contains the name of the operating system that the current Perl binary was compiled for.
 $^P   $PERLDB                          The internal flag that the debugger clears so that it doesn't debug itself.
@@ -105,8 +105,8 @@ $ARGV                                  Contains the name of the current file whe
 
 _____________ ARRAY
 
-@_ $#_        is the list of incoming parameters to a sub. 
-              If the array name is '_' so its elem 0 is $_[0] the second is $_[1] and so on. 
+@_ $#_        is the list of incoming parameters to a sub.
+              If the array name is '_' so its elem 0 is $_[0] the second is $_[1] and so on.
               And you can refer to $#_ as the index number of the last parameter:
 @ARGV         The array containing the command-line arg for the script.
 @INC          The array containing the list of places to look for Perl scripts to be evaluated by the do, require, or use constructs.
@@ -118,21 +118,21 @@ _____________ HASH
 %ENV          The hash containing your current environment. Ex. $ENV{PATH}  # /usr/local/bin:/usr/bin:/sbin:/usr/sbin
 %SIG          The hash used to set signal handlers for various signals.
 
-         
+
 
 
 _____________ FILEHANDLES
 
-ARGV          The special filehandle that iterates over command line filenames in @ARGV. 
+ARGV          The special filehandle that iterates over command line filenames in @ARGV.
               Usually written as the null filehandle in <>.
 STDERR        The special filehandle for standard error in any package.
 STDIN         The special filehandle for standard input in any package.
 STDOUT        The special filehandle for standard output in any package.
-DATA          The special filehandle that refers to anything following the __END__ token 
-              in the file containing the script. 
-              Or, the special filehandle for anything following the __DATA__ token 
+DATA          The special filehandle that refers to anything following the __END__ token
+              in the file containing the script.
+              Or, the special filehandle for anything following the __DATA__ token
               in a required file, as long as you're reading data in the same package __DATA__ was found in.
-_             (underscore) The special filehandle used to cache the information 
+_             (underscore) The special filehandle used to cache the information
               from the last stat, lstat, or file test operator.
 
 $|    $OUTPUT_AUTOFLUSH          If set to nonzero, forces an fflush(3)
@@ -148,12 +148,12 @@ $^    $FORMAT_TOP_NAME           The name of the current top-of-page format for 
                                  Default is the name of the filehandle with _TOP appended.
 _____________ CONSTANTS
 
-__END__       Indicates the logical end of your program. 
+__END__       Indicates the logical end of your program.
               Any following text is ignored, but may be read via the DATA filehandle.
-__FILE__      Represents the filename at the point in your program where it's used. 
+__FILE__      Represents the filename at the point in your program where it's used.
               Not interpolated into strings.
 __LINE__      Represents the current line number. Not interpolated into strings.
-__PACKAGE__   Represents the current package name at compile time, or undefined 
+__PACKAGE__   Represents the current package name at compile time, or undefined
               if there is no current package. Not interpolated into strings.
 
 _____________ REGULAR EXPRESSION
@@ -162,8 +162,8 @@ $digit                    usual $1 $2 $3 ...
 $&   $MATCH               The string matched by the last successful pattern match.
 $`   $PREMATCH            The string preceding whatever was matched by the last successful pattern match.
 $'   $POSTMATCH           The string following whatever was matched by the last successful pattern match.
-$+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern. 
-                          This is useful if you don't know which of a set of alternative patterns was matched. 
+$+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern.
+                          This is useful if you don't know which of a set of alternative patterns was matched.
                           For example: /Version: (.*)|Revision: (.*)/ && ($rev = $+);
 
 
@@ -172,30 +172,30 @@ $+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern.
 PERL DISTRIBUTIONs     (http://perldoc.perl.org/perlpolicy.html)
 --------------------------                      ^^^^^^^^^^
 only the last 2 are supported
-    ex. 5.20   5.22     
+    ex. 5.20   5.22
 when is released 5.24,
 5.20 will be no more supported.
 
 pragma: special Modules (ex. use strict)
-                             use v5.10    <--- version of Perl: includes many features 
+                             use v5.10    <--- version of Perl: includes many features
                                                ex. say wrt print (which adds a \n for me)
 
---------- 
+---------
 INSTALL                                                       another way is perlenv
 ---------                         |                              /
- > tar zxf latest.tar.gz          | install from  CPAN App::perlbrew <----- allows to have more PERL versions 
+ > tar zxf latest.tar.gz          | install from  CPAN App::perlbrew <----- allows to have more PERL versions
  > cd perl–5.22.2                 |                                         and switch between them
  > sh Configure –des              | ~/perl5/perlbrew/bin/perlbrew install perl–5.22.2
  > make test && make install      |
- 
+
        enhanced distributions wrt standard one:
           - ActivePerl  free Win/Mac/Linux   $ Unix (Solaris..)
           - Strawberry       Win only
           - Citrus      free  Win/Mac/Linux  bundles wxPer to distribute app with GUI
- 
- 
- 
- 
+
+
+
+
 
 
 
@@ -209,19 +209,19 @@ INSTALL                                                       another way is per
                                                                       use A::B;)
                                                   nb. I can also push on the array @INC:
                                                       push(@INC, (...))
-                                                      but in such a way, my dirs will be searched 
+                                                      but in such a way, my dirs will be searched
                                                       as last option, that is not what I want.
 
 --------------------------
 START A SCRIPT
 --------------------------
 
-       for portability (not sure where perl is located) 
+       for portability (not sure where perl is located)
                    #!/usr/bin/env perl
-       as normally env is always in /usr/bin/env 
+       as normally env is always in /usr/bin/env
                ________________________________
                |                              |
-       #!/usr/bin/perl                  #!/usr/bin/perl                  
+       #!/usr/bin/perl                  #!/usr/bin/perl
        print "Hello, world!\n";         use 5.010;     <-----------
                                         say "Hello World!";   <------ say put '\n'
 
@@ -241,15 +241,15 @@ Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
 nb. 'glob' is the nick name for *. ('globally') In the unix shell it means FILE-glob,
      all files in a dir. TYPE-glob means all entries in a Symbol Table.
 
-symbol-table:  - where the compiler stores symbols (variables, filehandles, and subroutines) 
+symbol-table:  - where the compiler stores symbols (variables, filehandles, and subroutines)
                - is implemented in Perl using a normal HASH.
                - there is 1 symbol-table for each package (to give its own namespace).
 
-PRECEDENCE:     
-   - The sigils are not operators. 
+PRECEDENCE:
+   - The sigils are not operators.
    - They come always FIRST!
-   - They identify a TERM. 
-   - Once the TERM is identified operators apply 
+   - They identify a TERM.
+   - Once the TERM is identified operators apply
      (with the usual Operator-Precedence-list (-> first, ....)).
 
 
@@ -262,12 +262,12 @@ SCALAR VARIABLES
                 3. a string  (concatenated with '.')
                 4. a reference
                 5. a file handle
-                
-        In Perl, the operator determines both 
+
+        In Perl, the operator determines both
           - the context: SCALAR / LIST
           - the TYPE for scalars: (string / num)
 
-        For example $x + $y is always a numeric addition of 2 SCALARs, 
+        For example $x + $y is always a numeric addition of 2 SCALARs,
         and if $x or $y do not contain numbers, an attempt is made to convert them to number first.
         ($x == $y I'm comparing 2 nums,  $x eq $y I'm comparing 2 strings)
 
@@ -292,10 +292,10 @@ SCALAR VARIABLES
         print $str1 +  $str2; # "8" with two warnings
         print $str1 eq $str2; # "" (empty string, i.e. false)
         print $str1 == $str2; # "1" with two warnings
-        print "yes" == "no";  # "1" with two warnings; 
-                                    both values evaluate to 0 
+        print "yes" == "no";  # "1" with two warnings;
+                                    both values evaluate to 0
                                     when used as numbers
-   
+
     __________________________________
     |    INTERPOLATION   (string with " and ')
     |__________________________________
@@ -308,20 +308,20 @@ SCALAR VARIABLES
         print "Hello \$string"; # "Hello $string"
         print 'Hello $string';  # "Hello $string"
 
-        nb. ' is a valid —though archaic— character 
+        nb. ' is a valid —though archaic— character
             replaced by the more visually distinct :: . That means that
             $main'var and $main::var are the same thing.
     __________________________________
     |    notes on  N U M
     |__________________________________
-    |arbitrary precision on numbers: to have it, add 
+    |arbitrary precision on numbers: to have it, add
     |    use bigint, bigrat or bignum
-    |    or at command line -M... 
+    |    or at command line -M...
     |    ex >perl -Mbigrat -E 'say 10/3 == 1/3*10 ? "Y":"N"' ---> Y
     |
-    | literals used as rvalue in $x = ... can use 
-    |        0x.. ( for hex) 
-    |        0... (     oct) 
+    | literals used as rvalue in $x = ... can use
+    |        0x.. ( for hex)
+    |        0... (     oct)
     |        0b.. (     bin)
     |        _    (ex 4_294_967_296)
     |
@@ -329,12 +329,12 @@ SCALAR VARIABLES
     | not works for these formats:
     |     $a = 0x56f   + 1   #1392 ok
     |     $a = "0x56f" + 1   #1    NOT OK
-    |     $a = 071   wrt "071"    
-    |          0b111 wrt "0b111"   
+    |     $a = 071   wrt "071"
+    |          0b111 wrt "0b111"
     |          1_004 wrt "1_004"
     | So these numeric literals  CANNOT be used if the rvalue
     | comes from another source (ex an input string)
-    | In that case use an explicitly conversion 
+    | In that case use an explicitly conversion
     |              hex("0x56f")
     |              oct("071")
     |              oct("0b111") <---- nb. for binary I still use oct!!!       OCT for all!
@@ -348,16 +348,16 @@ SCALAR VARIABLES
     |   where I can avoid to use explicit concatenatios with '.'
     |   INTERPOLATION woks only for $scalar and @array NOT %hash
     |   for array means concatenate all el with a $" (usually a space)
-    |   print "@a"  is like  $a = join( $", @ARGV ); print $a;   
-    |   
+    |   print "@a"  is like  $a = join( $", @ARGV ); print $a;
+    |
     |   {} can be used to better separate a var ex "aaa${var}rrr"  without is a mess "aaa$varrrr"
     |   this because a var inside {} is forced to a be a STRING
     |   that's why in a HASH $h{"feb"} is the same written as $h{feb}
     |   Sometimes the short syntax is ambygous so an explict "" is required
     |   $h{27 feb}  #error    $h{"27 feb"}  #ok
-    |   
+    |
     |   {} is also better to use in a reg. exp.
-    |   ex /${foo[bar]}/  better than only  /$foo[bar]/  
+    |   ex /${foo[bar]}/  better than only  /$foo[bar]/
     |   where [bar] could be intended as range of 3 letters b a r
     |_________________________________
 -------
@@ -372,13 +372,13 @@ lower UPPER case
     the usage is normally in regex
         $a="ID"; print (($a=~/\Uid/) ? "yes" : "no")   #yes
 -------
-q qq qw qx  
+q qq qw qx
 -------
      They are the alternative to:
 
-     ''    q   (NO   interpolation, as they are '') 
+     ''    q   (NO   interpolation, as they are '')
      ""    qq  (YES     "         ) qq/a b c/ --> "a b c" <--- a SCALAR: $a=qq..
-     ``    qx  (YES     "         ) execute a command  
+     ``    qx  (YES     "         ) execute a command
      ()    qw  (NO      "         ) qw/a b c/ --> ("a", "b", "c") <-- a LIST: @a=qw..
                                         ^ ^           ^    ^            ^
                                       spaces          commas            $a=qw/a b c/ returns "c"
@@ -417,7 +417,7 @@ BOOLEAN VARIABLES
 
             nb. "0.00"    is true   (not "" neither "0")
                 "0.00" +0 is false  (+ is num-operator so string is converted to num and result is 0)
-     
+
      Boolean operators are both &&  ||  !       from C       + precedence over ,
                                 and or  not     from BASIC   -    "            ,
 
@@ -460,14 +460,14 @@ ARRAY
             @days[3, 4, 5]     Array slice containing ($days[3], $days[4], $days[5])
             @days[4..6]        Array slice containing ($days[4], $days[5], $days[6])
 
-    - print 
+    - print
             it's interpolated into strings
             print "@array";        # "print A B"
-                
+
 --------------------------
 HASH
 --------------------------
-            a list of scalars indexed by strings. 
+            a list of scalars indexed by strings.
 
    keys:    are always STRING
    values:  are SCALAR (: string or numbers)
@@ -475,16 +475,16 @@ HASH
    Linguistically, a hash relationship is genitive or possessive, ( “of” in English)
    The wife of Adam is Eve: $wife{"Adam"} = "Eve";
 
-undef:   accessing a key that doen't exit or accessing outside 
+undef:   accessing a key that doen't exit or accessing outside
          the hash gives  'undef'
 
             my %scientists = (                  %h = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
                 "Newton"   => "Isaac",                'wilma', 1.72e30, 'betty', "bye\n");
-                "Einstein" => "Albert",         
-                "Darwin"   => "Charles",        $h{'foo'}    = 36;            # modify a key already present 
+                "Einstein" => "Albert",
+                "Darwin"   => "Charles",        $h{'foo'}    = 36;            # modify a key already present
             );                                  $h{'fred'}   = 'flintstone';  # add 2 keys new ...
                                                 $h{'barney'} = 'rubble';      # ... not present before
-            => is called a "fat comma"    
+            => is called a "fat comma"
             syntactic sugar which allows to not use ','
             and see the key/value with ease.
 
@@ -494,7 +494,7 @@ undef:   accessing a key that doen't exit or accessing outside
             print $scientists{"Dyson"};    # returns undef, prints "" and raises a warning
 
             We have seen that {} is a STRING operator, that forces what inside to be a STRING
-            so you can omit quotes:  $hash{key} instead of $hash{"key"} 
+            so you can omit quotes:  $hash{key} instead of $hash{"key"}
             ("" are required if the key has spaces).
 
     - HASH into SCALAR   $s = %H                                   $ <-- %
@@ -514,19 +514,19 @@ undef:   accessing a key that doen't exit or accessing outside
                  my %h = %H{qw/a b f/};
 
     - array to hash
-            I used this trick to convert an array 
+            I used this trick to convert an array
             (where i loaded the lines of a file: @lines=<$fh> <--- 1 single command)
-            into and hash: 
-            %lines = map { $_ => 1 } @lines;   
+            into and hash:
+            %lines = map { $_ => 1 } @lines;
             the lines are the keys and the values (useless) are all 1.
-            This can be usefull for fast serach/test: 
+            This can be usefull for fast serach/test:
                  if (exists $lines {$k}) {
-            
 
------------ HASH FUNCTIONS 
+
+----------- HASH FUNCTIONS
 keys / values: they return 2 ARRAYs
              my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
-             my @v = values %hash;                   
+             my @v = values %hash;
 
 exist:  if (exists $books{"dino"}) {   # Test if such a key is presnt
 
@@ -542,30 +542,30 @@ reverse: %ip_address = reverse %host_name;
                                overwrites any earlier one).
 
 while / foreach:
-            while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) { 
+            while ( ($key, $value) = each %hash ) {  | foreach $key (sort keys %hash) {
                  print "$key => $value\n";           |  print "$key => $hash{$key}\n";
             }                                        | }
-         
+
 ----------- OLD MULTDI-DIM EMULATION
 A feature was originally implemented to support a2p, the awk-to-Perl trans-
 lator. It allows to emulate a multi-dim hash with the syntax of a list of keys
 inside { }, (separated by commas) : %h { k1, k2, k3}. They form a super-key
-that is the string with all the key concatenated with the special var $;  
+that is the string with all the key concatenated with the special var $;
        %h { k1, k2, k3} =  %h { join $; => $k1, k2, k3}
 
  perl -e 'print $;' | od -c    # 034
 --------------------------
 ARRAY & HASH
 --------------------------
-            [ ]: square brackets to retrieve from an array. 
-                 they are effectively a numerical operator 
+            [ ]: square brackets to retrieve from an array.
+                 they are effectively a numerical operator
                  as each elem is identified by a num, it can be sayed they
                  are ORDERED list
-            { }: braces to retrieve from a hash. 
-                 they are effectively a string operator. 
+            { }: braces to retrieve from a hash.
+                 they are effectively a string operator.
                  (are UNORDERED list)
-            
-           The fact that the index supplied is a number or a string 
+
+           The fact that the index supplied is a number or a string
            is of absolutely no significance:
 
                my $data = "orange";
@@ -580,42 +580,42 @@ ARRAY & HASH
 
            Hash is just an array with an even pair of elements, separated
            in pairs with the comma ',' and inside the pair with the fat comma '=>'
-           
-           So you can convert a hash to an array with twice as many entries, 
+
+           So you can convert a hash to an array with twice as many entries,
 
                 my @scientists = %scientists;
-           
-           nb.  The order is not guaranted. 
+
+           nb.  The order is not guaranted.
                 They will be returned in whatever order is more efficient.
-                It's only guaranted that each key comes before its value. 
+                It's only guaranted that each key comes before its value.
 
 --------------------------
 LIST
 --------------------------
-            Is a sequence of values separated by  
-                  , 
+            Is a sequence of values separated by
+                  ,
             or
                   =>           #Remember that => is just , (fat comma)
             enclosed in ( )
-            That are the braces not used 
+            That are the braces not used
             neither by the array [] nor by the hash {}.
-            A list is not a variable. 
-            A list is an ephemeral value which can be assigned to 
-            an array or a hash var. This is why the syntax 
-            for array and hash is identical. 
+            A list is not a variable.
+            A list is an ephemeral value which can be assigned to
+            an array or a hash var. This is why the syntax
+            for array and hash is identical.
 
             The following are just lists. Identical lists.
             ("one",   1, "three",   3, "five", 5)
             ("one" => 1, "three" => 3, "five" => 5)
 
      empty list:  ()
-             can be used to declare an empty array or an empty hash 
+             can be used to declare an empty array or an empty hash
 
      list assignments: are called the assignments like:
              my ($a, $b, $c) = @x;   # assign to scalars, vals from an array
              ($a, $b) = ($b, $a);    # swap 2 vars
 
-     NOT LIKE LISP:     List values cannot be nested.  
+     NOT LIKE LISP:     List values cannot be nested.
      -------------      Perl manages it as A SINGLE LONG LIST.
 
              my @array = (                    |
@@ -626,19 +626,19 @@ LIST
                                "list",        |print $array[3]; # "list"
                                "several",     |print $array[4]; # "several"
                                "entries",     |print $array[5]; # "entries"
-                           ),                 |print $array[6]; # "cherries" 
+                           ),                 |print $array[6]; # "cherries"
                            "cherries",        |
                         );                    |
 
              The same is true whether the fat comma is used or not:
 
                     my %hash = (
-                        "beer" => "good",           raises a warning because the hash 
-                        "bananas" => (              was declared using a 7-element list 
+                        "beer" => "good",           raises a warning because the hash
+                        "bananas" => (              was declared using a 7-element list
                             "green"  => "wait",
                             "yellow" => "eat",
                         ),
-                    ); 
+                    );
              this makes it easy to concatenate multiple arrays together:
 
                 my @bones   = ("humerus", ("jaw", "skull"), "tibia");
@@ -649,23 +649,23 @@ LIST
 --------------------------
 CONTEXT
 --------------------------
-            Perl code is context-sensitive. 
-            Every expression is evaluated in SCALAR or LIST context, 
-            depending on whether it is expected to produce a SCALAR or a LIST. 
+            Perl code is context-sensitive.
+            Every expression is evaluated in SCALAR or LIST context,
+            depending on whether it is expected to produce a SCALAR or a LIST.
 
-       1  - A SCALAR assignment 
-                     my $scalar = 
-            evaluates in scalar context. 
+       1  - A SCALAR assignment
+                     my $scalar =
+            evaluates in scalar context.
 
-       2  - An ARRAY or HASH assignment 
-                     my @array = 
-                     my %hash  = 
-            evaluates in list context. 
+       2  - An ARRAY or HASH assignment
+                     my @array =
+                     my %hash  =
+            evaluates in list context.
 
        3  - A scalar evaluated in list context                                        ()  <-- $
             is silently converted into a 1-ELEMENT LIST:
 
-               my @array = "Mendeleev"; 
+               my @array = "Mendeleev";
                # same as 'my @array = ("Mendeleev");'
 
        4  - An array evaluated in scalar context                                       $  <-- @
@@ -679,9 +679,9 @@ CONTEXT
             returns the used/avail buckets
 
        6  - A list-EXPRESSION (a list is different from an array, remember?)           $  <-- ()
-            evaluated in scalar context returns 
-                    not the len of the list 
-            but 
+            evaluated in scalar context returns
+                    not the len of the list
+            but
                     the LAST scalar in the list:
 
             my $scalar = ("Alpha", "Beta", "Gamma", "Pie");
@@ -703,7 +703,7 @@ CONTEXT
 
             ------- example with nested array
             ARRAY and HASH, as depend on list, cannot be nested.
-            my @outer = ("......, ....); 
+            my @outer = ("......, ....);
             my @inner = ("Earth", "Moon");
 
             $outer[3] = @inner; <-- an array evaluated in scalar context
@@ -711,7 +711,7 @@ CONTEXT
             print $outer[3]; # "2"
 
    nb.      when the compiler parses the code, it figures out the context
-            and generates the proper binary opcode. Later, at runtime 
+            and generates the proper binary opcode. Later, at runtime
             those internal opcodes are actually interpreted in that context.
 --------------------------
 REFERENCES
@@ -732,18 +732,18 @@ REFERENCES
 
         ACCESS its value: use {} around
                           if it's not ambiguous, you can omit {}
-                          while for array and hash you can also use -> 
+                          while for array and hash you can also use ->
 
-                          nb.  We have seen that {} is a STRING operator, 
+                          nb.  We have seen that {} is a STRING operator,
                                that forces what inside to be a STRING
                                it's the way to have the "name" of the pointed var:
 
                                perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2
-                                
+
                                and here I never used a reference syntax.
 
                           nb.  symbolic reference: is what I've used above:
-                          a var whose value is the name of another var or subroutine. 
+                          a var whose value is the name of another var or subroutine.
 
                          SYMBOLIC REFERENCES ARE ILLEGAL UNDER use strict "refs" .
 
@@ -753,50 +753,50 @@ REFERENCES
             print ${ $scalarRef };   or only        print $$scalarRef;
 
             print $colours[0];       # direct array access
-            print ${ $arrayRef }[0]; or only        print $arrayRef->[0];   
+            print ${ $arrayRef }[0]; or only        print $arrayRef->[0];
 
             print $atomicWeights{"Helium"}; # direct hash access
-            print ${ $hashRef }{"Helium"};  or only print $hashRef->{"Helium"};    
+            print ${ $hashRef }{"Helium"};  or only print $hashRef->{"Helium"};
 
         ___________________________________________
         | ANONYMOUS ARRAY and HASH  (and function)
         |
-        |    Use [ ] for an anonymous ARRAY and 
-        |        { } for an anonymous HASH. 
+        |    Use [ ] for an anonymous ARRAY and
+        |        { } for an anonymous HASH.
         |    The value returned in each case is a REFERENCE:
         |___________________________________________
 
       my $ary = \@myarray;    # reference to a named array                   my $ary = [1,2,3,4,5];            # reference to an unnamed array
       my $hsh = \%myhash;     # reference to a named hash                    my $hsh = {Na => 19, Cl => 35};   # reference to an unnamed hash
       my $sub = \&mysub;      # reference to a named subroutine              my $sub = sub { print $state };   # reference to an unnamed subroutine
-      
-      
+
+
       ----------------------------------------------------------------------------------------------
              declaration                                         retrieve back
       ----------------------------------------------------------------------------------------------
-           my %o1 = (                     |                                   |               |            
+           my %o1 = (                     |                                   |               |
                "name" => "Santa Claus",   |           (6 instruct.)           |  (5 instr.)   |  (3 instr.)
                "DOB"  => "1882-12-25",    |                                   |               |
            );                             |   my $r    = $account{"owners"};  |  ...          |  -
                                           |   my @o    = @{ $r  };            |  -            |  = @{ $account{"owners"} };
            my %o2 = (                     |   my $r1   = $o[0];               |  = $r->[0];   |  -
                "name" => "Mickey Mouse",  |   my $r2   = $o[1];               |  = $r->[1];   |  .
-               "DOB"  => "1928-11-18",    |   my %o1    = %{ $r1 };           |  ...          | = %{ $o[0] };  
-           );                             |   my %o2    = %{ $r2 };           |  ...          | = %{ $o[1] };  
+               "DOB"  => "1928-11-18",    |   my %o1    = %{ $r1 };           |  ...          | = %{ $o[0] };
+           );                             |   my %o2    = %{ $r2 };           |  ...          | = %{ $o[1] };
                                           |                                   |               |
            my @o = ( \%o1, \%o2 );        |   $account{"number"}              |               |
                                           |   $account{"opened"}              |               |
            my %account = (                |                                   |               |
-               "number" => "12345678",    |   $o1{"name"}   $o1{"DOB"}|       |               | 
-               "opened" => "2000-01-01",  |   $o2{"name"}   $o2{"DOB"}|       |               | 
+               "number" => "12345678",    |   $o1{"name"}   $o1{"DOB"}|       |               |
+               "opened" => "2000-01-01",  |   $o2{"name"}   $o2{"DOB"}|       |               |
                "owners" => \@o,           |                                   |               |
            );      ^
-                   |    
+                   |
                  %account is the first 'struct' that we see.
                  HASH comes ready to define a C-like-struct
                  the 'members' are the key names and the values are their type.
 
-            
+
       ----------------------------------------------------------------------------------------------
              long form                                           short
       ----------------------------------------------------------------------------------------------
@@ -814,11 +814,11 @@ REFERENCES
                                                      |          },
       my %account = (                                |      ],
           "number" => "12345678",                    |  );
-          "opened" => "2000-01-01",                  
+          "opened" => "2000-01-01",
           "owners" => $ownersRef,
       );
 --------------------------
-REFERENCES 
+REFERENCES
 --------------------------
 INDIRECTION:    it's the problem to access a variable through another variable
 
@@ -831,11 +831,11 @@ INDIRECTION:    it's the problem to access a variable through another variable
                                     so now we know: the '\' creates a HARD ref              |
                                                                                             |
                      perl -e '$b=2; $a=b; print "$a = ${$a}\n"'   # b = 2  <----------------'
-                                                                                            
-POINTER:        in C for example it's solved, with the pointer type,                       
-                a var storing the memory address of the other.                            
 
-REFERENCE (hard)  in Perl 
+POINTER:        in C for example it's solved, with the pointer type,
+                a var storing the memory address of the other.
+
+REFERENCE (hard)  in Perl
                 - it's the 3rd basic type (after 'number' and 'string')
                 - it's a scalar
                 - it can point to ANY data type ($calar, @rray, %ash, &unction)
@@ -850,8 +850,8 @@ REFERENT        is 'what' a reference is pointing to.
                      - A referenT is only DESTROYED when ALL the referenCEs to it are eliminated.
                        you can determine the underlying refcount with the Devel::Peek module, bundled with
                        Perl.
-                       Devel::Peek contains functions which allows raw Perl datatypes to be manipulated 
-                       from a Perl script. This is used by those who do XS programming to check that the data 
+                       Devel::Peek contains functions which allows raw Perl datatypes to be manipulated
+                       from a Perl script. This is used by those who do XS programming to check that the data
                        they are sending from C to Perl looks as they think it should look.
 
 SYMBOL TABLES   variable name lives in some kind of symbol table,
@@ -894,20 +894,20 @@ CREATE          - the operator \ (like the & in C) it gives the memory address.
                        ^
                   scalar context
 
-                       So, as all the others LIST operator, 
+                       So, as all the others LIST operator,
                        use an explicit 'scalar' to force what follows into scalar context:
 
                        $dateref = \scalar localtime(); # \"Tue Oct 18 07:23:50 2011"
-                     
 
-                       
-                              
-ANONYMOUS DATA  - in the following cases we create a reference to a zone of memory 
+
+
+
+ANONYMOUS DATA  - in the following cases we create a reference to a zone of memory
   2               that had no other previous 'named' reference.
-                  This is what happen normally with instructions defining 'inline' (in that point, 
+                  This is what happen normally with instructions defining 'inline' (in that point,
                   so, it would be anonymous without that reference)
 
-                  $constref   =  \7; 
+                  $constref   =  \7;
                   $arrayref   = [1, 2, 3]
                   $arrayref   = [1, 2, ["a", "b", "c", "d"]];
                   $hashref    = {
@@ -915,23 +915,23 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                                "Clyde"  => $bonnie,
                                "Antony" => "Cleo" . "patra",
                                };
-                  $coderef    = sub { print "a" };    <--- note the ';' (that is optional 
+                  $coderef    = sub { print "a" };    <--- note the ';' (that is optional
                                                                          in a normal function definition)
 
-                
+
                   NB.1
                      with he above definition, we have associated a new semantic meaning to both [ ]
                      and { }. Up to now they were ACCESSIBLE-OPERATORS ('numerical' and 'string' operators)
                      to a TERM xxx, accessing it: $xxx[3]  $xxx{'key'}
-                     The above gives them also a CREATOR-OPERATOR meaning. 
+                     The above gives them also a CREATOR-OPERATOR meaning.
 
                      When Perl is expecting an xxx TERM that is missing, in that case they act as CREATION-OPERATORs
 
                   NB.2
                      since the '{' has also a 3rd meaning to delimit 'blocks' of CODE
-                     there are cases where to disambiguate must bu use +{ or 'return'. 
+                     there are cases where to disambiguate must bu use +{ or 'return'.
                      ex
-                     I want to define a function that returns a reference to a created anonymous HASH 
+                     I want to define a function that returns a reference to a created anonymous HASH
                      from the received args array (@_)
                          ex:  sub f { {@_}}        # it returns the array @_ so it's wrong
                               sub f { return {@_}} # it creates an anonymous HASH and returns the reference
@@ -941,18 +941,18 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                      Is the process to automatic create (lvalues) if they are not defined.
                      and regardless their complexity (so any required nested struct is created)
                      ex
-                         $a = 5   $a is a lvalue and if not yet defined is created now. 
+                         $a = 5   $a is a lvalue and if not yet defined is created now.
                                   No magic till here.
 
-                         $a[2][2][2] = "t"                 
+                         $a[2][2][2] = "t"
                                                               [0
                                                                1] --->[0
                                                                        1] --->[0
                                                                                1] --->  "t"
 
-                     if not yet defined all is create now. So Perl creates 3 scalar-storage-locations,  
+                     if not yet defined all is create now. So Perl creates 3 scalar-storage-locations,
                      the first 2 of these 3 locations store refs to
-                               2 anonymous arrays 
+                               2 anonymous arrays
                                the last scalar stores "t"
                      But the point of autovivification is that we don’t have to worry about it.
 
@@ -961,27 +961,27 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                      As a (lvalue), everything is first created, and the (rvalue) "January" is assigned.
 
                      If the same instruction is an (rvalue):
-                           print $array[3]–>{"English"}–>[0] 
+                           print $array[3]–>{"English"}–>[0]
                      the auto-creation occurs till $array[3]–>{"English"} then stops (
                      the final element is not an lvalue). (The fact that it defines the first two at all in
                      a rvalue context could be considered a bug. We may fix that someday.)
 
-                
-                
+
+
 PERL-1-DIMENSIONAL   references, as 'scalars', (so 1 dimensional) are what allows Perl, to
                     still be internally 1-dimensional, but building up complex data structures
-                    of array-of-array-of-hashes......  
+                    of array-of-array-of-hashes......
 
 a real POINTER      Perl references are like real C pointers, so if $b is a reference to $a
-                    and $a changes it's value, then dereferencing $b (that is $$b) I get the 
+                    and $a changes it's value, then dereferencing $b (that is $$b) I get the
                     updated last $a value:
 
                        use Devel::Peek;
                        $a=51;                 <----- here $a stored an integer
                        $b=\$a;                <----- here I create $b reference to the $a val
                        $a="four";             <----- here $a is changed to a string
-                       Dump $a;               
-                       print $a . "\n";       
+                       Dump $a;
+                       print $a . "\n";
                        print $b . "\n";
                        print $$b;
                        --------------GENERATES THIS:
@@ -998,21 +998,21 @@ a real POINTER      Perl references are like real C pointers, so if $b is a refe
                                          SCALAR(0x232ea88)       <---- print $b  (stores the body addr)
                                          four                    <---- print $$b .... wow it's up-to-date
 
-                
+
 BLESS               bless ($r, PACKAGE_NAME)   bless ($r)
 
                     it is a function which makes referenT pointed by the referenCE $r to
                     be an object in package PACKAGE_NAME (current Package, if 2nd arg is missing)
-                    Then returns for convenience again $r 
+                    Then returns for convenience again $r
 
                     ----- file A.pm:
                     package ..:: ...
-                      
+
                       sub  new {
                                  my $c = shift;  <---- the PACKAGE_NAME is the 1st arg passed in a create:
                                                        $o = PACKAGE_NAME–>new(a => "xxxx", b => "yyy");      1
                                                                 ^
-                                 my %attrs = @_;  <--  here the remaining hash-args. 
+                                 my %attrs = @_;  <--  here the remaining hash-args.
                                                        nb the array @_ is now again
                                                           an even number of elements with the actual key-arg pairs
                                                           passed in the new() call
@@ -1021,7 +1021,7 @@ BLESS               bless ($r, PACKAGE_NAME)   bless ($r)
                                  return bless($r, $c); <--as bless returns again $r, then having a 'return bless ..'
                                                           normally the ending way in a 'new', the 'new' itself
                                                           returns a reference.
-                                                       
+
 
 NEW                 as an Object-creator(), it can be used any function name.
                     new() is only normally found as programmers have the habit from other languages.
@@ -1033,9 +1033,9 @@ NEW                 as an Object-creator(), it can be used any function name.
 
                     $o_ref   =   PACK_NAME::–>new(a => "xxxx", b => "yyy");    1::
                     $o_ref   =   new PACK_NAME::  a => "xxxx", b => "yyy";     2::
-                  
-                
-ref                 The ref operator (ex. ref($r))   
+
+
+ref                 The ref operator (ex. ref($r))
                     receives the scalar ref, and returns the "string" of the TYPE.
                     The basic types are:
                         SCALAR , ARRAY , HASH , CODE , GLOB , REF , VSTRING , IO , LVALUE ,
@@ -1047,13 +1047,13 @@ REF cast to STRING  A ref in "string" context, dumps TYPE and ADDRESS in the for
                                         ref_TYPE '(' mem_address ')'
                     ex.
                                         SCALAR(0x1fc0e)
-                    
+
                     Is not possible to 'cast'-back from the string.
                     This is because internally a ref var stores other info (like
                     the ref count) and not only the TYPE and the address.
 
                     So refs cannot be used, for instance, as hash-keys if you want them back,
-                    becouse they are unique, so good for keys, but to retrieve them back
+                    because they are unique, so good for keys, but to retrieve them back
                     you need something like:
                          $r = \@a;
                          $x{ $r } = $r;    both as keys and values.
@@ -1062,9 +1062,9 @@ REF cast to STRING  A ref in "string" context, dumps TYPE and ADDRESS in the for
 
 
 
-REF to FILE HANDLE  References to file-handle are created by referencing the typeglob 
+REF to FILE HANDLE  References to file-handle are created by referencing the typeglob
                     (\*STDOUT \*STDIN)
-                    Perl is able to manage with some implicit dereferencing 
+                    Perl is able to manage with some implicit dereferencing
                     file-handles passed as strings, typeglobs (*STDOUT), or refs (\*STDOUT)
                     anyhow there are some little differences.
                     If I pass the bare typeglob (*STDIN, *STDOUT) (that is the old Perl style
@@ -1081,11 +1081,11 @@ REF to SYMBOL TAB   when a ref is created referencing typeglobs in a Symbol Tab,
                           sub a {
                               print "in_fun\n";
                           }
-                          
+
                           $r = *a;    <--- here I create a $ref to any entry "a" of the Symbol Tab
-                          
+
                           print $$r;  <--- 51      using the 'scalar'   section of the Symbol Tab for "a"
-                          
+
                           &$r;        <--- in_fun  using the 'function' section of the Symbol Tab for "a"
 
                     If I want to create a reference to a specific section only of the Symbol table
@@ -1100,7 +1100,7 @@ REF to SYMBOL TAB   when a ref is created referencing typeglobs in a Symbol Tab,
                      even never practically used the full list is:
                      $ioref        =    *STDIN{IO};        #    -
                      $formatref    =    *foo{FORMAT};      #    -
-                   
+
 DE-REFERENCE         Briefly if $r is a reference $$r is the value.
                      Remind that a REFERENCE is a TYPE in Perl (after num, string, undef, file-hndl)
                      so it doesn't become the 'value' you expect to use, if you don't say to Perl
@@ -1115,17 +1115,17 @@ DE-REFERENCE         Briefly if $r is a reference $$r is the value.
                               -       "        sub   :  &$r
 
                      NB.1 $$array_ref[0] = "ta";     stands for:
-                              
+
                               ${$array_ref}[0]     # actually nothing special here
 
-                              not for ${$array_ref[0]}    which will dereference entry 0 of 
+                              not for ${$array_ref[0]}    which will dereference entry 0 of
                                                           (not existent) array @array_ref
-                         
-                     NB.2 nothing special on using many levels of ref (and deref) 
+
+                     NB.2 nothing special on using many levels of ref (and deref)
                                   $r = \\\"Bye";
                                   print $$$$r;         <--- with the braces is: print ${${${$r}}};
-                           
-                   
+
+
 ->                   The arrow operator is syntactic sugar (it's called "infix operator")
                      It means that on the left there is a reference
                                                                       $r ->
@@ -1146,7 +1146,7 @@ DE-REFERENCE         Briefly if $r is a reference $$r is the value.
                         $arrayref–>[2] = "Ta";   <--- short form (missing sigil $ in front)
 
                      $  $hashref  {KEY} = "Ta";
-                     ${ $hashref }{KEY} = "Ta"; 
+                     ${ $hashref }{KEY} = "Ta";
                         $hashref–>{KEY} = "Ta";  <--- short form (missing sigil $ in front)
 
                      &  $coderef  (a => 192);
@@ -1158,9 +1158,9 @@ DE-REFERENCE         Briefly if $r is a reference $$r is the value.
                      print $array[3]–>{"English"}–>[0];
                                     ^
                                     start here:   entry 4th of @array   is a ref to a  hash
-                                                  whose entry "English" is a ref to an array 
+                                                  whose entry "English" is a ref to an array
 
-                   
+
           OPTIONAL  -> : it's optional between [ { (
 
                      print $array[3]–>{"English"}–>[0];  --->  print $array[3]{"English"}[0];
@@ -1168,13 +1168,13 @@ DE-REFERENCE         Briefly if $r is a reference $$r is the value.
 
                      SAID OTHERWISE EACH TIME YOU FIND 'attached' [ { (
                      THERE IS A HIDDEN -> in between !!!!!!!!!!!!!!!!!
-          
+
                      $a[5][1][3] = 4;
-                   
-                   
+
+
 REFER (Symbolic)     Symbolic REFERENCES, instead of the address of the var, contain its name.
-                     
-                          $name = "bam";            
+
+                          $name = "bam";
                           $$name = 1;               #  Sets $bam
                           $name–>[0] = 4;           #  Sets the first element of @bam
                           $name–>{X} = "Y";         #  Sets the X element of %bam to Y
@@ -1185,32 +1185,32 @@ REFER (Symbolic)     Symbolic REFERENCES, instead of the address of the var, con
                      As their usage can be somehow dangerous, it can be blocked as:
 
                           use strict "refs";
-                       
 
-                     and even un-blocked in a scope { } with 
+
+                     and even un-blocked in a scope { } with
 
                           no strict "refs";
 
 
                      Symbolic REF only on GLOBAL-vars:
-                        
+
                         A symbolic reference always goes through the package symbol table
                         to search the name (ex "bam")
-                        Only package vars are accessible through symbolic ref,  
-                        while lexical var (<--'my' = lexical. 
-                        'my' vars are NEVER  in a package symbol table), are 
+                        Only package vars are accessible through symbolic ref,
+                        while lexical var (<--'my' = lexical.
+                        'my' vars are NEVER  in a package symbol table), are
                         therefore invisible to this mechanism.
-                       
+
 ${x}  vs  ${"x"}     The first form is the typical UNIX-shell way to keep
                      well isolated (not ambiguos) the  var name.
-                     so $x and ${x} are the sam thing, 
+                     so $x and ${x} are the sam thing,
                      in UNIX shell and also Perl decided to keep this meaning.
 
                      ${"x"}  is instead intended by Perl as a Symbolic-Ref
                      and so it could produce an error with (use strict "refs")
-                       
-                       
-                       
+
+
+
 Weak Reference       standard Perl from v5.8.1.
                      They allow to make a hard-ref weak, so that if its referent
                      it's removed, its value become automatically undef.
@@ -1226,7 +1226,7 @@ Weak Reference       standard Perl from v5.8.1.
                           $ring–>{PREV} = $ring;
                           weaken($ring–>{NEXT});    <--- make it weak.
                           weaken($ring–>{PREV});
-                     
+
                      Besides becoming undef, its second property is that
                      it no longer contributes to the ref-count in its referent
                      data struct.
@@ -1237,7 +1237,7 @@ Weak Reference       standard Perl from v5.8.1.
                              my $a;
                              $a = \$a; # make $a point to itself. Memory of $a will not be freed.
                          }
-                     
+
 --------------------------
 TYPEGLOBS
 --------------------------
@@ -1253,7 +1253,7 @@ TYPEGLOBS
     This way:
          $a is an alias to $G
          but currently %G @G &G() are not aliased.
-    
+
 IMPORTING vars:
     module Exporter works around this aliasing, as this way you can
     import entries of a package '%oouutt::' into another '%iinn::'
@@ -1263,15 +1263,15 @@ IMPORTING vars:
 
     nb:     local *iinn::a = \&oouutt::fun;  <--- with 'local' the alias ends (as normally with a 'local' cmd)
                                                   at the end of that code-SCOPE
-    
-         
+
+
 
 _____________________________________
-use vars qw($scalar %hash @array);   With perl5.6 you can use the our operator instead: 
+use vars qw($scalar %hash @array);   With perl5.6 you can use the our operator instead:
        our ($scalar, %hash, @array);
 
-This declares the named variables as package globals in the current package. 
-They may be referred to within the same file and package with their UNQUALIFIED names; 
+This declares the named variables as package globals in the current package.
+They may be referred to within the same file and package with their UNQUALIFIED names;
 and in different files/packages with their FULLY QUALIFIED names.
 
 
@@ -1286,20 +1286,20 @@ and in different files/packages with their FULLY QUALIFIED names.
     means when now I write $a @a %a I'm accessing Symbol table entries
                            $G @G %G
     if I write $a = \$G;  is $a for $G but not @a %a for @G %G.
-    
+
 
 
     Around Typeglob is built the import mechanism of global vars between 2 modules
     somethings hidden normally to developer:
                 local *Here::blue = \$There::green;
-    
+
 --------------------------
 CONDITIONALS
 --------------------------
       if () {cmd}               unlike C, { } are always required even for 1 single cmd.
       cmd  if ()
       if  - elsif  - else       unlike C there is 'elsif'
-      unless (A) - else         try to avoid 'unless' block as it's the same as 
+      unless (A) - else         try to avoid 'unless' block as it's the same as
                                 if (not A)  - else
       ? a : b
 
@@ -1311,16 +1311,16 @@ SWITCH
 switch has been introduced only from version 5.10 and must be anyhow 'imported'
 
     use v5.10;                                   | alternative way (ex for perl < 5.10)
-    use feature qw(switch); <----- optional      | 
+    use feature qw(switch); <----- optional      |
     use feature qw(:5.10);  <----- optional      |         for ($string) {
                                                  |             /abc/ and do {$abc    = 1; last;};
     given ($item) {                              |             /def/ and do {$def    = 1; last;};
     when (/a/)     { say "Matched an a" }        |             /xyz/ and do {$xyz    = 1; last;};
     when (/42/)    { say "Matched a 42" }        |             $nothing = 1;
     when (/"bee"/) { say "Matched a bee" }       |        }
-    when (/\d+\w*/){ say "Matched a regex" }     
+    when (/\d+\w*/){ say "Matched a regex" }
     default {  ;  }             \___________nb I can use literal, string, number, regex
-    }                                          
+    }
 
 
 --------------------------
@@ -1336,15 +1336,15 @@ LOOPS
 
             foreach my $i ( 0 .. $#array ) { print $i, ": ", $array[$i]; }
 
-            It's NOT possible to iterate over an HASH, 
+            It's NOT possible to iterate over an HASH,
             BUT the way it's to use the 'keys' fun which return the ARRAY of keys
             and iterate on that.
-            
+
             foreach my $k (keys %hash) { print $k, ": ", $hash{$k}; }
                             ^
 
-            SORT:  Since a hash has no underlying order, 
-            the keys may be returned in any order. Use the sort 
+            SORT:  Since a hash has no underlying order,
+            the keys may be returned in any order. Use the sort
 
             foreach my $k (sort keys %hash) { print $k, ": ", $hash{$k}; }
                             ^
@@ -1354,7 +1354,7 @@ LOOPS
 
                                        foreach ( @array ) { print $_; }
 
-            which can also be written 
+            which can also be written
 
                                        print $_ foreach @array;
 
@@ -1377,7 +1377,7 @@ LOOPS
 --------------------------
 ARRAY FUNCTIONS
 --------------------------
-            pop      : pop     @stack;    returns the last  
+            pop      : pop     @stack;    returns the last
             push     : push    @stack;    append a new el at last pos
             shift    : shift   @stack;    returns the 1' el
             unshift  : unshift @stack;    insert a new el in 1' pos
@@ -1385,16 +1385,16 @@ ARRAY FUNCTIONS
             splice   : splice(@stack, index, len, "a", "b", ...)    returns the subarray in @stack
                                                                     of len elements starting at index (included)
                                                                     if there are other arguments (here "a", "b", ...)
-                                                                    that LIST is also substituted inside @stack 
+                                                                    that LIST is also substituted inside @stack
                                                                     which thus, 'loses' a slice but in its place
                                                                     gets another subarray.
 
                      all pop/.../unshift are 4 simple cases of splice
- 
+
             join     : join("..", @a)   concat el of @a with the separator provided (1' string arg)
             reverse  : - in list-  context   returns a list in revers order. reverse ("a1","b2") -> (b2, a1)
-                       - in scalar-context   first concat all the list as 1 single string 
-                                             then returns the reversed string. scalar reverse "  -> "2b1a" 
+                       - in scalar-context   first concat all the list as 1 single string
+                                             then returns the reversed string. scalar reverse "  -> "2b1a"
             map      : map { .. $_ } @a;     returns an array from @a where each el (_$) has been
                                              modified by the instruct inside the {}
                                              ex map { uc $_ } @a;   convert any el in UPPERCASE
@@ -1414,22 +1414,22 @@ SUB
             sub func {
             }
 
-            - subroutines always accept a LIST of scalars. 
+            - subroutines always accept a LIST of scalars.
                          - that LIST may of course have a single element, or be empty
-                         - a single scalar is taken as a LIST with a single element. 
+                         - a single scalar is taken as a LIST with a single element.
                          - a hash with N elements is taken as a LIST with 2N elements.
 
             - arg are passed by ref. (so a change is on the original)
-            - func (..)  but also fun ..      brackets are optional, 
-              anyhow it should ALWAYS be invoked 
+            - func (..)  but also fun ..      brackets are optional,
+              anyhow it should ALWAYS be invoked
               using brackets, even when called with no arguments
             - args are accessible using the built-in array variable @_
 
               sub func {             |            |              |
                                      |            |              |
-                  my $a = shift @_;  | = shift ;  |    = $_[0];  |   multiple scalar assignment                        
-                  my $b = shift @_;  | = shift ;  |    = $_[1];  |   my ($a, $b, $c) = @_;                         
-                  my $c = shift @_;  | = shift ;  |    = $_[2];  |                            
+                  my $a = shift @_;  | = shift ;  |    = $_[0];  |   multiple scalar assignment
+                  my $b = shift @_;  | = shift ;  |    = $_[1];  |   my ($a, $b, $c) = @_;
+                  my $c = shift @_;  | = shift ;  |    = $_[2];  |
                         ...
             - It's possible to call passing an HASH, as it's always a list
               but allow the most similar 'parameter' name convenition
@@ -1453,14 +1453,14 @@ FILE
             my $result = open my $fh, "<", "pippo.txt";     $result is FALSE on errors
             close $fh  # to close
                                                         ___file name ("a.txt")
-                                                       /   
+                                                       /
         the general form is with 3 args   open (1  2  3)
                                                 |  \_______mode: "<"   to read    "-|"   input pipe
                                                 |                ">"   to write   "|-"   output pipe
                                                 |                ">>"  to append
                                                 |                "< :encoding(UTF–8)"  it's possible to specify the encoding
                                                 '                ">> :encoding(MacRoman)"
-                                                 \ 
+                                                 \
                                                   \________file handle, a literal open (FILE_HDL ..)
                                                                         a var     open (my $fh   ..) <-- better
 
@@ -1475,7 +1475,7 @@ FILE
                     has the file handle inside: <FILE_HDL>   when I used a literal open   open(FILE_HDL, "a.txt");
                                                 <$fh>        when I used a var open       open(my $fs, "a.txt");
                    SCALAR context:   $l=<$fh>   read 1 line
-                   LIST   context:   @l=<$fh>   read ALL the lines of the files in the array 
+                   LIST   context:   @l=<$fh>   read ALL the lines of the files in the array
 
                    <> (null inside) means read ALL-lines of ALL-files present in the command line (@ARGV)
 
@@ -1497,7 +1497,7 @@ FILE
 
                     nb. as this magic can be used. I can set @ARGV to a list of files
 
-                        and then call while (<>). 
+                        and then call while (<>).
                     nb. As files are read as a happy single one, to manage num_lines
                         correctly, must be tested eof on each one.
 
@@ -1561,7 +1561,7 @@ REG EX
                     "Hello World" =~ /o/;         "That hat is red" =~ /hat/;
                          ^                          ^
                     $_ = "fred xxxxxxx barney";
-                    s/x*//;                      it will have absolutely no effect! 
+                    s/x*//;                      it will have absolutely no effect!
                                                  because the x* will match the “nothing” at the beginning of the string.
 
                  2) matches as many as possible char. (greedy (avido))
@@ -1569,12 +1569,12 @@ REG EX
                     /.*?/
 
         !~              reverses =~     if ("Hello World" !~ /World/) { ...
-        
+
         m<C> ... <C>    to use another char <C> as delimiter instead of //   ex. "Hello World" =~ m!World!
-                        Useful when there are a lot of slashes, (to avoid to escape each). 
-                        ex. =~ m{///}              matches three literal forward slashes, 
+                        Useful when there are a lot of slashes, (to avoid to escape each).
+                        ex. =~ m{///}              matches three literal forward slashes,
                             =~ s{^https?://}{}     removes the protocol part of a URL.
-        
+
         $var            the values of the vars are substituted before the regexp is evaluated
                         $foo = 'house';   'cathouse' =~ /cat$foo/;   'housecat' =~ /${foo}cat/
 
@@ -1582,7 +1582,7 @@ REG EX
               in SCALAR context is 1 at a time
               in LIST   context are all together
 
-            if ($string =~ m/(\w+)\s+(\w+)/) {         # values in $1, $2, 
+            if ($string =~ m/(\w+)\s+(\w+)/) {         # values in $1, $2,
 
                                      SCALAR context                      LIST context
                                --------------------------------------------------------------------
@@ -1597,7 +1597,7 @@ REG EX
             it can be written as 4 char where the second pair could be different: s{foo}(bar)
             and even with a space or a newline s{foo}
                                                 (bar)
-            s/// allows interpolation (usage of vars $a). 
+            s/// allows interpolation (usage of vars $a).
                  you can find the alternative equivalent versions  tr/// y/// that do the same
                  but with no allowed usage of $var in the pattern (they are just char substitution)
 
@@ -1610,8 +1610,8 @@ REG EX
                                                          /x;
         //a                    to keep your program from being needlessly exposed to full Unicode
                                input text can be only considered ASCII
-        //aa                   even more restrictions 
-        //s                    even more restrictions 
+        //aa                   even more restrictions
+        //s                    even more restrictions
 
 
         <PATTER>  in LIST context  : it pulls out all the backreferences as a list
@@ -1619,9 +1619,9 @@ REG EX
                                my ($hour, $min, $sec, $ampm) = /(\d+):(\d+):(\d+) *(\w+)/;
                                my @hmsa = /(\d+):(\d+):(\d+) *(\w+)/;
 
-        use re 'strict'        to be warned, as this find things that, while legal, 
+        use re 'strict'        to be warned, as this find things that, while legal,
                                may not be what you intended.
-        ()                     parentheses besides used to then refer the matched string with $1,$2, .. 
+        ()                     parentheses besides used to then refer the matched string with $1,$2, ..
                                they can also be used to apply a quantifier to more than one char:
                                /bam{2}/ bamm (ok) bambam (not) --> /(bam){2}/
         \1 \2                  similar to vi. I can refer to the mathed substring () while still in the regex
@@ -1639,7 +1639,7 @@ REG EX
 --------------------------
 MODULEs / PACKAGEs
 --------------------------
-        MODULE:  a normal perl code file like .pl but .pm 
+        MODULE:  a normal perl code file like .pl but .pm
                  It's intended to be included in another file, thus as it's read from top to bottom
                  it's required a return TRUE (so they end as "1;")
 
@@ -1650,11 +1650,11 @@ MODULEs / PACKAGEs
                          'relative' to each of them perl searches a file ./AAA/BBB.pm
 
         THE PROBLEM: having now a way to include files inside others, there is a problem as any included file
-                     can have 1 or more other 'require', so when calling a function 
-                                       WHERE is it? 
-                     There could be even more with the same name, so 
+                     can have 1 or more other 'require', so when calling a function
+                                       WHERE is it?
+                     There could be even more with the same name, so
                                        WHICH is it?
-         
+
         PACKAGE: it's a namespace.
 
                  each line of code written belongs to 1 package. At the beginnig of execution the package starts
@@ -1669,9 +1669,9 @@ MODULEs / PACKAGEs
 
         THE SOLUTION: to avoid possible mess, perl programmers use these 2 rules:
                       1. a 'package' cmd must never be in a .pl file
-                      2. a  module.pm must always have 1 and only 1 'package' cmd with exactly its 
+                      2. a  module.pm must always have 1 and only 1 'package' cmd with exactly its
                          relative pathname
-        
+
 ---------------____________________
 
 PACKAGES and NAMESPACES:   wherever it is, every LINE of CODE is inside 1 certain PACKAGE
@@ -1681,13 +1681,13 @@ PACKAGES and NAMESPACES:   wherever it is, every LINE of CODE is inside 1 certai
 'Package'                  The 'Package' directive starts a new Namespace, that will be considered
                            the 'current' till it will not be changed by another 'Package' cmd.
 
-'main' Package             The default Namesace is 'main'. 
+'main' Package             The default Namesace is 'main'.
                            It's the root Namespace, changed as soon as the first 'Package' cmd is found.
 
 SYMBOL TABLE             - It's the set of (vars + functions) of 1 PACKAGE.
                            So there is 1 SYMBOL TABLE for 1 PACKAGE
                          - is a HASH table (where:
-                               - (vars + functions)-NAMES are the string-keys, 
+                               - (vars + functions)-NAMES are the string-keys,
                                - the value is the TYPE-globs associated( $xxxx, %xxxx, @xxxx )
                            The  HASH table name is  PACKAGE-NAME + '::'
                            '%main::'  can be written as only '%::'
@@ -1706,7 +1706,7 @@ ACCESSING A VAR            So to refer to a var $xxxx defined in a certain LINE 
                                         print "\%$x is nonnull\n" if %i;
                                  }
 
-SYMBOL TABLES relations    1 SYMBOL TABLE (so a HASH %xxxxx::) can 'include' another SYMBOL TABLE, that is 
+SYMBOL TABLES relations    1 SYMBOL TABLE (so a HASH %xxxxx::) can 'include' another SYMBOL TABLE, that is
                            implemented as a 'reference' to the other one.
                            "%main::" contains references to all the others (included itself, so be carefull
                            if programmatically parsing from %main::, as there is no end to
@@ -1714,22 +1714,22 @@ SYMBOL TABLES relations    1 SYMBOL TABLE (so a HASH %xxxxx::) can 'include' ano
 
 
 
-                   
+
 PACKAGES are independent of files:
-                  - You can have many packages in a single file, 
+                  - You can have many packages in a single file,
                   - or a single package that spans several files,
 
 MODULE:     1 module = 1 file .pm
 
-'use'       the way you use a module is with the 'use' command, 
-            it is a COMPILER DIRECTIVE that controls the import of 
-                                 - subroutines 
+'use'       the way you use a module is with the 'use' command,
+            it is a COMPILER DIRECTIVE that controls the import of
+                                 - subroutines
                                  - and variables
             from a module.
 --------------------------
 OO
 --------------------------
-                  "Perl is not a great language for OO programming. 
+                  "Perl is not a great language for OO programming.
                    Perl's OO capabilities were grafted on after the fact, and this shows."
 
         object: is a reference. To use it as a refence to a class "CLASSNAME" use 'bless'
@@ -1746,20 +1746,20 @@ OO
                 sub new {
                     my $class = shift @_;     <----- receiving a string like ex "CLASSNAME"
                     return bless { "legs" => 4, "colour" => "brown" }, $class;
-                 }               ^                                
+                 }               ^
                                  here an anomym. ref to an HASH casted to "CLASSNAME"
 
                  ex.  $o = new Package::Name -> new();
 
         INHERITANCE:   use parent ("Animal"); <---------- to add in the son file (ex Koala.pm)
-                       nb.  use parent accepts a list of parent class names, so Perl supports multiple inheritance, 
+                       nb.  use parent accepts a list of parent class names, so Perl supports multiple inheritance,
                        (with all the benefits and horrors this entails).
 
 --------------------------
 BEGIN
 --------------------------
-        BEGIN blocks are ignored at execution time. They are executed during the 1st parsing of the 
-        file before parsing the rest. Even if they can be any number and anywhere in the file, put 
+        BEGIN blocks are ignored at execution time. They are executed during the 1st parsing of the
+        file before parsing the rest. Even if they can be any number and anywhere in the file, put
         only 1 at the beginnng.
 
 --------------------------
@@ -1778,9 +1778,9 @@ USE
 
             nb. require Caterpillar      : loads a 'module' (a file named Caterpillar.pm)
                 Carterpillar-> imnport() : calls a class-method ('package' Caterpillar)
-                   
+
                   so it works only if module and package respects the rule
-            
+
             import: is not a built-in fun. It's a method that must be defined by the user
                     which any args and doing whatever.
                     The most common way to define an import() method is to inherit it from Exporter.pm
@@ -1789,7 +1789,7 @@ USE
 --------------------------
 EXPORTER
 --------------------------
-        import() In Exporter's implementation of import(), the list of arguments 
+        import() In Exporter's implementation of import(), the list of arguments
                  is interpreted as a list of subroutine names
                  Those subs besides their original pack, become available also in the current pack
                  this means I can call them shortly as subx() instead the "longhand" AAA::BBB::subx()
@@ -1797,7 +1797,7 @@ EXPORTER
         @EXPORT  it's a var in Exporter that can also contain a list of sub names
                                  our @EXPORT = ("crawl", "eat", "pup");
                  they are exported if import is called with no args:    import()
-       
+
 
 --------------------------
 SYMBOL TABLEs / LEXICAL SCOPEs
@@ -1808,7 +1808,7 @@ varibale-names  are stored in memory in 2 different places, both called
 different 'sigil': so var of type $, @, %, &, go in separate area
 (that's the reason why $a @a %a &a do not conflict each other)
 
-lexical scopes: store 'local' vars. 
+lexical scopes: store 'local' vars.
                 That is, vars inside blocks { }, of type
                 my, our, state.
 symbol tables:  called also 'package' var, store 'global vars.
@@ -1831,24 +1831,24 @@ Name Lookups:   is the process that Perl uses to find from the simple term (ex. 
                                 is still is not found in the runtime STRING, Perl
                                 restart from point 2, considering the lexical scope
                                 of the block where the 'eval' is written.
-                           
+
                         4. pass to search for global vars, searching again from point 1 to 3
-                           but for the nearest 'package' instruction which will be 
+                           but for the nearest 'package' instruction which will be
                            prepended to the front of the variable.
-                        5. If there is no package declaration in any surrounding lexical scope, 
-                           Perl looks for the variable name in the unnamed top-level package, 
+                        5. If there is no package declaration in any surrounding lexical scope,
+                           Perl looks for the variable name in the unnamed top-level package,
                            (called 'main')
 --------------------------
 GRAMMARS - TERMS & OPERATORS
 --------------------------
 term     HIGHEST precedence!!!
-         they are: 
-                 . vars 
+         they are:
+                 . vars
                  . quoted ops (any kind)  <--- A fun is nothing but an operator with args inside (): f (...)
                  . braces     (any kind)                                                              \___ 'operator'
 
-operators:  
-      01 - Terms and List Operators (Leftward)    
+operators:
+      01 - Terms and List Operators (Leftward)
       02 - The Arrow Operator                          : on the right there are not [] {} or ()
       03 - Autoincrement and Autodecrement             : ++ only (not --) has some magic on strings
                                                          incrementing the char
@@ -1876,7 +1876,7 @@ operators:
       22 - Logical and, or, not, and xor
       23 - C Operators Missing from Perl
 
-                           
+
 
 --------------------------
 USEFUL MODULES
@@ -1895,7 +1895,7 @@ ExtUtils::MakeMake:      comes with Perl. It handles a module instalation by:
 Module::Build:      another way to install a module:
                  $ perl Build.PL
                  $ ./Build install
-                 
+
                  $ perl Build.PL --install_base=/Users/fred/lib
 
 CPAN.pm:            come with Perl to manage when modules depends on others.
@@ -1904,19 +1904,19 @@ CPAN.pm:            come with Perl to manage when modules depends on others.
                     It can be a little complicated, so a while ago was written a little script 'cpan'
 
 
-cpan:      The cpan command that comes with Perl can create an autobundle, (a list of everything you 
+cpan:      The cpan command that comes with Perl can create an autobundle, (a list of everything you
            have installed, along with the version numbers:
                                                              $ cpan -a
 
                                                $ cpan Module::CoreList LWP CGI::Prototype
 
-bundle :   A file that some CPAN clients can use to reinstall everything you already have installed, 
+bundle :   A file that some CPAN clients can use to reinstall everything you already have installed,
            either on the same machine or a different machine
 
 cpanm:     it doesn’t come with Perl  (download from http://xrl.us/cpanm)
            Once you have cpanm, you simply tell it which module to install:
               $ cpanm DBI WWW::Mechanize\
-               
+
 local::lib:  to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
              (download from CPAN as doesn’t come with Perl)
               $ perl  -Mlocal::lib
@@ -1936,14 +1936,14 @@ local::lib:  to keep additional Perl modules in their own directories (having no
             cpan> o conf makepl_arg INSTALL_BASE=/Users/fred/perl5
             cpan> o conf mbuild_arg "--install_base /Users/fred/perl5"
             cpan> o conf commit
-            
-            
+
+
       use local::lib;            # to write inside your Perl program so that it finds local modules.
                                  # During compilation, Perl sees that line and loads the module
-            
+
 perldoc:   perldoc File::Basename       # to see information on what the module does.
 use ....:
-           use File::Basename                 # import and load some functions 
+           use File::Basename                 # import and load some functions
                                                 use 'perldoc File::Basename' to see which.
            use File::Basename qw/ /;          # import without loading ....
            use File::Basename ();             # ... ALL the functions
@@ -1954,9 +1954,9 @@ use ....:
 
 File::Spec
             use File::Spec;
-            
+
             my $new_name = File::Spec->catfile($dirname, $basename); # use od -> as it's a CLASS
-           
+
 CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what it's tested and debugged)
 
             use CGI qw(:all);                             <------ load all functions from CGI module
@@ -1969,24 +1969,24 @@ CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what 
             }
             print ul( $list_items );
             print end_html();
-           
+
 DBI.pm      Once you install DBI , you also have to install a DBD (Database Driver, from the long
             list on CPAN [the version ok for your server]).
 
             use DBI;
             $dbh = DBI->connect($data_source, $username, $password);
-            
+
             my $sth = $dbh->prepare("SELECT * FROM foo WHERE bla");
             $sth->execute();
             my @row_ary = $sth->fetchrow_array;
             $sth->finish;
-            
+
             $dbh->disconnect();
-           
+
 Dates and Times
             my $dt = DateTime−>from_epoch( epoch => time );
-            
-            print $dt−>ymd;            # 2011−04−23 
+
+            print $dt−>ymd;            # 2011−04−23
             print $dt−>ymd('/');       # 2011/04/23
             print $dt->ymd('');        # 20010423
 
@@ -2004,7 +2004,7 @@ Dates and Times
 
             my @units = $duration->in_units( qw(year month day) );
             printf '%d years, %d months, and %d days', @units;       # 23 years, 4 months, and 14 days
-            
+
 --------------------------
 INSTALL MODULES
 --------------------------
@@ -2016,7 +2016,7 @@ INSTALL MODULES
 
                                           BUILD.PL         or if there is Makefile.PL
 
-                                       1. perl Build.PL             1. perl Makefile.PL        
+                                       1. perl Build.PL             1. perl Makefile.PL
                                        2. ./Build                   2. make
                                        3. ./Build test              3. make test
                                        4. ./Build install           4. make install
@@ -2058,9 +2058,9 @@ cpan[1]>                        Once run the command 'cpan', I'm inside the cpan
      -h                         for the help
      -o conf init               to see all the values (and the meaning!!) of each param.
                                 nb. I see the 'current' value not the 'factory' default.
-                                To see the original value, rename MyConfig.pm, 
+                                To see the original value, rename MyConfig.pm,
                                 and run -o conf init like it was the first time.
-                                
+
 --------------------------
 MORE PERL versions on the same PC
 --------------------------
@@ -2070,10 +2070,10 @@ To install a different version download the perl.gz distribution and run its 'Co
 with the required -Dprefix=... (ex -Dprefix=${HOME}/perl_vers/5.10.1/)
 
 PERL5LIB :      this env variable must be set when I need to add additional dirs besides @INC.
-                Perl does not require that the PERL5LIB variable be set. 
-                Typically, the variable will not be set to any value. 
+                Perl does not require that the PERL5LIB variable be set.
+                Typically, the variable will not be set to any value.
                 Anyhow I can set PERL5LIB so that Perl looks for modules in a private directory.
-                
+
        % export PERL5LIB=~/my_debug_lib
        % mkdir -p ~/my_debug_lib/Net/
        % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
@@ -2089,7 +2089,7 @@ local::lib     this module can be downloaded and compiled with its option --boot
                    perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl
 
                which prints:
-                   export MODULEBUILDRC="/home/you/.perl/lib/perl5/.modulebuildrc" <---- vars used by Module::Build and 
+                   export MODULEBUILDRC="/home/you/.perl/lib/perl5/.modulebuildrc" <---- vars used by Module::Build and
                    export PERL_MM_OPT="INSTALL_BASE=/home/you/.perl/lib/perl5"      <--- ExtUtils::MakeMaker when they need to target
                    export PERL5LIB="/home/you/.perl/lib/perl5/lib/perl5:$PERL5LIB"       a tree on a MODULE installation
                    export PATH="/home/you/.perl/lib/perl5/bin:$PATH"
@@ -2097,10 +2097,10 @@ local::lib     this module can be downloaded and compiled with its option --boot
               you can add those lines in ~/.bashrc as
               echo 'eval $(perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl)' >> ~/.bashrc
 
-perlbrew      to manage multiple Perl installations in your $HOME directory. 
+perlbrew      to manage multiple Perl installations in your $HOME directory.
               They are completely isolated perl universes.
 
-              Install as   sudo apt-get install perlbrew                 <----- works but as root then 
+              Install as   sudo apt-get install perlbrew                 <----- works but as root then
               or           \curl -L http://install.perlbrew.pl | bash    <----- works for user
                                                                                 is installed as
                                                                                 ~/perl5/perlbrew/bin/perlbrew
@@ -2131,19 +2131,19 @@ print:
        warn "The value of var after is [$var]";        # use var to have also line no
                                                        # The value of var before is [...] at program.pl line 123
 
-       Carp                                            # alternative warn and die for modules 
+       Carp                                            # alternative warn and die for modules
 
        use Data::Dumper qw(Dumper);                    # use Data::Dumper to print Objects and limit with < .. >
        warn "The value of the hash is <\n" . Dumper( \%hash ) . "\n>";
 
 Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to inspect args and ret val.
-      
+
        use Hook::LexWrap qw(wrap);
        my $n = shift @ARGV;
        my $m = $ARGV[0];
        wrap add,
            pre  => sub { print "I got the arguments: [@_]\n" },
-           post => sub { print "The return value is going to be $_[-1]\n" 
+           post => sub { print "The return value is going to be $_[-1]\n"
        ;
        print "The sum of $n and $m is " . add( $n, $n ) . "\n";    # <----- this is the error ( passing 2 n)
        sub add {
@@ -2153,7 +2153,7 @@ Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to insp
        }
 
 perl -d :    normal perl debugger (% perl -d add_numbers.pl 5 6)
-      
+
 
 Alternative Debuggers :    Are all under Devel::
                         - Devel::Trace                % perl -d:Trace program.pl
@@ -2164,7 +2164,7 @@ Alternative Debuggers :    Are all under Devel::
 IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Eclipse.
            -  Komodo     (started on Microsoft. Now available on Solaris, Linux, and Mac)
                           handles Perl as well as other languages, (Tcl, Ruby, PHP, Python)
-      
+
 
 
 ---------- Perl 4ed Oreilly [2012] - PREFACE
@@ -2183,10 +2183,10 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
    - Perl Folks: perlmonks.org.
 
    - SUPPORTED RELEASES: 2  (the current and the previous)
-               they are even num. 
+               they are even num.
                ex. If last is 5.18 --> [5.18 + 5.16]
                                         5.14 is the 1' UN-supported
-                  
+
    - DOWNLOAD + INSTALL
                Besides a already installed Perl version, others version can
                be installed and compiled with different options (and where
@@ -2220,14 +2220,14 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
            13  perlrun      How to run Perl commands, plus switches
            14  perldebug    Debugging
            15  perldiag     Diagnostic messages
-           
+
            “ perl –V:man.dir ”   To see the value to set in MANPATH in the UNIX man doesn't go properly.
 
 ---------- Perl 4ed Oreilly Ch1
            =            <---- a line started with a '='
            =cut               start a pod section up to a '=cut'
                               a way to have 'muli-line comments
-          
+
 
            $x = $y <--- rvalue  (value on the r-ight)
             ^
@@ -2242,7 +2242,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
                      by the time the expression is done
 
          names : are defined as ? xxxxx
-                                ^       
+                                ^
                                 called sigil can be
                                         $ for scalar   $foo
                                         @ for array    @foo  (no conflict with $foo or %foo)
@@ -2251,7 +2251,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
                                                           it matches all
         reserved words: they are usually lowercase
 
-        xxxxx   the actual identifier can be formed by 
+        xxxxx   the actual identifier can be formed by
                 - up 251 symbols [_0-9a-Z] but also
                   unicode (~ 100k symbols). When using Unicode
                   add a line 'use utf8'  at the beginning, to say to the Perl compiler
@@ -2260,10 +2260,10 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
         all the terms that starts with a sigil ($,@,%) cannot be confused
         with reserved words (so ex $for is a possible name, for the same
         reason a var $123 is ok)
-        Terms with no leading sigil (ex. label or FILE handle, or package names) 
+        Terms with no leading sigil (ex. label or FILE handle, or package names)
         it's better to start with an UPPERCASE so still they cannot be confused.
 
-        BAREWORDs      any term not quoted "" that is not recognized as 
+        BAREWORDs      any term not quoted "" that is not recognized as
                        a reserved word, is then assumed as a STRING (quoted)
                        use strict "subs" in a scope to force quoting
                        a (no strict "subs") in a inner scope can turn it off
@@ -2288,11 +2288,11 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
         HERE doc       It's a way to set a STRING with a 'document' inline
                        that starts from a specified <<keyowrd up to the same keyword
-                       
+
                        print <<SSS;   print<<'SSS';    print<<"SSS"         print<< ;
                        .....             with ''         with ""                   ^ a space (deprecated)
                        SSS            SSS              SSS                           go up to 1st blank line (I can avoid any SSS)
-                       
+
 
                        print <<"" x 10               print << x 10                     print <<"SSS", <<"TTT";
                           10 times this line            10 times this line             ....
@@ -2308,16 +2308,16 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
                       my @a = <<SSS;                              my @a = <<SSS =~ m/(\S.*\S)/g;
                        .....       I assign to an array            .....       I assign to an array removing spaces
-                       SSS                                         SSS              
+                       SSS                                         SSS
 
 
-        
+
 
 ---------- Perl 4ed Oreilly Ch2
 ---------- Perl 4ed Oreilly Ch3
 ---------- Perl 4ed Oreilly Ch4
 ---------- Perl 4ed Oreilly Ch5
----------- Perl 4ed Oreilly Ch6 
+---------- Perl 4ed Oreilly Ch6
 ---------- Perl 4ed Oreilly Ch7
 ---------- Perl 4ed Oreilly Ch8
 ---------- Perl 4ed Oreilly Ch9
@@ -2332,10 +2332,10 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 ---------- Perl 4ed Oreilly Ch18
 ---------- Perl 4ed Oreilly Ch19
 ---------- Perl 4ed Oreilly Ch20
----------- Perl 4ed Oreilly Ch21  
+---------- Perl 4ed Oreilly Ch21
 ---------- Perl 4ed Oreilly Ch22
 ---------- Perl 4ed Oreilly Ch23
----------- Perl 4ed Oreilly Ch24    
+---------- Perl 4ed Oreilly Ch24
 
 \d      matches a Unicode digit, not just [0-9] but also other Unicode math digits (ARABIC INDIC symbols)
 \D      is a negated \d; [^\d]
@@ -2343,7 +2343,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 \S      is a negated \s; [^\s]
 \w      matches a word character (alphanumeric or _), not just [0-9a-zA-Z_] but also other Unicode digits
 \W      is a negated \w; [^\w]
-.       matches any character but "\n" 
+.       matches any character but "\n"
 \N      like '.' but it does so regardless of whether the modifier //s is in effect.
 \b      word anchor, matches a boundary between a word char and a non-word char  /cat\b/;  # matches cat in 'housecat'
 \b{wb}  light form of \b for natural language (ex. apostrophes are included in words, like in "don't")
@@ -2357,7 +2357,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
 
 
-//a              to match inside the ASCII subset of Unicode. 
+//a              to match inside the ASCII subset of Unicode.
                  Ex \d in ASCII is only [0-9] while in Uniocde
                  matches other matemathical digits (ex. ARABIC INDIC)
                  so use /\d/a
@@ -2365,14 +2365,14 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
                  and lowercase Uniocde val. If one val (UPPER or lower) is in ASCII range and
                  the other is not, when testing with //ia as one macthes, the result is true.
                  To restrict on these cases use //iaa
-//s   //m        stand for single-line multi-line and they determine whether a string 
-                 is to be treated as one continuous string, or as a set of lines. 
-                 They affect 1) how the '.' is defined, 2) where ^ and $ are able to match. 
+//s   //m        stand for single-line multi-line and they determine whether a string
+                 is to be treated as one continuous string, or as a set of lines.
+                 They affect 1) how the '.' is defined, 2) where ^ and $ are able to match.
 
                               .                ^                                   $
-                 //      any != \n        only 1st char of ALL STR    only last char of ALL STR 
+                 //      any != \n        only 1st char of ALL STR    only last char of ALL STR
                  //s     any (also \n)    only 1st char of ALL STR    only last char of ALL STR
-                 //m     any != \n        any STR start               any STR end or before \n   
+                 //m     any != \n        any STR start               any STR end or before \n
                  //sm    any (also \n)    any STR start               any STR end or before \n
 
                  regardless of all the cases with
@@ -2381,14 +2381,14 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
                       \z is always  "only last char of ALL STR (different from  \n)"
 
 
-                 
-                 
+
+
                  the ASCII val, it matches
-                 (so matching also 
-                 
-                 
-                 
-                 to match inside the ASCII subset of Unicode. 
+                 (so matching also
+
+
+
+                 to match inside the ASCII subset of Unicode.
 
 
 
@@ -2396,7 +2396,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
 ------------ redirect debugger output (to a file)
 once in the debugger (at the prompt), set a 'pager':
- o pager=">my_file"    
+ o pager=">my_file"
  or ">>" to append
  then execute the command to save with a pipe ahead
  |c

@@ -1,11 +1,85 @@
-   make utility is not limited to programs. 
+   --------------------------------------------------------   COMPILER
 
-   It decides if some files must be updated automatically from others 
+   C prog p.c    ---> gcc -Wall p.c -o p   ---> EXE file 'p'
+                                                (without -o p   I get a.out default file)
+
+
+   1. Pre Processing
+            - expand MACRO
+            - expand includes
+            - removes comments
+
+            gcc -Wall -E p.c                  -E : dump the pre-proc output on standard out
+
+   2. Compilation
+            gcc -Wall -save-temps p.c -o p    -save-temps   (save temporary files:
+                                                             .i  <--- the preproc output I can verify i
+                                                                      comments are remove, MACRO have been subst. & include expanded.
+                                                                      It the exact same file I can obtaining    gcc -Wall -E p.c > xxxx
+                                                             .s  <--- assembler  (still in TEXT)
+   3. Assembly reads .s to produce .o
+                                                             .o  <--- binary ELF (executable & linkable format)
+                                                                      the modern format vs old 'a.out'-format
+
+                                                                      nb. The a.out file preserves only the name
+                                                                      not the format that is ELF
+                                                             )
+   4. Linking
+      plugs-in the real addresses for all the external unresolved place holders
+      It's sufficient to compare the size of the p.o (object) with the p (linked)
+      the see how much of the external has been built into p.
+
+
+
+
+
+
+
+   --------------------------------------------------------
+   --------------------------------------------------------
+   --------------------------------------------------------
+   -------------------------------------------------------- Cross compiler
+   A cross compiler is a compiler capable of creating executable code
+   for a platform other than the one on which the compiler is running.
+   ex.  . compile on FreeBSD an app for Android
+        . compile on 1 host for many virtualised different guests
+        . compile for a device (ex microwave, wachingmachine)
+
+   Virtual machines (like Java VM) tries to solve some of the reasons
+   to need a cross-compiler, as they run the same code everywhere the
+   VM has been ported.
+   Anyhow not in any place can be ported a VM, moreover it remains slower.
+
+
+   gcc =
+         - COLLECTION of cross-compilers
+         - supports many architectures & LANGUAGES
+         - requires a COMPILED copy of 'binutils' for each target platform.
+           (this means 'binutils' has been compiled with the switch
+                --target=xxxx    xxxx:name of the platform)
+         - gcc must then be CONFIGURED with the same --target=xxxx
+         - the target-platform C-standard-library must be present on host
+           but as it's big, normally is used a smaller one:'newlib'
+
+   - GNU Assembler
+
+   - autoconf
+   - automake
+   - libtool
+   -------------------------------------------------------- GCC
+    Compiler for many languages:
+           C, C++ (1987)
+           Objective-C, Objective-C++, Fortran, Java, Ada, and Go among others.
+
+   --------------------------------------------------------
+   make utility is not limited to programs.
+
+   It decides if some files must be updated automatically from others
    whenever the others change.  (use last-modification times of the files)
 
-   For programs, you can use make with any language whose compiler 
+   For programs, you can use make with any language whose compiler
    can be run within a shell.
-   
+
    general form
        target:  dependency  <---- files. When each of this change, the target maust be rebuilt
        <tab>    rules       <---  commands  (on the same line or 1 on each own)
@@ -21,7 +95,7 @@
        target:   dependency  ;   rules         #to use in simple cases
 
 
-   phony target: have no dependency / they also are dependency for no target
+   phony target: have no dependency / they also aren't dependencies for any target
                  so they only have rules.
                   clean :
                           rm edit $(objects)
@@ -37,16 +111,16 @@
           insert.o search.o files.o utils.o                       cc -o f link and place output in f
            cc -o edit main.o kbd.o command.o display.o \
                       insert.o search.o files.o utils.o
-   
+
    main.o : main.c defs.h
            cc -c main.c
    kbd.o : kbd.c defs.h command.h
            cc -c kbd.c
-   
+
    --------------------------------------------------------
    objects = main.o kbd.o command.o display.o \
              insert.o search.o files.o utils.o
-   
+
    edit : $(objects)
            cc -o edit $(objects)
    main.o : main.c defs.h
@@ -56,43 +130,43 @@
    --------------------------------------------------------
    objects = main.o kbd.o command.o display.o \
              insert.o search.o files.o utils.o
-   
+
    edit : $(objects)                         1 of many default rules
-           cc -o edit $(objects)             is get .o from .c  
+           cc -o edit $(objects)             is get .o from .c
                                              with rule: "cc -c"
    main.o : defs.h
    kbd.o : defs.h command.h
 
-    
-      
+
+
         var = ....     defines a var
                        $(var)  to use it later (it's just a STRING: the use of a var is like copy&paste
                                                 of the var TEXT definition)
 
         var += ...     to modify var, appending other text
 
-       
+
         var := ...   expand the value NOW to var,  not at the end of Makefile:
 
          x = 1                                 x := 1
          y = $(x)                              y := $(x)
          x = 2                                 x := 2
-                                               
+
          test:                                 test:
              echo "$(x) $(y)"                      echo "$(x) $(y)"
          ___________________________________________________________
 
     result:        2    2                                 2    1
-          
 
 
-         $(var:a=b)       As a var is just TEXT, that syntax means change in that TEXT 
+
+         $(var:a=b)       As a var is just TEXT, that syntax means change in that TEXT
                           any 'ending' a with b
                           foo := a.o b.o c.o
-                          bar := $(foo:.o=.c)     #  'a.c b.c c.c' 
+                          bar := $(foo:.o=.c)     #  'a.c b.c c.c'
 
                           Other functions to manage TEXT of var values:
-                            
+
                                          $(subst from,to,text)
                                          $(patsubst pattern,replacement,text)
                                          $(dir names...)
@@ -110,49 +184,50 @@
 
                any var=... inside the Makefile is skipped, so command line wins
                Only exception is that in the Makefile I use the keyword 'override'
-                    
+
                        override  var = 4
 
           Automatic variables: $@         (explained some lines below ....)
-                               $< 
-                               $? 
-                               $^  
+                               $<
+                               $?
+                               $^
                                $+
 
    -------------------------------------------------------- gcc -M      /    .d
 
        the have from each .c a file .d (depenency)
-       that is what shuld me made in the Makefile (so it writes dependendy for me)
+       that is what should be made in the Makefile (so it writes dependendy for me)
        is to launch gcc with option -M
 
    --------------------------------------------------------
-   
-   when in 1 Makefile all the rule are default rule it's a matter of taste
-   to chose to group all the target on left separated by , and its common dependency after :
+
+   It can also be used the style:
+
+   to group all the target on left separated by , and its common dependency after :
    1 group for each deendency
-        
+
        $(objects) : defs.h
        kbd.o command.o files.o : command.h
        display.o insert.o search.o files.o : buffer.h
    -------------------------------------------------------- -f   -n
    a make has standard names (ex Makefile makefile)
-   but its allowed to use 
-                 make -f xxxx 
+   but its allowed to use
+                 make -f xxxx
    to specify others.
- 
+
    to execute a certain target the command is:
 
                  make  target
-     
+
    to print only the action that make would do use
- 
+
                 make -n target
 
    still some internals, and some special dependency are still executed even with -n
    the most sure way it to give itself also as a target
 
                 make -f xxxxx  -n  xxxxx  target
- 
+
    -------------------------------------------------------- include
 
    bar = bish bash
@@ -165,7 +240,7 @@
 
    One case is when some dependency are generated automatically by some other source.
    They are then chained insdie the makefile with an 'include'.
-   
+
    If the specified included 'file' is not found, there is only 1 waring, but make goes ahead
    to do its best. To have not even the warning write  -include   instead nomrmal include.
    One way to not find is becouse the file is out from the search path, that is:
@@ -173,17 +248,17 @@
                                                -  current dir
                                                -  /usr/local/include
                                                -  /usr/gnu/include
-                                               -  /usr/local/include 
+                                               -  /usr/local/include
                                                -  /usr/include
-                                               
+
    -------------------------------------------------------- %
       % specify a pattern. (is like the * in bash)  So I can write something like:
-             
+
              %.class: %.java; javac $<          (the meaning of $<  is some line below ...)
 
-      which works for any .class .java 
+      which works for any .class .java
 
-      So % alone is the way to match any target. 
+      So % alone is the way to match any target.
       If I execute:
                 make xxxx
 
@@ -200,9 +275,9 @@
                force:  ;           <---- 'force' is an empy target, anyhow specific
                                          as without this, make consider it also matches %
                                          and enters and endless loop.
-              
+
    -------------------------------------------------------- special  dependency (Automatic variables)
-       
+
     $@  :  file name of the target
     $<  :  1st dep  of   1st rule    of    1st target
     $^  :  list of all dep aready appeared in other rules for this target  (list with no repetition)
@@ -210,7 +285,7 @@
     $%  :  the target name if the target is an archive member
 
     $?   :  list of all dep NEWER than target
-    $*   :  The part of a filename which matched a suffix rule. 
+    $*   :  The part of a filename which matched a suffix rule.
 
 
     foo: foo1 bar1 $< $^ $+     $<:""    $^:""                    $+:""
@@ -241,9 +316,9 @@
 
    -------------------------------------------------------- 2 phases
 
-   make performs in 2 phases 
+   make performs in 2 phases
 
-            1. phase:  parse all   +   expand 'vars'   +   build a dependency tree 
+            1. phase:  parse all   +   expand 'vars'   +   build a dependency tree
             2. phase:  execute the rules in the proper order
 
    if we have a var
@@ -251,16 +326,16 @@
              var =
 
    if we refer normally as $(var)  it's expanded already in the 1st phase
-   if we refer as $$(var)  (with double '$')  make wait the secodn phase to expand:
-                
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
+   if we refer as $$(var)  (with double '$')  make waits the second phase to expand:
+
+
+
+
+
+
+
+
+
+
+
+

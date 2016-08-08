@@ -41,15 +41,15 @@
                                                              anyhow when the program ends, the win is closed.
    CONFIG
               - first checks for /etc/tmux.conf
-              - then ~/.tmux.conf 
-                
+              - then ~/.tmux.conf
+
                 changes can be sourced from inside tmux from command mode:
                     source-file ~/.tmux.conf
 
                     set -g ...                              to GLOBALLY set for all sessions
                     set -g prefix C-a                       to change PREFIX (I bind C-a)
                     C-B ?                                   to see all the current mappings
-                    unbind C-a                              to remove a binding 
+                    unbind C-a                              to remove a binding
                     set -sg escape-time 1                   to remove the delay after PREFIX
                                                             so for ex. vi can benefit.
                     set -g base-index 1                     to set as 1 not 0 the start of WINDOWS in a session
@@ -57,15 +57,15 @@
                        ^
                        nb. it's a short for the longer "set-window-option"
 
-                    display                                 print a message in the status bar 
+                    display                                 print a message in the status bar
                                                             (ex. display "Good Morning")
-                    bind                                    I can bind command to a key       
+                    bind                                    I can bind command to a key
                                                             (it will work when pressing PREFIX + key
                                                             ex. bind r source-file ~/.tmux.conf
                                                             )
                         \;                                  to separate more commands in a bind
                                                             ex. bind r source-file ~/.tmux.conf \; display "Reloaded!"
-                        -n                                  to bind without the PREFIX 
+                        -n                                  to bind without the PREFIX
                                                             ex. bind-key -n C-r source-file ~/.tmux.conf
                                                             (anyhow this will remove C-r from any application)
                         -r                                  to repeat the command without PREFIX in the following
@@ -85,7 +85,7 @@
                                                             is sent to the applications.
                         bind | split-window -h              to bind the vertical split to | instead of %
                         bind - split-window -v                   "                "       -            "
-                                             ^   
+                                             ^
                                              nb  -h means 2 panes next to each other (and so the window is divided vertically)
                                                  -v       2       one above the other                              horizontally
 
@@ -107,28 +107,28 @@
 
                     set -g default-terminal "screen-256color"     to have the 256 color
 
-                    
+
                  ________________ status bar:
 
                     set -g status-bg blue                   to change the back-ground in status-bar
                     set -g status-fg white                  "             fore-ground      "
-                                                            "black", 
-                                                            "red", 
-                                                            "green", 
-                                                            "yellow", 
-                                                            "blue", 
-                                                            "magenta", 
-                                                            "cyan", 
+                                                            "black",
+                                                            "red",
+                                                            "green",
+                                                            "yellow",
+                                                            "blue",
+                                                            "magenta",
+                                                            "cyan",
                                                             "white"
-                                                                         but also 
-                                                                                "colour0" 
+                                                                         but also
+                                                                                "colour0"
                                                                                 ...
                                                                                 to "colour255"
                     set -g status-left "#[fg=green]#S"      the bar is divided in
                                                            -------------|-------------|----------
                                                                 ^            ^            ^
                                                              left       window list     right
-                                                           
+
                                                            The vars that can be used are:
 
                                                               #H   Hostname of local host
@@ -139,7 +139,7 @@
                                                               #T   Current window title
                                                               #W   Current window name
                                                               ##   A literal #
-                                                              #(shell-command) First line of the shell command’s output 
+                                                              #(shell-command) First line of the shell command’s output
                                                               #[attributes] Color or attribute change
 
                     set -g status-right "#[fg=cyan]%d %b %R"
@@ -161,7 +161,7 @@
 
                  ________________ panes:
 
-                    set -g pane-active-border-bg yellow    Panes are divided by a solid gap with a line inside    
+                    set -g pane-active-border-bg yellow    Panes are divided by a solid gap with a line inside
                     set -g pane-active-border-fg black     The line is the 'fg', the gap arounf the line is the 'bg'
 
                     set -g pane-border-fg green            the above set the actibe pane, these 2 lines
@@ -170,15 +170,15 @@
 
                  ________________ command line:
 
-                    set -g message-fg white 
-                    set -g message-bg black 
+                    set -g message-fg white
+                    set -g message-bg black
                     set -g message-attr bright
 
    SCRIPT
                     tmux split-window -h -t ssss          split horiz. the window in tmux session ssss
                     tmux split-window -v -p 10 -t ssss    split vert. and by a percentage 10%
 
-                    
+
                     tmux send-keys -t ssss 'cd ~/dir' C-m   to send a command to a session (C-m is
                                                                    the carriage return)
                                                             the general format is:
@@ -190,7 +190,7 @@
                                                                                    pay attention to win & panes NUMBERs
                                                                                    if you changed the original 0 starting num
 
-                    
+
                     tmux select-layout -t ssss  main-horizontal   to send the pane dividing layout
 
                     tmux new-window -n console -t ssss            to create a new window named 'console'
@@ -215,7 +215,7 @@
                                                                   (use usual vi cmds: gg G / ? n N w f ...)
 
                     PREFIX [                                      enter in buffer mode
-                    SPACE ...... ENTER                            to COPY text 
+                    SPACE ...... ENTER                            to COPY text
                                                                   in the '....' there are the arrows to select the text to Copy
                     PREFIX ]                                      to PASTE the copied text
 
@@ -226,7 +226,7 @@
                                                                   bind Escape copy-mode
                                                                   unbind p
                                                                   bind p paste-buffer
-                                                                  bind -t vi-copy 'v' begin-selection 
+                                                                  bind -t vi-copy 'v' begin-selection
                                                                   bind -t vi-copy 'y' copy-selection
 
 

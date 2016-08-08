@@ -1,0 +1,146 @@
+Apache Ant             (Another Neat Tool)
+
+Tomcat father          developed by the same author: James Duncan Davidson
+
+XML                    build files are XML files  (usually build.xml)
+                       The 'variables' are defined with the tag <properties>
+
+
+Install                1. download the zip
+                       2. define env vars:
+                           - JAVA_HOME points to where JDK is installed
+                                  (remeber JDK has all the binaries (javac, javap, java ...
+                                   JRE is only able to execute a java prog)
+                                  ex. Windos: c:\Java\jdk1.8.0_45
+                                      Linux:  /Library/Java/JavaVirtualMachines/jdk1.8.0_102.jdk/Contents/Home
+                           - ANT_HOME points to where ANT is unzipped
+                                  ex Windows: C:\Users\sbasile\My_Prog\Ant\apache-ant-1.9.7
+                           - PATH is updated to include both
+                       3. verify: ant -version
+                          Apache Ant(TM) version 1.9.6 compiled on June 29 2015
+
+build.xml              normally stays in the proj dir.
+
+                                <?xml version="1.0"?>
+                                   <project name="Hello World Project"     - name=   (optional)  Name for the proj
+                                            default="info"                 - default (mandatory) the default target <---- so on cmd line will be 'ant info' or only 'ant'
+                                            basedir="../dir>               - basedir (optional)  proj root dir.
+                                   <target name="info">
+                                      <echo>Hello World - Welcome to Apache Ant!</echo>
+                                   </target>
+                                   </project>
+
+depends=                dependencies are added to a target through the attribute depends=" .... "
+
+                        <target name="package" depends="clean,compile">
+                          ....
+                        </target>
+
+<target attr=           the possible attributes of tag <target
+                        are:
+                               name=          (M)  the target
+                               depends=       (O)
+                               description=   (O)  short desc
+                               if=            (O)  conditional
+                               unless         (O)  add ad 'Extension Point' (that is like a target
+                                                   but with NO tasks)
+
+<properties>             The tag used to define the required parameters:
+                         #the values are access as ${ xxx }
+
+                         <property name="javadoc.dir"     value="dist/javadoc" />
+                         <property name="cff.javadoc.dir" value="dist/cff-javadoc" />
+                         <property name="javadoc.css"     value="build/javadoc.css" />
+                         <property file1="${machine.properties}" />
+                         <property file2="${user.properties}" />
+                         <property name="lib.repo.bin"    value="${basedir}/../../Repository" />
+
+predefined <properties>
+                         ant.file                     The full location of the build file.
+                         ant.version                  The version of the Apache Ant installation.
+                         basedir                      The basedir of the build, as specified in the basedir attribute of the project element.
+                         ant.java.version             The version of the JDK that is used by Ant.
+                         ant.project.name             The name of the project, as specified in the name atrribute of the project element.
+                         ant.project.default-target   The default target of the current project.
+                         ant.project.invoked-targets  Comma separated list of the targets that were invoked in the current project.
+                         ant.core.lib                 The full location of the Ant jar file.
+                         ant.home                     The home directory of Ant installation.
+                         ant.library.dir              The home directory for Ant library files - typically ANT_HOME/lib folder.
+
+properties files         are text files named whatsoever but usually (xxxx.properties  xxxx.properties.yyy ...)
+                         in the form
+                             xxxxx = vvvvvv         xxxxx: name of the prop and vvvvvv the value
+                                                    # <-- comments are allowed
+
+task                     the tasks are the actual make-commands and are in the form
+
+                               <xxxx att1="value1" att2="value2" ... />
+
+                         or optionally even assigning a uinique 'id='
+
+                               <xxxx id="iiiii" att1="value1" att2="value2" ... />
+
+                         where xxxx is the command to execute. The built-in list is:
+
+                         Ant                        Chmod                Dirname        Jarlib-available    MacroDef              Rename                Sql          Microsoft Visual SourceSafe Tasks
+                         AntCall                    Chown                Ear            Jarlib-display      Mail                  RenameExtensions      Sshexec      Waitfor
+                         ANTLR                      Clearcase Tasks      Echo           Jarlib-manifest     MakeURL               Replace               Sshsession   War
+                         AntStructure               Componentdef         Echoproperties Jarlib-resolve      Manifest              ReplaceRegExp         Subant       WhichResource
+                         AntVersion                 Concat               EchoXML        Java                ManifestClassPath     ResourceCount         Symlink      Weblogic JSP Compiler
+                         Apply/ExecOn               Condition            EJB Tasks      Javac               MimeMail              Retry                 Sync         XmlProperty
+                         Apt                        Supported conditions Exec           JavaCC              Mkdir                 RExec                 Tar          XmlValidate
+                         Attrib                     Copy                 Fail           Javadoc/Javadoc2    Move                  Rmic                  Taskdef      XSLT/Style
+                         Augment                    Copydir              Filter         Javah               Native2Ascii          Rpm                   Telnet       Zip
+                         Available                  Copyfile             FixCRLF        JDepend             NetRexxC              SchemaValidate        Tempfile
+                         Basename                   Cvs                  FTP            JJDoc               Nice                  Scp                   Touch
+                         Bindtargets                CVSPass              GenKey         JJTree              Parallel              Script                Translate
+                         BuildNumber                CvsTagDiff           Get            Jlink               Patch                 Scriptdef             Truncate
+                         BUnzip2                    CvsVersion           GUnzip         JspC                PathConvert           Sequential            TStamp
+                         BZip2                      Defaultexcludes      GZip           JUnit               PreSetDef             ServerDeploy          Typedef
+                         Cab                        Delete               Hostinfo       JUnitReport         ProjectHelper         Setproxy              Unjar
+                         Continuus/Synergy Tasks    Deltree              Image          Length              Property              SignJar               Untar
+                         CvsChangeLog               Depend               Import         LoadFile            PropertyFile          Sleep                 Unwar
+                         Checksum                   Dependset            Include        LoadProperties      PropertyHelper        SourceOffSite         Unzip
+                         Chgrp                      Diagnostics          Input          LoadResource        Pvcs                  Sound                 Uptodate
+                                                                         Jar            Local               Record                Splash                VerifyJar
+
+                         when assigning an id=
+                         it can be called somewhere else as iiiii.setatt3("vvvv")
+
+command line             -f ....       to specify a file != build.xml
+                         -v            verbose
+                         -d            add also debug info
+                         -l ...        log on this file
+                         -lib ...      path for jar / classes
+                         -Dxx=vv       use for property xx the value vv
+                         -s ...        (s)earch upwards in the file system this file and build it
+                         -noclasspath  run without using CLASSPATH
+                         -nouserlib    run without using the jar files from ${user.home}/.ant/lib
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

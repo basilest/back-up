@@ -1,69 +1,69 @@
 In contrast to RELATIONAL DATABASES (and their notion of "Relation", i.e., a tuple (or row)
 of related strong-typed data) there are NoSQL databases:
                            NoSQL DB
-                                |         
+                                |
                            key-value store DB
-                                |         
-                           Full text DB    One of the earliest systems was IBM STAIRS, 
+                                |
+                           Full text DB    One of the earliest systems was IBM STAIRS,
                                 |          introduced in 1973.
-                                |          Full text databases became common about 1990 when 
-                                |          computer storage technology made them economic and 
-                                |          technological possible. 
-                                |         
+                                |          Full text databases became common about 1990 when
+                                |          computer storage technology made them economic and
+                                |          technological possible.
+                                |
                            document-store DB
-                                |         
+                                |
                            XML databases DB
 
 key-value store:  the data (called the 'value') is considered to be inherently OPAQUE to the database.
 
-a subclass:  document-oriented database: data (called the 'document') are not opaque, 
+a subclass:  document-oriented database: data (called the 'document') are not opaque,
                                           but their internal structure is known and the engine
                                           relies in order to extract metadata
 
 a subclass:  XML databases  (as well as YAML, JSON, and BSON)
                JSON is widely used in online programming for interactive web pages and mobile app.
 
-smometimes used a mapping : Some  doc-based DBs allow documents to be mapped 
-                            onto a more suitable format using a schema language such as 
+smometimes used a mapping : Some  doc-based DBs allow documents to be mapped
+                            onto a more suitable format using a schema language such as
                             DTD, XSD, Relax NG, or Schematron.
 
 similar:             Documents inside a document-oriented database are similar
 
-key:                 Documents may be addressed in the database via a unique key that is often 
-                     a simple string, a URI, or a path. 
+key:                 Documents may be addressed in the database via a unique key that is often
+                     a simple string, a URI, or a path.
 simple doc-based DB: only provide to retrieve an opaque doc from its key
-modern doc-based DB: provide far more, because they extract and index all kinds of metadata, 
-                     Such DBs offer a query language that allows the user to retrieve doc based on their content. 
-                     (ex. all doc with DATE in some range) 
-                     
-advantage:           docs can change in type and form at any time. 
-                     If one wishes to add a COUNTRY_FLAG to a CONTACT, 
-                     simply add this field to new documents as they are inserted, 
-                     this will have no effect on the DB or the docs already stored. 
+modern doc-based DB: provide far more, because they extract and index all kinds of metadata,
+                     Such DBs offer a query language that allows the user to retrieve doc based on their content.
+                     (ex. all doc with DATE in some range)
+
+advantage:           docs can change in type and form at any time.
+                     If one wishes to add a COUNTRY_FLAG to a CONTACT,
+                     simply add this field to new documents as they are inserted,
+                     this will have no effect on the DB or the docs already stored.
                      This indicates an advantage of the document-based model
 
-advantage:           Because optional values are not represented by placeholders as in most RDBs, 
-                     key-value stores often use far less memory to store the same database, 
+advantage:           Because optional values are not represented by placeholders as in most RDBs,
+                     key-value stores often use far less memory to store the same database,
                      which can lead to large performance gains in certain workloads.
 
 
-sharding             A type of Horizontal partitioning. Rows of a table are held separately, 
-                     rather than being split into columns (which is what normalization and 
-                     vertical partitioning do). Each partition forms part of a shard, 
-                     which may in turn be located on a separate DB server or physical location. 
+sharding             A type of Horizontal partitioning. Rows of a table are held separately,
+                     rather than being split into columns (which is what normalization and
+                     vertical partitioning do). Each partition forms part of a shard,
+                     which may in turn be located on a separate DB server or physical location.
 
-                     sharding splits large partitionable tables across the servers, 
+                     sharding splits large partitionable tables across the servers,
                      while smaller tables are replicated as complete units.
 
 Load balancing       MongoDB scales horizontally using sharding.
-                     The user chooses a shard key, which determines how the data in a 
-                     The user chooses a shard key, which determines how the data in a 
-                     collection will be distributed. The data is split into ranges 
-                     (based on the shard key) and distributed across multiple shards. 
+                     The user chooses a shard key, which determines how the data in a
+                     The user chooses a shard key, which determines how the data in a
+                     collection will be distributed. The data is split into ranges
+                     (based on the shard key) and distributed across multiple shards.
                      (A shard is a master with one or more slaves.)
-                     MongoDB can run over multiple servers, balancing the load and/or 
-                     duplicating data to keep the system up and running in case of 
-                     hardware failure. Automatic configuration is easy to deploy, 
+                     MongoDB can run over multiple servers, balancing the load and/or
+                     duplicating data to keep the system up and running in case of
+                     hardware failure. Automatic configuration is easy to deploy,
                      and new machines can be added to a running database.
 
 JSON / BSON:         Internally MongoDB uses a binary serialized JSON format called BSON.
@@ -77,7 +77,7 @@ the terms: MongoDB is made up of databases which contain collections. A collecti
 
 collections          are like tables, anyhow they are schema-less (while tables are strongly typed)
 documents            are like row:Notice that, in addition to the data you specified, there’s an
-field.               Every document must have a unique _id field. If not specified, MongoDB 
+field.               Every document must have a unique _id field. If not specified, MongoDB
                      generates a value (type ObjectId)
                      By default, the _id field is indexed (internal collection: system.indexes)
                      ex. _id assigned explicitally:
@@ -97,7 +97,7 @@ mongodb.config       insert this string:
 
 
 mongo shell         most used commands:
-                    (omitting the ending () show the javascript function() implementation 
+                    (omitting the ending () show the javascript function() implementation
                     for that cmd
 
                     db.version()
@@ -106,7 +106,7 @@ mongo shell         most used commands:
                     db.getCollectionNames()
 
                     db.COLLECTION_NAME()  ex: db.unicorns.help()    db.unicorns.count()
-                    system.indexes        this collection is created once per database and 
+                    system.indexes        this collection is created once per database and
                                           contains the information on our database’s indexes
 
 
@@ -143,8 +143,8 @@ find()   remove()   count()    both these 3 cmd, use selectors:
 
                     db.unicorns.find ({ _id: ObjectId( "TheObjectId ")})
 
-update() / set()    db.unicorns.update ({name: 'Roooooodles'}, {weight: 590})   MAYBE NOT!!! as replace 
-                                                                                ALL the doc with a new doc only 
+update() / set()    db.unicorns.update ({name: 'Roooooodles'}, {weight: 590})   MAYBE NOT!!! as replace
+                                                                                ALL the doc with a new doc only
                                                                                 a only {weight: 590}
                     db.unicorns.update ({name: 'Roooooodles'}, {$set: {weight: 590}})  MAYBE YES!!!
 
@@ -173,20 +173,20 @@ update() / set()    db.unicorns.update ({name: 'Roooooodles'}, {weight: 590})   
 more on find()      find turns a' cursor' whose execution is delayed until needed.
                     In the shell find is executed immediately. This is a behavior of the shell only.
                     find takes a second optional parameter called “projection”. This
-                    parameter is the list of fields we want to retrieve or exclude. 
+                    parameter is the list of fields we want to retrieve or exclude.
                     db.unicorns.find({}, {name: 1});          turns only field name
-                    db.unicorns.find({}, {name:1, _id: 0};    avoid turning _id 
+                    db.unicorns.find({}, {name:1, _id: 0};    avoid turning _id
                                                               (By default, _id field is always returned)
 
                     order:  1 for ascending and -1 for descending.
-                           db.unicorns.find().sort({weight: -1}) 
+                           db.unicorns.find().sort({weight: -1})
                            db.unicorns.find().sort({name: 1, vampires: -1})
 
-                           nb. MongoDB limits the size of your sort without an index. 
-                           That is, if you try to sort a very large 
+                           nb. MongoDB limits the size of your sort without an index.
+                           That is, if you try to sort a very large
                            result set which can’t use an index, you’ll get an error
 
-                           Using 'limit' in conjunction with sort , can be a way 
+                           Using 'limit' in conjunction with sort , can be a way
                            to avoid running into problems when sorting on non-indexed field
 
                     limit / skip:  ex. get the 2nd and 3rd heaviest unicorn:
@@ -203,14 +203,14 @@ more on find()      find turns a' cursor' whose execution is delayed until neede
 
 ____________________________________________________________ NO JOIN
 
-    Definition: A foreign key is 1 column (1 or more) in a table that matches 
-    the primary key column of another table. 
+    Definition: A foreign key is 1 column (1 or more) in a table that matches
+    the primary key column of another table.
     The foreign key can be used to cross-reference tables.
 
     A JOIN is a table built with cols coming from more tables.
 
     there are no Joins in MongoDB. The approach to overcome this can be for ex
-    to store the data of another table as 'embeded' doc of the 1st table. 
+    to store the data of another table as 'embeded' doc of the 1st table.
     ex:
         db.employees.insert({_id: ObjectId(
         "4d85c7039ab0fd70a117d734"),

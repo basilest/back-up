@@ -1,12 +1,25 @@
---------------------------------------------------- / ipcs 
-    
+--------------------------------------------------- known files & places
+
+
+     /etc/services
+     /etc/passwd
+     /etc/environment
+     /etc/profile.d/*.sh
+
+     ~/.bashrc  ~/.bash_profile  ~/.bash_login
+     ~/.profile
+     ~/.pam_environment
+
+
+--------------------------------------------------- / ipcs
+
     ipcs    (System V) inter-process communication
              shows the info.
              Alone or with explicit -a (default) shows ALL info
 
-             otherwise can extract only 
+             otherwise can extract only
                     -m      shared memory
-                    -q      msg-queues 
+                    -q      msg-queues
                     -s      semaphores-array
 
             ex:
@@ -25,25 +38,419 @@
 
                 there is the version UPPERCASE (-M -Q -S)
                 where I can submit the 'key' instead of the 'id'
- 
---------------------------------------------------- / ssh 
 
-     ENTER ~ .          ENTER: to be sure to have a newline
-                        ~      starts the submission of ssh control char
-                        .      ssh control char to mean END session
+--------------------------------------------------- / OpenSSL
+       library (written in C) containing the implementation of the protocols
+                    SSL    Secure Sockets Layer (SSL),    - predecessor
+                    TLS    Transport Layer Security (TLS) - more modern
 
-                        The above close a stuck ssh session.
+       Snowden, revealed that since 2010, the NSA had effectively broken/bypassed SSL/TLS
+--------------------------------------------------- / ssh
+       ________            _________
+      |        |          |         |
+      |  sshd  |  <=====> |   ssh   |
+      |________|          |_________|
 
-          ~?            help (list of avail escapes)
+    - 'sshd':   is the real OpenSSH SSH daemon (on the server)
+                that interacting with the other program ssh (on the client)
+                they together  allow a secure encrypted communication
+                over an insecure network.
 
-          ~^Z           suspend the remote ssh connection and
-                        allow to be at 'local' prompt.
+                -D   sshd will not detach and does not become a daemon.
+                     This allows easy monitoring of sshd.
+                -f   to specify a config file diff. from /etc/ssh/sshd_config
+                -p   a port different from 22
+
+
+    ~/.ssh    <--- is a dir (on th client) (N.B. chmod must be 700 for this dir)
+                   containing usually something like:.
+
+                          -rw-r--r--  1 sbasile  staff   182 10 Jul  2015 config
+                          -rw-------  1 sbasile  staff   668  2 Jul  2015 id_dsa <---- keys for SSH version 2 <--- DEFAULT
+                          -rw-r--r--  1 sbasile  staff   626  2 Jul  2015 id_dsa.pub
+                          -rw-------  1 sbasile  staff  3243 29 Jun  2015 id_rsa <---- keys for SSH version 1
+                          -rw-r--r--  1 sbasile  staff   753 29 Jun  2015 id_rsa.pub
+                          -rw-------  1 sbasile  staff  1468  6 Jan 13:00 known_hosts
+                          -rw-r--r--  1 sbasile  staff    45  3 Jun  2015 ssh_configo
+
+                          the convention is
+                            |    ~/.ssh/identity     rsa  SSH ver. 1
+                       (D)  |    ~/.ssh/id_rsa       rsa  SSH ver.   2
+                            |    ~/.ssh/id_dsa       dsa  SSH ver.   2
+                            |    ~/.ssh/id_ecdsa   ecdsa  SSH ver.   2
+
+                                                   ec : elliptic curve
+
+
+    - 'ssh-keygen': the above files are created by 'ssh-keygen':
+                    ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+                              -t : rsa1            for SSH v.1
+                                   rsa,dsa,ecdsa   for SSH v. 2
+                              -b : min is    768
+                                   default  2048
+                                   ecdsa: ec sizes are 256 384  521
+
+                              -O
+                                      clear Clear all enabled permissions.  This is useful for clear-
+                                              ing the default set of permissions so permissions may be
+                                              added individually.
+
+                                      force-command=command
+                                              Forces the execution of command instead of any shell or
+                                              command specified by the user when the certificate is
+                                              used for authentication.
+
+                                      no-agent-forwarding     Disable ssh-agent(1) forwarding
+                                      no-port-forwarding      Disable port forwarding
+                                      no-pty                  Disable PTY allocation
+                                      no-user-rc              Disable execution of ~/.ssh/rc by sshd(8)
+                                      no-x11-forwarding       Disable X11 forwarding
+
+
+                          config
+                               1	KeepAlive yes
+                               2	ServerAliveInterval 20
+
+                               3	Host github.com
+                               4	  User git
+                               5	  ProxyCommand /usr/local/bin/corkscrew wsproxy.internal.ch 8080 %h %p
+
+                               6	Host wswebdev1
+                               7	  HostName %h.orctel.internal
+                          id_dsa
+                               1	-----BEGIN DSA PRIVATE KEY-----
+                               2	MIIBugIBdAKBgQCpHnP/mm59BzhOKjelK+BqozuwK3Li804qXkOfW0PC1em2CXAn
+                               3	Al2AVYG/5ydl5uNuW1NEb+phcuLkhNhXYbf0fs7+q6Xbm/9Nt3I74Z4OFkSEUYfV
+                               4	ax6C5klFOIhKPdPsQrw2WTY7qxlCkDr35iM5aX6QMmXwlcjQEcBzApd0ewIVAJfM
+                               5	XS0/jtJxOsHyiDgbbdNtMHKNAoGADtHGS8AjQStl3l3hRpTPnXTW1hEeGZq6uKVO
+                               6	rWIQnu7VDra6EWP9b8MbLd+oe5DLJ4TaBt72NJvUnEpoOy+KGEyXcJs6j7gz9uzQ
+                               7	6JEo0m3qPI2LdD3mzhWQQnZIfdBRTOveWX6mJjQhYQrB/8mpLZmW/AZPul5WOyGm
+                               8	jZf4NsgCdYBodeUlJUEug4kxfsbVUdLct6ZPKaJFJZB2x5cvfhUP/Ytn7fQNjxiD
+                               9	v7NyFi0WGl3h3x8J8z6tdglbU0m1/Ei2iclOiew8w0PMXPYITW1rUk2hqzWz0lMj
+                              10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
+                              11	v5Iq6mWKZqVm0sEniWY=
+                              12	-----END DSA PRIVATE KEY-----
+                          id_dsa.pub
+                               1	ssh-dss AAAAB3NzaC1kc3MAAACBAKkdc/+abn0HO....== sbasile@pd12682.companieshouse.local
+                          id_rsa
+                               1	-----BEGIN RSA PRIVATE KEY-----
+                               2	MIIJKQIBAAKCAgEA8zHExVpDqZNOBO38byaIrFZn1vaNRj+lAvkNEL6HZIZYaVyc
+                              50	            ....
+                              51	-----END RSA PRIVATE KEY-----
+                          id_rsa.pub
+                               1	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ....== sbasile@pd12682.internal.ch
+                          known_hosts
+                               1	wswebdev2.orctel.internal,192.168.60.202 ssh-rsa AAAAB3NzaC1yc2....
+                               2	wswebdev1.orctel.internal,192.168.60.201 ssh-rsa AAAAB3NzaC1yc2....
+                               3	github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDb....
+                               4	chl-dev,10.100.100.102 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwZak....
+                          ssh_config
+                               1	ServerAliveInterval 15
+                               2	ServerAliveCountMax 3
+
+    - 'ssh-agent':     it can be started to run in background,
+
+                 eval "$(ssh-agent -s)"  --> Agent pid 3319
+                 echo $SSH_AGENT_PID     --> 3319
+                 lsof | grep -i 3318     --> ssh-agent 3319 sbasile    3u    unix 0x6b706d27656c46d7  0t0  /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
+                 echo ${SSH_AUTH_SOCK}   --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
+                                             the default values is $TMPDIR/ssh-XXXXXXXXXX/agent.<ppid>
+                 echo $TMPDIR            --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T/
+
+                       it can be started to run in background, eval "$(ssh-agent -s)"
+                       having a pid (which is then stored in var  $SSH_AGENT_PID).
+                       This agent opens a UNIX socket in $TMPDIR (full name in ${SSH_AUTH_SOCK}
+                       but it can be changed with option -a: ssh-agent -a ...).
+                       On this read-only-by-the-user SOCKET channel,
+                       the agent intercats with the others utilities of the ssh- family:
+
+                           ssh-add
+                           ssh-keygen
+                           ssh
+                           sshd
+
+                 ssh-agent -k        <-- it exits (kill) the running instance of shh-agent
+                                        (the pid is still in $SSH_AGENT_PID))
+                                        the output is unset SSH_AUTH_SOCK;
+                                                      unset SSH_AGENT_PID;
+                                                      echo Agent pid 3319 killed;
+
+    - 'ssh-add':   adds any desired keys to the agent  (ex. ssh-add ~/.ssh/id_rsa)
+
+                       ssh-add         with no arguments adds the 4 files (D) above, (or what present of them)
+                       ssh-add -l      list of the keys inside the agent
+
+    - The sequence is usually:
+                               1. eval "$(ssh-agent -s)"       create a running instance of ssh-agent
+                               2. ssh-add                      add any desired keys
+                               3.
+
+    - Configure SSH server:  add a 'git' user shared among all the project developers:
+                             sudo adduser git
+                             su git
+                             cd
+                             mkdir .ssh && chmod 700 .ssh
+                             touch .ssh/authorized_keys && chmod 600 .ssh/authorized_keys
+                             cat /tmp/id_rsa.john.pub    >> ~/.ssh/authorized_keys
+                             cat /tmp/id_rsa.josie.pub   >> ~/.ssh/authorized_keys
+                             cat /tmp/id_rsa.jessica.pub >> ~/.ssh/authorized_keys
+                             cd /opt/git
+                             mkdir project.git
+                             cd project.git
+                             git init --bare
+                             cat /etc/shells    <--- store all possible shells (add the path of git limited shell)
+                             which git-shell    /usr/bin/git-shell
+                             sudo vim /etc/shells
+                             sudo chsh git      <--- add git to user able to login with a shell (chsh: change login shell)
+                                                     user xxx can log from remote: ssh git@gitserver
+    - 'ssh':
+                ssh -v git@github.com     -v verbose   -vv   -vvv (max)
+
+
+                -1    try SSH ver 1
+                -2         "     2
+                -4    IPv4 addr only
+                -6    IPv6      only
+
+                -p                 to connect to a port different from 22
+                -i keyfile         do specify something diff from the defualts ~/.ssh/id_dsa ...
+                -g                 Allows remote hosts to connect to local forwarded ports.
+                -e escape_char     can change the escpae default char ~ (see below, session manag.) to another
+
+
+    - session commands:
+                        ENTER ~ .          ENTER: to be sure to have a newline
+                                           ~      starts the submission of ssh control char
+                                           .      ssh control char to mean END session
+
+                                           The above close a stuck ssh session.
+
+                             ~?            help (list of avail escapes)
+
+                             ~^Z           suspend the remote ssh connection and
+                                           allow to be at 'local' prompt.
                         Once I'm over, a fg bring me back into remote.
 --------------------------------------------------- /
 To know Ubuntu version
     cat /etc/issue
 or otherwise
     lsb_release -a    # part of pkg 'lsb': Linux Standard Base support for Debian
+
+---------------------------------------------------
+                   FILE SYSTEM
+-----------------------------------
+
+  Filesystem Hierarchy Standard         FHS version 3.0   - 2015/03/19
+                                       (http://refspecs.linuxfoundation.org/fhs.shtml)
+
+
+  - "Shareable"   files (stored on one host and used on others ex. home user files)
+                  so they can be 'mounted' by others
+  - "Unshareable" files not shareable. (device lock files)
+  - "Static"      files that do not change without root intervention, (binaries, libraries, docs ...)
+  - "Variable"    files not static.
+
+  Once both static and var were in /usr & /etc. Now var files should be placed in /var
+  and keep /usr mounted read-only in case it is on another host.
+
+  _____________________________
+  ROOT - Filesystem:  /
+  _____________________________
+
+         - Must contain utilities to restore/repair/mount
+         - Must be kept minimal to be less prone to disk corruption as the result of a system crash.
+         - So as a guideline Applications must never create or require special files/subdir in the root dir.
+
+
+   / bin      33 most useful commands (sh, kill, rm, cp, cat, ls, sh, mount ...)
+              (less usefull ex 'id'  must be put in /usr/bin
+
+                 - sh : if is not the POSIX compatible, must be a link (hard or soft) to that.
+                 - '[' and 'test'  must be put TOGETHER in either / bin or /usr/bin
+
+   / bin      <--- still in /bin as themselves or symlinks
+                   csh  (usually to /bin/tcsh or /usr/bin/tcsh)
+                   tar, gzip, cpio    to make system restoration (if / is intact)
+                                      if no restoration from the root partition is ever expected
+                                      but maybe is expected from the network, then ftp or tftp
+                                      must be added
+
+              Linux has also /bin/setserial to manage a serial port
+
+   / sbin     (/usr/sbin /usr/local/sbin)
+              should contain root-onlyc-cmds to boot or recover the system. Ex
+                              - shutdown
+                              - reboot
+                              - fastboot      (optional) reboot without disk check
+                              - fasthalt      (optional) stop     "           "
+                              - fdisk         partition tbl
+                              - fsck          disk repair
+                              - mkfs          build filesystem
+                              - mkswap        build swap area
+                              - route         IP routing tbl
+                              - swapon/off    Enable/Disable paging
+              The division between /bin and /sbin
+              was not created for security reasons or to prevent users from
+              seeing the operating system, but to provide a good
+              partition between user & root binaries. There is no inherent security advantage in
+              making /sbin off-limits for users.
+
+                   - so users should have no reason to add /sbin in their PATHs
+                   - moreover sbin must have no subdirs
+
+
+   / boot     what is required for the boot
+                   - the kernel    (can stay even directly in '/'
+                                    in this case is recommend to be named vmlinux or vmlinuz
+
+              - progs required by boot                     --> /sbin
+              - config files not strictly required by boot --> /etc
+
+   / dev      for special / device files
+              MAKEDEV <-- a command that must be present if special
+                          files have to be added by hand.
+                          (maybe as a link to /sbin)
+
+              /dev/null    trash to write - EOF      when used to read
+              /dev/zero       "  "   "    - 0 bytes   "            "
+              /dev/tty     synonym for the controlling terminal of a process. Once this device is opened,
+                           all reads and writes will behave as if the actual controlling terminal device
+                           had been opened.
+
+   / etc      should contain (preferably in subdirs than directly in /etc)
+              config files of the programs, or even 'executables' but as
+              scripts (NOT BINARIES (ELF)) (ex. those called by init)
+
+              Following subdirs (even as a link)
+              should be here if the corresponding subsystem is installed)
+
+              opt     (config files for dir  /opt)
+                      usually it contains subdirs xxx with same name of the
+                      prog's dir in /opt/xxx
+
+              X11    (containing xorg.conf  & Xmodmap)
+              sgml
+              xml
+
+              csh.login
+              exports        (NFS filesystem access control list)
+              ....
+              networks       (Static information about network names)
+              services       (standard PORTS)
+              shells         (PATH for valid shells)
+              syslog.con     (Configuration file for syslogd)
+
+
+   / home     On smaller systems, is usually a dir directly under /home (ex. /home/torvalds)
+              On larger  systems (can be simething like: /home/staff /home/guests /home/students
+
+              To find a user's home directory, use a library function such as
+                               getpwent        C function:  man getpwent
+                               getpwent_r      <--- reetrant version
+                                                    A function is reentrant if it can be interrupted in the middle
+                                                    of its execution and then safely be called again before
+                                                    its previous invocations complete execution.
+              of fgetpwent
+              rather than relying on
+                 /etc/passwd            (ex. cat /etc/passwd | grep -i basi
+                                             sbasile:x:875:600:Stefano Basile - Development User:/home/sbasile:/bin/bash)
+              because user information may be stored remotely using systems such as NIS
+
+
+              NIS: The Network Information Service, (originally called Yellow Pages or YP) is a client–server
+              directory service protocol for distributing system configuration data such as user and host names
+              between computers on a computer network. Sun Microsystems developed the NIS; the technology
+              is licensed to virtually all other Unix vendors.
+              Because British Telecom PLC owned the name "Yellow Pages" trademark in the
+              Sun changed to NIS, though all the commands and functions still start with “yp”.
+
+
+
+              User specific config files are stored in the user's home in a '.' files
+              If an application needs to create more than one dot file then they should
+              be placed in a '.' subdirectory (a "dot directory"). In this case the
+              config files should NOT start with the '.'
+
+   / lib    -  shared libraries needed to boot and run the commands in the root filesystem (/bin /sbin)
+               Only the shared libraries for /bin /sbin  should stay here.
+
+               at least one of the following (as file or links)
+            -          libc.so.*      --> ex /lib/libc.so.6
+            -          ld*            --> ex ld-2.3.4.so    ld-linux.so.2  ld-lsb.so.3
+               If a C preprocessor is installed,
+            -          /lib/cpp
+               must be a reference to it
+
+            -  modules/           Loadable kernel modules dir
+                                  ex.    2.6.9-89.EL  2.6.9-89.ELsmp  kabi-4.0-0  kabi-4.0-0smp
+
+
+   / media    contains subdir which are used as mount points for removable media such as
+              floppy disks, cdroms and zip disks
+
+              Historically there have been a number of other different places used to mount
+              removable media such as  /cdrom /mnt /mnt/cdrom
+              Placing the mount points for all removable  media
+              directly in '/' would  potentially  result in a large number of extra dirs
+
+              Although the use of subdirs in /mnt has recently been common,
+              it conflicts with a much older tradition of using /mnt directly as a TEMPORARY mount point.
+
+              A distribution with more drives (ex. 2 CDROM) usually numbers them from 0
+                      ex. /media/cdrom0 /media/cdrom1
+              with /media/cdrom a symlink
+
+   / mnt      so that the system admin may TEMPORARILY mount a filesystem
+
+   / opt      For additional SW (like the firefox addons)
+              in the form
+                    /opt/<packahe_name>
+                    /opt/<provider_name>     LANANA registered name.
+                                             The Linux Assigned Names And Numbers Authority
+                                             www.lanana.org/
+                    /opt/<pxxxx_name>/share/man if there are mans
+
+              Reserved names for system admin:
+                                              /opt/bin
+                                              /opt/doc
+                                              /opt/include
+                                              /opt/info
+                                              /opt/lib
+                                              /opt/man
+
+   / root     (optional) the home for user root
+
+   / run      files here must be cleared (removed or truncated as appropriate) at boot.
+              Then it contains data related to the system since it was booted.
+              Each prog can have here its file (or its dir for > files)
+              Old versions used /var/run now most should have migrated to this.
+
+              PID - a file of type <prog>.pid   (ex. crond.pid)
+              containing that prog PID should stay here (once was in /etc )
+              PID files should contain the number + \n  (ex PID=25 --> a file of 3 bytes)
+
+   / srv      should store data related to a system (ex. /srv/ftp /srv/www ...)
+              There is no consensus on the naming convention to use.
+
+   / tmp      recommended to be cleared on boot.
+
+   / usr       shareable, read-only.
+               That  means is shareable between various FHS-compliant hosts
+               and must not be written.
+
+                bin/       (perl, python, tclsh, wish, expect)
+                include/    C includes.
+                lib/        obj files and libs (usually not intended to be executed directly by users or shell scripts)
+                            ex /lib/perl5/
+                            - /usr/lib/sendmail
+                libexec/    used only by some distros like and together with lib/
+                local/      when installing locally some SW without the risk to be overwritten
+                            by SW upgrades in /usr.
+                sbin/       any non-essential binaries used exclusively by root.
+                share/      all read-only architecture independent data files
+
+   / var        contains  variable  data  files: spool  dir and files,  admin logging data, transient and temp files.
 
 ---------------------------------------------------
                    KERNEL
@@ -61,10 +468,10 @@ or otherwise
 
    1. goto:   https://www.kernel.org/pub/linux/kernel/v3.0/
 
-   2. downloaded : 
-                 linux-3.18.9.tar.gz     07-Mar-2015 13:23  117M  
+   2. downloaded :
+                 linux-3.18.9.tar.gz     07-Mar-2015 13:23  117M
 
-   3. make a clean dir: ~/kernel    + ~/kernel/build  
+   3. make a clean dir: ~/kernel    + ~/kernel/build
 
    4. unzip linux-3.18.9.tar.gz inside ~/kernel
 
@@ -79,12 +486,12 @@ or otherwise
       make O=`kb`
 
    7. here the kernel image:   ~/kernel/linux-3.18.9/arch/x86/boot/bzImage
-      the size is 5,6M 
+      the size is 5,6M
 
 -------------------------------------------------- the kernel
 
     kernel space:   the space in RAM where only kernel can do untill the shutdown
-    user   space:   the space in RAM shared by the applications and different users. 
+    user   space:   the space in RAM shared by the applications and different users.
 
 
 
@@ -92,12 +499,12 @@ or otherwise
 
    /dev   the are special files in /dev
           /dev/bus/usb...            ex. USB are
-          /dev/disk/by-label.        HD partitions      
+          /dev/disk/by-label.        HD partitions
                  ex: BIOS_RVY  Data  OS_Install  SYSTEM  WinRE\x20tools
 
    /boot  where is stored the kernel which boots at startup
-          file vmlinux   
-               vmlinuxz (z is compressed) 
+          file vmlinux
+               vmlinuxz (z is compressed)
                bzImage  (also compressed)
 
           Old kernels are kept:
@@ -111,7 +518,7 @@ or otherwise
 
 
 
-    
+
    /kernel dirs:
                    1)   187M  arch/                : contains all the architectures and 1 file Kconfig to configure the make
                    2)   3,8M  block/               : block device drivers
@@ -127,8 +534,8 @@ or otherwise
                   10)   34M   include/             : *.h
                   11)   764K  init/                : main.c file is the core of the kernel.
                   12)   980K  ipc/                 : Inter-Process Communication. (manage kill)
-                                                     Pipes used the IPC. They tell the kernel to place the output data on 
-                                                     a physical page on in memory. The program or command receiving the data 
+                                                     Pipes used the IPC. They tell the kernel to place the output data on
+                                                     a physical page on in memory. The program or command receiving the data
                                                      is given a pointer to the page on memory.
                   13)   4,0K  Kbuild               :
                   14)   4,0K  Kconfig              :
@@ -136,9 +543,9 @@ or otherwise
                   16)   7,2M  lib/                 : code for the kernel's library
                   17)   288K  MAINTAINERS          :
                   18)   56K   Makefile             : to compile
-                  19)   7,1M  mm/                  : code for Memory Management:  Memory is not randomly placed on the RAM. 
-                                                     kernel places the data on the RAM carefully. 
-                                                     does not overwrite any memory that is being used or 
+                  19)   7,1M  mm/                  : code for Memory Management:  Memory is not randomly placed on the RAM.
+                                                     kernel places the data on the RAM carefully.
+                                                     does not overwrite any memory that is being used or
                                                      that holds important data.
                   20)   12K   modules.builtin      :
                   21)   4,0K  modules.order        :
@@ -189,7 +596,7 @@ or otherwise
 260K    extcon/              168K    memory/             128K    ras/                32K     vlynq/
 484K    firewire/            280K    memstick/           1,7M    regulator/          292K    vme/
 944K    firmware/            1,6M    message/            120K    remoteproc/         356K    w1/
-  
+
 
 
 
@@ -198,7 +605,7 @@ or otherwise
    ===========================================
 
   modularity:   each devide driver can be "plugged in” at runtime
-  policy-free:  split into two parts: 
+  policy-free:  split into two parts:
                    “what capabilities are to be provided” (the mechanism) : the driver
                    “how those capabilities can be used”   (the policy): un upper layer
 
@@ -212,7 +619,7 @@ or otherwise
                               - make them communicate: signals, pipes, interprocess communication
                               - abstract on 1 CPU, more processes
 
-       Memory management:     - set of function calls, ranging from the simple malloc/free 
+       Memory management:     - set of function calls, ranging from the simple malloc/free
                                 to much more complex
 
        Filesystems:           - everything is 1 file
@@ -227,11 +634,11 @@ or otherwise
   Loadable Modules:  can attach and unmount at RUNTIME (through a syscall 'init_module' which only supeuser can call
                                                         or techincally one who has 'CAP_SYS_MODULE')
                      A module is a piece of code
-                     (not linked into a complete executable) that can be dynamically linked to the running kernel 
-                     by the 
+                     (not linked into a complete executable) that can be dynamically linked to the running kernel
+                     by the
                                  insmod  (or better: modprobe)
-                     program and can be unlinked by the 
-                                 rmmod 
+                     program and can be unlinked by the
+                                 rmmod
                      program.
                      To see the running module: lsmod
 
@@ -240,24 +647,24 @@ or otherwise
                         - disable loading of modules at runtime also for normal compiled kernel.
 
 
-  3 Classes of Modules: 
+  3 Classes of Modules:
                     Character devices:   a stream of bytes like a normal file:
-                                         They implement at least the sys call: 
-                                                    open, 
-                                                    close, 
-                                                    read, 
+                                         They implement at least the sys call:
+                                                    open,
+                                                    close,
+                                                    read,
                                                     write
                                          The only diff respect a normal file, is that seldom there is
                                          something like a 'seek' (to go to and fro), but access is most
                                          ofetn sequentially.
 
-                                                    examples: /dev/console   
+                                                    examples: /dev/console
                                                               /dev/ttyS0
                                                               /dev/lp0
 
-                    Block devices:       Block drivers have a completely different interface TO THE KERNEL 
+                    Block devices:       Block drivers have a completely different interface TO THE KERNEL
                                          than char drivers. But not to the user/application that sees them as a char device.
-                                         Block devices can only handle I/O operations that transfer one or more whole 
+                                         Block devices can only handle I/O operations that transfer one or more whole
                                          blockblocks, which are usually 512 bytes (or a larger).
 
                                                     they also stay in /dev
@@ -265,7 +672,7 @@ or otherwise
                     Network devices:    is in charge of sending and receiving data packets.
                                         Many network connections
                                         (especially those using TCP) are stream-oriented, but network devices are, usu-
-                                        ally, designed around the transmission and receipt of packets. A network driver 
+                                        ally, designed around the transmission and receipt of packets. A network driver
                                         knows nothing about individual connections; it only handles packets.
 
 
@@ -273,16 +680,16 @@ or otherwise
 
    2/18  Building and Running Modules
    ===========================================
-   linked to kernel obj: 2.6 modules are linked against object files found in the kernel source tree; 
+   linked to kernel obj: 2.6 modules are linked against object files found in the kernel source tree;
                          the result is a more robust module loader, but also the requirement that those object file
                          are availble.
 
-   Compiling the kernel: The build process for modules differs significantly from that used for user-space applications; 
+   Compiling the kernel: The build process for modules differs significantly from that used for user-space applications;
                          the kernel is a large, standalone program with detailed and explicit requirements on how
                          its pieces are put together.
-   
-   
-   
+
+
+
    modprobe
    modinfo
    lsmod
@@ -419,9 +826,9 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
                       -s, --syslog        log errors to syslog rather than standard error.
                       -v, --verbose
 
-   
-   
-   
+
+
+
      ----------------------------------
      ----------------------------------
      ----------------------------------
@@ -660,7 +1067,7 @@ modprobe            /add/remove (-r)/get info/ for 1 or more modules
 LOGIN
 -----------------------------------------
 
-         1.  /etc/nologin    <---- if it's present (writen by 'shutdown' for maintenance) only root con login
+         1.  /etc/nologin    <---- if it's present (written by 'shutdown' for maintenance) only root con login
                                    Other users will receive its text content as denying-reason message
 
          2.  /etc/usertty    or    read to see if there are any special constraints on you
@@ -781,7 +1188,7 @@ LOGIN
 
      here the rules:
               1. the FIRST shell opened (in a UNIX session hierarchy), is the
-                 shell through which you connected. 
+                 shell through which you connected.
                  Its called LOGIn-SHELL
 
              .---------------------
@@ -794,13 +1201,13 @@ LOGIN
 
   NOT-LOGIN   4. ~/.bashrc   is read by NOT-LOGIN_shells.
 
-           
+
              So each SH reads 1 of them:
                  -    LOGIN-SH:  doesn't read ~/.bashrc
                  - NO-  "   ":     "      "   ~/.bash_profile
 
              So:
-                 ~/.profile  : put here all the stuff that you want appies 
+                 ~/.profile  : put here all the stuff that you want appies
                                to ALL THE SESSION (till you disconnect)
 
                  ~/.bashrc   : put here what applies to BASH only
@@ -1056,22 +1463,22 @@ __  id
             - id -un   <-- the more portable ?
 ____________________
 __  chown
-       
+
        allows to change UID (user) and GID (group) as the owner of a file.
 
           chwon  elen      a.txt       from stiv to elem   (works with text)
           chown  625       a.txt       from 1000 to 625    (works with numeric)
-          chown  elen.g2   a.txt       change user & group (as separator between user and group can be used . or :)
+          chown  elen.g2   a.txt       change user & group (both . and : can be used as separator)
           chown  .g2       a.txt       change only group
 
-               
+
                  man chown    (other options  -R (recursive) --reference  --from)
-               
+
 ____________________
 __  chmod
-           
-          chmod  -755  
-                 ||||_ o: other 
+
+          chmod  -755
+                 ||||_ o: other
                  |||__ g: group  chmod g+w  (add write to  group)  chmod g=u  (set group same as user value)
                  ||___ u: user   chmod u+w  ("   "     "   user)   chmod u-x  (remove exec)
                  |_____4: user  ID
@@ -1080,14 +1487,14 @@ __  chmod
 
                        a: all (u/g/o)  chmod a+wx  give w & x  to all 3 u,g,o
                                        chmod a=u   give to all 3 the same value of u
-                 
+
             [ugoa...][+-=][perms]
-                             |________ r 
-                                       w 
-                                       x  execute (for dir means 'search', or 'view' its content) 
+                             |________ r
+                                       w
+                                       x  execute (for dir means 'search', or 'view' its content)
                                        X  execute only if is a dir or there is already an x on some of the u,g,o
-                                       s 
-                                       t      
+                                       s
+                                       t
  SUID / SGID    's' can be present instead of 'x' in u (called SUID) or g (called SGID)
                 It means that the file/folder can be executed with root priviledges.
 
@@ -1096,10 +1503,10 @@ __  chmod
 
                 If a file has no x permission  (ex ls -l a.sh      -->  rw- r-x r--)
                 setting s  (ex chmod u+s a.sh) produces an UPPERCASE S  rwS r-x r--
-                as the root priviledge is set but there is no x rights, 
+                as the root priviledge is set but there is no x rights,
                 so add them and the S becomes s:  chmod u+x a.sh    --> rws r-x r--
                 (The same applies on SGID)
-                SGID: instead of 'root' as in SUID, when SGID is set for a 
+                SGID: instead of 'root' as in SUID, when SGID is set for a
                    - file: that file has rights like that group
                    - dir : any file or subdir created inside has rights like that group
 
@@ -1130,62 +1537,62 @@ __  SELINUX
                     %getenforce            # to give the info if SELINX is in my box returns the strings "Enabled" or "Disabled"
 
                     %sestatus   -b         # when SELINUX is "Enabled", gives the config
-                                               SELINUX can be configured to be 
+                                               SELINUX can be configured to be
                                                   - Enforcing: stops any breaking attemps
                                                   - Permissive: only warns on "     "
                                              option -b, if specified, adds verbose output
 
-               static config:     
-               edit /etc/selinux/config   -->    SELINUX=disabled  /   SELINUX=enforcing 
+               static config:
+               edit /etc/selinux/config   -->    SELINUX=disabled  /   SELINUX=enforcing
 
-               runtime config:     
+               runtime config:
                echo 0 > /selinux/enforce      (or also: setenforce 0
                echo 1 > /selinux/enforce      ( "   "   setenforce 1
 
 
 ____________________
-__  .Xauthority  
+__  .Xauthority
 
-               ls -l ~/.Xauthority  
+               ls -l ~/.Xauthority
                -rw------- 1 stiv stiv 107 Mar 13 18:12 /home/stiv/.Xauthority
 
-               The .Xauthority  file can be found in each home dir 
-               It stores credentials in cookies used by xauth for authentication of X sessions. 
-               Once an X session is started, the cookie is used to authenticate connections to that specific display. 
+               The .Xauthority  file can be found in each home dir
+               It stores credentials in cookies used by xauth for authentication of X sessions.
+               Once an X session is started, the cookie is used to authenticate connections to that specific display.
 
-               So, if you are not the owner of this file you can't login since you can't store your credentials there. 
+               So, if you are not the owner of this file you can't login since you can't store your credentials there.
                This is the reason why gui commands must not be started with sudo but with gksudo
                that copies /.Xauthority in a temp dir
 ____________________
 __  sudo
                sudo allows you to run commands with the rights of another user (root or anyother ex amanda)
-               ex 
+               ex
                   sudo /etc/init.d/networking restart
-               
+
                sudo commands always requires YOUR user password (so there is never another to remember)
                     a 15 minutes default period allows to run other sudo without asking again the password.
                     This timer can be changed (with 'sudo visudo')
-                    -k         # sudo -k  closes the timer (whatever is is) so next sudo command for sure 
+                    -k         # sudo -k  closes the timer (whatever it is) so next sudo command for sure
                                                                            asks the password again.
 
     /var/log/auth.log         sudo commands are logged in:  /var/log/auth.log
 
                user amanda can run sudo if someone with rights on command 'adduser' did:
-                   sudo adduser amanda sudo 
+                   sudo adduser amanda sudo
 
-               -i   instead of running a command I can log-in as another user as 
-                    sudo -i -u amanda 
+               -i   instead of running a command I can log-in as another user as
+                    sudo -i -u amanda
                     that gives all the 'env' vars of amanda (so a consistent state)
 
                     su -i      # without a -u it's intended root  (deprecated)
 
                -s   means shell. Is the same as running 'sudo bash' In this case a complete shell
-                    is opened with root rights (deprecated) 
+                    is opened with root rights (deprecated)
 
                shell root    there are 3 ways (all deprecated) they differ in the value of var $PATH
                              (and the other 'env' vars) so also $HOME
 
-                                          $HOME      $PATH     env (untainted by amanda's env ?) 
+                                          $HOME      $PATH     env (untainted by amanda's env ?)
                           -----------------------------------------
                           sudo -i         /root        1        Y <----
               sudo bash / sudo -s         ~amanda      1        N
@@ -1194,29 +1601,29 @@ __  sudo
                           so the only clean env is obtainted with sudo -i
 
     /etc/sudoers              Is the file where users and rghts are configured.
-              "sudo visudo"    opens it with your $EDITOR 
-              As in a program, there are first some sections to define some vars (called ALIAS) then
-              they are mixed togheter to defined who can do what, with the format
+              "sudo visudo"    opens it with your $EDITOR
+              As usual, there are first some sections to define some vars (called ALIAS) then
+              they are mixed together to define who can do what, with the format
               <user list> <host list> = <operator list> <tag list> <command list>
               ex
               USERS WORKSTATIONS=(ADMINS) ADMIN_CMDS
               myuser ALL = (root) NOPASSWD:NOEXEC: /usr/bin/vim
-              
 
-              User_Alias    (specifies users by name)     User_Alias USERS = tom, dick, harry  
-                            system groups (prefixed by a %) and 
+
+              User_Alias    (specifies users by name)     User_Alias USERS = tom, dick, harry
+                            system groups (prefixed by a %) and
                             netgroups (prefixed by a +)   User_Alias ADMINS = %admin
-              Runas_Alias   (specifies users by id)       Runas_Alias ROOT = #0                
+              Runas_Alias   (specifies users by id)       Runas_Alias ROOT = #0
               Host_Alias     Host_Alias SERVERS = 192.168.0.1, 192.168.0.2, server1
               Cmnd_Alias     list some commands (if a dir is specified all inside cmd are considered
-                             but NOT the subdirs) Cmnd_Alias PRINTING_CMDS = /usr/sbin/lpc, /usr/sbin/lprm 
+                             but NOT the subdirs) Cmnd_Alias PRINTING_CMDS = /usr/sbin/lpc, /usr/sbin/lprm
 
-              !       You can also use ! to exclude 
+              !       You can also use ! to exclude
                       User_Alias LIMITED_USERS = USERS, !WEBMASTERS, !ADMINS
 
               ALL     builtin alias which matches everything
                       ALL ALL=(ALL) NOPASSWD: PRINTING_CMDS
-              
+
               <tag list>    NOPASSWD:  no password is required (ex to print)
                             NOEXEC:    no shell can be executed as a child (as it will be a su shell
                                                                             then bypassing all sudo settings)
@@ -1270,20 +1677,55 @@ ____________________
 __  find
 
 
-        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o
+        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o  (-o is short for -or, works also both: !  -not)
         find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
 
 
         find -regextype posix-extended -regex '.*\.(jpg|png)'
         find -E . -regex '.*\.(jpg|png)'                      <--- shortcut for above in some linux
 
-        
+
         -type    d     dir     ex    find . -type d
                  f     regular file
                  l     sym link
 
+        to exclude dirs:
+                  -name  '.....' -prune -o print
+                  -path  '.....'   "     "   "  <---- nb  dir doesn't work as the match should be full
+                                                          so works ./dir/*
+____________________
+__  lsof
+             is an 'utility' not a bash builtin
+             installed usually in /usr/(bin,sbin)
+             so in case of 'command not found' check those dirs are in $PATH.
+
+    1. list all open files                   lsof
+
+    2. process which has opened a file       lsof /home/somefile
+
+    3. by users                              lsof -u user
+                                             lsof -u user1 -u user2 -u user3
+                                             lsof -u user1,user2,user3    <--- same as above but only 1 -u)
+
+    4. by pid                                lsof -p 1245
+                                             lsof -p 1245 -p 4365
+                                             lsof -p 1245,4365
 
 
+    5. by command                            lsof -c java
+                                             lsof -c httpd
+                                             lsof -c java -c httpd
+
+    6. -a (AND op. (to join more options))   lsof -a -u user -c httpd
+
+    7. ^ (negate op)                         lsof -u ^user1
+
+    8. list network connections              lsof -i
+                                             lsof -i tcp
+                                             lsof -i udp
+                                             lsof -i :19500  <-- port
+                                             lsof -i :ftp    <-- for port i can use string defined (as usual)
+                                                                 in /etc/services
 ____________________
 __  ps
 
@@ -1298,7 +1740,7 @@ to see the command line (with the args passed) of a specified command:
    5/5 with the pid of the proc (ie 22065):
 
        $ cat /proc/22066/cmdline   --> /usr/sbin/httpd-DPROJ_XMLGW-f/home/sbasile/apache2/conf/sbasile_httpd.conf-kstart
-            
+
        this second option removes all the spaces
 
 ____________________
@@ -1439,7 +1881,7 @@ a way to copy to another server
     CPU_USAGE=$(top -b -n1 | awk '/^Cpu/ {print $2}' | cut -d. -f1)
     [ $CPU_USAGE -gt 75 ] && mail -s "$SUBJECT" "$TO" < $MESSAGE
 
-     
+
 
     give execute permissions to that script and add to crontab.
 
@@ -2184,6 +2626,81 @@ ____________________________________________________________ shared library
 
   If an exe has not the libraries it needs, it fails to run.
 
+  In a static library the final exe is a single file with all the code inside.
+  (static lib are files .a
+    .a is an archive files, containg 1 or more files
+       is created by the ar (deprecated by tar) command.
+       ar is currently used only to create .a static libs.
+       gcc is able to read the .a format and extract the .o files
+       it needs.
+  )
+
+  Anyhow it could even be, that if the memory page of a static library is not already
+  paged in cache, the load+call could be slower that the call of a shared-library where
+  for any reason (lib already used, or loaded by other progs that uses it)
+  the page is already loaded.
+
+  A shared lib. has 3 names according to who uses it:
+
+  REAL name
+      lib xxxxx . so . n . n . n                   (ex. libpthread.so.1.1)
+                       ^   ^   ^
+                               release number (optional)
+                           minor number : for changes that DON'T make prev. version incompatible
+                                          (ex. bug fixes)
+                       version number : numbers are added (so new versions are delivered)
+                                        if a change makes the previous library incompatible
+                                        (ex. a function is removed)
+      - MANY VERSIONS: So, many versions of the same lib can be present in a system.
+                       The last succesfully installed version is the one to which all the progs then link to.
+
+  SONAME (or 'Fully qualified name') keeps only lib xxxxx . so . n        (ex .libpthread.so.1)
+  LINKER NAME : it only uses lib xxxxx . so                               (ex. libpthread.so)
+
+  LINKER NAME is a SYMLINK ---> to SONMAE that is a SYMLINK to REAL NAME:
+  ex. looking in /lib:
+
+     lrwxrwxrwx  1 root root      14 Dec  9  2010 libuuid.so.1 -> libuuid.so.1.2
+     -rwxr-xr-x  1 root root   11296 Jan 27  2009 libuuid.so.1.2
+
+
+  - LOCATIONS: /lib             (the libs used at start-up & root file system)
+               /usr/lib         (the libs used internally by the system)
+               /usr/local/lib   (the libs NOT part of the standard distro (can be buggy))
+
+ADD A NEW LIB:    1. add the dir in /etc/ld.so.conf
+                  2.  "       "    $LD_LIBRARY_PATH
+                  3.  "       "  to the cache (ldconfig -n ...) <--- if 1. & 2. have been done, thi step will be
+                                                                     automatically re-done during boot
+
+loader:    is the file /etc/ld.so
+           it loads for an ELF exe all its libs. searching in a list of dirs.
+           conatined in the file  /etc/ld.so.conf
+           To optimise future searches a cache-file is created: /etc/ld.so.cache
+           So:
+
+           ld.so   Search each library in
+                   1. $LD_LIBRARY_PATH  that like $PATH, lists the dir separated by ':'
+                   2. list of dirs conatined in the file  /etc/ld.so.conf
+                   3. the file '/etc/ld.so.cache'  which is a bin file (fast to read) generated
+                      by 'ldconfig'
+
+ldconfig:  Is the command to execute by hand when a shared lib is added/removed
+           - it can be in /sbin (so normally not found in $PATH)
+
+                          ldconfig -p         list what is inside the cache
+                          ldconfig -n dirs... add new dir in the cache.
+
+  --------------------------------------------------------------------------------------------------------------------------
+  |CREATE A SHARED LIB:                                                                                                     |
+  |           - gcc -c -Wall -Werror -fPIC shared.c         <--- compile the code into 'position independent' format        |
+  |           - gcc -shared -o libshared.so shared.o        <--- create the actual lib: libshared.so                        |
+  |           - put the lib in the dir xxxx you want it should be installed (ex. /usr/local/lib)                            |
+  |           - gcc -Lxxxx   -Wall main.c -o main -lshared  <--- compile a prog main.c that uses the code inside shared.c   |
+  |                                                              -l    link the shared lib                                  |
+  |                                                              -L    in which dir it is                                   |
+  --------------------------------------------------------------------------------------------------------------------------
+
 ldd:   is the prog that allow to know which libraries are required
        by an exe.
                ex.  ldd /bin/bash
@@ -2193,29 +2710,24 @@ ldd:   is the prog that allow to know which libraries are required
                 libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff4d0cb9000)
                 /lib64/ld-linux-x86-64.so.2 (0x00007ff4d14d0000)
 
-ld.so   it's the dynamic lynker. Search each library in
-        1. $LD_LIBRARY_PATH  that like $PATH, lists the dir to search separated by ':'
-        2. the file '/etc/ld.so.cache'  which is a bin file (fast to read) generated
-           by 'ldconfig' cmd
-               ldconfig -p        list what is inside the cache
-ldconfig       ldconfig dirs...   add new dir in the cache.
+
 
 
 below 3 cmds used in: pmap `pgrep -u 1000` | grep total | awk '{print $2}'
 
 ______________ free
-         show the RAM 
+         show the RAM
                        Options:
                         -b, --bytes         show output in bytes
                         -k, --kilo          show output in kilobytes
-                 ---->  -m, --mega          show output in megabytes 
+                 ---->  -m, --mega          show output in megabytes
                         -g, --giga          show output in gigabytes
                             --tera          show output in terabytes
                         -h, --human         show human-readable output
                             --si            use powers of 1000 not 1024
                         -l, --lohi          show detailed low and high memory statistics
                         -o, --old           use old format (without -/+buffers/cache line)
-                        -t, --total         show total for RAM + swap  
+                        -t, --total         show total for RAM + swap
                         -s N, --seconds N   repeat printing every N seconds
                         -c N, --count N     repeat printing N times, then exit
 
@@ -2265,7 +2777,7 @@ ______________ pgrep
                                                  the --ns option.
                                                  Available namespaces: ipc, mnt, net, pid, user, uts
 
-____________________________________________________________ packegs
+____________________________________________________________ packages
 
   ------------
   .deb     (Debian). They are in the form
@@ -2460,20 +2972,5 @@ MODULES:       cat -n /proc/modules     to see which is running
                                         taking care of dependency.
                                         So modprobe add mods
                         -r              modprobe -r remove mods
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

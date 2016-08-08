@@ -8,7 +8,7 @@ Type-1: native or bare-metal hypervisors
           allocation of all resources (disk, memory, CPU, and peripherals) to its guests.
           do not, themselves, require extensive resources.
 
-          Some also require a privileged guest virtual machine, known as a Domain-0 or Dom0, 
+          Some also require a privileged guest virtual machine, known as a Domain-0 or Dom0,
           to provide access to the management and control interface to the hypervisor itself.
 
           Citrix XenServer   paravirtualization and near-native performance.
@@ -25,22 +25,22 @@ Type-2: hosted hypervisors: require a full host operating system
 
 
 
-Type-X: Linux's Kernel-based Virtual Machine (KVM) 
+Type-X: Linux's Kernel-based Virtual Machine (KVM)
 
 -------------------------------------------
-        1. Application Virtualization       a layer from the operating system making the applications 
+        1. Application Virtualization       a layer from the operating system making the applications
                                             independent from the underlying operating system.
 
-        2. Application streaming            Instead of running locally, either native or virtual, 
-                                            applications are executed on servers enabling users to interface 
+        2. Application streaming            Instead of running locally, either native or virtual,
+                                            applications are executed on servers enabling users to interface
                                             via the internet.
 
-        3. Virtual Desktop                  Similar to application streaming, virtual desktop allows for 
+        3. Virtual Desktop                  Similar to application streaming, virtual desktop allows for
                                             the full desktop operating system to be virtualized
 
-        4. Operating System Virtualization  multiple operating system instances to run simultaneously on 
+        4. Operating System Virtualization  multiple operating system instances to run simultaneously on
                                             a single physical machine.
-                                            
+
 -------------------------------------------
 benefit of Virtualiz.
 
@@ -48,7 +48,7 @@ Migration:      Migration helps to reduce or eliminate downtime as the virtual m
                 be moved temporarily or permanently to a different host transparent to the guest operating
                 system.
 
-IaaS            Infrastructure as a Service: 
+IaaS            Infrastructure as a Service:
                 allows organizations to lease compute-power from 1 or + data centers and
                 SCALE and reduce it usage as their situation requires.
 
@@ -56,10 +56,10 @@ IaaS            Infrastructure as a Service:
 Xen:           - a specific privileged GUEST running on the hypervisor known as Domain-0 or Dom0
                - Domain-U (DomU) unprivileged virtual machine.
                            none of them have direct access to the hardware
-               - paravirtualization (PV): required Originally, that DomU guests had a modified kernel 
+               - paravirtualization (PV): required Originally, that DomU guests had a modified kernel
                            ported specifically to run on Xen.
                            the guests are aware that they are running on a hypervisor.
-               - "hypercalls": privileged kernel instructions, (memory and CPU management), are converted 
+               - "hypercalls": privileged kernel instructions, (memory and CPU management), are converted
                            to ”hypercalls” and easily executed by the hypervisor.
                - HVM: Hardware Virtual Machine, now Xen allows, with HW with virtualization extensions
                       (Intel VT or AMD-V), to run unmodified DomU.
@@ -70,26 +70,26 @@ KVM            Kernel-based Virtual Machine      incorporated into the upstream 
                was designed and implemented having Intel VT or AMD-V extensions, so avoiding to must implement
                a SW layer for that.
                each virtual machine is a standard Linux process.
-               A modified version of QEMU is used to provide emulation for devices such as 
+               A modified version of QEMU is used to provide emulation for devices such as
                BIOS, PCI bus, USB bus, disk controllers and network cards.
 
                supports copy-on-write image file format to manage Guest virtual disks
 
-               (KSM) Kernel Samepage Merging:  works by merging identical memory pages from multiple 
+               (KSM) Kernel Samepage Merging:  works by merging identical memory pages from multiple
                guests into a single read-only memory region removing duplicate copies.
                In the event one of the guests attempts to write to one of these pages,
                a writeable copy is created for that guest to modify.
 
 -------------------------------------------
-VirtIO:       VirtIO drivers are included in Linux kernels after 2.6.25 and are also available for 
+VirtIO:       VirtIO drivers are included in Linux kernels after 2.6.25 and are also available for
               Microsoft Windows guests as well.
-              VirtIO is a standard framework allowing guests to be more easily transferred between 
-              hypervisor platforms supporting VirtIO. 
+              VirtIO is a standard framework allowing guests to be more easily transferred between
+              hypervisor platforms supporting VirtIO.
               This allows for increased I/O performance for network and block devices.
               KVM supports VirtIO.
 
 -------------------------------------------
-Redhat Enterprise Linux, RHEL 6, no longer supports running as a Xen dom0. 
+Redhat Enterprise Linux, RHEL 6, no longer supports running as a Xen dom0.
               Instead Redhat has decided to migrate to KVM
 -------------------------------------------
 

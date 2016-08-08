@@ -7,9 +7,9 @@ SQL is NOT case sensitive: select is the same as SELECT
 Most of the SQL database (MySQL, SQL Server, Access, Oracle, Sybase, DB2)
 also have their own proprietary extensions in addition to the SQL standard!
 
-1 database = 1 or + tables. 
+1 database = 1 or + tables.
 
-1 table is 
+1 table is
    - identified by a name (e.g. "Customers" or "Orders").
    - rows & columns
 
@@ -29,84 +29,84 @@ Most common cmd:
     CREATE INDEX       - creates an index (search key)
     DROP INDEX         - deletes an index
 
-SELECT:  
+SELECT:
                   SELECT column_name,column_name               SELECT CustomerName,City FROM Customers;
                   FROM table_name;
-                  
+
                   SELECT * FROM table_name;
 
 SELECT DISTINCT:  only 1 entry for the same value
 
-                  SELECT DISTINCT column_name,column_name     SELECT DISTINCT City FROM Customers; 
+                  SELECT DISTINCT column_name,column_name     SELECT DISTINCT City FROM Customers;
                   FROM table_name;
 
-WHERE:  
+WHERE:
             SELECT column_name,column_name            SELECT * FROM Customers
             FROM table_name                           WHERE Country='Mexico';
             WHERE column_name operator value;
 
 
-            Operators in WHERE 
+            Operators in WHERE
                       =            Equal
                       <>           Not equal. Note: In some versions of SQL !=
-                      >            Greater 
-                      <            Less 
-                      >=           
-                      <=           
+                      >            Greater
+                      <            Less
+                      >=
+                      <=
                       BETWEEN      Between an inclusive range
                       LIKE         Search for a pattern
                       IN           To specify multiple possible values for a column
 
 
-AND OR:  
+AND OR:
             SELECT * FROM Customers                SELECT * FROM Customers
             WHERE Country='Germany'                WHERE Country='Germany'
             AND City='Berlin';                     AND (City='Berlin' OR City='München');
 
-ORDER BY:  
+ORDER BY:
             SELECT column_name,column_name                  SELECT * FROM Customers
-            FROM table_name                                 ORDER BY Country; 
+            FROM table_name                                 ORDER BY Country;
             ORDER BY column_name,column_name ASC|DESC;
 
             SELECT * FROM Customers                         SELECT * FROM Customers
             ORDER BY Country DESC;                          ORDER BY Country,CustomerName; <--- double order
 
-INSERT INTO:  
+INSERT INTO:
             INSERT INTO table_name                      INSERT INTO table_name (column1,column2,column3,...)
             VALUES (value1,value2,value3,...);          VALUES (value1,value2,value3,...);
 
             INSERT INTO Customers (CustomerName, City, Country)
-            VALUES ('Cardinal', 'Stavanger', 'Norway'); 
+            VALUES ('Cardinal', 'Stavanger', 'Norway');
 
-UPDATE:  
+UPDATE:
             UPDATE table_name                           UPDATE Customers
             SET column1=value1,column2=value2,...       SET ContactName='Alfred Schmidt', City='Hamburg'
-            WHERE some_column=some_value;               WHERE CustomerName='Alfreds Futterkiste'; 
+            WHERE some_column=some_value;               WHERE CustomerName='Alfreds Futterkiste';
 
             without WHERE clause, all records will be updated!
 
-DELETE:  
+DELETE:
             DELETE FROM table_name            DELETE FROM Customers
-            WHERE some_column=some_value;     WHERE CustomerName='Alfreds Futterkiste' AND ContactName='Maria Anders'; 
+            WHERE some_column=some_value;     WHERE CustomerName='Alfreds Futterkiste' AND ContactName='Maria Anders';
 
-            without WHERE clause, all records will be deleted, so 
+            without WHERE clause, all records will be deleted, so
             it is possible to delete all rows in a table without deleting the table:
             DELETE FROM table_name;       or also     DELETE * FROM table_name;
 
-SQL Injection:  
-             One of the top website vulnerabilities,  is SQL injection. 
+SQL Injection:
+             One of the top website vulnerabilities,  is SQL injection.
              It happens when a SQL cmd is built upon input the user has submitted in a form.
 
              txtUserId = getRequestString("UserId");
              txtSQL = "SELECT * FROM Users WHERE UserId = " + txtUserId;
-             
+
              If user writes: "105; DROP TABLE Suppliers"
              The cmd is:
                 SELECT * FROM Users WHERE UserId = 105; DROP TABLE Suppliers
-             
-             Each language (ASP, PHP) provides a way to check each parameter to ensure that it is correct 
+
+             Each language (ASP, PHP) provides a way to check each parameter to ensure that it is correct
              for its column and is treated literally, and not as part of the SQL to be executed.
-             
+
              ex. PHP:
 
              $stmt = $dbh->prepare("INSERT INTO Customers (CustomerName,Address,City)
@@ -117,8 +117,8 @@ SQL Injection:
              $stmt->execute();
 
 
-TOP  LIMIT:  
-            On large tables with thousands of records, most DB have constructs to specify 
+TOP  LIMIT:
+            On large tables with thousands of records, most DB have constructs to specify
             the number of records to return.
 
             SQL Server / MS Access:                     MySQL:                 ORACLE:
@@ -127,131 +127,131 @@ TOP  LIMIT:
             FROM table_name;                            FROM table_name        FROM table_name
                                                         LIMIT number;          WHERE ROWNUM <= number;
              ex.
-             SELECT TOP 2 * FROM Customers; 
-             SELECT TOP 50 PERCENT * FROM Customers; 
+             SELECT TOP 2 * FROM Customers;
+             SELECT TOP 50 PERCENT * FROM Customers;
 
-LIKE:  
+LIKE:
             SELECT column_name(s)
             FROM table_name
             WHERE column_name LIKE pattern;
-            
+
             WHERE City LIKE 's%';               . starting with s
             WHERE City LIKE '%s';               . ending with s
             WHERE Country LIKE '%land%'         . with land inside
             WHERE Country NOT LIKE '%land%';    . NOT  containing land
-            
+
             Wildcard:
                  %            o or + char
                  _            (underscore) 1 char
                  [ ]          all char inside
-                 [^ ]         not these chars 
+                 [^ ]         not these chars
                  [! ]          "    "    "
 
             WHERE City LIKE '_erlin';       # Berlin
             WHERE City LIKE 'L_n_on';       # London
-            WHERE City LIKE '[bsp]%'; 
-            WHERE City LIKE '[a-c]%'; 
+            WHERE City LIKE '[bsp]%';
+            WHERE City LIKE '[a-c]%';
             WHERE City LIKE '[!bsp]%';     also     WHERE City NOT LIKE '[bsp]%';
 
 
-IN:  
+IN:
             SELECT column_name(s)                           SELECT * FROM Customers
-            FROM table_name                                 WHERE City IN ('Paris','London'); 
+            FROM table_name                                 WHERE City IN ('Paris','London');
             WHERE column_name IN (value1,value2,...);
-            
+
             Not works with Wildcard :   WHERE City IN ('P%','L_ndon');    returns NOTHING!
 
-BETWEEN:  
-            To select values (numbers, text, or dates) within a range. 
-            
-            SELECT column_name(s)                           
-            FROM table_name                                 
+BETWEEN:
+            To select values (numbers, text, or dates) within a range.
+
+            SELECT column_name(s)
+            FROM table_name
             WHERE column_name BETWEEN value1 AND value2;
-            
-            WHERE Price BETWEEN 10 AND 20; 
+
+            WHERE Price BETWEEN 10 AND 20;
             WHERE ProductName BETWEEN 'C' AND 'M';      beginning with any of the letter BETWEEN 'C' and 'M'
-            WHERE OrderDate BETWEEN #07/04/1996# AND #07/09/1996#; 
-            
+            WHERE OrderDate BETWEEN #07/04/1996# AND #07/09/1996#;
+
             BETWEEN behaves different in different DB:
-                In some DB, excludes the bounds from the result 
-                In some DB, includes the bounds 
+                In some DB, excludes the bounds from the result
+                In some DB, includes the bounds
                 In some DB, includes the first, excludes the last
 
-ALIASES:  
+ALIASES:
             to temporarily rename a table or a column:
-            
+
             SELECT column_name AS alias_name             SELECT column_name(s)
             FROM table_name;                             FROM table_name AS alias_name;
 
             Column names are big or not very readable:
                       SELECT CustomerName AS Customer, ContactName AS [Contact Person]
                       FROM Customers;
-            
+
             Two or more columns are combined together:
                       CustomerName                       Address
-                      Alfreds Futterkiste                Obere Str. 57, Berlin, 12209, Germany 
-            
+                      Alfreds Futterkiste                Obere Str. 57, Berlin, 12209, Germany
+
                       SELECT CustomerName, Address+', '+City+', '+PostalCode+', '+Country AS Address
                       FROM Customers;
-            
+
                       (in MySQL :
                       SELECT CustomerName, CONCAT(Address,', ',City,', ',PostalCode,', ',Country) AS Address
                       FROM Customers;   )
-            
+
             Alias for Tables:
                       SELECT o.OrderID, o.OrderDate, c.CustomerName
                       FROM Customers AS c, Orders AS o
-                      WHERE c.CustomerName="Around the Horn" AND c.CustomerID=o.CustomerID; 
+                      WHERE c.CustomerName="Around the Horn" AND c.CustomerID=o.CustomerID;
 
 
-JOIN:  
+JOIN:
             to combine rows from two or more tables.
 
-            table T1 has 4 cols: [c1 c2 c3 c4]         T2, 3 cols [x1 x2 x3]      
+            table T1 has 4 cols: [c1 c2 c3 c4]         T2, 3 cols [x1 x2 x3]
                                          \___________________________/
 
             and suppose c3 and x2 has the same meaning (e.g. CustomerID), we can merge the 2 tables, into a bigger one
             with 6 cols (where c3=x2)   T3  [c1 c2  c3/x2 c4 x1 x3]
-            
+
 
             INNER JOIN: (it's the default, so also only JOIN, without INNER in the ex. below)
                      The rows in T3 is <=T1 , <=T2 and are the number of rows where T1.col(s) = T2.col(s)
 
-                     SELECT column_name(s)                              SELECT Customers.CustomerName, Orders.OrderID 
+                     SELECT column_name(s)                              SELECT Customers.CustomerName, Orders.OrderID
                      FROM table1                                        FROM Customers
                      INNER JOIN table2                                  INNER JOIN Orders
                      ON table1.column_name=table2.column_name;          ON Customers.CustomerID=Orders.CustomerID
-                      
+
             LEFT JOIN:  (In some databases LEFT JOIN is called LEFT OUTER JOIN)
-                     The rows of T3 is at least ALL the rows of T1. In case in the T1 row the value c3: 
+                     The rows of T3 is at least ALL the rows of T1. In case in the T1 row the value c3:
                         - is present 1 or more times in T2 rows (in x2 col) that row becomes 1 or more times a row for T3.
                         - is not present in any T2 row (in x2 col) that row becomes a T3 row (with cols x1 x2 x3, left empty)
 
-                     SELECT column_name(s)                              
-                     FROM table1                                       
-                     LEFT JOIN table2                                 
-                     ON table1.column_name=table2.column_name;      
-                      
+                     SELECT column_name(s)
+                     FROM table1
+                     LEFT JOIN table2
+                     ON table1.column_name=table2.column_name;
+
             RIGHT JOIN:  (In some databases RIGHT JOIN is called RIGHT OUTER JOIN)
                      The rows of T3 is at least ALL the rows of T2. It's the INNER JOIN, plus any remaining T2 rows (those have
                      c1 c2 c4 left empty)
 
-                     SELECT column_name(s)                              
-                     FROM table1                                       
-                     RIGHT JOIN table2                                 
-                     ON table1.column_name=table2.column_name;      
-                      
-            FULL JOIN:  
+                     SELECT column_name(s)
+                     FROM table1
+                     RIGHT JOIN table2
+                     ON table1.column_name=table2.column_name;
+
+            FULL JOIN:
                      The rows of T3 is at least ALL the rows of T1 + T2. (some would have c1 c2 c4 empty others x1 x2 x3)
 
-                     SELECT column_name(s)                              
-                     FROM table1                                       
-                     FULL OUTER JOIN table2                                 
-                     ON table1.column_name=table2.column_name;      
-                      
-UNION:  
+                     SELECT column_name(s)
+                     FROM table1
+                     FULL OUTER JOIN table2
+                     ON table1.column_name=table2.column_name;
+
+UNION:
             Union the same number of columns (same type) from different tables.
-            
+
             SELECT column_name(s) FROM table1        SELECT City FROM Customers      SELECT City FROM Customers
             UNION                                    UNION                           UNION ALL
             SELECT column_name(s) FROM table2;       SELECT City FROM Suppliers      SELECT City FROM Suppliers
@@ -263,11 +263,11 @@ UNION:
                  UNION ALL
                  SELECT City, Country FROM Suppliers
                  WHERE Country='Germany'
-                 ORDER BY City; 
+                 ORDER BY City;
 
-SELECT INTO:  
+SELECT INTO:
              create a new table copy information from another.
-             
+
              SELECT column_name(s)              SELECT *                      SELECT *
              INTO newtable [IN externaldb]      INTO CustomersBackup2013      INTO CustomersBackup2013 IN 'Backup.mdb'
              FROM table1;                       FROM Customers;               FROM Customers;
@@ -287,18 +287,18 @@ SELECT INTO:
                      FROM table1
                      WHERE 1=0;
 
-INSERT INTO:  
+INSERT INTO:
             Same as SELECT INTO but copy into an existing table:
 
             INSERT INTO table2 (column_name(s))           INSERT INTO Customers (CustomerName, Country)
-            SELECT column_name(s)                         SELECT SupplierName, Country FROM Suppliers; 
+            SELECT column_name(s)                         SELECT SupplierName, Country FROM Suppliers;
             FROM table1;
 
-CREATE DATABASE:  
+CREATE DATABASE:
             CREATE DATABASE dbname;                      CREATE DATABASE my_db;
 
 
-CREATE TABLE:  
+CREATE TABLE:
              CREATE TABLE table_name                  CREATE TABLE Persons
              (                                        (
              column_name1 data_type(size),            PersonID int,
@@ -306,8 +306,8 @@ CREATE TABLE:
              column_name3 data_type(size),            FirstName varchar(255),
              ....                                     Address varchar(255),
              );                                       City varchar(255)
-                                                      ); 
-SQL Constraints:  
+                                                      );
+SQL Constraints:
              CREATE TABLE table_name
              (
              column_name1 data_type(size) constraint_name,
@@ -317,8 +317,8 @@ SQL Constraints:
              );
 
              NOT NULL     LastName varchar(255) NOT NULL,
-             UNIQUE       no others row has the same value. 
-                              
+             UNIQUE       no others row has the same value.
+
                               SQL Server / Oracle / MS Access:       MySQL:
 
                               CREATE TABLE Persons                   CREATE TABLE Persons
@@ -328,9 +328,9 @@ SQL Constraints:
                               ...                                    ...
                               )                                      UNIQUE (P_Id)
                                                                      )
-                              
+
                           name a UNIQUE constraint, and use for multiple columns:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               CREATE TABLE Persons
@@ -338,25 +338,25 @@ SQL Constraints:
                               P_Id int NOT NULL,
                               LastName varchar(255) NOT NULL,
                               ...
-                              CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)  <----- named uc_PersonID 
+                              CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)  <----- named uc_PersonID
                               )
-                              
+
                           To add UNIQUE constraint when table is already created:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               ALTER TABLE Persons                 ALTER TABLE Persons
                               ADD UNIQUE (P_Id)                   ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
-                              
-                              
+
+
                           To DROP a UNIQUE Constraint:
-                              
-                              MySQL:                              SQL Server / Oracle / MS Access:      
+
+                              MySQL:                              SQL Server / Oracle / MS Access:
 
                               ALTER TABLE Persons                 ALTER TABLE Persons
                               DROP INDEX uc_PersonID              DROP CONSTRAINT uc_PersonID
-                              
-             PRIMARY KEY  
+
+             PRIMARY KEY
                               SQL Server / Oracle / MS Access:       MySQL:
 
                               CREATE TABLE Persons                   CREATE TABLE Persons
@@ -365,9 +365,9 @@ SQL Constraints:
                               ...                                    ...
                               )                                      PRIMARY KEY (P_Id)
                                                                      )
-                              
+
                           name a PRIMARY KEY constraint, to have 1 key made by 2 or + cols:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               CREATE TABLE Persons
@@ -377,22 +377,22 @@ SQL Constraints:
                               ...
                               CONSTRAINT pk_PersonID PRIMARY KEY (P_Id,LastName)
                               )
-                              
+
                           To add  PRIMARY KEY constraint when table is already created:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               ALTER TABLE Persons                 ALTER TABLE Persons
                               ADD PRIMARY KEY (P_Id)              ADD CONSTRAINT pk_PersonID PRIMARY KEY (P_Id,LastName)
-                              
-                              
+
+
                           To DROP a PRIMARY KEY constraint:
-                              
-                              MySQL:                              SQL Server / Oracle / MS Access:      
+
+                              MySQL:                              SQL Server / Oracle / MS Access:
 
                               ALTER TABLE Persons                 ALTER TABLE Persons
                               DROP PRIMARY KEY                    DROP CONSTRAINT pk_PersonID
-                              
+
              FOREIGN KEY      T1: [k1 c2 c3 c4]      T2: [x1 x2 x3]
                                     \_______________________/
 
@@ -407,9 +407,9 @@ SQL Constraints:
                               ...                                         ...
                               )                                           FOREIGN KEY (x2) REFERENCES T1(k1)
                                                                           )
-                              
+
                           name a FOREIGN KEY constraint:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               CREATE TABLE T2
@@ -419,23 +419,23 @@ SQL Constraints:
                               CONSTRAINT pippo FOREIGN KEY (x2)
                               REFERENCES T1(k1)
                               )
-                              
+
                           To add  FOREIGN KEY constraint when table is already created:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
-                              ALTER TABLE T2                     ALTER TABLE T2                 
+                              ALTER TABLE T2                     ALTER TABLE T2
                               ADD FOREIGN KEY (x2)               ADD CONSTRAINT pippo
                               REFERENCES T1(k1)                  FOREIGN KEY (x2)
                                                                  REFERENCES T1(k1)
-                              
-                          To DROP a FOREIGN KEY constraint:
-                              
-                              MySQL:                              SQL Server / Oracle / MS Access:      
 
-                              ALTER TABLE T2                      ALTER TABLE T2     
+                          To DROP a FOREIGN KEY constraint:
+
+                              MySQL:                              SQL Server / Oracle / MS Access:
+
+                              ALTER TABLE T2                      ALTER TABLE T2
                               DROP FOREIGN KEY pippo              DROP CONSTRAINT pippo
-                              
+
              CHECK            can limit the values in certain columns.
 
                               SQL Server / Oracle / MS Access:            MySQL:
@@ -446,9 +446,9 @@ SQL Constraints:
                               ...                                         ...
                               )                                           CHECK (x2>0)
                                                                           )
-                              
+
                           name on multiple col:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
                               CREATE TABLE T2
@@ -457,49 +457,49 @@ SQL Constraints:
                               ...
                               CONSTRAINT pippo CHECK (x2>0 AND City='Sandnes')
                               )
-                              
+
                           To add CHECK constraint when table is already created:
-                              
+
                               MySQL / SQL Server / Oracle / MS Access:
 
-                              ALTER TABLE T2                     ALTER TABLE T2                 
+                              ALTER TABLE T2                     ALTER TABLE T2
                               ADD CHECK (x2>0)                   ADD CONSTRAINT pippo CHECK (x2>0 AND City='Sandnes')
-                              
-                          To DROP a CHECK constraint:
-                              
-                              MySQL:                              SQL Server / Oracle / MS Access:      
 
-                              ALTER TABLE T2                      ALTER TABLE T2     
+                          To DROP a CHECK constraint:
+
+                              MySQL:                              SQL Server / Oracle / MS Access:
+
+                              ALTER TABLE T2                      ALTER TABLE T2
                               DROP CHECK pippo                    DROP CONSTRAINT pippo
 
-             DEFAULT         
+             DEFAULT
                               CREATE TABLE Persons                        CREATE TABLE Orders
                               (                                           (
                               ...                                         ...
-                              City varchar(255) DEFAULT 'Sandnes'         OrderDate date DEFAULT GETDATE()   <----- using functions 
+                              City varchar(255) DEFAULT 'Sandnes'         OrderDate date DEFAULT GETDATE()   <----- using functions
                               )                                           )
 
                           To DROP a DEFAULT constraint:
-                              
-                              MySQL:                              SQL Server / Oracle / MS Access:      
 
-                              ALTER TABLE T2                      ALTER TABLE T2     
+                              MySQL:                              SQL Server / Oracle / MS Access:
+
+                              ALTER TABLE T2                      ALTER TABLE T2
                               ALTER City DROP DEFAULT             ALTER COLUMN City DROP DEFAULT
 
-CREATE INDEX:  
+CREATE INDEX:
             An index can be created in a table to find data more quickly and efficiently.
             The users cannot see the indexes, they are just used to speed up searches/queries.
-            Updating a table with indexes takes more time than updating a table without (because the indexes also need an update). 
+            Updating a table with indexes takes more time than updating a table without (because the indexes also need an update).
             So you should only create indexes on columns (and tables) that will be frequently searched against.
 
             CREATE INDEX index_name
             ON table_name (column_name)
 
-DROP:  
+DROP:
             DROP TABLE table_name        TRUNCATE TABLE table_name   (to delete all but leave Table (empty))
             DROP DATABASE database_name
 
-ALTER:  
+ALTER:
             ALTER TABLE table_name                  ALTER TABLE table_name
             ADD column_name datatype                DROP COLUMN column_name
 
@@ -508,20 +508,20 @@ ALTER:
             ALTER COLUMN column_name datatype    MODIFY COLUMN column_name datatype   MODIFY column_name datatype
 
 
-AUTO INCREMENT:  
+AUTO INCREMENT:
             Auto-increment unique number generated when a new record is inserted
              MySQL:           x2 int NOT NULL AUTO_INCREMENT,
              SQL Server:      x2 int IDENTITY(1,1) PRIMARY KEY,     # start at 1, increment of 1
              Oracle:          You will have to create an auto-increment field with the sequence object
 
-                              CREATE SEQUENCE seq_person   |      
-                              MINVALUE 1                   |      
+                              CREATE SEQUENCE seq_person   |
+                              MINVALUE 1                   |
                               START WITH 1                 |---- INSERT INTO Persons (ID,FirstName,LastName)
                               INCREMENT BY 1               |     VALUES (seq_person.nextval,'Lars','Monsen')
-                              CACHE 10                     |             
+                              CACHE 10                     |
 
 
-VIEW:  
+VIEW:
             A view is a virtual table.
 
             CREATE VIEW view_name AS         CREATE VIEW [Current Product List] AS
@@ -540,7 +540,7 @@ VIEW:
             To drop a view:          DROP VIEW view_name
 
 
-NULL:  
+NULL:
             An optional column can contains NULL values.
 
             NULL and 0 are not equivalent, and cannot be compared.

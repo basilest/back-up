@@ -4,27 +4,27 @@
              even if improvements have been done on the compilers
              that translate Lisp code into machine code.
            - LISt Processor, where a LISt is represented in the common notation ( )
-              functions are themselves written as lists, 
+              functions are themselves written as lists,
               they can be processed exactly like data
 
-     data objects: 
+     data objects:
                   -atom       are numbers or strings
                   -list       a finite series of atoms or lists
                               it must be thought as a linked list:
 
                                  ----------.     ----------.     ----------.
-                                 | .  | .--|-->  | .  | .--|-->  | .  | .--|--> 
-                                 --|-------.     --|-------.     --|-------. 
+                                 | .  | .--|-->  | .  | .--|-->  | .  | .--|-->
+                                 --|-------.     --|-------.     --|-------.
                                    |               |               |
                                   45               6              abc
-                              
-                               ----------.   
+
+                               ----------.
                                | .  | .--|-->        <-- this is called 'cons'
                                --|-------.               (in Scheme 'pair')
                                  |                       the pointer to the value is 'car'
                                                          the pointer to the next 'cons' is 'cdr'
 
-                              a cons can be written in the dotted notation (a . b) 
+                              a cons can be written in the dotted notation (a . b)
                               to highligth 'car' and 'cdr' but is never used as
                               (a b c)  would be less readable in this format (a . (b . (c nil)))
 
@@ -45,7 +45,7 @@
            - 1998  IEEE standard of Scheme (version R5RS)
            - 2007  IEEE standard of Scheme (version R6RS)
 
-     pretty-printing: 
+     pretty-printing:
                   -align and indent operators:
                         (+ (* 2 4)
                            (+ 3 5))
@@ -55,18 +55,18 @@
                             (loop (print (eval (read))))
 
      expression-oriented language:
-                                   - code and data are written as EXPRESSIONS. 
+                                   - code and data are written as EXPRESSIONS.
                                      (called S-expression   S for Symbolic)
-                                   - an expression evaluated, produces a VALUE 
-                                     (in Common Lisp, possibly MULTIPLE values), 
-                                   - that value can so be EMBEDDED into other expressions. 
-                                   - in Common Lisp, evaluation is ('leftmost innermost'), 
+                                   - an expression evaluated, produces a VALUE
+                                     (in Common Lisp, possibly MULTIPLE values),
+                                   - that value can so be EMBEDDED into other expressions.
+                                   - in Common Lisp, evaluation is ('leftmost innermost'),
                                      in Scheme is undefined, leaving room for optimization by a compiler.
 
 
      (1 2 foo)           list with 3 atoms
-     ()                  empty list 
-     nil                 syntax sugar for ()  
+     ()                  empty list
+     nil                 syntax sugar for ()
                          so nil is at he same time an atom and a list
      (quote foo)         also ('foo)
                          returns without evaluating
@@ -83,7 +83,7 @@
      (append ..          add as last    (append '(1 2 3) '() '(a) '(5 6))  -->  (1 2 3 a 5 6)
      (push   ..          add as last    (push a 5)   add 5 to var a
      (reverse ..         (reverse '(1 2 3)) --> (3 2 1)
-     (mapcar ..          takes as args 
+     (mapcar ..          takes as args
                                - function
                                - some lists (each of the same len N)
                          executes the function N times, each time with the i-th args from the lists
@@ -109,7 +109,7 @@
                          the (getf ... returns the value of a certain key
                          (getf (list :a 1 :b 2 :c 3) :a)   --> 1
 
-     global var          (defvar *db* nil)        (defvar ...   
+     global var          (defvar *db* nil)        (defvar ...
                                                   *..*   is the naming convention
 
      (dolist             (dolist (cd *db*)
@@ -119,7 +119,7 @@
                                             ~%        is the new line
                                             ~{  ~}    iterates on a list
                                             10t       add enough spaces till col 10
-                         
+
 
 
 

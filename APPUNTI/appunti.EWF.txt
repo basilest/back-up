@@ -14,7 +14,7 @@
                                   ---------------------------------
                                                       MANDATORY
                                   ---------------------------------
-                                  new()                   . 
+                                  new()                   .
                                   createChildControls()   .
                                   onLoad()               YES
                                   validateControl()       .
@@ -27,16 +27,16 @@
                                     sub new
                                     {
                                         my ($caller, %arg) = @_;
-                                          
+
                                         Framework::objectBase::registerProperties( __properties, \%arg );
                                         return $caller->SUPER::new(%arg);
-                                    } 
+                                    }
 
                              . createChildControls:  creates its direct children. In a top-down order, that is
                                                      Children can create their other children and so on.
                                                      This creates a names-chain (ex. SAIL.SAILAddress.Postcode)
 
-                                                     In some cases, when dynamc values are retrieved from 
+                                                     In some cases, when dynamc values are retrieved from
                                                      DB, the creation of Children is deferred in the onLoad
 
                              . onLoad:  - to initialise    all fields with flag 'WebInput'
@@ -48,12 +48,12 @@
 
 
                                                                }
-                                       
 
-                             . validateControl: is called after the POST sent by the client, so that 
+
+                             . validateControl: is called after the POST sent by the client, so that
                                                 othet SERVER-side validation can be performed.
-                                               
-                                                .vld files perform SERVER-side control. 
+
+                                                .vld files perform SERVER-side control.
                                                 .vld files perform mainly only single-field validation.
 
                                                 validateControl does what a .vld file cannot do.
@@ -71,9 +71,9 @@
                                                    - the Parent is 'autoPage' (so I'm a Page at 1' level)
                                                  Otherwise the call to SUPER can be skipped.
 
-                             . renderControl:  - called to build the HTML. 
+                             . renderControl:  - called to build the HTML.
                                                - il calls a .....tmpl file  (a template) ex registers/xx2.tmpl
-                                               - a property (ex _xxP_1)  must have the same filename 
+                                               - a property (ex _xxP_1)  must have the same filename
                                                            ...
                                                           _xxP_1 => [ 'registers/xx2.tmpl', 'read', 'string' ],
 
@@ -87,7 +87,7 @@
                                                - that ...tmpl file can have nested ...tmpl files:
                                                           <TMPL_INCLUDE controls/registers/xx18.tmpl>
 
-                                               - when there are controls the property 'hasControls'  (inherited 
+                                               - when there are controls the property 'hasControls'  (inherited
                                                  from Framework::UI::control) is used in renderControl
                                                  to exit directly when 'false'
 

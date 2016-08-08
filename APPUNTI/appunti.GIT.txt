@@ -305,7 +305,7 @@ git gc --prune     # to remove garbaged collection
                                             |  |committer   ste     |    |committer   ste     |    |committer   ste     |
                                             |  |____________________|    |____________________|    |____________________|
                                             |
-                                            |       
+                                            |
                                             |      a way to see that CHAIN could be dump hash (%h)  tree (%t) and parent (%p):
                                             |
                                             |                             git log --pretty="%h %t %p %s" :
@@ -878,8 +878,8 @@ git gc --prune     # to remove garbaged collection
                                             | git log --relative-date                    '5 months ago'    instaed of   'Wed Sep 24 14:19:24 2014'
                                             | git log --since, --after                    after  that time   --since="2008-10-01"
                                             | git log --until, --before                   before that time   --before="2 years 1 day 3 minutes ago"
-                                            |                                             ex. git log --until=2.weeks    
-                                            |                                             ex. git log --since=2.weeks   
+                                            |                                             ex. git log --until=2.weeks
+                                            |                                             ex. git log --since=2.weeks
                                             |                                        dates expressed in absolute ex "2008-01-15"
                                             |                                                        in relative "2 years 1 day 3 minutes ago"
                                             | git log --author                            edited by
@@ -1085,7 +1085,7 @@ git gc --prune     # to remove garbaged collection
                                             |                                     (it removes in .git/refs/)
                                             | git push origin :refs/tags/v1.4     to delete on the remote repo
                                             |
-                                            | git tag -m "Tag version 1.0" V1.0 3ede462        to add tag ('V1.0') and message 
+                                            | git tag -m "Tag version 1.0" V1.0 3ede462        to add tag ('V1.0') and message
                                             |                                                  to the commit 3ede462
                                             |
                                             | git rev-parse V1.0                               to find the SHA1 of the tag
@@ -1311,7 +1311,7 @@ git gc --prune     # to remove garbaged collection
                                             |
                                             | "three-way merge" in the cases where the 2 branches went both ahead from their
                                             |                   common ancestor (C2), the merge is a three-way merge
-                                            |                   where the 3 means: C2, C5, C4. 
+                                            |                   where the 3 means: C2, C5, C4.
                                             |
                                             |                             ____ C3 ___C4                 ____ C3 ___C4
                                             |                            /           ^                 /             \

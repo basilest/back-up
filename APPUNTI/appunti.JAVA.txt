@@ -17,6 +17,92 @@ THE SIMPLEST PROG:
       from ~:   java -cp class_dir org.basilest.My_class
 
 
+----------------------------------------------------------------------------------------------------
+JAR and CLASSPATH
+----------------------------------------------------------------------------------------------------
+
+    1. If I write a proj with 3 classes A.java B.java C.java defined as package "org.basilest"
+       I'll have a dir like  ~/....../current_dir/org/basilest/(A.java B.java. C.java)
+    2. If some API are in external jar files, I have to instruct javac, the compiler, how to locate them.
+       I have 2 options:
+               - define the ENV var $CLASSPATH (that is like PATH a list of dirs  separated by ':')
+               - pass the list of jar, in the command line as -cp ".....jar : .....jar : ....jar"
+                 to avoid listing ALL the jars, since java 1.6 the * is allowed:
+                               ________________________________________
+
+                     As a special convenience, a class path element containing a basename of *
+                     is considered equivalent to specifying a list of all the files in the
+                     dir with the extension .jar or .JAR.
+
+                     For example, if dir foo contains a.jar and b.JAR, then the
+                     class path element foo/* is expanded to A.jar;b.JAR, except that the order
+                     of jar files is unspecified.
+                     All jar files in the specified dir, even hidden ones, are included
+                     in the list.
+                     A classpath entry consisting simply of * expands to a list of all the jar files
+                     in the current dir.
+                               ________________________________________
+
+    3. Probably the current dir (as :.:) must also be added in the list fo dirs.
+    4. To compile A.java into A.class in the same dir ~/....../current_dir/org/basilest/
+       do, from ~/....../current_dir/
+
+             javac           -cp "dir1/a.jar:dir2/*:.:" org/basilest/A.java
+    5. To compile A.java into A.class in a different dir3
+       do, always from ~/....../current_dir/
+             javac -d dir3/  -cp "dir1/a.jar:dir2/*:.:" org/basilest/A.java
+
+       NB. It will not be .../dir3/A.class but (preserving the package hierarchy)
+           .../dir3/org/basilest/A.class
+
+    6. from ..../dir3   I can now execute it with
+       java -cp "dir1/a.jar:dir2/*:.:"   org.basilest.A  <---- NB not .class
+             ^                              ^
+            the same jars used by javac     NB it's . not /
+
+     NB. javac is the compiler
+         java is the Virtual Machine (VM) that is going to run the bytecode.
+         Both can be executed as server (java[c] -server) or client (java[c] -client)
+         optimizing the appl. according to if it will run as a server or client app.
+         (ex -client is better for GUI)
+
+     NB. javap is the disassembler (shows the bythecode from a .class)
+         play with the options:
+                     -classpath ...  if the classes are somewhere
+                     -c              the code
+                     -l              also line numbers
+                     -p -private     priva. members
+                     -public         pub.    "
+                     -protected      prot    "
+                     -package        all the above
+
+
+         Moreover JIT is the link between a deeper transformation.
+         The bytecode is INTERPRETED by the JAVA VM, but is kept monitored by
+         JIT that runtime after some time COMPILEs it.
+         This optimization is not done permanently as the monitoring of the running
+         code carries on.
+         ex. Instruction like ' if (p == null) return; ... do something'
+             if after some time JIT notices that p is never null will be compiled
+             as if the code was '... do something'. If for some reason after some time
+             a p = null arrives, the code is for a while 'de-optimized' without triggering
+             a null-pointer-exception.
+             The uncommon event is intercepted by JIT by the 'uncommon trap' mechanism
+             that operates even when in an if--else branches JIT discovers that a branch
+             is much more unlikely than the other and can compiles alternating the code
+             ex if the code was if (x > y) {A} else {B} (where the else always requires a jump
+             after the test-instruction) but 99.99 % is always x <= y
+             JIT will compile reverting the test as if it was if (X <= y) {B} else {A}
+
+             At the end JIT is intended to kill JUMPS in the Assembly code.
+
+             Another JUMP killing is removing function-calls, compiling the
+             function INLINE if it's short enough. To decide what 'short enough' means
+             there are 2 flags
+                  -XX:MaxInlineSize   (default 35 bytes)  all function-calls will be
+                                      compiled inline if the function-code is <
+                  -XX:FreqInlineSize  all function that are called often will be also
+                                      compiled inline if its code is <
 
 
 ----------------------------------------------------------------------------------------------------
@@ -27,7 +113,7 @@ Crt + 1 :        quick fix: rename class & file, add import, suggest what to do.
 Crt + O :        (letter O, not zero): open an outline, a resume, menu for the class where I'm inside)
 Crt + E :        switch between the open files/tab
 Alt + arrows (up/dows): to move 1 line of code up/down
-Crt + Shift +    R (to open resources (ex files))  
+Crt + Shift +    R (to open resources (ex files))
             +    T  (to open types menu)
     + T  (to open types hierarchy: ex select a class, than type Crt+T and look at the hierarchy)
     + L  (got to that line of code)
@@ -40,7 +126,7 @@ Alt + Shift + R       : modify in parallel a var name wherever it's used.
 Alt + Shift + M       : 1st select some lines of code, with Alt+Shit+M they are automatically extracted
                         from there into a new method, and the method name goes to replace those lines.
 
-Alt + Shift + I       : The opposite: inline Method. 1 selected line, calling an external method 
+Alt + Shift + I       : The opposite: inline Method. 1 selected line, calling an external method
                         is replaced by the body of the method and the external method disappears.
 
 N.B. the same ...+ M/ +I works with variables
@@ -125,7 +211,7 @@ The process of serializing an object (also called marshalling an object) is the 
 into a format that can be stored (file,  memory buffer, or transmitted across a network)
 and reconstructed later (when the series of bits is reread according to the serialization format:
 deserialization or unmarshalling)
-
+|[Ma|[Ma||
 For example, for maximal use of distribution, a computer running on a different hardware
 should be able to reliably reconstruct a serialized data stream, regardless of endianness.
 This means that the simpler and faster procedure of directly copying the memory layout of the data structure
@@ -189,7 +275,7 @@ is the sections of code that have to be included in many places with little or n
 The JavaBeans functionality is provided by a set of classes and interfaces in the java.beans package.
 
 ----------------------------------------------------------------------------------------------------
-Hibernate       4.3.7    (20014.30.10)
+Hibernate       4.3.7    (2014.30.10)
 ----------------------------------------------------------------------------------------------------
 We can certainly do this by employing Object Relational Mapping (ORM) tools. These
 tools’ main job is to transform the Java objects to relational data and vice versa. There
@@ -208,36 +294,36 @@ current version Framework 4.0 (December 2013)
                       Beans.xml:  1/3    xml external file
                       -----------------------------------------
                       <?xml version="1.0" encoding="UTF-8"?>
-                      
+
                       <beans xmlns="http://www.springframework.org/schema/beans"
                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                           xsi:schemaLocation="http://www.springframework.org/schema/beans
                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-                      
-                         <bean id="helloWorld"                          <-- id: mandatory attribute 
+
+                         <bean id="helloWorld"                          <-- id: mandatory attribute
                              class="com.tutorialspoint.HelloWorld"      <-- the java class to link
                              init-method="init"                         <-- (optional)  a fun to call at start
                              destroy-method="destroy">                  <-- (optional)  a fun to call on exit
                              <property name="message" value="Hello World!"/>
                          </bean>
-                      
+
                       </beans>
-                      
+
                       -----------------------------------------
                       class HelloWorld:  2/3  the actual class/code that will be executed
                       -----------------------------------------
                       package com.tutorialspoint;
-                      
+
                       public class HelloWorld {
                          private String message;
-                      
+
                          public void setMessage(String message){
                             this.message  = message;
                          }
                          public void getMessage(){
                             System.out.println("Your Message : " + message);
                          }
-                         public void init(){                     <--- the fun linked at start 
+                         public void init(){                     <--- the fun linked at start
                             System.out.println("Bean is going through init.");
                          }
                          public void destroy(){                  <--- the fun linked on exit
@@ -248,16 +334,16 @@ current version Framework 4.0 (December 2013)
                       class MainApp :   3/3 the main file that import xml external info
                       -----------------------------------------
                       package com.tutorialspoint;
-                      
+
                       import org.springframework.context.support.AbstractApplicationContext;
                       import org.springframework.context.support.ClassPathXmlApplicationContext;
-                      
+
                       public class MainApp {
                          public static void main(String[] args) {
-                      
-                            AbstractApplicationContext context = 
+
+                            AbstractApplicationContext context =
                             new ClassPathXmlApplicationContext("Beans.xml"); <---- read info from external xml
-                      
+
                             HelloWorld obj = (HelloWorld) context.getBean("helloWorld");
                             obj.getMessage();
                             context.registerShutdownHook();
@@ -305,7 +391,7 @@ Model-View-Controller (MVC)     design pattern that used together
 
       - 3) Development and Debugging
                 many serious performance issues, including:
-                1. The overhead of including all the static resources 
+                1. The overhead of including all the static resources
                    (Images, CSS, and JavaScript) in JSF components tree.
                 2. Missing standard and transparent caching functionalities.
 ----------------------------------------------------------------------------------------------------
@@ -452,8 +538,8 @@ Static import declaration
 
 if, then ... do while...:  the same as in C (also label:   break;  continue [label optional];  return;)
 Enhanced for                    (available since J2SE 5.0.)
-                for (int i : intArray) {                       //built-in iterators over arrays and collections 
-                    doSomething(i);
+                for (int i : intArray) {    //Assuming "intArray" is defined to be an array of int
+                    doSomething(i);         //ex2: for (String e : a) { ..
                 }
 
 finally:         'return' statement ends execution immediately, except for one case:
@@ -539,10 +625,40 @@ throw:       is used to throw an exception and end block (or method) execution.
                         // Will not be called, if object was null
                         doSomethingWithObject(obj);
 
+Error:        take into consideration that IO can also throw Errors.
+              Errors are not Exception, though both share the base class Throwable.
+              Since IO can throw Errors, you may want to go so far as to catch Throwable
+              try{
+                   ...
+               } catch (Throwable t){
+                   if(t instanceof Exception){
+                       if(t instanceof IOException){
+                           // handle this exception type
+                       } else if (t instanceof AnotherExceptionType){
+                           //handle this one
+                       } else {
+                           // We didn't expect this Exception. What could it be? Let's log it, and let it bubble up the hierarchy.
+                           throw t;
+                       }
+                   } else if (t instanceof Error){
+                       if(t instanceof IOError){
+                           // handle this Error
+                       } else if (t instanceof AnotherError){
+                           //handle different Error
+                       } else {
+                           // We didn't expect this Error. What could it be? Let's log it, and let it bubble up the hierarchy.
+                           throw t;
+                       }
+                   } else {
+                       // This should never be reached, unless you have subclassed Throwable for your own purposes.
+                       throw t;
+                   }
+
 assert:       available since J2SE 1.4. the assert keyword followed by a conditional expression.
-              On false an exception is thrown.
+              On false an AssertionError is thrown.
+              Notice that this is an Error and not an Exception.
               This statement may include a colon followed by another expression,
-              which will act as the exception's detail message.
+              which will act as the error's detail message.
 
 assert n != 0;// If n equals 0, AssertionError is thrown
 assert n != 0 : "n was equal to zero";
@@ -555,13 +671,13 @@ Arrays:  length is defined at creation and cannot be changed.
                 int x = numbers[0];
 
 
-                int[] numbers = new int[] {20, 1, 42, 15, 34};        // Long syntax
-                int[] numbers2 = {20, 1, 42, 15, 34};                 // Short syntax
+                int[] numbers = new int[] {20, 1, 42, 15, 34};       // Long syntax
+                int[] numbers = {20, 1, 42, 15, 34};                 // Short syntax
 
                 int[][] numbers = new int[3][3];
                 numbers[1][2] = 2;
 
-                int[][] numbers2 = {{2, 3, 2}, {1, 2, 6}, {2, 4, 5}};
+                int[][] numbers = {{2, 3, 2}, {1, 2, 6}, {2, 4, 5}};
 
 multi-dimensional arrays are not bound to be rectangular unlike C:
 
@@ -594,6 +710,16 @@ Anonymous class                 class X {
                                         };
                                     }
                                 }
+
+                                ___________________
+                                The anonymous class expression consists of;
+
+                                  . The new operator
+                                  . The name of an interface to implement or a class to extend.
+                                  . ( args ) <--- to the constructor (if a class)
+                                    Note: as an interface, has no constructor I use only an empty pair of parentheses ()
+                                  . A body.
+
 
 Class Modifiers:     before the 'class':
 
@@ -642,7 +768,7 @@ Overriding methods:    Unlike C++, all non-final methods can be overridden
                         }
                     }
 
-Interfaces:   1 abstract class, with vars but function are with no body.
+Interfaces:   1 abstract class, with vars but functions are with no body.
               Classes that implement that Interface, override all the functions:
 
 interface ActionListener {                  class ActionHandler implements ActionListener, RequestListener {
@@ -659,18 +785,122 @@ Unlike classes it is allowed to inherit from multiple interfaces.
 
                         }
 
-Annotations:  Java  (since J2SE 5.0) has a set of predefined annotation types, 
+functional interface:  is any interface that
+                       - contains only 1 abstract method.
+                         (--> you can omit the name of that method when you implement it)
+                       - can contain 1 or + default methods
+                       - can contain 1 or + static  methods
+                       - to enforce the compiler that is is a functional interface
+                         and so generate errors in case of misuse ther is a
+                         dedicated annotation: @FunctionalInterface
+
+                         @FunctionalInterface
+                           public interface xxxx { ...
+
+                       - Java 8 defines 3 builtin:
+                                         abstract method to define
+                         Predicate<T>  : boolean test  (T t);
+                         Consumer <T>  : void    accept(T t);
+                         Function<T, R>: R       apply (T t);
+
+---------------------- Generics:
+
+when defining a class (or interface) I can use the syntax class A<T,S,...> {...}
+where I list some "type parameters" that can be used as "generic-types" in any line of
+code inside the class.
+ex.
+
+public interface Pair<K, V> {                   public class OrderedPair<K, V> implements Pair<K, V> {
+    public K getKey();
+    public V getValue();                            private K key;
+}                                                   private V value;
+
+                                                    public OrderedPair(K key, V value) {
+                                                           this.key = key;
+                                                           this.value = value;
+                                                    }
+
+                                                    public K getKey()   { return key; }
+                                                    public V getValue() { return value; }
+                                                }
+
+
+when declaring (instanciating with real types) I go to substitute
+the genreic type with "type arguments"
+        Pair<String, Integer> p1 = new OrderedPair<String, Integer>("Even", 8);
+        Pair<String, String>  p2 = new OrderedPair<String, String>("hello", "world");
+
+"type parameters":   the letters T,E,K,V used in definition
+"type arguments":    the real types used during delcaration
+                     they cannot be primitive types (so Integer is ok, 'int' not)
+
+A shorter <> (Diamond operator) can be used when the compiler can understand from the context
+the "type":
+            Pair<String, Integer> p1 = new OrderedPair <> ("Even", 8);
+The official word to refer to this compiler ability and its algorithm to identify
+the most specific type that fits is TYPE-INFERENCE
+
+Type erasure:  One the compiler has written the code, it deletes the Type arguments
+               so there is no way to determine it (ex Integer or any parent (Number or Object))
+
+               so the following will print "Equal [class java.util.ArrayList]"
+
+               ArrayList<Integer> li = new ArrayList<Integer>();
+               ArrayList<Float>   lf = new ArrayList<Float>();
+               if (li.getClass() == lf.getClass()) { // evaluates to true
+                   System.out.println("Equal ["+ li.getClass() + "]");
+               }
+
+               Type-erasure is done at compile time so tha the Java run-time environment
+               does not know which parameterized type was used.
+
+---------------------- lambda expression
+           It introduces in Java some functional mechanism (like LISP and Javascript)
+           allowing the functions to be instanciated.
+
+           They are
+             - anonimous functions, with a '->' instead of the { }
+               so it's:
+                    (args) -> body
+             - they cannot live alone. They are assigned to an object
+               that is of type functional-interface
+               (they implements the single abstract method)
+           ex:
+
+           numbers.forEach((Integer value) -> System.out.println(value));
+
+           The TYPE-INFERENCE allows to skip the type:
+           numbers.forEach(value -> System.out.println(value));
+
+           The Java-8 method-reference-operator (::) allows even only
+           numbers.forEach(System.out::println);
+
+           public int sumAll(List<Integer> numbers, Predicate<Integer> p) {  |    sumAll(numbers, n -> true);
+                                                                             |    sumAll(numbers, n -> n % 2 == 0);
+               int total = 0;                                                |    sumAll(numbers, n -> n > 3);
+               for (int number : numbers) {                                  |                    ^
+                    if (p.test(number)) {                                    |              here the lambda expr.
+                        total += number;                                     |
+                    }                                                        |
+               }                                                             |
+               return total;                                                 |
+           }                                                                 |
+
+
+---------------------- Annotations:
+
+Annotations:  Java  (since J2SE 5.0) has a set of predefined annotation types,
               but it is allowed to define new ones.
               They are a way to embed metadata into code.
 
-1 annotation declaration is 1 interface (preceded by the @ sign). 
-They implicitly extend from 
-                            java.lang.annotation.Annotation 
+1 annotation declaration is 1 interface (preceded by the @ sign).
+They implicitly extend from
+                            java.lang.annotation.Annotation
 and cannot be extended from anything else.
 
-The main difference is that method declarations must 
-         have 0 parameters 
-         throw no exceptions. 
+The main difference is that method declarations must
+         have 0 parameters
+         throw no exceptions.
          they may have a default value, which is declared using the default keyword after the method name:
          Return only primitive types: String, Class, enums, annotations, and arrays of these.
 
@@ -679,9 +909,109 @@ The main difference is that method declarations must
               boolean networkOperations() default false;
           }
 
+     - Annotations are a way to add information that can be then used
+       by the compiler (compilation phase) or by the program at runtime (execution phase)
+     - The usage of these information at runtime is possible by the java 'reflection' mechanism.
+     - annotations are a '@' + name --> @name
+       attached to classes, interfaces, methods, fields
+     - Annotations are often used by frameworks as a way of conveniently applying behaviours to
+       user-defined classes and methods that must otherwise be declared in an external
+       source (such as an XML configuration file)
+     - When Java source code is compiled, annotations can be processed by compiler plug-ins called
+                       annotation processors.
+       Processors can produce informational messages or create additional Java source files or resources,
+       which in turn may be compiled and processed, and also modify the annotated code itself.
+       The Java compiler conditionally stores annotation metadata in the class files,
+       if the annotation has a RetentionPolicy of CLASS or RUNTIME.
+       Later, the JVM or other programs can look for the metadata to determine how to interact
+       with the program elements or change their behavior.
+     - In addition to processing an annotation using an annotation processor, a Java programmer
+       can write their own code that uses reflections to process the annotation.
+     - the built-in annotations are following 3:
+           - @Override         : this instructs the compiler to throw an exception
+                                 when the overriding link between the 2 methods (Parent/Child)
+                                 should be broken
+           - @Deprecated       : when a class, method, field is annotaed as Deprecated, the complier
+                                 should thow a warning when anyone is still carrying on using it.
+                                 Javadoc relies on a lowercase tag '@deprecated' to document the usage:
+                                 /**
+                                   * @deprecated
+                                   * reason for why it was deprecated
+                                   */
+                                  @Deprecated
+                                  public void anyMethodHere(){
+                                      // Do something
+                                  }
 
-defter: getr io allow rte fget gtr art
+           - @SuppressWarnings: to suppress the warnings generation for the listed warinings.
+                                ex.
+                                 @SuppressWarnings("deprecation")
+                                    void myMethod() {
+                                        myObject.deprecatedMethod();
+                                }
 
+     - custom xxx annotations can be created as:
+                . defining a normal interface xxx, that is child of java.lang.annotation
+                . the definition is done prepending the keyword "@interface"
+                               public @interface xxx {                  |  @interface yyy  {
+                                   int studentAge() default 18;         |      int      count();
+                                   String studentName();                |      String[] books();
+                                   String stuAddress();                 |  }
+                                   String stuStream() default "CSE";    |
+                               }
+                . importing it where it must be used: "import java.lang.annotation.xxx"
+                . calling it as
+                                @xxx(
+                                    studentName="Chaitanya",  <--- nb. default val can be skipped
+                                    stuAddress="Agra, India"
+                                )
+                                @yyy(                         <--- nb. I can add more annotations
+                                    count=3,
+                                    books={"C++", "Java"}
+                                )
+                                public class MyClass {
+                                ...
+                                }
+     - @Target : limits the range of what an annotation can annotate to any element of this list
+
+                    ElementType.METHOD
+                    ElementType.PACKAGE
+                    ElementType.PARAMETER
+                    ElementType.TYPE
+                    ElementType.ANNOTATION_TYPE
+                    ElementType.CONSTRUCTOR
+                    ElementType.LOCAL_VARIABLE
+                    ElementType.FIELD
+
+                 ex. when defining xxx, add @Target({ElementType.METHOD})
+                      @Target({ElementType.METHOD})
+                               public @interface xxx {
+
+                               }
+     - @Inherited : adding this when defining xxx (ex.
+                    @Inherited                      <---
+                       public @interface xxx {
+
+                    ) means that when used in a class F
+                    @xxx                            <---
+                     public class F {
+                       ...
+                     }
+                     then any child C of C, will also inherited it.
+
+                     public class C extends F {    <---
+                        ...
+                     }
+     - @Retention    when adding this during xxx definition
+                     I can specify till when the info of the annotation can be used
+                     @Retention(RetentionPolicy.SOURCE)  <--- it will keep only in the source and discarded already in the class object
+                         public @interface xxx
+
+                     @Retention(RetentionPolicy.CLASS)    : it is preserved in the object class, but not at runtime
+                     @Retention(RetentionPolicy.RUNTIME)  : it is preserved even for runtime usge.
+
+     - @Documented   if added when defining xxx, it will make Javadoc including the annotation
+                     when generating doc for a class F that uses the annotation.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -713,9 +1043,6 @@ JAR
    jar cvf0 ......  0 means NO_COMPRESSION
                     You might want to avoid compression, for example, to increase the speed with which a JAR file
                     could be loaded by a browser.
-                    Uncompressed JAR files can generally be loaded more quickly than compressed files because
-                    the need to decompress the files during loading is eliminated.
-
 
    jar cvf TicTacToe.jar TicTacToe.class audio images
 
@@ -770,22 +1097,4 @@ Working with Manifest Files
 
          Class-Path: jar1-name jar2-name directory-name/jar3-name
 
-
-
-
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
