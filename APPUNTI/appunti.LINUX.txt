@@ -51,19 +51,19 @@
       |  sshd  |  <=====> |   ssh   |
       |________|          |_________|
 
-    - 'sshd':   is the real OpenSSH SSH daemon (on the server)
-                that interacting with the other program ssh (on the client)
+    - 'sshd':   is the real OpenSSH daemon (on the server)
+                that interacting with the other ssh client
                 they together  allow a secure encrypted communication
                 over an insecure network.
 
                 -D   sshd will not detach and does not become a daemon.
                      This allows easy monitoring of sshd.
-                -f   to specify a config file diff. from /etc/ssh/sshd_config
-                -p   a port different from 22
+                -f   to specify a config file other than /etc/ssh/sshd_config
+                -p   a port other than 22
 
 
-    ~/.ssh    <--- is a dir (on th client) (N.B. chmod must be 700 for this dir)
-                   containing usually something like:.
+    ~/.ssh    <--- is a dir (on the client) (N.B. chmod must be 700 for this dir)
+                   containing usually something like:
 
                           -rw-r--r--  1 sbasile  staff   182 10 Jul  2015 config
                           -rw-------  1 sbasile  staff   668  2 Jul  2015 id_dsa <---- keys for SSH version 2 <--- DEFAULT
@@ -92,20 +92,20 @@
                                    ecdsa: ec sizes are 256 384  521
 
                               -O
-                                      clear Clear all enabled permissions.  This is useful for clear-
-                                              ing the default set of permissions so permissions may be
+                                   clear      clear all enabled permissions.  This is useful to clear
+                                              the default set of permissions that can be
                                               added individually.
 
-                                      force-command=command
+                                   force-command=command
                                               Forces the execution of command instead of any shell or
                                               command specified by the user when the certificate is
                                               used for authentication.
 
-                                      no-agent-forwarding     Disable ssh-agent(1) forwarding
-                                      no-port-forwarding      Disable port forwarding
-                                      no-pty                  Disable PTY allocation
-                                      no-user-rc              Disable execution of ~/.ssh/rc by sshd(8)
-                                      no-x11-forwarding       Disable X11 forwarding
+                                   no-agent-forwarding     Disable ssh-agent(1) forwarding
+                                   no-port-forwarding      Disable port forwarding
+                                   no-pty                  Disable PTY allocation
+                                   no-user-rc              Disable execution of ~/.ssh/rc by sshd(8)
+                                   no-x11-forwarding       Disable X11 forwarding
 
 
                           config
@@ -163,7 +163,7 @@
                        This agent opens a UNIX socket in $TMPDIR (full name in ${SSH_AUTH_SOCK}
                        but it can be changed with option -a: ssh-agent -a ...).
                        On this read-only-by-the-user SOCKET channel,
-                       the agent intercats with the others utilities of the ssh- family:
+                       the agent interacts with the other utilities of the ssh- family:
 
                            ssh-add
                            ssh-keygen
@@ -172,7 +172,7 @@
 
                  ssh-agent -k        <-- it exits (kill) the running instance of shh-agent
                                         (the pid is still in $SSH_AGENT_PID))
-                                        the output is unset SSH_AUTH_SOCK;
+                                        the output is unset SSH_AUTH_SOCK;  <---- so use ssh-agent -k to remember these names
                                                       unset SSH_AGENT_PID;
                                                       echo Agent pid 3319 killed;
 
@@ -214,7 +214,7 @@
                 -6    IPv6      only
 
                 -p                 to connect to a port different from 22
-                -i keyfile         do specify something diff from the defualts ~/.ssh/id_dsa ...
+                -i keyfile         do specify something diff from the defaults ~/.ssh/id_dsa ...
                 -g                 Allows remote hosts to connect to local forwarded ports.
                 -e escape_char     can change the escpae default char ~ (see below, session manag.) to another
 
@@ -1492,7 +1492,7 @@ __  chmod
                              |________ r
                                        w
                                        x  execute (for dir means 'search', or 'view' its content)
-                                       X  execute only if is a dir or there is already an x on some of the u,g,o
+                                       X  execute only if is a dir or there is already an x on some of u,g,o
                                        s
                                        t
  SUID / SGID    's' can be present instead of 'x' in u (called SUID) or g (called SGID)
@@ -1742,6 +1742,29 @@ to see the command line (with the args passed) of a specified command:
        $ cat /proc/22066/cmdline   --> /usr/sbin/httpd-DPROJ_XMLGW-f/home/sbasile/apache2/conf/sbasile_httpd.conf-kstart
 
        this second option removes all the spaces
+
+____________________
+__  iostat
+
+     dump statistics of both cpu and devices
+     (for cpu there is the 100% split in user/nice/kernel/iowait/steal/idle)
+        -c     only cpu      
+        -d     only devices
+     can be followed by 1 or 2 numbers
+
+     ex.  iostat 1        dump forever   at 1 sec each sample
+     ex.  iostat 1 3      dump 3 samples at 1 sec each
+
+     The first sample is since BOOT time, so can be useless
+        -y     to skip first sample
+        -h     human readable
+        -k     KB
+        -m     MB
+        -x     extended info (usuefull to have wating-IO-time, and rate w/r)
+        -g ALL   to specify ALL group devices
+        -p     to add all the PARTITIONs for each divice  (
+                         ex. iostat -p          dump partitions for all devices
+                         ex. iostat -p sda        "      "       "   device sda
 
 ____________________
 __  iconv

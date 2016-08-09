@@ -134,7 +134,7 @@ route -n
                                                 MSS : Maximum Segment Size
                                             TCP Window : Data of a Burst (many messages, without ack)
                                                 irtt   : initial round trip time (the time to wait
-                                                         an IP joins remote host. When a connctions
+                                                         an IP joins remote host. When a connections
                                                          is established for the first time, with no
                                                          known real value, is used this irrt).
                                                          0 means used default.
