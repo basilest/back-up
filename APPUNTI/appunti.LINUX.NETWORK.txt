@@ -44,7 +44,7 @@ as 1 socket (
      tripwire
 -------------------------------
 
-a prog for sys dministrator that checksum
+a prog for sys aministrator that checksum
 system files and store result in a db.
 So if files have been changed you know.
 
@@ -68,11 +68,42 @@ The MAC is then read from the answer and stored in
 an ARP-cache.
 Entries of the cache are renewed after some timer elapses.
 
+linux command to dump the arp cache: arp
+
+        Address                  HWtype  HWaddress           Flags Mask            Iface
+        192.168.1.1              ether   f4:8e:92:08:3a:0d   C                     wlan0
+
+
+    arp -d      to delete an entry   (ex. arp -i eth3 -d 192.168.100.17)
+    arp -s      (or --set)   to add 1 entry (ex. arp -s 192.168.100.17 -i eth3 -D eth3 pub)
+
+-------------------------------
+     ROUTING TABLES
+-------------------------------
+NB. There are more than 1.
+    commands are:
+       netstat -rn 
+       route -n     only displays information in the main routing tabl
+       ip route     to access ALL routing feature of the Kernel
+
+
+-------------------------------
+     ROUTING TABLES
+-------------------------------
+route -n
+
+      Kernel IP routing table
+      Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+      0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 wlan0
+      192.168.1.0     0.0.0.0         255.255.255.0   U     9      0        0 wlan0
+
+
+
 -------------------------------
      netstat
 -------------------------------
 
--r    print routing table
+-r    print routing table    (layout almost the same of route -n)
 
       netstat -r
 
@@ -103,7 +134,7 @@ Entries of the cache are renewed after some timer elapses.
                                                 MSS : Maximum Segment Size
                                             TCP Window : Data of a Burst (many messages, without ack)
                                                 irtt   : initial round trip time (the time to wait
-                                                         an IP joins remote host. When a connctions
+                                                         an IP joins remote host. When a connections
                                                          is established for the first time, with no
                                                          known real value, is used this irrt).
                                                          0 means used default.
