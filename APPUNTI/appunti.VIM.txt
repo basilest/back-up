@@ -1,3 +1,8 @@
+substitute something with a new line:  use \r
+search for a new line : use \n
+
+Contyrol-M
+
 ------------------------------------------------------
 CtrlP - vim plugin
 

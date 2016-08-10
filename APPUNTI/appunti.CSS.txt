@@ -1,0 +1,310 @@
+ CSS                   Cascading Style Sheets
+                       (es the Styles are cascaded from the different sources)
+
+ SYNTAX                 select   { property : value ; ... }
+                        ex:
+                             h1 {color:blue; font-size:12px;}
+
+ SELECTROS:
+                   - element          p        { text-align: center; color: red; }
+                   - id               #para1   { text-align: center; color: red; }
+                   - class            .center  { text-align: center; color: red; }
+                   - element & class  p.center { text-align: center; color: red; }
+
+                   grouping with ','   h1, h2, p { text-align: center; color: red; }
+
+ COMMENT           /*  */
+
+ ADDING CSS
+                  External   <link rel="stylesheet" type="text/css" href="mystyle.css">  <--- in the <HEAD> section
+                  Internal   <style> ..... </style>
+                  Inline     with attribute style=
+                              <h1 style="color:blue;margin-left:30px;">This is a heading.</h1>
+
+ COLORS           can be declared in  different ways:
+
+                      - with 1 of the ~ 140 predefined names (ex "red" "lightblue" "FireBrick" ...)
+                      - hexadecimal values (e.g. #FF0000, also abbreviated as #F00),
+                      - RGB values on a 0 to 255 scale (e.g. rgb(255, 0, 0)),
+                      - RGBA values that specify both color and opacity (e.g. rgba(255, 0, 0, 0.8)),
+                      - HSL or HSLA values (e.g. hsl(000, 100%, 50%), hsla(000, 100%, 50%, 80%)).[10]
+
+ BACKGROUND       can be a colour (background-color: green
+                  or an image     (background-image: url("paper.gif");
+
+                  for any selected element ex.
+                        div {
+                            background-color: lightblue;
+                            }
+
+
+ BACKGROUND       can be a colour (background-color: green
+
+
+
+ BOX MODEL        ANY, any, really any element
+                  lives in a geometry of including BOXEs:
+
+                      ELEMENT = MARGIN - BORDER - PADDING - CONTENT    <--- nb. Margin is OUTSIDE Boder (Inside is Padding)
+
+                  So the size of an ELEMENT is the SUM of all.
+                  ex:
+                  div {
+                      width: 320px;                         ex ELEM. WIDTH =  320 +  10 + 10  + 5 + 5   + 2 + 2   = 354
+                      padding: 10px;                                                 Padding    Border    Margin
+                      border: 5px solid gray;
+                      margin: 2;
+                  }
+
+
+ BORDERS
+
+                                     | border-style:..
+                                     |
+                                     |     dotted
+                                     |     dashed
+                                     |     solid
+                     STYLE           |     double        ex:
+                                     |     groove            p.hidden {border-style: hidden;}
+                                     |     ridge             p.mix {border-style: dotted dashed solid double;}
+                                     |     inset
+                                     |     outset
+                                     |     none
+                                     |     hidden
+                                     |
+                                     | it is possible to define the single side:
+
+                                        border-top-style:
+                                        border-right-style:
+                                        border-bottom-style:
+                                        border-left-style:
+
+                                            ex:
+                                                border-top-style:    dotted;
+                                                border-right-style:  solid;
+                                                border-bottom-style: dotted;
+                                                border-left-style:   solid;
+
+                       WIDTH         border-width: ..      ex. border-width: 5px;
+                                                               border-width: medium;
+
+                       COLOR         border-color: ..      ex. border-color: red;
+
+
+ MARGINS          to generate the 4 spaces around borders.
+
+
+                           margin-top:   ..             values ca be:   - auto
+                           margin-right: ..                             - 50px, 50pt, 50cm, ...
+                           margin-bottom:..                             - 50%
+                           margin-left:  ..                             - inherit   (derived from parents)
+
+                           margin: ..       (set all together)
+                                          ex. margin: 100px 150px 100px 80px;
+                                              margin: 25px 50px 75px;         Top   -   Left & Right   -  Bottom
+                                              margin: 25px 50px;              T & B - L & R
+                                              margin: 25px;                   all
+
+
+
+                  Margin-Collapse:    is what can happen to ONLY horizontal spaces (marginsi T & B)
+                                      where the gap instead of B1+T2 can be only max of B1, T2
+                                      ex.
+                                      h1 { margin: 0 0 50px 0; }
+                                      h2 { margin: 20px 0 0 0; }
+
+                                           ...                                 ...
+                                           50                                  50
+                                      ______________________              ______________________
+                                      ______________________                   ...
+                                           20
+                                           ...
+
+                                     Not happen in a case                Happens in a case like this
+                                     like this                             <h1>Heading 1</h1>
+                                     <h1>Heading 1</h1>                    <h2>Heading 2</h2>
+                                         bla bla bla
+                                     <h2>Heading 2</h2>
+
+ PADDING          The exact same as margins
+                           padding-top: 50px;
+                           padding-right: 30px;
+                           padding-bottom: 50px;
+                           padding-left: 80px;
+
+                           padding                  padding: 25px 50px 75px 100px;
+                                                    padding: 25px 50px 75px;
+                                                    padding: 25px 50px;
+                                                    padding: 25px;
+
+ HEIGHT/WIDTH     Are the values of the CONENT (The INNER only part of an ELEMENT)
+
+                      - px, pt, cm, ...
+                      - %
+
+                  height: 200px;
+                  width: 50%;
+
+                  W never goes below its value. If the broswer is shorter or dragged
+                  to become shorter, W is still that, and the browser adds a scroll-bar
+
+                  max-width=...  is used to managed this.
+                                 Its values is "none" by default. When set to value X
+                                 means that it tries to be X, and if the browser gets shorter
+                                 it shrinks to fit in the resulting size
+
+                  The all family is:
+                                     max-width:  ..
+                                     max-height: ..
+                                     min-height: ..
+                                     min-width:  ..
+
+
+ OUTLINE          It's a further EXTERNAL BOX (after The MARGINS) but it's not included in the
+                  Element definition (so its size must not be related to the other dimensions)
+
+                         outline          Sets all the outline properties in one declaration
+                         outline-color    Sets the color of an outline
+                         outline-offset   Specifies the space between an outline and the edge or border of an element
+                         outline-style    Sets the style of an outline
+                         outline-width    Sets the width of an outline
+
+
+ TEXT
+                  color              Sets the color of text
+                  direction          Specifies the text direction/writing direction
+                  letter-spacing     Increases or decreases the space between characters in a text
+                  line-height        Sets the line height
+                  text-align         Specifies the horizontal alignment of text
+                  text-decoration    Specifies the decoration added to text
+                  text-indent        Specifies the indentation of the first line in a text-block
+                  text-shadow        Specifies the shadow effect added to text
+                  text-transform     Controls the capitalization of text
+                  unicode-bidi       Used together with the direction property to set or return whether the text should be overridden to support multiple languages in the same document
+                  vertical-align     Sets the vertical alignment of an element
+                  white-space        Specifies how white-space inside an element is handled
+                  word-spacing       Increases or decreases the space between words in a text
+
+ FONTS            .
+
+ LINKS            .
+
+ LISTS            .
+
+ TABLES
+                  border            Sets all the border properties in one declaration
+                  border-collapse   Specifies whether or not table borders should be collapsed
+                  border-spacing    Specifies the distance between the borders of adjacent cells
+                  caption-side      Specifies the placement of a table caption
+                  empty-cells       Specifies whether or not to display borders and background on empty cells in a table
+                  table-layout      Sets the layout algorithm to be used for a table
+
+ DISPLAY          Every Element has a default value for property
+                  display:
+                  with values
+                        block     (default for div, h1, ....h6, p, form, headrr, footer, section)
+                        inline    (default for span a img)
+                        none      (default for <script>. it used as a value by Javascript to show/hide elements)
+
+                  block    takes the FULL width on a NEW line
+                  inline   takes on the same line only the required width.
+
+
+                  An inline element with display: block; is not allowed to have other block elements inside it.
+
+
+                  visibility:hidden | visible;               is another way to show/hide something
+                                                             ANYHOW the element still occupy its space
+                                                             even if not shown
+                                                             (while display:none removes completely from the page)
+
+ MAX-WIDTH        .
+
+ POSITION         .
+                        position    Specifies the type of positioning for an element
+
+                                             static  (default)  elements are not positioned in any special way;
+                                                                they result according to the normal flow of the page:
+                                                                (top, bottom, left, and right  have no effect with 'static')
+
+                                             relative           the elem. is positioned relative to its normal position.
+                                                                moving it according to the 4 (top, bottom, left, rigth)
+
+                                             fixed              Elem. is like in an overlay over the page. When The page
+                                                                is scrolled the Elem remains there
+                                                                (fixed, means relative to the browser-window or 'viewport')
+
+                                             absolute           relative to the nearest positioned ancestor (instead of
+                                                                positioned relative to the viewport, like fixed).
+                                                                However; if an absolute positioned element has no positioned ancestors,
+                                                                it uses the document body, and moves along with page scrolling.
+
+                        ------ the following 4 works only if 'position' is set first
+
+                                top         Sets the top margin edge for a positioned box
+                                bottom      Sets the bottom margin edge for a positioned box
+                                left        Sets the left margin edge for a positioned box
+                                right       Sets the right margin edge for a positioned box
+
+                        clip        Clips an absolutely positioned element
+                        cursor      Specifies the type of cursor to be displayed
+                        overflow    Specifies what happens if content overflows an element's box
+                        overflow-x  Specifies what to do with the left/right edges of the content if it overflows the element's content area
+                        overflow-y  Specifies what to do with the top/bottom edges of the content if it overflows the element's content area
+
+                        ------  When elements are positioned, they can overlap
+                                z-index      specifies the stack order of an element   (ex. -1 is behind text)
+
+ OVERFLOW         .
+
+ FLOAT            In its simplest use, the float property can be used to wrap text around images.
+                  ex.
+                      float: right;
+
+                                    Elements after a floating element will flow around it.
+                                    To avoid this, use the clear property.
+                      clear: ...
+
+                      The clear property specifies on which sides of an element floating elements are not allowed to float:
+                      ex. clear: left;
+
+ INLINE-BLOCK     .
+
+ ALIGN            .
+
+ COMBINATORS      .
+
+ PSEUDO-CLASS     .
+
+ PSEUDO-ELEMENT   .
+
+ OPACITY          .
+
+ NAVIGATION BAR   .
+
+ DROPDOWNS        .
+
+ TOOLTIPS         .
+
+ IMAGE GALLERY    .
+
+ IMAGE SPRITES    .
+
+ ATTR SELECTORS   .
+
+ FORMS            .
+
+ COUNTERS         .
+
+
+
+
+
+
+
+
+
+
+
+
+

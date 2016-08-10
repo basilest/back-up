@@ -1689,10 +1689,9 @@ __  find
                  f     regular file
                  l     sym link
 
-        to exclude dirs:
-                  -name  '.....' -prune -o print
-                  -path  '.....'   "     "   "  <---- nb  dir doesn't work as the match should be full
-                                                          so works ./dir/*
+        to exclude dirs (ex. /xxx)
+                  path  '.....' -prune -o print<---- nb  xxx doesn't work as the match should be full
+                                                          so works ./xxx/*
 ____________________
 __  lsof
              is an 'utility' not a bash builtin
