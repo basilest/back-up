@@ -163,6 +163,17 @@ ____________________________________________________________
      are preserved
      This is a stronger form of quoting.
 
+     NB. quoting must be seen as turn-on/off the SHELL interpreter
+         on that string. So it's not mandatory to do it at the start&end
+         but in any point if the effect it's the same, like the following:
+         (where a file is named with a space in the middle)
+
+                    rm 'file1 file2'
+                    rm file1' 'file2
+                    rm f'ile1 file'2
+
+
+
         hello="A B  C   D"
         echo $hello        # A B C D
         echo "$hello"      # A B  C   D    preserves whitespace.
@@ -194,6 +205,8 @@ ____________________________________________________________
 `    (backquote)  can be used a pair of ` like                  # it's better to use $(cmd)
                           a=`cmd`
      to assign to a var the result of a command.
+     (the shell will replace the string quoted by `` 
+      by the rerurned value)
      ` .. `  is also called (command substitution)
 
 
@@ -317,16 +330,29 @@ $_   is the last arg passed to the last executed cmd
 Globbing   Filename expansion: means expanding filename containing
            special char ex: pippo.??? --> pippo.001 or pippo.txt
            Only a few char of Regular Expression are understood:
-           ?    1 char
+           ?    1 char    (ex ls ??   matches files of 2 chars)
            *    any char (N.B. not match filenames start with a dot,
                 ex: .bashrc)
            []   all char inside
-           ^    for negating        ex. ls -l [^ab]*
+           ^    for negating        ex. ls -l [^ab]*     
+           !    "      "
 
-           So Globbing returns a list of names (file-names) and works
+           So Globbing returns a list of (SORTED !!!!) names (file-names) and works
            also if it's not quoted
+           (Yes, note that the Shell expands + sorts!)
 
            ex. echo *   -->  a.1 b.1 c.1 t2.sh test1.txt
+
+           Is the shell to expand the * BEFORE the command 
+           on the command line is executed. So commands are not aware
+           how the arguments originally were. This is sometimes used
+           putting a file named -i in a dir, so that a "rm *"
+           will be quite sure expanded (and sorted) as rm -i ...
+           so asking confirmation
+           
+
+
+
 
 {}         (brace expansion)       # default is ON (like call bash -B
                                                          with bash +B    is OFF)
@@ -643,9 +669,10 @@ like Child cannot export variables back to the parent.
 
 To see ALL the bash var (not only the env) use:
 
-    (set -o posix; set)
-
-
+    (set -o posix; set)        through this output it's possible to
+                               distinguish BASH and C-SHELL, because
+                               the C-SHELL puts spaces in var = value
+                                                             ^ ^
 
 ____________________________________________________________
 POSITIONAL PARAMETERS

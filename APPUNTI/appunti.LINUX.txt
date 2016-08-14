@@ -1101,6 +1101,18 @@ LOGIN
                    ex:
                         $LANG      language (ex.  "en_US.UTF-8")
                         $DISPLAY
+                        $CDPATH   <--- like PATH is a list of dir separated by ':'
+                                       Each time a 'cd' is written, with not relative path (ex ..\....)
+                                       the search is done ONLY in this list. To have
+                                       a real benefit the good convention is
+                                         o)  set '.' (current dir) ALWAYS at first
+                                             CDPATH=.:$HOME:.....
+                                       ex. in bin is in $HOME/bin wherever I am, if there is
+                                           a bin in the current dir, a (cd bin) goes there.
+                                           Otherwise goes in $HOME/bin
+
+                                        
+
 
         SHELL vars
                    If we assign a var that doesn't exist,  a=34
@@ -1127,7 +1139,7 @@ LOGIN
 
       % A=1 B=2  cmd       Any var defined BEFORE a cmd (that will become a new CHILD)
                            becomes an ENV v.
-                               BUT ONLY FOR THE CHILD
+                               BUT ONLY FOR THE CHILD (<-- cmd)
                            (current SHELL will keep its own var A and B values)
 
                            the more general way is using 'env'
@@ -1189,7 +1201,7 @@ LOGIN
      here the rules:
               1. the FIRST shell opened (in a UNIX session hierarchy), is the
                  shell through which you connected.
-                 Its called LOGIn-SHELL
+                 Its called LOGIN-SHELL
 
              .---------------------
              |2. ~/.profile        is read by a login shell (of any kind)
