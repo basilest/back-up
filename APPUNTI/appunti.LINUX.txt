@@ -1693,7 +1693,7 @@ __  find
         find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
 
 
-        find -regextype posix-extended -regex '.*\.(jpg|png)'
+        find -regextype posix-extended -regex '.*\.(jpg|png)' <--- nb. -regextype MUST be BEFORE -regex
         find -E . -regex '.*\.(jpg|png)'                      <--- shortcut for above in some linux
 
 
@@ -1704,6 +1704,25 @@ __  find
         to exclude dirs (ex. /xxx)
                   path  '.....' -prune -o print<---- nb  xxx doesn't work as the match should be full
                                                           so works ./xxx/*
+
+        -exec       to execute a command on what is found.
+                    {} is the alias for the current item found
+                    and it can be used as the varibale parte in the command
+
+                    ex, .... -exec rm -f {} \;
+
+                       \;   <--- this close the command
+                       +    <--- this close the command in case
+                                 it's possible to collapse more conceptual {} for
+                                 the same command execution (that make it faster)
+
+                                 ex -exec chmod 755 {} +
+
+                                     will be transtalet into chmod 775 f1 f2 f3 f4
+                                     inteda the slower chmod 775 f1
+                                                       chmod 775 f2
+                                                       chmod 775 f3
+                                                       ....
 ____________________
 __  lsof
              is an 'utility' not a bash builtin
@@ -1759,7 +1778,7 @@ __  iostat
 
      dump statistics of both cpu and devices
      (for cpu there is the 100% split in user/nice/kernel/iowait/steal/idle)
-        -c     only cpu      
+        -c     only cpu
         -d     only devices
      can be followed by 1 or 2 numbers
 
