@@ -837,3 +837,7 @@ times in msec
 :color desert (set the color scheme to the scheme 'desert')
             (useful if vimdiff has crazy colors)
 :hi         (shows the settings of the current color scheme)
+------------------------------------------------------ SYNCRONISE 2 WINDOW
+to have them scrolling together (like in vimdiff mode)
+        :set scb        (start scrollbinding)
+        :set noscb      (stop  scrollbinding)

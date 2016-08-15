@@ -1,25 +1,32 @@
 
 
 
+ $0              name of script
+ $1, $2, $3, ... are the positional parameters.
+                  ...  after $9, ${10}, ${11}, ${12}.
+ $#              NUMBER of args
+ $*              string with ALL args (seen as a single word)
+                 more exactly  "$*" is the IFS expansion of all positional parameters, $1 $2 $3 ....
+ $@              same as $* but each arg is quoted
+                 more exactly it's an array-like construct of all positional parameters, {$1, $2, $3 ...}
+ $_              last cmd name or if it had options last option
+
+ $$              PID of the current shell (not subshell).
+ $_              most recent parameter
+   (             or at startup, the abs path of the command to start the current shell immediately after startup).
+ $?              EXIT STATUS of most recent foreground pipeline
+ $!              PID of the most recent background command.
+ $-              current options set for the shell.  (ex of output--> himBH)
 
 
-$?              exit status
-$$              PID
-$a              better to use ${a}
-${a/23/BB}      substitue in $a 23 with BB
-$(cmd)          better than `cmd`       $(ls -l)
-$((5+3))        better than $[5+3]
-${#a}           len of char of a (as a string)
-${#array[*]}    len of array $a
-${#array[@]}         idem
+$a               better to use ${a}
+${a/23/BB}       substitue in $a 23 with BB
+$(cmd)           better than `cmd`       $(ls -l)
+$((5+3))         better than $[5+3]
+${#a}            len of char of a (as a string)
+${#array[*]}     len of array $a
+${#array[@]}          idem
 
-$0              name of script
-$1              1st arg ...  after $9, ${10}, ${11}, ${12}.
-$#              NUMBER of args
-$*              string with ALL args (seen as a single word)
-$@              same as $* but each arg is quoted
-
-$_              last cmd name or if it had options last option
 
 ----- default 'val':
 ${a-val}      ${a:-val}
