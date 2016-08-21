@@ -1288,7 +1288,7 @@ stty              s[peed]-Terminal
 
 
 --------------------------------
-|       BASH PROMPT
+|       BASH PROMPT - PS1
 ------------------------
 PS1                 is the BASH prompt
                     (the format is store into the var $PS1
@@ -1306,6 +1306,12 @@ PS1                 is the BASH prompt
                             (so \e but also others)
 
                             right positioning.
+
+
+PROMPT_COMMAND      $PROMPT_COMMAND env var whose content (usually some commands, a little code).
+                    is executed just before Bash displays $PS1
+                    ex. PROMPT_COMMAND="date +%H%M"
+                        will produce a date line before each prompt $PS1> line
 
 trap Enter          put also this in ~/.bashrc
                              trap 'printf "\e[0m" "$_"' DEBUG
@@ -1339,12 +1345,6 @@ trap Enter          put also this in ~/.bashrc
 
                                Typically files included in /etc/skel are .rc files for shell initialization,
                                but you could also include a public_html directory, a custom dircolors file, or anything else.
-
-PROMPT_COMMAND      $PROMPT_COMMAND env var whose content (usually some commands, a little code).
-                    is executed just before Bash displays $PS1
-                    ex. PROMPT_COMMAND="date +%H%M"
-                        will produce a date line before each prompt $PS1> line
-
 Escapes:
                ----------------- USER
               \u      the username of the current user
