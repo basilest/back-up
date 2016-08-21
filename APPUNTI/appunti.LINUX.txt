@@ -1092,6 +1092,13 @@ LOGIN
 
 
 ---------------------------------------------------
+                   WHICH SHELL
+-----------------------------------
+        echo $SHELL
+        ps $$
+        ps T
+        ps $0    (only intercactive, otherwise, inside a script, it's the script name)
+---------------------------------------------------
                    ENV & SHELL vars
 -----------------------------------
         ENV vars
@@ -1102,18 +1109,16 @@ LOGIN
                         $LANG      language (ex.  "en_US.UTF-8")
                         $DISPLAY
                         $CDPATH   <--- like PATH is a list of dir separated by ':'
-                                       Each time a 'cd' is written, with not relative path (ex ..\....)
+                                       Each time a 'cd' is written, with not relative path (ex ../../.)
                                        the search is done ONLY in this list. To have
                                        a real benefit the good convention is
                                          o)  set '.' (current dir) ALWAYS at first
                                              CDPATH=.:$HOME:.....
-                                       ex. in bin is in $HOME/bin wherever I am, if there is
+                                       ex. if bin is in $HOME/bin wherever I am, if there is
                                            a bin in the current dir, a (cd bin) goes there.
                                            Otherwise goes in $HOME/bin
 
                                         
-
-
         SHELL vars
                    If we assign a var that doesn't exist,  a=34
                    the shell will create a SHELL var.
@@ -2062,7 +2067,7 @@ trap intercepts the signals. The syntax is:
 so trap + some commands + the signals trapped, which can be as usual:
                 - the numbers   (ex 15)
                 - the name (without SIG)
-                - the special value 0 or EXIT, which mean when that script ends
+                - the special value 0 or EXIT, which means when that script ends
                 - the special value DEBUG (the commands inside the trap '....' are executed on each cmd')
                   moreover variables defined with the more specific syntax:
                                 declare -t VAR=val
@@ -2072,7 +2077,7 @@ so trap + some commands + the signals trapped, which can be as usual:
                 - the special value ERR (the commands inside the trap '....' are executed on each exit != 0)
                   (in some cases, inside if, while, ... this is not always true, so check to be sure)
 ex1.
-     trap "echo Booh!" SIGINT SIGTERM
+     trap "echo Booh!" INT TERM
 ex2.
      FILE=/tmp/$(basename $0).pid
      trap 'rm $FILE' EXIT

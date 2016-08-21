@@ -28,12 +28,63 @@ ${#array[*]}     len of array $a
 ${#array[@]}          idem
 
 
------ default 'val':
-${a-val}      ${a:-val}
-${a=val}      ${a:=val}
-${a+val}      ${a:+val}
-${a?err_msg}  ${a:?err_msgl}
+____________________________________________________________
+	 ( )     [ ]      { }
+____________________________________________________________
+	
 
+Brackets
+
+	if [ CONDITION ]    Test construct          (uses -a -o  for and/or)
+	if [[ CONDITION ]]  Extended test construct (uses && ||  and regex =~) 
+	Array[1]=element1   Array initialization  
+	[a-z]               Range of characters within a Regular Expression
+	$[ expression ]     A non-standard & obsolete version of $(( expression ))
+
+
+Curly Braces
+
+	{}                                      Text replacement, after find and xargs
+	${variable}                             Parameter substitution  
+	${!variable}                            Indirect variable reference  
+	{ command1; command2; . . . commandN; } Block of code   (note a 'space' after '{' and ';' before last '}')
+                                            Thanks to the space, this usage of {} can be distinguished.
+                                            This block of code is like an anonymous function.
+                                            It means:
+                                                . I can group more commands as a whole
+                                                . it's not executed in an SUBSHELL but inline
+                                                . vars defined inside are then visible even outside
+
+	{string1,string2,string3,...}           Brace expansion  ex. 
+                                            a{d,c,b}e --> ade ace abe)
+                                            /usr/{ucb/{ex,edit},lib/{ex?.?*,how_ex}}  
+                                                     --> /usr/ucb/ex /usr/ucb/edit /usr/lib/ex?.?* /usr/lib/how_ex
+	{x..y[..incr]}                          Extended brace expansion  
+                                             echo {1..5}         1 2 3 4 5
+                                             echo {1..5..2}      1 3 5
+                                             echo {001..005}     001 002 003 004 005
+                                             echo {001..005..2}  001 003 005
+                                             echo {a..z}         a b c d e f g h i j k l m n o p q r s t u v w x y z
+                                             echo {a..z..2}      a c e g i k m o q s u w y
+
+Parenthesis
+
+	( command1; command2 )             Command group executed within a subshell  (nb. runs a child SHELL)
+	Array=(element1 element2 element3) Array initialization  
+	result=$(COMMAND)                  Command substitution, new style  
+	>(COMMAND)                         Process substitution  
+	<(COMMAND)                         Process substitution 
+
+Double Parenthesis
+
+	(( var = 78 ))            Integer arithmetic   
+	var=$(( 20 + 5 ))         Integer arithmetic, with variable assignment   
+	(( var++ ))               C-style variable increment   
+	(( var-- ))               C-style variable decrement   
+	(( var0 = var1<98?9:21 )) C-style ternary operation
+
+
+____________________________________________________________
 
 
 
@@ -93,11 +144,105 @@ To use the long name, the syntax is
                     without executing them (it is used for making
                     syntax check of the script....'compiling')
        bash -i      run the script (intercatively)
+       bash -u      reports ERRORs for any UNSET var
+       bash -e      EXITS at any point where the exit status $?
+                    of that command (ex grep $a ...) should be != 0
+                    (a general way to know when commands return
+                     errors, without checking $? on all those lines)
+       bash -a      EXPORTS all var that defines (so that child processes
+                    can see them)
 
+                          ex  
+                      parent.sh        child.sh
+                        R=56           echo $R > aaaa    <-- aaaa is empty
+                        child.sh
+
+                      parent.sh        child.sh
+                        set -a         echo $R > aaaa    <-- aaaa contains 56
+                        R=56
+                        child.sh
+
+       bash -h      HASH or pre-store the PATH of each command (like a
+                    pre-processor) to make it faster
+       bash -k      Normally a line like
+                             a=2  cmd  b=3 c d=4
+                    'a' is an ENV var for cmd (as it comes before) b,c,d are args
+                    with -k it's like
+                             a=2 b=3 d=4 cmd c
+                    so cmd has 1 only arg $1 and 3 ENV vars
+ 
 
 so for debugging a.sh:
       solution 1:    bash -x  a.sh
-      solution 2:    modify 1st line inside a.sh :  #!/bin/bash -x
+      solution 2:    modify 1st line:  #!/bin/bash -x
+      solution 3:    turn it on, only in the lines of interest:
+                          set -x      <--- start debugging from here
+                          set +x      <--- stop from now on
+
+      nb. the effect of -v is very similar, anyhow it also dumps
+          comments (is less detailed but more readable)
+
+nb.  more flags must be grouped, because UNIX passes ONLY 1 arg
+     so:
+         #!/bin/bash -vah    WORKS!
+     while
+         #!/bin/bash -v -a -h    NOT!    (equivalent only to -v)
+     
+nb.  as the special var $- reports which flags are currently ON (ex hia)
+     to call other scripts with the same set, I can use 
+            bash -$- child_script.sh 
+     So if for instance I execute father.sh with -x, it will be also propagated
+     to child.sh
+____________________________________________________________
+BUILT-IN vs EXTERNAL PROG
+____________________________________________________________
+
+Some commands are built in the shell, for performance reason (they are frequently used)
+others, are external commands.
+
+POSIX, defines following as  regular Built-In 
+
+        alias        false         jobs         read       wait
+        bg           fc            kill         true
+        cd           fg            newgrp       umask
+        command      getopts       pwd          unalias
+
+while the following (even if they are even much more used of the above) are external cmds
+
+           find       Find files.
+           ls    
+           ln         Link files.
+           cd         
+           pwd      
+           touch      Change file access and modification times.
+           mv     
+           cp              
+           dd         Convert and copy a file.
+           mkdir   
+           rm      
+           rmdir  
+           
+           basename     
+           dirname        
+           cat         
+           
+           chgrp     
+           chmod    
+           chown   
+           
+           cksum      Write file checksums and sizes.
+           sum        Print checksum and block or byte count of a file.
+           
+           cmp        Compare two files (good for binary conmpare).
+           
+           df         Report free disk space.
+           du         Estimate file space usage.
+           
+           pathchk    Check pathnames.
+           sh         Shell, the standard command language interpreter.
+           test       Evaluate expression.
+           ulimit     Set or report file size limit. 
+              
 ____________________________________________________________
 ~      $HOME
 ~+     $PWD      (current dir)
@@ -221,7 +366,12 @@ ____________________________________________________________
      \X has the effect of 'X'.
      It may be used to quote " and '
 
-     It is also used when writing a command that continues on more lines
+     It is also used when writing a command that continues on more lines.
+
+     NB. 
+
+
+
 
 :    null command ["NOP"]
      It may be also considered a synonym for true.
@@ -562,13 +712,16 @@ ____________________________________________________________
 ____________________________________________________________
 VARIABLES
 ____________________________________________________________
-     a=some_value   # SET var a to some_value
-     a=             # SET var a but leave it NULL
-     unset a        # delete a var
+     a=some_value   # SET var a to some_value     ($a is DEFINED and NOT NULL)
+     a=             # SET var a but leave it NULL ($a is DEFINED but NULL)
+     unset a        # delete a var                ($a is NOT DEFINED)
      $a        #the value. A better use is ${a}
      ${a}      to be used when var & strings must be concatenated:
                   my_id=${USER}-on-${HOSTNAME}   #stiv-on-stiv-GP60-2PE
                   PATH=${PATH}:/opt/bin
+
+     nb. I can run bash -u    to have ERRORS each time a var is UNDEFINED
+         (a way to debug and clean the script)
 
    Bash var are UNTYPED, they are just text, even if in case the string is built by only digits
    bash undertsang they are 'numbers' and give sense to any related arithmetic operation.
@@ -589,24 +742,27 @@ ____________________________________________________________
    let "b += 1"             # b = 1    the integer value of 2BB5 is 0
 
      -------------- DEFAULT:
-     ${a-val}       # return val (if var a is NOT_SET, not exist)
-     ${a:-val}      # return val (if var a is NOT_SET or SET_BUT_NULL)
-                  ex. a=1;  echo ${a-2}   #1          a set not null
-                      a=;   echo ${a-2}   # nothing   a set but null
-                      a=;   echo ${a:-2}  #2          "      "
-                            echo ${b-2}   #2          b not set
-                            echo ${b:-2}  #2          "      "
 
-                  defaults are used in script when user omits optional arg
+     ${a?err_msg}   if $a is not defined exits the script with the "err_msg"
+     ${a=val}       if $a is not defined sets it to val
+     ${a-val}       if $a is not defined uses HERE val  ($a is unchanged, (so undefined))
+     
+     ${a+val}       if $a IS defined uses HERE val
 
-     ${a=val}       # if a is NOT_SET                 set it = val (so if a is null left it null)
-     ${a:=val}      # if a is NOT_SET or SET_BUT_NULL set it = val
 
-     ${a+val}       # return val if a is SET
-     ${a:+val}      # return val if a is SET + NOT_NULL
+     the versions with ':' are "not defined OR NULL":
 
-     ${a?err_msg}   # if a NOT_SET         abort script with err_msg
-     ${a:?err_msg}  # if a NOT_SET or NULL abort script with err_msg
+                                       ${a:?err_msg}   
+                                       ${a:=val}       
+                                       ${a:-val}       
+                                       ${a:+val}       
+
+           ex. a=1;  echo ${a-2}   #1        
+               a=;   echo ${a-2}   # nothing   
+               a=;   echo ${a:-2}  #2         
+                     echo ${b-2}   #2          b is undefined
+                     echo ${b:-2}  #2        
+
      --------------
 
      ${#a}        # return len of char for value of a
@@ -689,9 +845,16 @@ Arguments passed to the script:  $0, $1, $2, $3 . . .
 
     $0 : the name of the script itself,
     $1 : the first argument, ...  after $9, must be enclosed in brackets, ${10}, ${11}, ${12}.
+         not any shell understands ${10} so in that case remains with 1 digit & use 'shift'
+         (see below)
     $# : the NUMBER of passed parameters
     $* : the string with ALL the positional parameters, (seen as a single word)
     $@ : the same of $* but each parameter is a quoted (each parameter is seen as a separate word).
+         the separation is IFS (99% is a space, anyhow it's on IFS)
+
+         As the difference between S* and $@ is that the second quotes the words (between IFS)
+         the difference arises when quoting them (ex using "$*"  "$@")
+         the first produces 1 single word, the second many.
 
   ex.
    args=$#               # Number of args passed.
@@ -719,7 +882,7 @@ shift can take a numerical parameter indicating how many positions to shift. (ex
                     do  ...          means I'm cycling through the args of the script
                     done
 
-set       the set fun. allow to overwrite what was the args to the script.
+set       the set fun. allows to overwrite what was the args to the script.
           ex. a="1 2 3 4 5"; set $a         will set $1=1 $2=2 ....
           nb.  the better way when setting through a variable (like here $a) instead
                a normal text, is with '--'
@@ -731,7 +894,6 @@ set       the set fun. allow to overwrite what was the args to the script.
           set           (alone, with neither args or options)
                         list the env vars
 
-unset     to delete a var. (it sets it as NULL)
 ____________________________________________________________
 EXIT STATUS
 ____________________________________________________________
@@ -752,6 +914,11 @@ ____________________________________________________________
           130	Script terminated by Control-C	(N.B. signal 2, (130 = 128 + 2)
 
      Book Author suggest to use values in range: 64 - 113
+
+     Take care on exit values. If the value seems odd, probably it is. 
+     Values X > 255 become (X mod 256) on exit
+     ex:
+        exit 300 --> echo $? : 44
 ____________________________________________________________
 TEST CONSTRUCTS
 ____________________________________________________________
@@ -1025,8 +1192,20 @@ ____________________________________________________________
            fi:
 
 
+____________________________________________________________
+IFS
+____________________________________________________________
 
+  Stays for 'Internal Field Seperator'
+  and it's the LIST of characters that when found terminates a WORD
+____________________________________________________________
+MAIL
+____________________________________________________________
 
+  $MAIL       = ENV var, path of my mailbos
+  $MAILCHECK  = num of sec, mailbox is checked for mails 
+                (ex. 600 : 10 min,  
+                       0 : at each prompt)
 
 ____________________________________________________________
 TO MANIPULATE TXT FILES
