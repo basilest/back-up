@@ -2215,12 +2215,16 @@ if - is in place of a input file, means stdin
     convert output.gif -fuzz 10% -layers Optimize optimised.gif
     convert -delay 20 -loop 0 *.jpg myimage.gif
 
+    (UPDATE: Debian came back to ffmpeg. avconv is a link: /usr/bin/avconv -> ffmpeg) <==== N.B.
+
     also as:
       1. extract a section from the video:
          avconv -i Lupin_sigla_fisarmonica_.mp4 -ss 00:00:17 -t 00:00:06 -codec copy lupin.mp4
+         ffmpeg -i Lupin_sigla_fisarmonica_.mp4 -ss 00:00:17 -t 00:00:06 -codec copy lupin.mp4
 
       2. create a temp dir to extract images: mkdir jpeg; cd jpeg
       3. extract images: avconv -i ../lupin.mp4 -r 30 -f image2 %04d.png
+                         ffmpeg -i ../lupin.mp4 -r 30 -f image2 %04d.png
           -f     is to specify we want the frames
           -r 30  is because 30 is the closest num to the rate of 29.97 frames/sec
       3. ceate the gif with convert:

@@ -1,17 +1,76 @@
  CSS                   Cascading Style Sheets
-                       (es the Styles are cascaded from the different sources)
+                       (as the Styles are cascaded from the different sources)
 
- SYNTAX                 select   { property : value ; ... }
-                        ex:
+ SYNTAX                 selector   { property : value ; ... }  <---- remember the ';' (optional only in case 
+                        ex:                                                            of 1 only property)
                              h1 {color:blue; font-size:12px;}
 
- SELECTROS:
+ SELECTORS:
                    - element          p        { text-align: center; color: red; }
                    - id               #para1   { text-align: center; color: red; }
                    - class            .center  { text-align: center; color: red; }
                    - element & class  p.center { text-align: center; color: red; }
 
                    grouping with ','   h1, h2, p { text-align: center; color: red; }
+                   
+                        - PSEUDO - classes   : are classes identified by a ':' after a selector
+                                               ex a:hover
+                                                  #id:hover
+                                               They identify (select) elements on conditions
+                                               not known at static time (ex. hover is when the
+                                               mouse goes on the element)
+
+                        - PSEUDO - elements    they select (with syntax '::') a sub-set of that element according
+                                               to some sublogic (ex.  ::first-line or ::first-letter)
+
+           CSS 
+          version
+              1    E                         an element of type E 
+              1    E:link                    an E element being the source anchor of a hyperlink of which the target 
+                                             is not yet visited (:link) or already visited (:visited) 
+              1    E:active                  an E element during certain user actions 
+              1    E::first-line             the first formatted line of an E element 
+              1    E::first-letter           the first formatted letter of an E element 
+              1    .c                        all elements with class="c" 
+              1    #myid                     the element with id="myid" 
+              1    E.warning                 an E element whose class is "warning" (the document language specifies how class is determined) 
+              1    E#myid                    an E element with ID equal to "myid" 
+              1    E F                       an F element descendant of an E element 
+              2    *                         any element 
+              2    E[foo]                    an E element with a "foo" attribute 
+              2    E[foo="bar"]              an E element whose "foo" attribute value is exactly equal to "bar" 
+              2    E[foo~="bar"]             an E element whose "foo" attribute value is a list of whitespace-separated values, 
+                                             one of which is exactly equal to "bar" 
+              2    E[foo|="en"]              an E element whose "foo" attribute has a hyphen-separated list of 
+                                             values beginning (from the left) with "en" 
+              2    E:first-child             an E element, first child of its parent 
+              2    E:lang(fr)                an element of type E in language "fr" (the document language 
+                                             specifies how language is determined) 
+              2    E::before                 generated content before an E element's content 
+              2    E::after                  generated content after an E element's content 
+              2    E > F                     an F element child of an E element 
+              2    E + F                     an F element immediately preceded by an E element 
+              3    E[foo^="bar"]             an E element whose "foo" attribute value begins exactly with the string "bar" 
+              3    E[foo$="bar"]             an E element whose "foo" attribute value ends exactly with the string "bar" 
+              3    E[foo*="bar"]             an E element whose "foo" attribute value contains the substring "bar" 
+              3    E:root                    an E element, root of the document 
+              3    E:nth-child(n)            an E element, the n-th child of its parent 
+              3    E:nth-last-child(n)       an E element, the n-th child of its parent, counting from the last one 
+              3    E:nth-of-type(n)          an E element, the n-th sibling of its type 
+              3    E:nth-last-of-type(n)     an E element, the n-th sibling of its type, counting from the last one 
+              3    E:last-child              an E element, last child of its parent 
+              3    E:first-of-type           an E element, first sibling of its type 
+              3    E:last-of-type            an E element, last sibling of its type 
+              3    E:only-child              an E element, only child of its parent 
+              3    E:only-of-type            an E element, only sibling of its type 
+              3    E:empty                   an E element that has no children (including text nodes) 
+              3    E:target                  an E element being the target of the referring URI 
+              3    E:enabled                 a user interface element E that is enabled 
+              3    E:disabled                a user interface element E that is disabled 
+              3    E:checked                 a user interface element E that is checked (for instance a radio-button or checkbox) 
+              3    E:not(s)                  an E element that does not match simple selector s 
+              3    E ~ F                     an F element preceded by an E element 
+          
 
  COMMENT           /*  */
 
@@ -20,6 +79,31 @@
                   Internal   <style> ..... </style>
                   Inline     with attribute style=
                               <h1 style="color:blue;margin-left:30px;">This is a heading.</h1>
+
+
+ PRIORITY         The FINAL style applied to an ELEMENT depends by the CASCADE chain.
+                  Each attribute if not defined directly, has the value, retrieved
+                  by the following hierarchy (where 'browser default' is the lowest)
+
+
+              1      Importance               The ‘!important’ annotation overwrites the previous priority types
+              2      Inline                   A style applied to an HTML element via HTML ‘style’ attribute
+              3      Media Type               A property definition applies to all media types, unless a media specific CSS is defined
+              4      User defined             Most browsers have the accessibility feature: a user defined CSS
+              5      Selector specificity     A specific contextual selector (#heading p) overwrites generic definition
+              6      Rule order               Last rule declaration has a higher priority
+              7      Parent inheritance       If a property is not specified, it is inherited from a parent element
+              8      CSS property definition  CSS rule or CSS inline style overwrites a default browser value
+                     in HTML document     
+              9      Browser default          The lowest priority: browser default value is determined 
+                                              by W3C initial value specifications
+
+ SPECIFITY        Is a series of numbers separated by ',' (commas) used internally
+                  to select which is the more SPECIFIC selector, when the same element
+                  has two or more rules that apply.
+                  Apart from this number, the final decision is the rule found as last
+                  written in the Cascade chain.
+
 
  COLORS           can be declared in  different ways:
 
@@ -36,10 +120,6 @@
                         div {
                             background-color: lightblue;
                             }
-
-
- BACKGROUND       can be a colour (background-color: green
-
 
 
  BOX MODEL        ANY, any, really any element
@@ -107,7 +187,7 @@
 
 
 
-                  Margin-Collapse:    is what can happen to ONLY horizontal spaces (marginsi T & B)
+                  Margin-Collapse:    is what can happen to ONLY vertical spaces (margins T & B)
                                       where the gap instead of B1+T2 can be only max of B1, T2
                                       ex.
                                       h1 { margin: 0 0 50px 0; }
@@ -137,7 +217,7 @@
                                                     padding: 25px 50px;
                                                     padding: 25px;
 
- HEIGHT/WIDTH     Are the values of the CONENT (The INNER only part of an ELEMENT)
+ HEIGHT/WIDTH     Are the values of the CONTENT (The INNER only part of an ELEMENT)
 
                       - px, pt, cm, ...
                       - %
@@ -145,11 +225,12 @@
                   height: 200px;
                   width: 50%;
 
-                  W never goes below its value. If the broswer is shorter or dragged
-                  to become shorter, W is still that, and the browser adds a scroll-bar
+                  H/W never go below their value. If the broswer is shorter or dragged
+                  to become shorter, H/W are still that, and the browser adds a scroll-bar
 
-                  max-width=...  is used to managed this.
-                                 Its values is "none" by default. When set to value X
+                  max-height=...  
+                  max-width=...  are used to manage this.
+                                 value "none" by default. A value X
                                  means that it tries to be X, and if the browser gets shorter
                                  it shrinks to fit in the resulting size
 
@@ -161,7 +242,8 @@
 
 
  OUTLINE          It's a further EXTERNAL BOX (after The MARGINS) but it's not included in the
-                  Element definition (so its size must not be related to the other dimensions)
+                  Element definition (BOX MODEL) 
+                  (so its size must not be related to the other dimensions)
 
                          outline          Sets all the outline properties in one declaration
                          outline-color    Sets the color of an outline
@@ -180,7 +262,8 @@
                   text-indent        Specifies the indentation of the first line in a text-block
                   text-shadow        Specifies the shadow effect added to text
                   text-transform     Controls the capitalization of text
-                  unicode-bidi       Used together with the direction property to set or return whether the text should be overridden to support multiple languages in the same document
+                  unicode-bidi       Used together with the direction property to set or return 
+                                     whether the text should be overridden to support multiple languages in the same document
                   vertical-align     Sets the vertical alignment of an element
                   white-space        Specifies how white-space inside an element is handled
                   word-spacing       Increases or decreases the space between words in a text
@@ -199,8 +282,7 @@
                   empty-cells       Specifies whether or not to display borders and background on empty cells in a table
                   table-layout      Sets the layout algorithm to be used for a table
 
- DISPLAY          Every Element has a default value for property
-                  display:
+ DISPLAY          Every Element has a default value for property 'display':
                   with values
                         block     (default for div, h1, ....h6, p, form, headrr, footer, section)
                         inline    (default for span a img)
@@ -210,8 +292,8 @@
                   inline   takes on the same line only the required width.
 
 
-                  An inline element with display: block; is not allowed to have other block elements inside it.
-
+                  An inline element with display: block; 
+                  is not allowed to have other block elements inside it.
 
                   visibility:hidden | visible;               is another way to show/hide something
                                                              ANYHOW the element still occupy its space
@@ -220,22 +302,23 @@
 
  MAX-WIDTH        .
 
- POSITION         .
-                        position    Specifies the type of positioning for an element
+ POSITION         Specifies the type of positioning for an element
 
-                                             static  (default)  elements are not positioned in any special way;
+                                                 RELATIVE TO   
+                             ----------------------------------------------------------------------------------
+                             static  (default)        -         elements are not positioned in any special way;
                                                                 they result according to the normal flow of the page:
                                                                 (top, bottom, left, and right  have no effect with 'static')
-
-                                             relative           the elem. is positioned relative to its normal position.
-                                                                moving it according to the 4 (top, bottom, left, rigth)
-
-                                             fixed              Elem. is like in an overlay over the page. When The page
-                                                                is scrolled the Elem remains there
+                                                               
+                             relative            ITS NORMAL     the elem. is positioned relative to its normal position.
+                                                 POSITION       moving it according to the 4 (top, bottom, left, rigth)
+                                                               
+                             fixed               BROWSER        Elem. is like in a layer over the page (overlay). When The page
+                                                 VIEWPORT       is scrolled the Elem remains there
                                                                 (fixed, means relative to the browser-window or 'viewport')
-
-                                             absolute           relative to the nearest positioned ancestor (instead of
-                                                                positioned relative to the viewport, like fixed).
+                                                               
+                             absolute            NEAREST        relative to the nearest positioned ancestor (instead of
+                                                 ANCESTOR       positioned relative to the viewport, like fixed).
                                                                 However; if an absolute positioned element has no positioned ancestors,
                                                                 it uses the document body, and moves along with page scrolling.
 
