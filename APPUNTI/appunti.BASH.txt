@@ -1,6 +1,11 @@
 
 
 
+write my own buil-in and keep into the running shell
+
+----------------------------------------------------------
+
+
  $0              name of script
  $1, $2, $3, ... are the positional parameters.
                   ...  after $9, ${10}, ${11}, ${12}.
@@ -66,6 +71,8 @@ Curly Braces
                                              echo {001..005..2}  001 003 005
                                              echo {a..z}         a b c d e f g h i j k l m n o p q r s t u v w x y z
                                              echo {a..z..2}      a c e g i k m o q s u w y
+                                            nb. It can be nested:
+                                               b{ar{d,n,k},ed}s  --> bards barns barks beds
 
 Parenthesis
 
@@ -85,9 +92,57 @@ Double Parenthesis
 
 
 ____________________________________________________________
+  SPECIAL CHARs
+____________________________________________________________
+       1  ~         home
+       2  `         old cmd substitution
+       3  #         comment
+       4  $         var
+       5  &         background
+       6  *         STRING wildchar
+       7  ()        see braces
+       8  []        "
+       9  {}        "
+      10  \         QUOTE next char (any of these 19 chars is no more special)
+      11  |         pipe
+      12  /         pathname
+      13  ;         cmd separator
+      14  '         strong QUOTE (any these 19 chars is no more special)
+      15  "         weak QUOTE   (some of these 19 chars, ex. '$', remain special)
+      16  > <       in-out redirection
+      17  ?         CHAR wildchar
+      18  !         not
+      19  RETURN    run cmd. (note that both \ ' or " escape correctly it,
+                              so having a long cmd on more lines, with the
+                              prompt defined in PS2)
+                               
+
+      CTRL          CTRL like DEL/BACKSPACE/ALT are some more 'special' chars
+                    Moste known are:
+                       CTRL-C      intr  (kill 2)
+                       CTRL-D      eof
+                       CTRL-\      term  (kill 15) more powerfull than 2
+
+                       CTRL-?      the same as DEL
+                       CTRL-M      the same as RETURN
+
+                       CTRL-Z      suspend
+
+                       CTRL-S / Q  suspend / restart screen output
+____________________________________________________________
+  HELP
+____________________________________________________________
+
+   man       usual help
+   help      gives info on a command (ex 'help cd').
+             It can be even partial (ex 'help re, will give
+             help on all startin with re (ex. 'read' 'readonly' 'return'))
+             or wildchars (ex help 're??' will only returns help on 'read').
+             
 
 
 
+____________________________________________________________
 
 When Linux boots, executes all scripts in dir
                 /etc/rc.d
@@ -248,26 +303,74 @@ ____________________________________________________________
 ~+     $PWD      (current dir)
 ~-     $OLDPWD   (previous wd)
 
-Ctrl-A    start of line
-Ctrl-E    end   of line
+____________________________________________________________
+  EMACS or VI editor mode
+
+  To edit on the command line bash uses:
+     1. emacs mode by default  (or it can be set as:   set -o emacs)
+     2. vi mode  (set -o vi)
+     3. no editor mode, if the shell was launched as bash .... -noediting
+
+emacs mode: 
+            Ctrl-A    start of line
+            Ctrl-E    end   of line
+            Ctrl-U    delete till start
+            Ctrl-W    delete current word
+            Ctrl-B    move back by words / Alt-F move forward by words
+            Ctrl-R    to search back in history
+            ...
+
+vi mode: 
+            - ESC to enter into vi-command mode
+            - to enter vi-input mode (i a I A R ...)
+            - then usual commands ($ 0 ^ w W b B e E D p ...)
+            - even . as 'last command' is available
+            - even ~ to change lower/upper case
+            - to search back in history use / and then n or N (or ?)
+            - autocomletion:
+                 . normally TAB is all what you need, but even if it's not real vi
+                   there are these autocompletions:
+                     . do ESC and \, then 
+                         a =    to see the available possibilities
+                         a *    to have the best match filled in 
+____________________________________________________________
+  READLINE & BIND
+
+  readline is the library on which the command line interpreter is based.
+  It can be configured editing the file ~/.inputrc  (even with proprietary
+  syntax commands $if $else $endif)
+  It is really full-featured and complex. Use man readline
+
+  bind is another way to link a special sequence of keystroke to do something
+  (ex bind -P  to see which and how any of the sequneces are configured)
+
 ____________________________________________________________
 14 HISTORY TRICKS
+
+    0. cmds history are save in HISTFILE (var usually = ~/.bash_history)
     1. export HISTTIMEFORMAT='%F %T ':   timestamp in front of each cmd 2008-08-05 19:02:39 ls
     2. Ctrl R   Ctrl R and then arrows <--  -->   to modify the command
-    3. last cmd:  (1) !!   (2) !-1    (3)  Ctrl P
+    3. last cmd:  (1) !!   (2) !-1    (3)  Ctrl P <-- in emacs mode
     4. !4   to execute  num 4      !-4   to execute back of 4
     5. !ps  execute last cmd starting with ps
     6. HISTSIZE=450  HISTFILESIZE=450    to set history to 450
-    7. export HISTSIZE=0    to make bash nt recording anything (no history)
+    7. export HISTSIZE=0    to make bash not record anything (no history)
     8. history -c   to clear all the previous history
     9. export HISTCONTROL=ignoredups         remember only 1 inst. of many consecutive = cmd
    11. export HISTCONTROL=erasedups          remember only 1 inst. of many also non consecutive = cmd
    12. export HISTCONTROL=ignorespace        ignore (not remember) cmd that start with a space
    13. export HISTIGNORE="pwd:ls:ls -ltr:"   ignore (not remember) this list of cmds
-   14.  vi !!:$  execut a cmd (here vi) taking the arg of the last cmd
+   14.  vi !!:$  execute a cmd (here vi) taking the arg of the last cmd
         vi  !^      "                  "           1st  arg     "
         vi !cp:2    "                  "           2nd  arg     "     starting with cp
         vi !cp:$    "                  "           last arg     "     starting with cp
+   15. fc   (stays for fix command) is the builtin command to recall the history opening into editor mode
+       the editor opened is defined by the var $FCEDIT  (ex FCEDIT=/usr/bin/vim)
+       Once the editor is closed that command is executed.
+       fc -l     list last 15 cmd
+       fc -l 2023   edit cmd num 2025
+       fc -l  vi    edit cmd starting with vi
+       fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb
 ____________________________________________________________
 END A SCRIPT
 ____________________________________________________________
