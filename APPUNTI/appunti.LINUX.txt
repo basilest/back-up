@@ -1142,10 +1142,11 @@ LOGIN
         T1    T2           2 terminals, (ex 2 xterms) are separated shells
                            so T1.ENV.v  & T2.ENV.v  are completly different.
 
-      % A=1 B=2  cmd       Any var defined BEFORE a cmd (that will become a new CHILD)
+      % A=1 B=2  cmd args  Any var defined BEFORE a cmd (that will become a new CHILD)
                            becomes an ENV v.
                                BUT ONLY FOR THE CHILD (<-- cmd)
                            (current SHELL will keep its own var A and B values)
+                           (cmd and args go in argv[] while A=1 B=2 in envp[])
 
                            the more general way is using 'env'
                            % env  A=1 B=2  cmd       env runs a program in a modified environment
@@ -1229,6 +1230,9 @@ LOGIN
 
                  ~/.bashrc   : put here what applies to BASH only
                                NO-LOGIN shell
+
+
+  .bash_logout      if present, it's executed every time a BASH LOGIN.SH exits.
 
 ---------------------------------------------------
                    X server
