@@ -1207,15 +1207,21 @@ LOGIN
      here the rules:
               1. the FIRST shell opened (in a UNIX session hierarchy), is the
                  shell through which you connected.
-                 Its called LOGIN-SHELL
+                 It's called LOGIN-SHELL (to know if the current shell is a LOGIN-SH
+                 or not: echo $0   or  cat /proc/$$/cmdline
+                 a LOGIN-SH has argv[0] (its name) starting with a '-' ex "-bash".
+                 Morover a LOGIN-SH can be executed with option -l or --login)
+
 
              .---------------------
-             |2. ~/.profile        is read by a login shell (of any kind)
+             |2. /etc/profile      is read by a login shell (of any kind)
   LOGIN.SH   |
              |3. ~/.bash_profile   in case the login-shell is BASH, it reads this.
              |                     if not present reads ~/.bash_login
              |                     if not present reads ~/.profile
              `---------------------
+               NONE of the above file is read/executed with the option --noprofile
+
 
   NOT-LOGIN   4. ~/.bashrc   is read by NOT-LOGIN_shells.
 

@@ -84,16 +84,75 @@ Parenthesis
 	 4) >(COMMAND)                         Process substitution  
 	 5) <(COMMAND)                         Process substitution 
 
-Double Parenthesis
+Double Parenthesis   (vars inside can be written with or without the '$')
 
    	 1) (( var = 78 ))                     Integer arithmetic   
    	 2) var=$(( 20 + 5 ))                  Integer arithmetic, with variable assignment   
-   	 3) (( var++ ))                        C-style variable increment   
-   	 4) (( var-- ))                        C-style variable decrement   
-   	 5) (( var0 = var1<98?9:21 ))          C-style ternary operation
 
+           allowed operators:
+                            + - * /
+                            ++
+                            --
+                            %
+                            **       (exponential)
+                            << >>    (bitwise shift)
+                            & | ~ ^  (bit: AND OR NOT EXCLUSIVE-OR)
+                            !        (logical NOT)
+                            < <= == => > != && ||
+
+
+   	                        ex. (( var++ ))
+   	                            (( var-- ))
+   	                            $(( (3 > 2) || (4 <= 1) )) has the value 1
+   	 3) (( var0 = var1<98?9:21 ))          C-style ternary operation
+
+     TRUTH VALUE RETURNED BY $(( )) is the opposite of 'test' and 'exit status'
+     true=1  false=0
+         $(( 5 > 3 ))     echo $?   --> 1
+         [ 5 -gt 3 ]      echo $?   --> 0
 
 nb. command sub. can be nested $(ls $(pwd))
+____________________________________________________________
+  PARSER
+____________________________________________________________
+
+ 
+            [1] split into words                      | separetors: SPACE\t\n;)(><|&
+                                                      |
+                      " ? --> [4]                     |
+                      ' ? --> [9]                     |
+                    |                                 |
+     ______________________________________           |
+     |          check 1st w.               |          |
+     |                                     |          |
+  [1] <-- opening key.      other key.   ---> SYNTAX  |
+     |  (if, function     (then, fi, done, |  ERR     |
+     |      ...)              ...)         |          |
+     |         not keyword                 |          |
+     |_____________________________________|          |
+                    |                                 |
+                                                      |
+  [1] <--     alias ?                                 |
+                    |                                 |
+           [2]   brace exp.                           | a{b,c} --> ab ac
+                    |                                 |
+           [3]   tilde exp.                           | ~ste   --> /home/ste
+                    |                                 |
+           [4]   param exp.                           | $VAR   --> 5
+                    |                                 |
+           [5]   cmd subst.                           | $( grep ...) 
+                    |                                 |
+           [6]   arith. subs.  " ? --> [9]            | $(( i++ ))
+                    |                                 |
+           [7]   word split                           | separators: IFS
+                    |                                 |
+           [8]   path exp.                            | /**/a.?
+                    |                                 |
+           [9]   cmd lookup                           | builtin / $PATH
+                    |                                 |
+          [10]   RUN (eval)                           |
+                                                      |
+                                                          
 ____________________________________________________________
   SPECIAL CHARs
 ____________________________________________________________
@@ -252,7 +311,7 @@ ____________________________________________________________
                  vi              off
                  emacs           off
                  noclobber       off    <--- .. > a.txt do not overwrite if a.txt is present
-                 allexport       off
+                 allexport       off              can be anyhow overwritten with  >| a.txt
                  notify          off
                  nounset         off
                  priv            off
@@ -413,18 +472,30 @@ ____________________________________________________________
                                     ls is aliased to `ls --color=auto'
                                     ls is /bin/ls
 
-      builtin  is the keyword that allow to call the builtin version
-      of a command regardless if any alias or function (that would come first)
-      should have the same name:
-            builtin cd
+      builtin  is the keyword that makes BASH to search only in the
+               bultin set, skipping ALIASES and FUNCTIONs (that would come first)
+               ex. builtin cd
 
-      command  is the same as 'builtin' but works on exec
-               (ex. rm or ls are not builtin, so builtin rm
-                do not work, instead it must be written command rm)
+      command  is the keyword that makes BASH search in builtin & PATH
+               skipping (like in builtin) ALIASES and FUNCTIONs 
+               (ex. command rm)
 
       \        is the short for both builtin and command
                ex  \cd  instead of builtin cd
                    \ls  instead of command ls
+
+      enable   to manage builtins
+               -a      dump all and the status
+               -p      dump all   (with no status)
+               -d      unload (delete) a bultin
+               -f xx   load a new builtin (shared object) xx
+               -n xx   disable builtin xx (with no args, dumps all DISABLED)
+               -s      to restrict on only POSIX subset
+
+
+               skipping (like in builtin) ALIASES and FUNCTIONs 
+               (ex. command rm)
+
 ____________________________________________________________
 BUILT-IN vs EXTERNAL PROG
 ____________________________________________________________
@@ -439,12 +510,14 @@ POSIX, defines following as  regular Built-In
         cd           fg            newgrp       umask
         command      getopts       pwd          unalias
 
+           test       Evaluate expression.
+           ulimit     Set or report file size limit. 
+
 while the following (even if they are even much more used of the above) are external cmds
 
            find       Find files.
            ls    
            ln         Link files.
-           cd         
            pwd      
            touch      Change file access and modification times.
            mv     
@@ -472,8 +545,6 @@ while the following (even if they are even much more used of the above) are exte
            
            pathchk    Check pathnames.
            sh         Shell, the standard command language interpreter.
-           test       Evaluate expression.
-           ulimit     Set or report file size limit. 
 ____________________________________________________________
 END A SCRIPT
 ____________________________________________________________
@@ -786,60 +857,96 @@ ____________________________________________________________
      stdin (keyboar fd=0) ---->
                                 ----> stderr (screen fd=2)
 
+      1>pippo.txt  1>>pippo.txt         redirect stdout to write/append on pippo.txt         
+      2>pippo.txt  2>>pippo.txt         redirect stderr to write/append on pippo.txt         
+      &>pippo.txt  &>>pippo.txt         redirect both 1 and 2 to write/append on pippo.txt
+
      Other 7 numbers (3-9) are available as fd
-     To list info on open files use lsof
-
-     lsof -a -p $$ -d0,1,2        #look at FD column
-
-     COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
-      bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
-      bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
-      bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1
+     (a fd is the C file handle  (pointer to an 'open' file))
 
 
-     1>filen   # redirect stdout to filen    ex ls 1> pippo
-     1>>filen  # redirect (with append)
-     2>filen   # the same for stderr         ex ls 2> pippo
-                                                     (any error is not added on video
-                                                     but redirected to pippo)
-     2>>filen  #   "   "   "   "
-     &>filen   #  redirect both stdout and stderr
+     N.B. the redirections are automatically "reset" after each line, 
+          (i.e. the writing (stdout, sterr) is back to video).
+          preceding the redirection with an  'exec' 
+          the effect remains on subsequent cmds of that current SHELL
 
-     N.B. the above commnands are automatically "reset" after each line, so stdout,
-          sterr are back to video.
 
-     i>filen   # create fd i to write       filen. If not set is 1 (stdout).
-     i<filen   # create fd i to read        filen. If not set is 1 (stdout).
-     i<>filen  # create fd i to read/write  filen. If not set is 1 (stdout).
+      ________________________________________________________________
+     | TO START a fd (ex 4) (assigning it to file in READ/WRITE/APPEN):
+     |________________________________________________________________
+     | 
+     |         4>pippo.txt   # create fd 4 to WRITE  on pippo.txt  If not set is 1 (stdout): >pippo.txt
+     |         4>>pippo.txt  # create fd 4 to APPEND  "   "    "                 1 (stdout): >pippo.txt
+     |         4<pippo.txt   # create fd 4 to read    "   "    "                 0 (stdin):  <pippo.txt
+     |         4<>pippo.txt  # create fd 4 to read/write  "    "                 1 (stdout): <>pippo.txt
+     |____________________________________
+     | TO USE a fd (ex 4):  the syntax is &4
+     |____________________________________
+     |        
+     |         'use' means, that on that current cmd of the command-line the read or write
+     |         will be done using fd, so 0 or 1 or 2 will have a reassignment like:
+     |             0<&4   1>&4    2>&4
+     |                                       ex.  2>&1  redirect stderr to stdout
+     |________________________________
+     | TO CLOSE a fd: the syntax is  &-
+     |________________________________
+     |        
+     |          4<&-   # close 4 on READ
+     |          4>&-   # close 4 on WRITE/APPEND
+     |
+     |                                    nb   <&-   short for 0<&-
+     |                                         >&-   short for 1>&-  
+     |
+     |           Child processes inherit open fds. This is how pipes work.
+     |           To prevent a fd from being inherited, close it.
 
-     once a fd i is created to read or write use for each command the specification
-     <&i when reading and >&i when writing.
 
-     echo 1234567890 > pippo
-     3 <> pippo
-     read -n 4 <&3             # Read only 4 characters.
-     echo -n . >&3             # Write a decimal point there.
-     exec 3>&-                 # Close fd 3.
+     lsof    is used to see open fds:
 
-     i>&j      # i and j are both fd. If i not set is 1 (stdout).
-               # operations on i are the same than on j.
-               # the command act conceptually as i=j
+             lsof -a -p $$ -d0,1,2        #dump for this ($$) shell fds 0 1 2
 
-     ex.  2>&1  redirect stderr to stdout
+             COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+              bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
+              bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
+              bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1
 
-     N.B. to remember & and >. Only case & is before > (&>)
-          is whene I'm sending out+err to a filename
-          otherwise (>&) in this case there are only numbers (descriptors)
 
-     fd can be closed.
-              0<&-   or   <&-       # close stdin
-              1>&-   or   >&-       # close stdout
-
-              i<&-   # close input  fd i
-              i>&-   # close output fd i
-
-     Child processes inherit open fd. This is why pipes work.
-     To prevent a fd from being inherited, close it.
+     ________________________
+     | EXAMPLEs TO UNDERSTAND:
+     |_______________________
+     |   cat pippo.txt
+     |                  --> aaaa
+     |                      bbbb
+     |   4>pippo.txt
+     |                  --> the 1st effect is that pippo.txt is now empty (!) aaaa & bbbb deleted
+     |                      the 2nd effect is that 4 is then no more present (nothing on lsof ... -d4)
+     |   4>>pippo.txt
+     |                  --> aaaa & bbbb still there
+     |                      nothing on lsof ... -d4
+     |   exec 4>pippo.txt
+     |                  --> aaaa & bbbb deleted
+     |                      can see it on lsof ... -d4:
+     |
+     |                          bash    6343 stiv    4w   REG    8,8   6   29 /home/stiv/TEST/pippo.txt
+     |                                               ^
+     |   exec 4>>pippo.txt
+     |                  --> aaaa & bbbb still there
+     |                      can see it on lsof ... -d4
+     |   echo cccc 1>&4
+     |                  --> pippo.txt will have aaaa & bbbb & cccc
+     |   4<&-
+     |                  --> 4 is closed only on this line
+     |   exec 4<&-
+     |                  --> 4 is closed forever
+     |
+     |So 'exec' can be avoided if everything occurs in 1 cmd line:
+     |    4>>pippo.txt echo cccc 1>&4
+     |
+     |                                    echo 1234567890 > pippo
+     |                                    exec 3<>pippo
+     |                                    read -n 4 <&3             # Read only 4 characters.
+     |                                    echo -n . >&3             # Write a decimal point there.
+     |                                    exec 3>&-                 # Close fd 3.
 
 
      >|  force redirection: forcibly overwrite an existing file.
@@ -847,6 +954,8 @@ ____________________________________________________________
                           bash -C        (said 'noclobber')
          it means it's prevented file overwrite.
          Still, even if called as bash -C, the >| will overwrite !!!
+
+
 
      -   redirection
 
@@ -885,8 +994,9 @@ ____________________________________________________________
      nb. I can run bash -u    to have ERRORS each time a var is UNDEFINED
          (a way to debug and clean the script)
 
-   Bash var are UNTYPED, they are just text, even if in case the string is built by only digits
-   bash undertsang they are 'numbers' and give sense to any related arithmetic operation.
+   Bash var are normally UNTYPED (to TYPED them use declare), 
+   they are just text, even if in case the string is built by only digits
+   bash understand they are 'numbers' and give sense to any related arithmetic operation.
    NOTE: that the 'integer' value of a sting is 0.
    NOTE: usually is 0 also the 'integer' value of UNSET o NOT_EXIXSTING (not declared) var
 
@@ -897,12 +1007,53 @@ ____________________________________________________________
    a decimal point as strings.
 
 
+     -------------- declare / readonly
+     declare (builtin) allows to assign array or integer types to a var:
 
-   a=2334                   # Integer.
-   let "a += 1"             # a = 2335
-   b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
-   let "b += 1"             # b = 1    the integer value of 2BB5 is 0
+            . declare            with no args dump all ENV var (like 'set' alone)
+            . declare -i         type INT.
+                                   v1=12 v2=5
+                                   r=v1*v2 && echo $r                 --> "v1*v2"  # WRONG
+                                   declare -i r && r=v1*v2 && echo $r --> 60       # OK
+            . declare -r         readonly (a CONST) cannot be 'unset'
+            . declare -x         define + export  (like export a=...)
+            . declare -a         define the var as an ARRAY
+            . LOCAL              A declare in a function is implicitly also a 'local'
+                                 (scope limited within the function)
 
+     readonly (builtin)    like declare -r
+                           readonly with no args or with -p, dumps all "declare -r"
+                           ex:
+
+                                declare -r BASHOPTS="checkwinsize:cmdhist:complete_fullquote:
+                                                     expand_aliases:extglob:extquote:force_fignore:
+                                                     histappend:interactive_comments:login_shell:
+                                                     progcomp:promptvars:sourcepath"
+                                declare -ir BASHPID
+                                declare -r BASH_COMPLETION_COMPAT_DIR="/etc/bash_completion.d"
+                                declare -ar BASH_REMATCH='()'
+                                declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="46" [3]="1" 
+                                                            [4]="release" [5]="x86_64-pc-linux-gnu")'
+                                declare -ir EUID="1000"
+                                declare -ir PPID="6843"
+                                declare -r SHELLOPTS="braceexpand:emacs:hashall:histexpand:history:
+                                                      interactive-comments:monitor"
+                                declare -ir UID="1000"
+                                
+
+     -------------- let
+          let is intended to assign an INTEGER expression to a var.
+          It can be summarised as:
+
+               let int_var=expression
+
+                 ex:
+            
+               a=2334                   # Integer.
+               let "a += 1"             # a = 2335
+               b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
+               let "b += 1"             # b = 1    the integer value of 2BB5 is 0
+            
      -------------- DEFAULT:
 
      ${a?err_msg}   if $a is not defined exits the script with the "err_msg"
@@ -925,7 +1076,41 @@ ____________________________________________________________
                      echo ${b-2}   #2          b is undefined
                      echo ${b:-2}  #2        
 
-     --------------
+     -------------- ARRAY
+
+      DECLARATION (& ASSIGNMENT)
+
+          names=([2]=alice [0]=hatter [1]=duchess)
+          names=(hatter duchess alice)
+          names=(hatter [5]=duchess alice)   (assigning elem at index 0,5,6) <---------.
+          declare -a names                                                             |
+                                                                                       |
+      REFERENCING                                                                      |
+          echo ${names[5]}                                                             |
+                                                                                       |
+      *  @                                                                             |
+          as for argv[]                                                                |
+          *    returns all the elements as 1 word (with IFS separating the elements)   |
+          @    returns many quoted words of each elem.                                 |
+                                                                                       |
+          ex:                                                                          |
+             for i in "${names[@]}"; do                                                |
+                                                                                       |
+      UNASSIGNED elements                                                              |
+          elem not assigned are NULL if considered as STRING.                          |
+          The syntax                                                                   |
+          ${!array[@]}    returns the LIST of the DEFINED indexs                       |
+                          ex, here would be 0,5,6 -------------------------------------'
+
+      LEN OF ELEMENTS / LEN OF ARRAY
+          . ${#names[5]}    returns the LEN of the element [5] (ex if it is "duchess" --> 7)
+          . ${#names[@]}    returns the LEN of the ARRAY
+          . ${#names[*]}    returns the LEN of the ARRAY
+                                                                                       
+      REMOVING ELEM
+          . unset names[5]
+
+    --------------                                                                      
 
      ${#a}        # return len of char for value of a
                   # for an array only the len of 1st elem
@@ -1056,6 +1241,41 @@ set       the set fun. allows to overwrite what was the args to the script.
           set           (alone, with neither args or options)
                         list the env vars
 
+getopts   is a builtin, used to manage options and their args
+          It only works with LETTERS not for LONG-name options (for that there is
+          a command (not builtin) getopt(1))
+          The syntax is   getops ":ab:c..."  xxx <---  var used (normally in a while)
+                                   ^
+                                   the list of option letters.
+                                   If an option is followed by an arg ex (-f filename)
+                                   there must be a ':' after (f:)
+                                   A starting ':'  (:ab ...)  suppresses ERROR msg
+                                   in case a option is unknown
+                                   $OPTARG is the name of var that stores the arg
+                                   (ex filename in -f filename)
+                                   $OPTIND is the number of the argv[] to process
+                                   after getops finished.
+                                       cmd -ab xxx    $OPTIND=3
+                                       cmd -a -b xxx  $OPTIND=4
+                                   So normally there is a shift $(($OPTIND - 1))
+
+          getops is normally to be used inside a while:
+
+          | while getopts ":ab:c" opt; do
+          |     case $opt in
+          |         a ) process option -a
+          |         ;;
+          |         b ) process option -b
+          |             $OPTARG is the option's argument
+          |         ;;
+          |         c ) process option -c
+          |         ;;
+          |         \? ) echo 'usage: $0 [-a] [-b barg] [-c] args.
+          |         exit 1
+          |         esac
+          | done
+          | shift $(($OPTIND - 1))
+                               
 ____________________________________________________________
 EXIT STATUS
 ____________________________________________________________
@@ -1344,9 +1564,13 @@ ____________________________________________________________
  _______________________
  _______ FOR
 
-     NB. FOR is NNNOOOOTTTT like C
-         it cannot have variable len loopi (cycle on N times), but only a fixed len list
-         (for variable loop ex (10 times) use WHILE)o
+     FOR can be in 2 forms: 
+
+           . for x in LIST
+           . for (( i=1; i <= 12 ; i++ ))
+
+       Only the second is like C, 
+       the 1st, is with a FIXED list
 
          for x [ in list ]     <--- if list is missing is used "$@"  (script args)
          do ...                     ex:    for i
@@ -1505,6 +1729,10 @@ ____________________________________________________________
 *=
 /=
 %=
+
+NB: the syntax  2#11101   (so BASE#NUMBER, with base any 2-36)
+    can define number using any base:
+    declare -i r=2#11101   echo $r   --> 29
 ____________________________________________________________
 BLOCK STATEMENTS
 ____________________________________________________________
