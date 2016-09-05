@@ -1,19 +1,19 @@
                                               |
- 1    Echoing Messages                        |:echo   "aaa"         writes text wirhour remembering it
+ 1    Echoing Messages                        |:echo   "aaa"         writes text without remembering it
                                               |:echom  "aaa"         echoes & stores-message (is the short form of :echomsg)
-                                              |:messages             dumps any kind of previous message (i.e. all vim errors) 
+                                              |:messages             dumps any kind of previous message (i.e. all vim errors)
                                               |                      (called message-history) included ALL :echom
-                                              |                        
- 2    Setting Options                         |           boolean options (on/off)   
+                                              |
+ 2    Setting Options                         |           boolean options (on/off)
                                               |:set nu   :set nonu
                                               |:set nu!              toggle onto the opposite value from the current
                                               |:set nu?              dump the current value
-                                              |                      
+                                              |
                                               |           options with values
                                               |:set numberwidth=10     (or using let and & :  let &numberwidth=10
                                               |                         this syntax allows this: let &numberwidth = &numberwidth + 3)
                                               |:set numberwidth?     dump the current value
-                                              |                      
+                                              |
                                               |           more options at the same time (to save typing)
                                               |:set nu numberwidth=6
                                               |
@@ -23,8 +23,8 @@
                                               |:map <c-d>   ...      special char (here Ctrl-d)
                                               |
  4    Modal Mapping                           |           echo mode can be mapped (normal, visual, insert)
-                                              |:nmap \ dd            (when in normal mode) map \ to delete line 
-                                              |:vmap \ U             (when in visual mode) map \ to Uppercase 
+                                              |:nmap \ dd            (when in normal mode) map \ to delete line
+                                              |:vmap \ U             (when in visual mode) map \ to Uppercase
                                               |:imap <c-d> dd        not what expected (it writes 2 d (when in insert mode)
                                               |:imap <c-d> <esc>ddi  <-- ok
                                               |
@@ -40,7 +40,7 @@
                                               |                                       so that produces an endless loop
                                               |:*noremap  (the 'nore' versions are for 'no-recursive') (nnoremap vnoremap inoremap)
                                               |            and must be ALWAYS used instead of the normal ones
-                                              |                                 
+                                              |
  6    Leaders                                 |           In the above examples we used 1 key, but it can be any sequence
                                               |           ex  :nnoremap -d dd       :nnoremap -c dd0
                                               |           So when I first press a '-', vim still waits for what's next (d or c?)
@@ -48,7 +48,7 @@
                                               |           That 1 key can be considered a 'prefix' and vim allows a dedicated syntax:
                                               |:let mapleader = "-"
                                               |:nnoremap <leader>d dd     <--- I can then use '<' leader '>' to define the others
-                                              |                                The advantage is I can change in 1 only place 
+                                              |                                The advantage is I can change in 1 only place
                                               |                                and all the mappings are portable to other .vimrc with other prefixes
                                               |:let maplocalleader = "\\"      it's like mapleader but has usually minor scope
                                               |                                only in some file types (used in plugin to not
@@ -59,9 +59,9 @@
                                               |:nnoremap <leader>sv :source $MYVIMRC<cr>      to source it runtime
                                               |
  8    Abbreviations                           |           abbreviations are normally used in insert mode
-                                              |           and they are similar to :inoremap 
+                                              |           and they are similar to :inoremap
                                               |           but differently to :inoremap they take care of chars 'before and 'after'
-                                              |           so while a :inoremap ssig xxxxx will insert text xxxxx as soon as 
+                                              |           so while a :inoremap ssig xxxxx will insert text xxxxx as soon as
                                               |           ssig is typed (ex in Larry Lessig)
                                               |:iabbrev ssig xxxxx        will convert only where seems more "appropriate" ex in  (ssig.)
                                               |
@@ -73,11 +73,11 @@
                                               |                             Ctrl-c   (a builtin alternative) <-----
                                               |                             jk       (:inoremap jk <esc>)
                                               |
-11    Buffer-Local Options and Mappings       |           adding <buffer> keyword or using :setlocal I can associate mappings or settings 
+11    Buffer-Local Options and Mappings       |           adding <buffer> keyword or using :setlocal I can associate mappings or settings
                                               |           ONLY FOR THE BUFFER WHERE I AM.
                                               |:setlocal wrap                         this will work only in this buffer
                                               |:nnoremap <buffer> <leader>x dd          "              "             "
-                                              |                      ^               
+                                              |                      ^
                                               |                    but it'd be better here <localleader> that it's exactly
                                               |                    where/when it should be used
                                               |
@@ -91,7 +91,7 @@
                                               |                           |
                                               |                           The "event" to watch for.
                                               |:autocmd BufWritePre *.html :normal gg=G     this reindent all html files before saving them
-                                              | 
+                                              |
 13    Buffer-Local Abbreviations              |                       the following defines a way to comment any file according to its type
                                               |:autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
                                               |:autocmd FileType python     nnoremap <buffer> <localleader>c I#<esc>
@@ -101,8 +101,8 @@
                                               |:autocmd FileType python     :iabbrev <buffer> iff if:<left>
                                               |
 14    Autocommand Groups                      |           When you create an autocommand like above vim has no way of knowing if
-                                              |           you want to replace an existing one. 
-                                              |           So just 'resourcing' n times ~/.vimrc, vim creates n separate 
+                                              |           you want to replace an existing one.
+                                              |           So just 'resourcing' n times ~/.vimrc, vim creates n separate
                                               |           autocommands that each happens in sequence on the same events.
                                               |           The solution is using:
                                               |:augroup xxxxx  <-- this opens a group (I can give it a name xxxxx)
@@ -123,14 +123,14 @@
                                               |           ex fo 2) :onoremap il( :<c-u>normal! F)vi(<cr>
                                               |
 16    More Operator-Pending Mappings          |:onoremap ih :<c-u>execute "normal! ?^==\\+$\r:nohlsearch\rkvg_"<cr>
-                                              |                   
+                                              |
                                               |                   <c-u>    is the usual effect of Ctrl-U, to delete
                                               |                            all what is on the left. This is required
                                               |                            as vim on a ':' add in the line the '<,'>
                                               |                   execute  allows to run a vim script inside the ""
                                               |                            special chars are allowed (ex. \r for ENTER)
                                               |                   normal!  allows to specify vim normal mode commands
-                                              |                            nb. it exists the command  :normal 
+                                              |                            nb. it exists the command  :normal
                                               |                                that runs normal-mode commands (ex:  :normal dd)
                                               |                                anyhow it cannot read special char like <cr>
                                               |                                so in that case use execute "normal!..."
@@ -147,9 +147,9 @@
 17    Status Lines                            |:set statusline=%f\ -\ FileType:\ %y   <-- all in 1 line so spaces must be escaped
                                               |
                                               |:set statusline=%f          <--- on more lines with +=
-                                              |:set statusline+=\ -\     
-                                              |:set statusline+=FileType: 
-                                              |:set statusline+=%y        
+                                              |:set statusline+=\ -\
+                                              |:set statusline+=FileType:
+                                              |:set statusline+=%y
                                               |
                                               |                      like a normal printf
                                               |                      there are many flags %
@@ -158,7 +158,7 @@
 18    Responsible Coding                      |"         use comments
                                               |          use folding. It works as:
                                               |:set foldmethod=marker   <--- this sets the folding method type
-                                              |za                       <--- this will opens & closes any block 
+                                              |za                       <--- this will opens & closes any block
                                               |                              started with a line with 3 {
                                               |                              till one line ended by }}}
 19    Variables                               |:let x = "string"
@@ -176,32 +176,32 @@
                                               |                                  @/   search reg
                                               |
 20    Variable Scoping                        |:l
-                                              |:b   
-                                              |            
+                                              |:b
+                                              |
 21    Conditionals                            |            more commands can be put on 1 line
                                               |            using the pipe '|' as separator
                                               |            (the meaning is like the ';' in other languages not lie the '|' in unix)
                                               |:if xxx
-                                              |:  
+                                              |:
                                               |:elseif                  nb.   if 1    if 45      if "13abc"    =  TRUE
                                               |:                              if 0    if "abc"   if "abc13"    =  FALSE
                                               |:else
-                                              |:  
+                                              |:
                                               |:endif
                                               |
 22    Comparisons                             |
-                                              |:if 10 > 1  
+                                              |:if 10 > 1
                                               |:if 10 == 11
                                               |:if "foo" == "bar"                  F
                                               |:if "foo" == "foo"                  T
                                               |:set noic | :if "foo" == "FOO"      F
-                                              |:set ic   | :if "foo" == "FOO"      T <--- nb changes 
+                                              |:set ic   | :if "foo" == "FOO"      T <--- nb changes
                                               |                                           as the T/F of the == operator depends on a
                                               |                                           user settings, NEVER use its pure form
-                                              |                                           but the 
+                                              |                                           but the
                                               |==?   (case ic)     <--.
                                               |==#   (case noic)   <---`---- they work also on numbers (not only strings)
-                                              |                                           
+                                              |
                                               |
 23    Functions                               |           - function name MUST have the 1' letter: UPPERCASE
                                               |           - they always returns number '0' if there is no explicit 'return'
@@ -221,13 +221,13 @@
                                               |:  echom a:name     <-- nb. ALWAYS the syntax is a:   (is the vim scope on vars like l: b:)
                                               |:endfunction
                                               |
-                                              |:function Varg(a,b,...) <-- Vaiable args.  
+                                              |:function Varg(a,b,...) <-- Vaiable args.
                                               |                          - a:000  is the LIST of extra args passed
                                               |                          - a:0    is the NUMBER of args passed
                                               |                          - a:1    is the first  (a:2 the second ...)
 25    Numbers                                 |:echo 100
                                               |:echo 0xff     (255)
-                                              |:echo 100.1    
+                                              |:echo 100.1
                                               |:echo 5.45e+3
                                               |:echo 5.45e-2
                                               |:echo 3 / 2       <-- 1
@@ -235,7 +235,7 @@
                                               |
 26    Strings                                 |:echo "Hello"
                                               |:echo "Hello, " . "world"
-                                              |:echo "3abc"    + "efg"     <-- gives 3, as '+' is a numeric operator 
+                                              |:echo "3abc"    + "efg"     <-- gives 3, as '+' is a numeric operator
                                               |
                                               |          to escape, use, as usual '\'
                                               |          anyhow echom cannot manage escaped chars, while echo can:
@@ -264,10 +264,10 @@
                                               |
                                               |:normal! /foo<cr>            <-- doesn't work (special chars <cr> not understood)
                                               |
-30    execute normal!                         |:execute "normal! /foo\<cr>" <-- works! 
+30    execute normal!                         |:execute "normal! /foo\<cr>" <-- works!
                                               |                                 with execute I can use normal escape-sequences
                                               |
-31    Basic Regular Expressions               |:set hlsearch incsearch        (1' highl. ALL    
+31    Basic Regular Expressions               |:set hlsearch incsearch        (1' highl. ALL
                                               |                                2' highl. FIRST on the fly while typing)
                                               |
                                               |         Suppose we want to search:   "for i in range(max):"
@@ -290,7 +290,7 @@
                                               |:nnoremap <leader>g :grep -R <cWORD> .<cr>    <-- <cWORD>: WORD under the cursor (all foo-bar)
                                               |:nnoremap <leader>g :grep -R '<cWORD>' .<cr>  <-- add ' (still problems with > that's <)
                                               |
-                                              |:nnoremap <leader>g :execute "grep -R " . shellescape("<cWORD>") . " ."<cr>             
+                                              |:nnoremap <leader>g :execute "grep -R " . shellescape("<cWORD>") . " ."<cr>
                                               |                                              ^
                                               |                                           adds the proper escapes (ex ' becomes '')
                                               |                                           here doesn't work as returns literally

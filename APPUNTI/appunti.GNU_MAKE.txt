@@ -13,9 +13,9 @@
 
    2. Compilation
             gcc -Wall -save-temps p.c -o p    -save-temps   (save temporary files:
-                                                             .i  <--- the preproc output I can verify i
-                                                                      comments are remove, MACRO have been subst. & include expanded.
-                                                                      It the exact same file I can obtaining    gcc -Wall -E p.c > xxxx
+                                                             .i  <--- the preproc output I can verify
+                                                                      It's the same file I can obtain with:  gcc -Wall -E p.c > xxxx
+                                                                      MACRO expanded / include expanded / comments removed.
                                                              .s  <--- assembler  (still in TEXT)
    3. Assembly reads .s to produce .o
                                                              .o  <--- binary ELF (executable & linkable format)
@@ -26,19 +26,12 @@
                                                              )
    4. Linking
       plugs-in the real addresses for all the external unresolved place holders
-      It's sufficient to compare the size of the p.o (object) with the p (linked)
+      It's enough comparing the SIZE of p.o (object) with p (linked)
       the see how much of the external has been built into p.
 
 
-
-
-
-
-
-   --------------------------------------------------------
-   --------------------------------------------------------
-   --------------------------------------------------------
    -------------------------------------------------------- Cross compiler
+
    A cross compiler is a compiler capable of creating executable code
    for a platform other than the one on which the compiler is running.
    ex.  . compile on FreeBSD an app for Android
@@ -48,7 +41,7 @@
    Virtual machines (like Java VM) tries to solve some of the reasons
    to need a cross-compiler, as they run the same code everywhere the
    VM has been ported.
-   Anyhow not in any place can be ported a VM, moreover it remains slower.
+   Anyhow not in any place (ex. microwave) can be ported a VM, moreover it remains slower.
 
 
    gcc =

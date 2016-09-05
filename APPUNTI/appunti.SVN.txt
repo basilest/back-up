@@ -1,0 +1,15 @@
+
+
+
+
+svn revert some_file.php            to dismiss local changes
+svn checkout --force ...             "     "      "    "
+
+svn log --verbose -r 42             to see even detailed files-pathname
+svn diff -x -bw Source/Java/J2eeAppServer/client/web/js/ajax.js
+svn ci Source/Java/J2eeAppServer/client/web/css/uber_ie7.css -m "removed 1st wrong line in file uber_ie7.css"
+
+svn ci -m "..." a.c a.c a.c dir/p.png    # commit a list of files
+svn ci -m "..." dir/*.c                  # commit using wildchars
+svn ci -m "..." --targets a.txt          # read which files to commit from file a.txt
+
