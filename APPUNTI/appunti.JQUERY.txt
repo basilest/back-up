@@ -50,12 +50,14 @@
 
  GENERAL SYNTAX       . $(seclector).action()        $ is a short for "jQuery"
                                                        I can write jQuery(selector).action()
+                                                       (see below the noConflict() method
+                                                        to avoid clash with other frameworks using 
+                                                        the shortcut '$')
                         ex:
                            $(this).hide()        hides the current element.
                            $("p").hide()         hides all <p> 
                            $(".test").hide()     hides all elements with class="test".
                            $("#test").hide()     hides the element with id="test".
-
 
 
 
@@ -514,76 +516,30 @@
                           });
 
 
- NOCONFLICT           . 2 functions:
+
+ NOCONFLICT           . the '$' is used even by other JavaScript frameworks like: 
+                        Angular, Backbone, Ember, Knockout, and more.
                             
-                            remove() - Removes element + childs
-                            empty()  - Removes ONLY childs 
-
-                          $("div").addClass("important");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        So to avoid clash, jQuery can release the hold on the $ shortcut
+                        doing the following things:
+
+                        1/2 $.noConflict();    the noConflict will release '$'.
+
+                                               nb. noConflict returns also a reference to jQuery
+                                               so it can be used as
+                                                  var jq = $.noConflict();
+                                                  jq(document).ready(function(){  <--- my new shortcut is 'jq'
+                                                      jq("button").click(function(){
+                                                              jq("p").text("jQuery is still working!");
+                                                      });
+                                                  }); 
+
+                        2/2 you can put the code inside the 'ready' function
+                            which is defined with 1 arg named $:   ready($) {...
+                            In this way I can save all my old legacy code without
+                            canging even 1 line:jQuery(document).ready(function($){
+
+                                $("button").click(function(){
+                                        $("p").text("jQuery is still working!");
+                                        });
+                                }); 
