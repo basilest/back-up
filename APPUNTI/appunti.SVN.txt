@@ -1,15 +1,62 @@
 
+checkout a repo
+
+                svn co https://svnv.orctel.internal:18080/svn/svn_repo/eChips/branches/BAU_Grr8!
+
+change branch
+
+                svn switch https://svnv.orctel.internal:18080/svn/svn_repo/eChips/branches/BAU_Grr8!
+
+info
+                ex. get info to know which is the current branch
+
+                svn info
+                svn info a.txt
+
+                ex:
+                svn info
+                            Path: .
+                            Working Copy Root Path: /Users/sbasile/CHIPS-SHARE/BAU_Grr8!
+                            URL: https://svnv.orctel.internal:18080/svn/svn_repo/eChips/branches/BAU_Grr8!
+                            Repository Root: https://svnv.orctel.internal:18080/svn/svn_repo
+                            Repository UUID: 44ebcc29-ebd9-784d-813a-c1ffb476c2cb
+                            Revision: 64479
+                            Node Kind: directory
+                            Schedule: normal
+                            Last Changed Author: clang
+                            Last Changed Rev: 64364
+                            Last Changed Date: 2016-09-13 09:29:25 +0100 (Tue, 13 Sep 2016)
+
+
+compare 2 branches
+
+                svn diff http://REPOS/trunk http://REPOS/branches/B
+
+                            shorthand:
+                                        svn diff ^/trunk ^/branches/B
+
+                --summarize    (to see just the list of files (not their content))
+                                        svn diff ^/trunk ^/branches/B --summarize
+
+undo
+                svn revert some_file.php            to dismiss local changes
+                svn checkout --force ...             "     "      "    "
+
+log
+                svn log --verbose -r 42             to see even detailed files-pathname
 
 
 
-svn revert some_file.php            to dismiss local changes
-svn checkout --force ...             "     "      "    "
+diff
+                svn diff -x -bw Source/Java/J2eeAppServer/client/web/js/ajax.js
 
-svn log --verbose -r 42             to see even detailed files-pathname
-svn diff -x -bw Source/Java/J2eeAppServer/client/web/js/ajax.js
-svn ci Source/Java/J2eeAppServer/client/web/css/uber_ie7.css -m "removed 1st wrong line in file uber_ie7.css"
 
-svn ci -m "..." a.c a.c a.c dir/p.png    # commit a list of files
-svn ci -m "..." dir/*.c                  # commit using wildchars
-svn ci -m "..." --targets a.txt          # read which files to commit from file a.txt
+
+commit
+                svn ci Source/Java/J2eeAppServer/client/web/css/uber_ie7.css -m "removed 1st wrong line in file uber_ie7.css"
+
+
+                svn ci -m "..." a.c a.c a.c dir/p.png    # commit a list of files
+                svn ci -m "..." dir/*.c                  # commit using wildchars
+                svn ci -m "..." --targets a.txt          # read which files to commit from file a.txt
 

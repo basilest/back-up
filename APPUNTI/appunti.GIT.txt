@@ -59,6 +59,18 @@ git fetch origin --prune              to remove, all old branches, deleted on re
                                       present on my local env.
 
 git remote prune origin
+git branch -d $(git branch --merged) <--- git branch --merged    all branches that have been merged.
+                                          after that cmd, if there are still some local branches not
+                                          deleted, it can be, because the merge has been done on the server
+                                          and then the branch deleted on the server, so the local branch
+                                          still results, non fully merged, and not listed
+                                          by "git branch --merged".
+                                          To delete them use a direct "git branch -D" with the
+                                          list of those unmerged branches
+
+
+
+
 
 git reflog       commands to recover from accidentally removing a branch or
 gc.reflogExpire

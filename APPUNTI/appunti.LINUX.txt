@@ -1118,7 +1118,7 @@ LOGIN
                                            a bin in the current dir, a (cd bin) goes there.
                                            Otherwise goes in $HOME/bin
 
-                                        
+
         SHELL vars
                    If we assign a var that doesn't exist,  a=34
                    the shell will create a SHELL var.
@@ -1620,6 +1620,40 @@ __  sudo
                           sudo su         /root        2        N
 
                           so the only clean env is obtainted with sudo -i
+
+                ---------------------------------------------
+                basile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  echo $HOME $PATH
+                /Users/sbasile /opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:
+                               /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:
+                               /usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:
+                               ~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
+                ---------------------------------------------
+                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -i
+                Password:
+                pd13121:~ root#  echo $HOME $PATH
+                /var/root /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:
+                          /usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
+                pd13121:~ root# logout
+                ---------------------------------------------
+                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -s
+                bash-3.2#  echo $HOME $PATH
+                /Users/sbasile /opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:
+                               /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.
+                               :/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
+                bash-3.2# exit
+                ---------------------------------------------
+                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo su
+                sh-3.2#  echo $HOME $PATH
+                /var/root /opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:
+                          /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.
+                          :/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
+
+
+
+
+
+
+
 
     /etc/sudoers              Is the file where users and rghts are configured.
               "sudo visudo"    opens it with your $EDITOR
