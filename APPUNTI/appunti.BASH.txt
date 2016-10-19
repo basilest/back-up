@@ -36,15 +36,15 @@ ${#array[@]}          idem
 ____________________________________________________________
 	 ( )     [ ]      { }
 ____________________________________________________________
-	
+
 
 Brackets
 
      1) if [ CONDITION ]             Test construct  (spaces near [ ] ARE required)  (uses -a -o  for and/or)
                                      ( ) can be used to group with -a or -o but
                                      must be escaped [ \( .... \) -a ...
-     2) if [[ CONDITION ]]           Extended test construct                         (uses && ||  and regex =~) 
-     3) Array[1]=element1            Array initialization  
+     2) if [[ CONDITION ]]           Extended test construct                         (uses && ||  and regex =~)
+     3) Array[1]=element1            Array initialization
      4) [a-z]                        Range of characters within a Regular Expression
      5) $[ expression ]              A non-standard & obsolete version of $(( expression ))
 
@@ -52,8 +52,8 @@ Brackets
 Curly Braces
 
 	 1) {}                                      Text replacement, after find and xargs
-	 2) ${variable}                             Parameter substitution  
-	 3) ${!variable}                            Indirect variable reference  
+	 2) ${variable}                             Parameter substitution
+	 3) ${!variable}                            Indirect variable reference
 	 4) { command1; command2; . . . commandN; } Block of code   (note a 'space' after '{' and ';' before last '}')
                                                 Thanks to the space, this usage of {} can be distinguished.
                                                 This block of code is like an anonymous function.
@@ -62,11 +62,11 @@ Curly Braces
                                                     . it's not executed in an SUBSHELL but inline
                                                     . vars defined inside are then visible even outside
 
-	 5) {string1,string2,string3,...}           Brace expansion  ex. 
+	 5) {string1,string2,string3,...}           Brace expansion  ex.
                                                 a{d,c,b}e --> ade ace abe)
-                                                /usr/{ucb/{ex,edit},lib/{ex?.?*,how_ex}}  
+                                                /usr/{ucb/{ex,edit},lib/{ex?.?*,how_ex}}
                                                          --> /usr/ucb/ex /usr/ucb/edit /usr/lib/ex?.?* /usr/lib/how_ex
-	 6) {x..y[..incr]}                          Extended brace expansion  
+	 6) {x..y[..incr]}                          Extended brace expansion
                                              echo {1..5}         1 2 3 4 5
                                              echo {1..5..2}      1 3 5
                                              echo {001..005}     001 002 003 004 005
@@ -79,21 +79,80 @@ Curly Braces
 Parenthesis
 
 	 1) ( command1; command2 )             Command group executed within a subshell  (nb. runs a child SHELL)
-	 2) Array=(element1 element2 element3) Array initialization  
-	 3) result=$(COMMAND)                  Command substitution, new style  
-	 4) >(COMMAND)                         Process substitution  
-	 5) <(COMMAND)                         Process substitution 
+	 2) Array=(element1 element2 element3) Array initialization
+	 3) result=$(COMMAND)                  Command substitution, new style
+	 4) >(COMMAND)                         Process substitution
+	 5) <(COMMAND)                         Process substitution
 
-Double Parenthesis
+Double Parenthesis   (vars inside can be written with or without the '$')
 
-   	 1) (( var = 78 ))                     Integer arithmetic   
-   	 2) var=$(( 20 + 5 ))                  Integer arithmetic, with variable assignment   
-   	 3) (( var++ ))                        C-style variable increment   
-   	 4) (( var-- ))                        C-style variable decrement   
-   	 5) (( var0 = var1<98?9:21 ))          C-style ternary operation
+   	 1) (( var = 78 ))                     Integer arithmetic
+   	 2) var=$(( 20 + 5 ))                  Integer arithmetic, with variable assignment
 
+           allowed operators:
+                            + - * /
+                            ++
+                            --
+                            %
+                            **       (exponential)
+                            << >>    (bitwise shift)
+                            & | ~ ^  (bit: AND OR NOT EXCLUSIVE-OR)
+                            !        (logical NOT)
+                            < <= == => > != && ||
+
+
+   	                        ex. (( var++ ))
+   	                            (( var-- ))
+   	                            $(( (3 > 2) || (4 <= 1) )) has the value 1
+   	 3) (( var0 = var1<98?9:21 ))          C-style ternary operation
+
+     TRUTH VALUE RETURNED BY $(( )) is the opposite of 'test' and 'exit status'
+     true=1  false=0
+         $(( 5 > 3 ))     echo $?   --> 1
+         [ 5 -gt 3 ]      echo $?   --> 0
 
 nb. command sub. can be nested $(ls $(pwd))
+____________________________________________________________
+  PARSER
+____________________________________________________________
+
+
+            [1] split into words                      | separetors: SPACE\t\n;)(><|&
+                                                      |
+                      " ? --> [4]                     |
+                      ' ? --> [9]                     |
+                    |                                 |
+     ______________________________________           |
+     |          check 1st w.               |          |
+     |                                     |          |
+  [1] <-- opening key.      other key.   ---> SYNTAX  |
+     |  (if, function     (then, fi, done, |  ERR     |
+     |      ...)              ...)         |          |
+     |         not keyword                 |          |
+     |_____________________________________|          |
+                    |                                 |
+                                                      |
+  [1] <--     alias ?                                 |
+                    |                                 |
+           [2]   brace exp.                           | a{b,c} --> ab ac
+                    |                                 |
+           [3]   tilde exp.                           | ~ste   --> /home/ste
+                    |                                 |
+           [4]   param exp.                           | $VAR   --> 5
+                    |                                 |
+           [5]   cmd subst.                           | $( grep ...)
+                    |                                 |
+           [6]   arith. subs.  " ? --> [9]            | $(( i++ ))
+                    |                                 |
+           [7]   word split                           | separators: IFS
+                    |                                 |
+           [8]   path exp.                            | /**/a.?
+                    |                                 |
+           [9]   cmd lookup                           | builtin / $PATH
+                    |                                 |
+          [10]   RUN (eval)                           |
+                                                      |
+
 ____________________________________________________________
   SPECIAL CHARs
 ____________________________________________________________
@@ -118,7 +177,7 @@ ____________________________________________________________
       19  RETURN    run cmd. (note that both \ ' or " escape correctly it,
                               so having a long cmd on more lines, with the
                               prompt defined in PS2)
-                               
+
 
       CTRL          CTRL like DEL/BACKSPACE/ALT are some more 'special' chars
                     Moste known are:
@@ -136,15 +195,15 @@ ____________________________________________________________
   CTRL ------- READLINE & BIND
 
   All the CTRL comes from the READLINE C-Library that in GNU is the
-  common code to many applications. 
+  common code to many applications.
   I can write a C prog myself, that including the library:
          #include <readline/readline.h>
          #include <readline/history.h>
-  and then linking it ( -lreadline) 
+  and then linking it ( -lreadline)
   can have all the features (ex TAB for autocompletion and so on).
-  Readline key bindings (all the CTRL & ALT) are taken from the text editor Emacs, 
+  Readline key bindings (all the CTRL & ALT) are taken from the text editor Emacs,
   but can be customized.
-  On some systems, Esc must be used instead of Alt, because the Alt shortcut conflicts with anothers. 
+  On some systems, Esc must be used instead of Alt, because the Alt shortcut conflicts with anothers.
 
   READLINE configuration is done in the file ~/.inputrc  (even with proprietary
   syntax commands $if $else $endif)
@@ -156,7 +215,7 @@ ____________________________________________________________
 
 
 
-  bind is another way to operate on readline, and link a special sequence 
+  bind is another way to operate on readline, and link a special sequence
   of keystroke to do something
       bind -P  to see which and how any of the sequneces are configured
       bind -l  to see all the names of the readline functions
@@ -171,7 +230,7 @@ ____________________________________________________________
              It can be even partial (ex 'help re, will give
              help on all startin with re (ex. 'read' 'readonly' 'return'))
              or wildchars (ex help 're??' will only returns help on 'read').
-              
+
 ____________________________________________________________
 ~      $HOME
 ~+     $PWD      (current dir)
@@ -185,7 +244,7 @@ ____________________________________________________________
      2. vi mode  (set -o vi)
      3. no editor mode, if the shell was launched as bash .... -noediting
 
-emacs mode: 
+emacs mode:
             Ctrl-A    start of line
             Ctrl-E    end   of line
             Ctrl-U    delete till start
@@ -194,7 +253,7 @@ emacs mode:
             Ctrl-R    to search back in history
             ...
 
-vi mode: 
+vi mode:
             - ESC to enter into vi-command mode
             - to enter vi-input mode (i a I A R ...)
             - then usual commands ($ 0 ^ w W b B e E D p ...)
@@ -204,9 +263,27 @@ vi mode:
             - autocomletion:
                  . normally TAB is all what you need, but even if it's not real vi
                    there are these autocompletions:
-                     . do ESC and \, then 
+                     . do ESC and \, then
                          a =    to see the available possibilities
-                         a *    to have the best match filled in 
+                         a *    to have the best match filled in
+            - v  opens the line into vi (saving it will execute)
+                 the same as doing 'fc' (fix line)
+            ____________________________________________________________
+            to add to the prompt in which vi-mode (edit | command) I'm currently in,
+            add:
+                     bind 'set show-mode-in-prompt on'     (in ~/.bash_profile)
+
+            That feature is available in bash from ver. 4.3
+            On mac there is a problem, as the bash is 3.x and they don't update
+            for some GPL licence issues. So after using "brew install bash"
+            that adds bash 4.x: /usr/local/bin/bash  (while the 3.x remains /bin/bash)
+            Anyhow iTerm2 in the profile settings still opens /bin/bash
+            (this can be seen with:  echo $BASH_VERSION)
+            so add in profile-settings-command: /usr/local/bin/bash -l
+            (with the missing -l , ~/.bash_profile is not sourced)
+            even tmux opens /bin/bash so in ~/.tmux.conf add
+            set -g default-shell /usr/local/bin/bash
+
 ____________________________________________________________
 14 HISTORY TRICKS
 
@@ -234,9 +311,9 @@ ____________________________________________________________
        fc -l 2023   edit cmd num 2025
        fc -l  vi    edit cmd starting with vi
        fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb
-             
+
 ____________________________________________________________
-    SHELL OPTIONS:  set -o       
+    SHELL OPTIONS:  set -o
 ____________________________________________________________
     a set -o produces the list of the on/off options of the shell:
                  Current option settings
@@ -252,7 +329,7 @@ ____________________________________________________________
                  vi              off
                  emacs           off
                  noclobber       off    <--- .. > a.txt do not overwrite if a.txt is present
-                 allexport       off
+                 allexport       off              can be anyhow overwritten with  >| a.txt
                  notify          off
                  nounset         off
                  priv            off
@@ -334,7 +411,7 @@ To use the long name, the syntax is
        bash -a      EXPORTS all var that defines (so that child processes
                     can see them)
 
-                          ex  
+                          ex
                       parent.sh        child.sh
                         R=56           echo $R > aaaa    <-- aaaa is empty
                         child.sh
@@ -352,7 +429,7 @@ To use the long name, the syntax is
                     with -k it's like
                              a=2 b=3 d=4 cmd c
                     so cmd has 1 only arg $1 and 3 ENV vars
- 
+
 
 so for debugging a.sh:
       solution 1:    bash -x  a.sh
@@ -369,10 +446,10 @@ nb.  more flags must be grouped, because UNIX passes ONLY 1 arg
          #!/bin/bash -vah    WORKS!
      while
          #!/bin/bash -v -a -h    NOT!    (equivalent only to -v)
-     
+
 nb.  as the special var $- reports which flags are currently ON (ex hia)
-     to call other scripts with the same set, I can use 
-            bash -$- child_script.sh 
+     to call other scripts with the same set, I can use
+            bash -$- child_script.sh
      So if for instance I execute father.sh with -x, it will be also propagated
      to child.sh
 ____________________________________________________________
@@ -382,7 +459,7 @@ ____________________________________________________________
     }                                         }
 
 
-    (){...} (or function {...}) are called anonymous functions 
+    (){...} (or function {...}) are called anonymous functions
     and are typically used to set a local scope: (){ local IFS=:; }
 
       A function as it's executed inline (not in a subshell) is faster than
@@ -397,14 +474,14 @@ ____________________________________________________________
 
       1. Aliases
       2. Keywords     (ex if for ...)
-      3. Functions 
+      3. Functions
       4. built-in     (ex cd wait)
       5. exec         (to search in PATH)
 
-      
+
 
       type xxx      to know what is xxx (from 1.Aliases to 5.exec):
-                    ex. 
+                    ex.
                        type ls      ls is aliased to `ls --color=auto'
                        type if      if is a shell keyword
 
@@ -413,18 +490,30 @@ ____________________________________________________________
                                     ls is aliased to `ls --color=auto'
                                     ls is /bin/ls
 
-      builtin  is the keyword that allow to call the builtin version
-      of a command regardless if any alias or function (that would come first)
-      should have the same name:
-            builtin cd
+      builtin  is the keyword that makes BASH to search only in the
+               bultin set, skipping ALIASES and FUNCTIONs (that would come first)
+               ex. builtin cd
 
-      command  is the same as 'builtin' but works on exec
-               (ex. rm or ls are not builtin, so builtin rm
-                do not work, instead it must be written command rm)
+      command  is the keyword that makes BASH search in builtin & PATH
+               skipping (like in builtin) ALIASES and FUNCTIONs
+               (ex. command rm)
 
       \        is the short for both builtin and command
                ex  \cd  instead of builtin cd
                    \ls  instead of command ls
+
+      enable   to manage builtins
+               -a      dump all and the status
+               -p      dump all   (with no status)
+               -d      unload (delete) a bultin
+               -f xx   load a new builtin (shared object) xx
+               -n xx   disable builtin xx (with no args, dumps all DISABLED)
+               -s      to restrict on only POSIX subset
+
+
+               skipping (like in builtin) ALIASES and FUNCTIONs
+               (ex. command rm)
+
 ____________________________________________________________
 BUILT-IN vs EXTERNAL PROG
 ____________________________________________________________
@@ -432,48 +521,48 @@ ____________________________________________________________
 Some commands are built in the shell, for performance reason (they are frequently used)
 others, are external commands.
 
-POSIX, defines following as  regular Built-In 
+POSIX, defines following as  regular Built-In
 
         alias        false         jobs         read       wait
         bg           fc            kill         true
         cd           fg            newgrp       umask
         command      getopts       pwd          unalias
 
+           test       Evaluate expression.
+           ulimit     Set or report file size limit.
+
 while the following (even if they are even much more used of the above) are external cmds
 
            find       Find files.
-           ls    
+           ls
            ln         Link files.
-           cd         
-           pwd      
+           pwd
            touch      Change file access and modification times.
-           mv     
-           cp              
+           mv
+           cp
            dd         Convert and copy a file.
-           mkdir   
-           rm      
-           rmdir  
-           
-           basename     
-           dirname        
-           cat         
-           
-           chgrp     
-           chmod    
-           chown   
-           
+           mkdir
+           rm
+           rmdir
+
+           basename
+           dirname
+           cat
+
+           chgrp
+           chmod
+           chown
+
            cksum      Write file checksums and sizes.
            sum        Print checksum and block or byte count of a file.
-           
+
            cmp        Compare two files (good for binary conmpare).
-           
+
            df         Report free disk space.
            du         Estimate file space usage.
-           
+
            pathchk    Check pathnames.
            sh         Shell, the standard command language interpreter.
-           test       Evaluate expression.
-           ulimit     Set or report file size limit. 
 ____________________________________________________________
 END A SCRIPT
 ____________________________________________________________
@@ -563,7 +652,7 @@ ____________________________________________________________
 `    (backquote)  can be used a pair of ` like                  # it's better to use $(cmd)
                           a=`cmd`
      to assign to a var the result of a command.
-     (the shell will replace the string quoted by `` 
+     (the shell will replace the string quoted by ``
       by the rerurned value)
      ` .. `  is also called (command substitution)
 
@@ -574,7 +663,7 @@ ____________________________________________________________
 
      It is also used when writing a command that continues on more lines.
 
-     NB. 
+     NB.
 
 
 
@@ -651,7 +740,7 @@ Globbing   Filename expansion: means expanding filename containing
            *    any char (N.B. not match filenames start with a dot,
                 ex: .bashrc)
            []   all char inside
-           ^    for negating        ex. ls -l [^ab]*     
+           ^    for negating        ex. ls -l [^ab]*
            !    "      "
 
            So Globbing returns a list of (SORTED !!!!) names (file-names) and works
@@ -660,13 +749,13 @@ Globbing   Filename expansion: means expanding filename containing
 
            ex. echo *   -->  a.1 b.1 c.1 t2.sh test1.txt
 
-           Is the shell to expand the * BEFORE the command 
+           Is the shell to expand the * BEFORE the command
            on the command line is executed. So commands are not aware
            how the arguments originally were. This is sometimes used
            putting a file named -i in a dir, so that a "rm *"
            will be quite sure expanded (and sorted) as rm -i ...
            so asking confirmation
-           
+
 
 
 
@@ -786,60 +875,96 @@ ____________________________________________________________
      stdin (keyboar fd=0) ---->
                                 ----> stderr (screen fd=2)
 
+      1>pippo.txt  1>>pippo.txt         redirect stdout to write/append on pippo.txt
+      2>pippo.txt  2>>pippo.txt         redirect stderr to write/append on pippo.txt
+      &>pippo.txt  &>>pippo.txt         redirect both 1 and 2 to write/append on pippo.txt
+
      Other 7 numbers (3-9) are available as fd
-     To list info on open files use lsof
-
-     lsof -a -p $$ -d0,1,2        #look at FD column
-
-     COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
-      bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
-      bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
-      bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1
+     (a fd is the C file handle  (pointer to an 'open' file))
 
 
-     1>filen   # redirect stdout to filen    ex ls 1> pippo
-     1>>filen  # redirect (with append)
-     2>filen   # the same for stderr         ex ls 2> pippo
-                                                     (any error is not added on video
-                                                     but redirected to pippo)
-     2>>filen  #   "   "   "   "
-     &>filen   #  redirect both stdout and stderr
+     N.B. the redirections are automatically "reset" after each line,
+          (i.e. (stdout, sterr) are back to video).
+          preceding the redirection with an  'exec'
+          the effect remains on subsequent cmds of that current SHELL
 
-     N.B. the above commnands are automatically "reset" after each line, so stdout,
-          sterr are back to video.
 
-     i>filen   # create fd i to write       filen. If not set is 1 (stdout).
-     i<filen   # create fd i to read        filen. If not set is 1 (stdout).
-     i<>filen  # create fd i to read/write  filen. If not set is 1 (stdout).
+      ________________________________________________________________
+     | TO START a fd (ex 4) (assigning it to file in READ/ WRITE/ APPEND):
+     |________________________________________________________________
+     |
+     |         4>pippo.txt   # create fd 4 to WRITE  on pippo.txt  If not set is 1 (stdout): >pippo.txt
+     |         4>>pippo.txt  #             to APPEND                             1 (stdout): >pippo.txt
+     |         4<pippo.txt   #             to read                               0 (stdin):  <pippo.txt
+     |         4<>pippo.txt  #             to read/write                         1 (stdout): <>pippo.txt
+     |____________________________________
+     | TO USE a fd (ex 4):  the syntax is &4
+     |____________________________________
+     |
+     |         'use' means, that on that current cmd of the command-line the read or write
+     |         will be done using fd, so 0 or 1 or 2 will have a reassignment like:
+     |             0<&4   1>&4    2>&4
+     |                                       ex.  2>&1  redirect stderr to stdout
+     |________________________________
+     | TO CLOSE a fd: the syntax is  &-
+     |________________________________
+     |
+     |          4<&-   # close 4 on READ
+     |          4>&-   # close 4 on WRITE/APPEND
+     |
+     |                                    nb   <&-   short for 0<&-
+     |                                         >&-   short for 1>&-
+     |
+     |           Child processes inherit open fds. This is how pipes work.
+     |           To prevent a fd from being inherited, close it.
 
-     once a fd i is created to read or write use for each command the specification
-     <&i when reading and >&i when writing.
 
-     echo 1234567890 > pippo
-     3 <> pippo
-     read -n 4 <&3             # Read only 4 characters.
-     echo -n . >&3             # Write a decimal point there.
-     exec 3>&-                 # Close fd 3.
+     lsof    is used to see open fds:
 
-     i>&j      # i and j are both fd. If i not set is 1 (stdout).
-               # operations on i are the same than on j.
-               # the command act conceptually as i=j
+             lsof -a -p $$ -d0,1,2        #dump for this ($$) shell fds 0 1 2
 
-     ex.  2>&1  redirect stderr to stdout
+             COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+              bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
+              bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
+              bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1
 
-     N.B. to remember & and >. Only case & is before > (&>)
-          is whene I'm sending out+err to a filename
-          otherwise (>&) in this case there are only numbers (descriptors)
 
-     fd can be closed.
-              0<&-   or   <&-       # close stdin
-              1>&-   or   >&-       # close stdout
-
-              i<&-   # close input  fd i
-              i>&-   # close output fd i
-
-     Child processes inherit open fd. This is why pipes work.
-     To prevent a fd from being inherited, close it.
+     ________________________
+     | EXAMPLEs TO UNDERSTAND:
+     |_______________________
+     |   cat pippo.txt
+     |                  --> aaaa
+     |                      bbbb
+     |   4>pippo.txt
+     |                  --> the 1st effect is that pippo.txt is now empty (!) aaaa & bbbb deleted
+     |                      the 2nd effect is that 4 is then no more present (nothing on lsof ... -d4)
+     |   4>>pippo.txt
+     |                  --> aaaa & bbbb still there
+     |                      nothing on lsof ... -d4
+     |   exec 4>pippo.txt
+     |                  --> aaaa & bbbb deleted
+     |                      can see it on lsof ... -d4:
+     |
+     |                          bash    6343 stiv    4w   REG    8,8   6   29 /home/stiv/TEST/pippo.txt
+     |                                               ^
+     |   exec 4>>pippo.txt
+     |                  --> aaaa & bbbb still there
+     |                      can see it on lsof ... -d4
+     |   echo cccc 1>&4
+     |                  --> pippo.txt will have aaaa & bbbb & cccc
+     |   4<&-
+     |                  --> 4 is closed only on this line
+     |   exec 4<&-
+     |                  --> 4 is closed forever
+     |
+     |So 'exec' can be avoided if everything occurs in 1 cmd line:
+     |    4>>pippo.txt echo cccc 1>&4
+     |
+     |                                    echo 1234567890 > pippo
+     |                                    exec 3<>pippo
+     |                                    read -n 4 <&3             # Read only 4 characters.
+     |                                    echo -n . >&3             # Write a decimal point there.
+     |                                    exec 3>&-                 # Close fd 3.
 
 
      >|  force redirection: forcibly overwrite an existing file.
@@ -847,6 +972,8 @@ ____________________________________________________________
                           bash -C        (said 'noclobber')
          it means it's prevented file overwrite.
          Still, even if called as bash -C, the >| will overwrite !!!
+
+
 
      -   redirection
 
@@ -885,8 +1012,9 @@ ____________________________________________________________
      nb. I can run bash -u    to have ERRORS each time a var is UNDEFINED
          (a way to debug and clean the script)
 
-   Bash var are UNTYPED, they are just text, even if in case the string is built by only digits
-   bash undertsang they are 'numbers' and give sense to any related arithmetic operation.
+   Bash var are normally UNTYPED (to TYPED them use declare),
+   they are just text, even if in case the string is built by only digits
+   bash understand they are 'numbers' and give sense to any related arithmetic operation.
    NOTE: that the 'integer' value of a sting is 0.
    NOTE: usually is 0 also the 'integer' value of UNSET o NOT_EXIXSTING (not declared) var
 
@@ -897,35 +1025,110 @@ ____________________________________________________________
    a decimal point as strings.
 
 
+     -------------- declare / readonly
+     declare (builtin) allows to assign array or integer types to a var:
 
-   a=2334                   # Integer.
-   let "a += 1"             # a = 2335
-   b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
-   let "b += 1"             # b = 1    the integer value of 2BB5 is 0
+            . declare            with no args dump all ENV var (like 'set' alone)
+            . declare -i         type INT.
+                                   v1=12 v2=5
+                                   r=v1*v2 && echo $r                 --> "v1*v2"  # WRONG
+                                   declare -i r && r=v1*v2 && echo $r --> 60       # OK
+            . declare -r         readonly (a CONST) cannot be 'unset'
+            . declare -x         define + export  (like export a=...)
+            . declare -a         define the var as an ARRAY
+            . LOCAL              A declare in a function is implicitly also a 'local'
+                                 (scope limited within the function)
+
+     readonly (builtin)    like declare -r
+                           readonly with no args or with -p, dumps all "declare -r"
+                           ex:
+
+                                declare -r BASHOPTS="checkwinsize:cmdhist:complete_fullquote:
+                                                     expand_aliases:extglob:extquote:force_fignore:
+                                                     histappend:interactive_comments:login_shell:
+                                                     progcomp:promptvars:sourcepath"
+                                declare -ir BASHPID
+                                declare -r BASH_COMPLETION_COMPAT_DIR="/etc/bash_completion.d"
+                                declare -ar BASH_REMATCH='()'
+                                declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="46" [3]="1"
+                                                            [4]="release" [5]="x86_64-pc-linux-gnu")'
+                                declare -ir EUID="1000"
+                                declare -ir PPID="6843"
+                                declare -r SHELLOPTS="braceexpand:emacs:hashall:histexpand:history:
+                                                      interactive-comments:monitor"
+                                declare -ir UID="1000"
+
+
+     -------------- let
+          let is intended to assign an INTEGER expression to a var.
+          It can be summarised as:
+
+               let int_var=expression
+
+                 ex:
+
+               a=2334                   # Integer.
+               let "a += 1"             # a = 2335
+               b=${a/23/BB}             # Substitute "BB" for "23". ---> b = 2BB5
+               let "b += 1"             # b = 1    the integer value of 2BB5 is 0
 
      -------------- DEFAULT:
 
      ${a?err_msg}   if $a is not defined exits the script with the "err_msg"
      ${a=val}       if $a is not defined sets it to val
      ${a-val}       if $a is not defined uses HERE val  ($a is unchanged, (so undefined))
-     
+
      ${a+val}       if $a IS defined uses HERE val
 
 
      the versions with ':' are "not defined OR NULL":
 
-                                       ${a:?err_msg}   
-                                       ${a:=val}       
-                                       ${a:-val}       
-                                       ${a:+val}       
+                                       ${a:?err_msg}
+                                       ${a:=val}
+                                       ${a:-val}
+                                       ${a:+val}
 
-           ex. a=1;  echo ${a-2}   #1        
-               a=;   echo ${a-2}   # nothing   
-               a=;   echo ${a:-2}  #2         
+           ex. a=1;  echo ${a-2}   #1
+               a=;   echo ${a-2}   # nothing
+               a=;   echo ${a:-2}  #2
                      echo ${b-2}   #2          b is undefined
-                     echo ${b:-2}  #2        
+                     echo ${b:-2}  #2
 
-     --------------
+     -------------- ARRAY
+
+      DECLARATION (& ASSIGNMENT)
+
+          names=([2]=alice [0]=hatter [1]=duchess)
+          names=(hatter duchess alice)
+          names=(hatter [5]=duchess alice)   (assigning elem at index 0,5,6) <---------.
+          declare -a names                                                             |
+                                                                                       |
+      REFERENCING                                                                      |
+          echo ${names[5]}                                                             |
+                                                                                       |
+      *  @                                                                             |
+          as for argv[]                                                                |
+          *    returns all the elements as 1 word (with IFS separating the elements)   |
+          @    returns many quoted words of each elem.                                 |
+                                                                                       |
+          ex:                                                                          |
+             for i in "${names[@]}"; do                                                |
+                                                                                       |
+      UNASSIGNED elements                                                              |
+          elem not assigned are NULL if considered as STRING.                          |
+          The syntax                                                                   |
+          ${!array[@]}    returns the LIST of the DEFINED indexs                       |
+                          ex, here would be 0,5,6 -------------------------------------'
+
+      LEN OF ELEMENTS / LEN OF ARRAY
+          . ${#names[5]}    returns the LEN of the element [5] (ex if it is "duchess" --> 7)
+          . ${#names[@]}    returns the LEN of the ARRAY
+          . ${#names[*]}    returns the LEN of the ARRAY
+
+      REMOVING ELEM
+          . unset names[5]
+
+    --------------
 
      ${#a}        # return len of char for value of a
                   # for an array only the len of 1st elem
@@ -1056,6 +1259,41 @@ set       the set fun. allows to overwrite what was the args to the script.
           set           (alone, with neither args or options)
                         list the env vars
 
+getopts   is a builtin, used to manage options and their args
+          It only works with LETTERS not for LONG-name options (for that there is
+          a command (not builtin) getopt(1))
+          The syntax is   getops ":ab:c..."  xxx <---  var used (normally in a while)
+                                   ^
+                                   the list of option letters.
+                                   If an option is followed by an arg ex (-f filename)
+                                   there must be a ':' after (f:)
+                                   A starting ':'  (:ab ...)  suppresses ERROR msg
+                                   in case a option is unknown
+                                   $OPTARG is the name of var that stores the arg
+                                   (ex filename in -f filename)
+                                   $OPTIND is the number of the argv[] to process
+                                   after getops finished.
+                                       cmd -ab xxx    $OPTIND=3
+                                       cmd -a -b xxx  $OPTIND=4
+                                   So normally there is a shift $(($OPTIND - 1))
+
+          getops is normally to be used inside a while:
+
+          | while getopts ":ab:c" opt; do
+          |     case $opt in
+          |         a ) process option -a
+          |         ;;
+          |         b ) process option -b
+          |             $OPTARG is the option's argument
+          |         ;;
+          |         c ) process option -c
+          |         ;;
+          |         \? ) echo 'usage: $0 [-a] [-b barg] [-c] args.
+          |         exit 1
+          |         esac
+          | done
+          | shift $(($OPTIND - 1))
+
 ____________________________________________________________
 EXIT STATUS
 ____________________________________________________________
@@ -1077,7 +1315,7 @@ ____________________________________________________________
 
      Book Author suggest to use values in range: 64 - 113
 
-     Take care on exit values. If the value seems odd, probably it is. 
+     Take care on exit values. If the value seems odd, probably it is.
      Values X > 255 become (X mod 256) on exit
      ex:
         exit 300 --> echo $? : 44
@@ -1090,7 +1328,7 @@ ____________________________________________________________
 
 
           if ...                                      if ....; then <--- on a single line with ;
-          then     <--- on a new line without ;                    
+          then     <--- on a new line without ;
           fi
 
 
@@ -1108,9 +1346,9 @@ ____________________________________________________________
          said that if ONLY CHECKs EXIT STATUSES, a syntax improvement
          is done by 'test' builtin:
 
-              test xxx                  (or alias [ xxx ]  <-- spaces required)   
+              test xxx                  (or alias [ xxx ]  <-- spaces required)
               test string1 = string2    (or alias [ string1 = string2 ])
-         
+
          they just transform the included BOOLEAN xxx CONDITION into an EXIT STATUS
          ex.
              > [ "" ]       echo $?   -->  1
@@ -1135,14 +1373,14 @@ ____________________________________________________________
          else
             default-command
          fi
-         
+
 
          ____________________________________________________________
          EXAMPLES
          ____________________________________________________________
-         
+
          Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary.
-         
+
          if [ 0 ]
          then         # 0 is true.
          ......
@@ -1178,7 +1416,7 @@ ____________________________________________________________
          ____________________________________________________________
          TEST ON INTEGER
          ____________________________________________________________
-         
+
          -eq     is equal to                        if [ "$a" -eq "$b" ]
          -ne     is not equal to                    if [ "$a" -ne "$b" ]
          -gt     is greater than                    if [ "$a" -gt "$b" ]
@@ -1189,25 +1427,25 @@ ____________________________________________________________
          <=      is less than or equal to    (within double parentheses)       (("$a" <= "$b"))
          >       is greater than             (within double parentheses)       (("$a" > "$b"))
          >=      is greater than or equal to (within double parentheses)       (("$a" >= "$b"))
-         
+
          ____________________________________________________________
          TEST ON STRING
          ____________________________________________________________
-         
+
          Using an unquoted string normally works, however, this is an unsafe practice.
          Always quote a string.
-         
+
          =       is equal to       if [ "$a" = "$b" ]
                                    Note the whitespace    if [ "$a"="$b" ] is not equivalent
          ==      is equal to       if [ "$a" == "$b" ]   This is a synonym for =.
                                    The == behaves differently within [[]] []
-         
+
                                        [[ $a == z* ]]   # True if $a starts with a "z" (pattern matching).
                                        [[ $a == "z*" ]] # True if $a is equal to z*    (literal matching).
-         
+
                                        [ $a == z* ]     # File globbing and word splitting take place.
                                        [ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
-         
+
          !=      is not equal to   if [ "$a" != "$b" ]
                  This operator uses pattern matching within a [[ ... ]] construct.
          <       is less than, in ASCII alphabetical order
@@ -1217,29 +1455,29 @@ ____________________________________________________________
                   if [[ "$a" > "$b" ]]
                   if [ "$a" \> "$b" ]
          -z      string is null, (zero length)
-         
+
                        String=''   # Zero-length ("null") string variable.
-         
+
                        if [ -z "$String" ]
                        then
                          echo "\$String is null."
                        else
                          echo "\$String is NOT null."
                        fi     # $String is null.
-         
+
          -n      string is not null.
-         
+
          ____________________________________________________________
          TEST ON FILES
          ____________________________________________________________
-         
+
          file=/etc/passwd
-         
+
          if [[ -e $file ]]
          then
            echo "Password file exists."
          fi
-         
+
          -e            file exists
          -a            file exists (like -e. "deprecated" and its use discouraged).
          -f            file is a regular file (not a directory or device file)
@@ -1268,7 +1506,7 @@ ____________________________________________________________
                        that need to access system hardware.
                        Lacking the suid flag, these binaries could not be invoked by a non-root user.
          	           -rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
-         
+
          -k            sticky bit set  (a t in its permissions)
                        the save-text-mode flag permission.
                           If set on a file: that file will be kept in cache memory, for quicker access.
@@ -1279,14 +1517,14 @@ ____________________________________________________________
          -O            you are owner of file
          -G            group-id of file same as yours
          -N            file modified since it was last read
-         
+
          f1 -nt f2     file f1 is newer than f2
          f1 -ot f2     file f1 is older than f2
          f1 -ef f2     files f1 and f2 are hard links to the same file
-         
-         
+
+
          _______ [[ ]]
-         
+
                  The [[ ]] construct is the more versatile Bash version of [ ].
                  This is the extended test command, adopted from ksh88.
                  No filename expansion or word splitting takes place between [[ ]],
@@ -1294,59 +1532,63 @@ ____________________________________________________________
                  Using [[ ]] rather than [ ] can prevent many logic errors.
                  For example, && || < and > work in [[ ]] despite giving error in [ ]
                  Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]]
-         
+
          ____________________________________________________________
          TEST WITH   AND  OR   -a  -o    &&  ||
          ____________________________________________________________
-         
+
          Tests conditions can be chained with boolena opertors NOT (!)   AND   OR
          Remeber once again that what Bash uses for each test condition is its EXIT STATUS
-         
-         
+
+
          -a      logical and          exp1 -a exp2 returns true if both  are true.
          -o      logical or           exp1 -o exp2 returns true if either is true.
-         
+
          The -o and -a work with test command or within []
-         
+
          It can also be used the form &&   ||
          && and || work also within [[ ]]       [[ condition1 && condition2 ]]
-         
+
          if [ "$expr1" -a "$expr2" ]
          then
            echo "Both expr1 and expr2 are true."
          else
            echo "Either expr1 or expr2 is false."
          fi
-         
+
               &&   (AND logical operator).
                     returns 0 (success) only if both conditions are true.
-         
+
               a=$(( 0 && 1 )) ; echo $a     # 0
               (( 0 && 1 )) ;    echo $?     # 1
-         
-         
+
+
          Caution	:
-         
+
          [ 1 -eq 1 ] && [ -n "`echo true 1>&2`" ]   # true
          [ 1 -eq 2 ] && [ -n "`echo true 1>&2`" ]   # (no output)
          # ^^^^^^^ False condition. So far, everything as expected.
-         
+
          # However ...
          [ 1 -eq 2 -a -n "`echo true 1>&2`" ]       # true
          # ^^^^^^^ False condition. So, why "true" output?
-         
+
          # Is it because both condition clauses within brackets evaluate?
          [[ 1 -eq 2 && -n "`echo true 1>&2`" ]]     # (no output)
          # No, that's not it.
-         
+
          # Apparently && and || "short-circuit" while -a and -o do not.
 
  _______________________
  _______ FOR
 
-     NB. FOR is NNNOOOOTTTT like C
-         it cannot have variable len loopi (cycle on N times), but only a fixed len list
-         (for variable loop ex (10 times) use WHILE)o
+     FOR can be in 2 forms:
+
+           . for x in LIST
+           . for (( i=1; i <= 12 ; i++ ))
+
+       Only the second is like C,
+       the 1st, is with a FIXED list
 
          for x [ in list ]     <--- if list is missing is used "$@"  (script args)
          do ...                     ex:    for i
@@ -1357,7 +1599,7 @@ ____________________________________________________________
 
                             ex.  for dir in $PATH
 
-                      
+
          for F in $(ls)
           do [ ! -f $F ] && continue     <--------- if NOT (!) a file, 'continue'  (exist also 'break', like C)
             DT=$(stat $F | grep -i access | tail -1 | cut -d " " -f2)
@@ -1396,11 +1638,11 @@ ____________________________________________________________
 
 
 
-                                     pattern: 
-                                              . can be any usual regex [] * ?  
+                                     pattern:
+                                              . can be any usual regex [] * ?
                                                 (even piped:  ex 0 | 1)
                                               . default is *
-                                             
+
 
 
 
@@ -1419,7 +1661,7 @@ ____________________________________________________________
      fi                                                     ;;
                                                          esac
 
-                                                         case $V in    
+                                                         case $V in
                                                          [1-6]* | ?)
                                                             MSG="<10"
                                                             ;;
@@ -1440,7 +1682,7 @@ ____________________________________________________________
                          Has the SAME-EXACT syntax of FOR  (included the meaning "$@" for a missing list)
                          The static list is displayed like a menu in the form
 
-                                1) aaa       <-- aaa is the first iem of the list     
+                                1) aaa       <-- aaa is the first iem of the list
                                 2) bbb
                                 3) ccc
                                 ....
@@ -1461,23 +1703,23 @@ ____________________________________________________________
 STRING  OPERATORS
 ____________________________________________________________
 
-'#' for len: 
+'#' for len:
        ex.   filename=alice.c  --> ${#filename} = 7
 
 patter matched is REMOVED from var, and the rest RETURNED:
 
        ${var ## pattern}   longest  match from beginning
-       ${var #  pattern}   shortest match from beginning   
+       ${var #  pattern}   shortest match from beginning
        ${var %  pattern}       "    match from end
        ${var %% pattern}   longest  match from end
-       
+
 suppose $path    =  /home/cam/book/long.file.name
 
-       ${path##/*/}   long.file.name             
-       ${path#/*/}    cam/book/long.file.name   
-       ${path%.*}     /home/cam/book/long.file 
-       ${path%%.*}    /home/cam/book/long     
-       
+       ${path##/*/}   long.file.name
+       ${path#/*/}    cam/book/long.file.name
+       ${path%.*}     /home/cam/book/long.file
+       ${path%%.*}    /home/cam/book/long
+
 substitution
        ${var/  pattern/ string}  logest match replaced by string
        ${var// pattern/ string}  1st     "      "      "     "
@@ -1489,7 +1731,7 @@ substitution
           var=abcABC123ABCabc
           echo ${var/#abc/XYZ}          # XYZABC123ABCabc
           echo ${var/%abc/XYZ}          # abcABC123ABCXYZ
- 
+
 ____________________________________________________________
 INT  OPERATORS
 ____________________________________________________________
@@ -1505,6 +1747,10 @@ ____________________________________________________________
 *=
 /=
 %=
+
+NB: the syntax  2#11101   (so BASE#NUMBER, with base any 2-36)
+    can define number using any base:
+    declare -i r=2#11101   echo $r   --> 29
 ____________________________________________________________
 BLOCK STATEMENTS
 ____________________________________________________________
@@ -1527,8 +1773,8 @@ MAIL
 ____________________________________________________________
 
   $MAIL       = ENV var, path of my mailbos
-  $MAILCHECK  = num of sec, mailbox is checked for mails 
-                (ex. 600 : 10 min,  
+  $MAILCHECK  = num of sec, mailbox is checked for mails
+                (ex. 600 : 10 min,
                        0 : at each prompt)
 
 ____________________________________________________________
@@ -1618,6 +1864,166 @@ ____________________________________________________________
 
         The output of cmd1 still travels through the pipe, but
         it's also saved in file_cmd1
+
+____________________________________________________________
+JOB & PROCESSES
+____________________________________________________________
+
+     find . -iname xxx &        --> [1] 104
+                       ^             ^   ^
+                       |         job-id  proc-id
+                   background
+
+   proc-id: is the number that identifies each proc running in the OS
+            regardless in which shell was executed
+   job-id   is a number assigned by the current shell to a command
+            executed in background (starts from 1)
+            Any other cmd executed before [1] is finished
+            will receive job-id [2] [3] ...
+
+
+
+   'jobs'   to list all jobs
+            -l    long list (with proc-ids)
+            -p    ONLY proc-ids
+
+   the    | fg           moves in foreground the LAST proc pushed in background &
+   same   | fg %find     to call a job by name (use %name) if there are 2 names (ex 2 'find')
+   for    |                                                will be taken the last submitted
+   'bg'   | fg %2                      by job-id
+ -------->| fg 104                     by proc-id
+   after  | fg %?xxx                   by the string xxx matched somewhere in the rest of command line
+   a      | fg %+                      the last  (the same as fg)
+   CTRL-Z | fg %-                      the last-1 (proc before the last)
+
+
+--------------- signals & kill
+kill -x PID       send signal -x to proces with that PID    (-x  can be the number (ex 2) or the name (ex SIGINT))
+kill -l           to have the list of signal names:
+kill    PID       kill with no signal is by default 2 SIGINT (CTRL-C)
+
+     1) SIGHUP         2) SIGINT         3) SIGQUIT         4) SIGILL         5) SIGTRAP
+     6) SIGABRT        7) SIGBUS         8) SIGFPE          9) SIGKILL       10) SIGUSR1
+    11) SIGSEGV       12) SIGUSR2       13) SIGPIPE        14) SIGALRM       15) SIGTERM
+    16) SIGSTKFLT     17) SIGCHLD       18) SIGCONT        19) SIGSTOP       20) SIGTSTP
+    21) SIGTTIN       22) SIGTTOU       23) SIGURG         24) SIGXCPU       25) SIGXFSZ
+    26) SIGVTALRM     27) SIGPROF       28) SIGWINCH       29) SIGIO         30) SIGPWR
+    31) SIGSYS        34) SIGRTMIN      35) SIGRTMIN+1     36) SIGRTMIN+2    37) SIGRTMIN+3
+    38) SIGRTMIN+4    39) SIGRTMIN+5    40) SIGRTMIN+6     41) SIGRTMIN+7    42) SIGRTMIN+8
+    43) SIGRTMIN+9    44) SIGRTMIN+10   45) SIGRTMIN+11    46) SIGRTMIN+12   47) SIGRTMIN+13
+    48) SIGRTMIN+14   49) SIGRTMIN+15   50) SIGRTMAX-14    51) SIGRTMAX-13   52) SIGRTMAX-12
+    53) SIGRTMAX-11   54) SIGRTMAX-10   55) SIGRTMAX-9     56) SIGRTMAX-8    57) SIGRTMAX-7
+    58) SIGRTMAX-6    59) SIGRTMAX-5    60) SIGRTMAX-4     61) SIGRTMAX-3    62) SIGRTMAX-2
+    63) SIGRTMAX-1    64) SIGRTMAX
+
+kill -l 15    returns 'TERM' from its number, the signal name (without SIG).
+
+       SIGHUP     1          Hangup
+       SIGINT     2          Interrupt from keyboard   CTRL-C
+       SIGKILL    9          Kill signal
+       SIGTERM    15         Termination signal
+       SIGSTOP    17,19,23   Stop the process          CTRL-Z
+
+
+      TERM (15)  should be the 1st try as proc can execute its 'clean' code if it has any
+      INT  (2)   CTRL-C    2nd try
+      KILL (9)             last try
+
+
+killall         like kill but can kill all instances of a proc with a given 'name'
+pkill, pgrep    advanced feature:  can kill processes from other than your own user ID and
+                                   specifying processes by name
+
+
+SIGHUP  (1)   when a shell receives SIGHUP it exits
+              (to exit shell with PID 3456:    kill -1 3456)
+
+A SHELL that exits (for having received SIGHUP or for other reasons), sends SIGHUP to all
+its jobs (whichever state, running or suspended)
+This feature (huponexit) can be 'on' or 'off'  (see below)
+--------------------------------------------------- shopt
+shopt        shows the option settings of the shell
+
+autocd                  off
+cdable_vars             off
+cdspell                 off
+checkhash               off
+checkjobs               off
+checkwinsize            off
+cmdhist                 on
+compat31                off
+compat32                off
+compat40                off
+compat41                off
+compat42                off
+complete_fullquote      on
+direxpand               off
+dirspell                off
+dotglob                 off
+execfail                off
+expand_aliases          off
+extdebug                off
+extglob                 off
+extquote                on
+failglob                off
+force_fignore           on
+globstar                off
+globasciiranges         off
+gnu_errfmt              off
+histappend              off
+histreedit              off
+histverify              off
+hostcomplete            on
+huponexit               off  <--------------
+interactive_comments    on
+lastpipe                off
+lithist                 off
+login_shell             off
+mailwarn                off
+no_empty_cmd_completion off
+nocaseglob              off
+nocasematch             off
+nullglob                off
+progcomp                on
+promptvars              on
+restricted_shell        off
+shift_verbose           off
+sourcepath              on
+xpg_echo                off
+
+--------------------------------------------------- trap
+trap intercepts the signals. The syntax is:
+     trap '.....; .....; .....'     SIG1 SIG2 SIG3
+
+
+
+so trap + some commands + the signals trapped, which can be as usual:
+                - the numbers   (ex 15)
+                - the name (without SIG)
+                - the special value 0 or EXIT, which means when that script ends
+                - the special value DEBUG (the commands inside the trap '....' are executed on each cmd')
+                  moreover variables defined with the more specific syntax:
+                                declare -t VAR=val
+                  instead of the normal
+                                           VAR=val
+                  will be logged or 'traced' (t)
+                - the special value ERR (the commands inside the trap '....' are executed on each exit != 0)
+                  (in some cases, inside if, while, ... this is not always true, so check to be sure)
+ex1.
+     trap "echo Booh!" INT TERM
+ex2.
+     FILE=/tmp/$(basename $0).pid
+     trap 'rm $FILE' EXIT
+     trap 'echo "receiving SIG to stop";  exit 3'  15  <----- if a kill -15 is sent to this script,
+     if [ -e $FILE ]                                          it will sent itself an exit 3,
+     then                                                     which will be trapped, above,
+            echo "cannot run if file is present"              so the file is removed
+            exit 2
+     fi
+     echo $$ > $FILE
+     sleep 10
+     exit 0
+
 
 ____________________________________________________________
 TO MANIPULATE PROC
