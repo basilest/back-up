@@ -83,13 +83,18 @@
 
 
     - 'ssh-keygen': the above files are created by 'ssh-keygen':
-                    ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+                    ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"  -f pippo_rsa
+
 
                               -t : rsa1            for SSH v.1
                                    rsa,dsa,ecdsa   for SSH v. 2
                               -b : min is    768
                                    default  2048
                                    ecdsa: ec sizes are 256 384  521
+
+                              -f   to add a meaningfull name (otherwise you don't know for which
+                                   server it was created)
+                                   So in ~/.ssh can stay many diffenet ssh-keys for different servers.
 
                               -O
                                    clear      clear all enabled permissions.  This is useful to clear
@@ -170,7 +175,7 @@
                            ssh
                            sshd
 
-                 ssh-agent -k        <-- it exits (kill) the running instance of shh-agent
+                 ssh-agent -k        <-- it exits (kill) the running instance of ssh-agent
                                         (the pid is still in $SSH_AGENT_PID))
                                         the output is unset SSH_AUTH_SOCK;  <---- so use ssh-agent -k to remember these names
                                                       unset SSH_AGENT_PID;

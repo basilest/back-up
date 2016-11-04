@@ -1,0 +1,18 @@
+
+
+___________ TO GET PROC INFO:
+tasklist                to see the list of processes with "IMAGE" name and PID
+get-process             The same of tasklist (from Power shell as admin)
+
+___________ TO KILL PROC:
+taskkill /IM "process_name" /T /F       /IM: by Image
+taskkill /PID 3400 /T /F                /PID: by PID
+
+stop-process            (from Power shell)  kill -id pid -Force
+('kill' is an alias of stop-process)
+
+wmic process where name='myprocessname.exe' delete
+
+                                    Windows Management Instrumentation Command-line (WMIC)
+                                    is a command-line and scripting interface that simplifies
+                                    the use of Windows Management Instrumentation (WMI)

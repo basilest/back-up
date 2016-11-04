@@ -6,23 +6,23 @@
                       - fast & short Javascript code ready
                       - no more cross-browser issue (support back to IE 6)
 
- INSTALL jQUERY       . download from jQuery.com  and then put it in the same dir 
+ INSTALL jQUERY       . download from jQuery.com  and then put it in the same dir
                         of the file where it must be used and where you write this:
 
                            <head>
                            <script src="jquery-1.12.4.min.js"></script>
-                           </head> 
+                           </head>
 
                       - Otherwise link directly to an external CDN (Content Delivery Network)
                         like Google or Microsoft:
 
                            <head>
                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-                           </head> 
+                           </head>
 
                            <head>
                            <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
-                           </head> 
+                           </head>
 
                         The advantage of this solution is that, it's not required to download in any dir
                         and the customer of my page could have it already cached in his browser
@@ -37,7 +37,7 @@
                              <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js">
                              </script>
                              <script src="my_jquery_functions.js"></script>
-                             </head> 
+                             </head>
 
 
 
@@ -51,11 +51,11 @@
  GENERAL SYNTAX       . $(seclector).action()        $ is a short for "jQuery"
                                                        I can write jQuery(selector).action()
                                                        (see below the noConflict() method
-                                                        to avoid clash with other frameworks using 
+                                                        to avoid clash with other frameworks using
                                                         the shortcut '$')
                         ex:
                            $(this).hide()        hides the current element.
-                           $("p").hide()         hides all <p> 
+                           $("p").hide()         hides all <p>
                            $(".test").hide()     hides all elements with class="test".
                            $("#test").hide()     hides the element with id="test".
 
@@ -67,36 +67,36 @@
                         too early some code that is not available yet):
 
                         $(document).ready(function(){      |    $(function(){
-                                                           |                                    
+                                                           |
                            // jQuery methods go here...    |       // jQuery methods go here...
-                                                           |                                    
-                           });                             |       }); 
+                                                           |
+                           });                             |       });
                        ________________________________________________________________________
                            MORE READABLE VERSION                SHORT FORM
 
-                        
+
 
 
 
 
  SELECTORS            . have the syntax $(...)
                       . all the standard CSS are supported
-                      . there are some more custom 
+                      . there are some more custom
 
                       ex:
 
-                          $("*")                    Selects all elements    
-                          $(this)                   Selects current HTML element    
-                          $("p.intro")              Selects all <p> with class="intro"     
+                          $("*")                    Selects all elements
+                          $(this)                   Selects current HTML element
+                          $("p.intro")              Selects all <p> with class="intro"
                           $("p:first")              Selects first <p>
-                          $("ul li:first")          Selects first <li> of the first <ul>    
-                          $("ul li:first-child")    Selects first <li> of every <ul>    
-                          $("[href]")               Selects all el with an href ATTRIBUTE     
-                          $("a[target='_blank']")   Selects all <a>  with a target attribute value equal to "_blank"    
-                          $("a[target!='_blank']")  Selects all <a>  with a target attribute value NOT equal to "_blank"    
-                          $(":button")              Selects all <button>  and <input> of type="button"     
-                          $("tr:even")              Selects all even <tr> 
-                          $("tr:odd")               Selects all odd  <tr> 
+                          $("ul li:first")          Selects first <li> of the first <ul>
+                          $("ul li:first-child")    Selects first <li> of every <ul>
+                          $("[href]")               Selects all el with an href ATTRIBUTE
+                          $("a[target='_blank']")   Selects all <a>  with a target attribute value equal to "_blank"
+                          $("a[target!='_blank']")  Selects all <a>  with a target attribute value NOT equal to "_blank"
+                          $(":button")              Selects all <button>  and <input> of type="button"
+                          $("tr:even")              Selects all even <tr>
+                          $("tr:odd")               Selects all odd  <tr>
 
 
 
@@ -115,9 +115,9 @@
                                     /       /
                            $("p").click(function(){
                              // action goes here!!
-                             }); 
-                        
-                      . "on"   I can attach 1 or + EVENT HANDLERS to an elem, 
+                             });
+
+                      . "on"   I can attach 1 or + EVENT HANDLERS to an elem,
                         with the keyword "on":
 
 
@@ -132,9 +132,9 @@
                                                                      $(this).css("background-color", "yellow");
                                                                  }
                                                              });
-                     
-                     
-                     
+
+
+
 
  SHOW() HIDE()        . 3 general actions assocated to each element
                          $("p").hide();
@@ -146,24 +146,24 @@
                                                        |       |__  a function to be executed after the method completes
                                                        |
                                                        |__  "slow" "fast"  1000 <-- a number in ms
-                         ex: 
+                         ex:
                              $("#id").click(function(){
                                  $("p").show(800);
                              });
-                     
-                     
-                     
+
+
+
 
 
  FADE()               . 4 general actions assocated to each element
                         to graduallly disappear / (reappear)
 
-                         
+
                              fadeIn()          fadeIn     (speed,callback);
                              fadeOut()         fadeOut    (speed,callback);
                              fadeToggle()      fadeToggle (speed,callback);
                              fadeTo()          fadeTo     (speed,opacity, callback);
-                                                                  ^                    
+                                                                  ^
                                                                   |__ value in 0--1: ex. 0.18
 
                          $("button").click(function(){
@@ -178,7 +178,7 @@
  SLIDE()              . 4 general actions assocated to each element
                         to graduallly disappear / (reappear)
 
-                         
+
                              slideDown()       slideDown   (speed,callback);
                              slideUp()         slideUp     (speed,callback);
                              slideToggle()     slideToggle (speed,callback);
@@ -242,7 +242,7 @@
 
 
  GET DOM val          . 3 functions:
-                        
+
                             text() - GET text of selected elements
                             html() - GET content of selected elements (including HTML markup)
                             val()  - GET value of input fields
@@ -250,13 +250,13 @@
                           alert("Text:  " + $("#idx").text());
                           alert("HTML:  " + $("#idx").html());
                           alert("Value: " + $("#idx").val());
-   
+
 
  SET DOM val          . 4 functions:
 
-                            text() 
+                            text()
                             html()
-                            val() 
+                            val()
                             attr()
 
                           $("#test1").text("Hello world!");
@@ -283,28 +283,28 @@
 
 
  ADD                  . 4 functions:
-                            
+
                             append()  - Inserts content at the end of the selected elements
-                            prepend() - Inserts content at the beginning 
-                            after()   - Inserts content after 
-                            before()  - Inserts content before 
+                            prepend() - Inserts content at the beginning
+                            after()   - Inserts content after
+                            before()  - Inserts content before
 
 
                           $("ol").append ("<li>Appended  item</li>");
                           $("ol").prepend("<li>Prepended item</li>");
                           $("img").after ("Some text after");
-                          $("img").before("Some text before"); 
+                          $("img").before("Some text before");
 
                         for all 4, I can pass many args:
-                                                          $("body").append(txt1, txt2, txt3);    
+                                                          $("body").append(txt1, txt2, txt3);
 
 
 
 
  REMOVE               . 2 functions:
-                            
+
                             remove() - Removes element + childs
-                            empty()  - Removes ONLY childs 
+                            empty()  - Removes ONLY childs
 
                           $("#div1").remove();
                           $("#div1").empty();
@@ -317,22 +317,22 @@
 
 
  CSS Classes          . 3 functions:
-                            
+
                             addClass()    - Adds one or more classes to the selected elements
-                            removeClass() - Removes one or more classes 
-                            toggleClass() - Toggles between adding/removing classes 
+                            removeClass() - Removes one or more classes
+                            toggleClass() - Toggles between adding/removing classes
 
                           $("div").addClass("important");
                           $("h1, h2, p").addClass("blue");
                           $("h1, h2, p").removeClass("blue");
                           $("h1, h2, p").toggleClass("blue");
 
-                        You can also specify multiple classes 
+                        You can also specify multiple classes
                           $("#div1").addClass("important blue");
 
 
  css()                . The css() method get/set 1 or + style prop
-                            
+
                             css("propertyname");               GET
                             css("propertyname","value");       SET
                             css({"propertyname":"value","propertyname":"value",...});   MANY
@@ -341,16 +341,16 @@
                           $("p").css("background-color", "yellow");
                           $("p").css({"background-color": "yellow", "font-size": "200%"});
 
-                                
+
 
 
  CSS Dimensions       . 6 functions:
-                            
+
                             width()            height()
                             innerWidth()       innerHeight()
                             outerWidth()       outerHeight()
-                            
-                            
+
+
 
                           __________________________________________
                           |                 MARGIN                 |
@@ -361,14 +361,14 @@
                           |    |..|      __________        |..|    |
                           |    |..|      |  ELEM  |        |..|    |
                           |              |________|                |
-                                         __________                 
-                                            width()                 
-                                  |________________________|        
-                                            innerWidth()            
-                               |______________________________|     
-                                            outerWidth()            
+                                         __________
+                                            width()
+                                  |________________________|
+                                            innerWidth()
+                               |______________________________|
+                                            outerWidth()
                           |_______________________________________|
-                                            outerWidth(true)        
+                                            outerWidth(true)
 
 
 
@@ -377,9 +377,9 @@
 
 
  TRAVERSING           . many methods to traverse the tree
- 
-                                    __________                   
-                                    |  ELEM  |                   
+
+                                    __________
+                                    |  ELEM  |
                                     |________|  ancestor __.
                                         |                  |
                                     ____|_____             |
@@ -394,21 +394,21 @@
                                     |  ELEM  |  descendant_|
                                     |________|             |
                                                            .
- ANCESTORS            . 3 functions:                       
-                                                                 
-                            parent()         - returns the direct parent 
+ ANCESTORS            . 3 functions:
+
+                            parent()         - returns the direct parent
                             parents()        - returns parent + all ancestors (with an optional param I can filter)
                             parentsUntil()   - returns parent + all ancestors up (and excluding) the one specified
 
                           $("span").parent();
                           $("span").parents();
                           $("span").parents("ul");    <--- filter only "ul" ancestors
-                          $("span").parentsUntil("div"); 
+                          $("span").parentsUntil("div");
 
 
  DESCENDANTS          . 2 functions:
-                            
-                            children()  -  returns all direct children 
+
+                            children()  -  returns all direct children
                             find()      -  returns descendants
 
                           $("div").children();
@@ -417,17 +417,22 @@
                           $("div").children("p.my_class");   filter all "p" children of class my_class
                           $("div").find("span");             filter all "span" descendants
 
+                          NB. if I have already a node                                        |  <div>   <--- this is 1
+                              ex. var div2 = $("div span.labelDec").parent().next();          |     <span class="labelDec"> ...
+                              to search nodes starting from this DOM sub-tree I use find():   |  <div>   <--- this is 2
+                              ex. span2 = $(div2).find("span");                               |     <span> ...
+
 
  SIBLINGS             . 7 functions:
-                            
+
                             siblings()    -  returns all siblings
-                            next()        -  returns the next 
-                            nextAll()     -  returns ALL next 
+                            next()        -  returns the next
+                            nextAll()     -  returns ALL next
                             nextUntil()   -  returns ALL next sibling till the one specified
 
-                            prev()        -  work just like the methods above 
-                            prevAll()        but with reverse functionality: 
-                            prevUntil()     (traverse backwards instead of forward). 
+                            prev()        -  work just like the methods above
+                            prevAll()        but with reverse functionality:
+                            prevUntil()     (traverse backwards instead of forward).
 
                           $("h2").siblings();
                           $("h2").siblings("p");    <--- filtered
@@ -436,15 +441,15 @@
                           $("h2").nextUntil("h6");
 
 
-                              
+
 
  FILTERING            . 5 functions:
-                            
+
                             first()   - returns the first element of the selected elements.
                             last()    - returns the last element of the selected elements.
                             eq()      - returns an element with a specific index (starts at 0)
-                            filter()  - return the Elements that match the criteria 
-                            not()     - the opposite of filter(). returns all elements that do not match 
+                            filter()  - return the Elements that match the criteria
+                            not()     - the opposite of filter(). returns all elements that do not match
 
 
                           $("div p").first();
@@ -456,46 +461,46 @@
 
  AJAX                 . AJAX = Asynchronous JavaScript and XML.
 
-                        is the art of exchanging data with a server, 
+                        is the art of exchanging data with a server,
                         updating parts of a page without reloading all
-                            
-                        you can request 
-                            . text, 
-                            . HTML, 
+
+                        you can request
+                            . text,
+                            . HTML,
                             . XML,
-                            . JSON 
+                            . JSON
 
-                        from a remote server using both 
+                        from a remote server using both
 
-                             HTTP Get 
-                             HTTP Post 
+                             HTTP Get
+                             HTTP Post
 
-                        And you can load the external data 
+                        And you can load the external data
                         directly into the selected HTML elements
 
          COMPATIBILITY  Different browsers have different syntax for AJAX implementation.
                         jQuery allows a standard AJAX for all.
 
 
- AJAX load()          . $(selector).load(URL,[data,callback]); 
-                            
+ AJAX load()          . $(selector).load(URL,[data,callback]);
+
                             data: optional key/value pairs to send along with the request.
 
                           $("#div1").load("demo_test.txt");
 
 
  AJAX GET/POST        . GET   - get data from the server. Note: may return cached data.
-                        POST  - get data from the server. 
-                                However, NEVER caches data, and 
+                        POST  - get data from the server.
+                                However, NEVER caches data, and
                                 is often used to send data along with the request.
-                            
-                            $.get(URL,callback); 
-                            $.post(URL,data,callback); 
+
+                            $.get(URL,callback);
+                            $.post(URL,data,callback);
 
                                       callback is the function to be executed if the request succeeds.
                                       has 2 args (data, status)
 
-                                          data:    holds the content of the page requested, 
+                                          data:    holds the content of the page requested,
                                           status:  holds the status of the request.
 
 
@@ -517,9 +522,9 @@
 
 
 
- NOCONFLICT           . the '$' is used even by other JavaScript frameworks like: 
+ NOCONFLICT           . the '$' is used even by other JavaScript frameworks like:
                         Angular, Backbone, Ember, Knockout, and more.
-                            
+
                         So to avoid clash, jQuery can release the hold on the $ shortcut
                         doing the following things:
 
@@ -532,14 +537,14 @@
                                                       jq("button").click(function(){
                                                               jq("p").text("jQuery is still working!");
                                                       });
-                                                  }); 
+                                                  });
 
                         2/2 you can put the code inside the 'ready' function
                             which is defined with 1 arg named $:   ready($) {...
                             In this way I can save all my old legacy code without
-                            canging even 1 line:jQuery(document).ready(function($){
+                            changing even 1 line:jQuery(document).ready(function($){
 
                                 $("button").click(function(){
                                         $("p").text("jQuery is still working!");
                                         });
-                                }); 
+                                });
