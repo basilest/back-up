@@ -2,10 +2,21 @@
              Bootstrap is
                  standared framework for
                        - FRONT-END HTML/ CSS/ JAVASCRIPT
-                       - aim to self adjust to different devices (eg. MOBILE (small phones) upto large desktops)
+                       - aim to self adjust to different devices (eg. MOBILE (small phones) up to large desktops)
                        - uses jquery for cross browser compatibility
 
-                 Deeveloped at Twitter then released as open source on 2011
+                 Deeveloped at Twitter then released as open source on 2011 (ver.1)
+                 Since then:
+                    2012   ver 2.
+                    2013   ver 3
+                    2014   ver 4:  - added support for:
+                                      .Sass  (to replace Less)
+                                      .Flexbox 
+
+                                   . rewrote all JS plugins
+
+
+
 
     _____________________________ WHERE FIND IT
 
@@ -19,8 +30,532 @@
           - jquery
 
           ex:
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+            <link   rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+
+    _____________________________ GRID
+
+       Grid layout comes with:
+
+           - a standard 1170 pixel wide.
+           - 12 columns:
+                  - they can be grouped.
+                    The general syntax is:
+
+                       <div class="col-sm-4">
+                                        ^ ^
+                                        | |_1 to 12
+                                        |
+                                        |___
+                                            xs (for phones)
+                                            sm (for tablets)
+                                            md (for desktops)
+                                            lg (for larger desktops)
+
+                    And the total should be then 12 inside a 'row' class
+                    ex:
+
+                     <div class="row">                          <div class="row">
+                           <div class="col-sm-4">...</div>            <div class="col-sm-4">...</div>
+                           <div class="col-sm-4">...</div>            <div class="col-sm-8">...</div>
+                           <div class="col-sm-4">...</div>      </div> 
+                     </div>                                          
+
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       - <h1> ..... <h6>    are defined with height:  36 / 30 / 24 / 18 / 14 / 12 px
+
+               - <small> ... </small>    to wrap text in <h1> ... <h6> that will be a greyed
+                                         (like a 'subtitle' effect)
+
+       - <mark> ..... </mark>         to add a grey highlight background to a word / sentence
+       - <abbr> ..... </abbr>         to add a mouse-over help message:
+                                      <abbr title="World Health Organization">WHO</abbr>
+
+       - <blockquote> ..... </b..>    to have a left-align 'block-quoted' text 
+
+           - <blockquote class="blockquote-reverse">> ..... </b..>    to have a right-align 
+
+
+
+       - <code> ..... </code>         to have red-text    on  grey-backg. 
+       - <kbd> .....  </kbd>          to have white-text  on  black-backg.
+       - <pre> .....  </pre>          to preserve formatting
+
+       - lists:
+                                      <dl>
+                                          <dt>Coffee</dt>         <----- the term
+                                          <dd>- black hot drink</dd> <-- its description
+                                          <dt>Milk</dt>
+                                          <dd>- white cold drink</dd>
+                                      </dl>     
+
+
+
+       <p class="text-muted">   .. </p>       text light-grey
+       <p class="text-primary"> .. </p>            blue
+       <p class="text-success"> .. </p>            green
+       <p class="text-info">    .. </p>            dark blue
+       <p class="text-warning"> .. </p>            grey~brown
+       <p class="text-danger">  .. </p>            red
+
+
+
+       <p class="bg-primary">   .. </p>       white-text  on blue-b.
+       <p class="bg-success">   .. </p>       black-t     on green
+       <p class="bg-info">      .. </p>        "          light-blue
+       <p class="bg-warning">   .. </p>        "          brown~yellow
+       <p class="bg-danger">    .. </p>        "          red
+
+
+
+       .lead                                   Makes a paragraph stand out     
+       .small                                  smaller text (set to 85% of the size of the parent)   
+       .text-left                              left-aligned 
+       .text-center                            center-aligned 
+       .text-right                             right-aligned 
+       .text-justify                           justified 
+       .text-nowrap                            no wrap 
+       .text-lowercase                         lowercased 
+       .text-uppercase                         uppercased 
+       .text-capitalize                        capitalized 
+       .initialism                             Displays inside an <abbr> in a slightly smaller font 
+       .list-unstyled                          Removes the default list-style and left margin on list items 
+                                               (works on both <ul> and <ol>). 
+       .list-inline                            Places all list items on a single line  
+       .dl-horizontal                          Lines up the terms (<dt>) and descriptions (<dd>) in <dl> elements side-by-side.
+       .pre-scrollable                         Makes a <pre> element scrollable    
+
+
+
+    _____________________________ TABLE
+
+
+       Don't have a vertical sep. (Only row lines sep.)
+       The HTML is the usual:
+
+       <table class="table">      <------ classes can be :
+           <thead>                                    - class="table table-striped"    1 row white & 1 row grey
+                 <tr>                                 - class="table table-bordered"   1 border
+                      <th>Firstname</th>              - class="table table-hover"      grey when mouse over
+                      <th>Lastname</th>               - class="table table-condensed"  less margin between rows
+                 </tr>                                - 
+           </thead>                                   - for any type, any ROW can be set to
+           <tbody>                                      one of these classes to have context-color:
+                 <tr>                                     
+                      <td>John</td>                       <tr class="success">       green-backg
+                      <td>Doe</td>                        <tr class="danger">        red-bg
+                 </tr>                                    <tr class="info">          light.blue-bg
+                                                          <tr class="warning">       brown.yellow-bg
+                                                          <tr class="active">        grey-bg
+
+
+
+
+
+          RERESPONSIVE TABLES:
+               are tables defined inside a 
+                       <div> 
+               with class .table-responsive:
+
+                              <div class="table-responsive">
+                                <table class="table">
+               
+               The table will then scroll horizontally on small devices (under 768px). 
+               When viewing on anything larger than 768px wide, there is no difference
+
+
+
+
+
+
+    _____________________________ IMAGE
+
+
+       Rounded Corners                      <img src="a.jpg" class="img-rounded" 
+       Circle                               <img src="a.jpg" class="img-circle" 
+       Thumbnail                            <img src="a.jpg" class="img-thumbnail" 
+       Responsive Images
+            automatically adjust to fit 
+            the size of the screen.         <img src="a.jpg" class="img-responsive"
+
+
+       Responsive Embeds
+            for videos
+            They apply to elem:
+                <iframe>, <embed>, 
+                <video>,  <object> 
+
+            of class .embed-responsive-item  
+            that must be wrapped into a
+                  <div>
+            of class .embed-responsive....
+            with 1 of the 2 formats 
+            4:3  16:9
+                                            <div class="embed-responsive embed-responsive-16by9">
+                                                        <iframe class="embed-responsive-item" src="..."></iframe>
+                                                                                  </div>
+
+                                                                                  What is aspect ratio?
+
+
+
+                                                                                  The aspect ratio of an image describes the proportional relationship between its width and its height. Two common video aspect ratios are 4:3 (the universal video format of the 20th century), and 16:9 (universal for HD television and European digital television).
+
+                                                                                  You can choose between two aspect ratio classes:
+                                                                                  <!-- 16:9 aspect ratio -->
+                                                                                  <div class="embed-responsive embed-responsive-16by9">
+                                                                                    <iframe class="embed-responsive-item" src="..."></iframe>
+                                                                                    </div>
+
+                                                                                    <!-- 4:3 aspect ratio -->
+                                                                                    <div class="embed-responsive embed-responsive-4by3">
+                                                                                      <iframe class="embed-responsive-item" src="..."></iframe>
+                                                                                      </div>
+                                                                                      Test Yourself with Exercises!
+
+                                                                                            
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
+
+
+
+    _____________________________ REDEFINE HTML TAGS
+
+
+       G
 
 

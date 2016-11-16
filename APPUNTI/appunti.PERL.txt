@@ -1,4 +1,4 @@
-                          PERL CORE
+                          PERL CORE is context (ctx) SCALAR or LIST
 
          _____________________________________________________________________________
         |   ()  <-- $          SCALAR in LIST   ctx:        LIST of 1                 |
@@ -38,7 +38,7 @@ $_     $ARG                            The default
                                        while, for or foreach
                                        $_ is set up for you.
                                        Then any regular expression matches, chops (and lcs and many more)
-                                       without a parameter, and even prints assume you want to work on $_. Thus:
+                                       without a parameter, and even 'print' assume you want to work on $_. Thus:
                                        it can be omitted:
 
                                            while ($line = <FH>) {          while (<FH>) {
@@ -234,7 +234,7 @@ Array       @   stays for the A of Array
 Hash        %   a pair of ° (separated by a /) indicating key/value
 Typeglob    *   *foo     (Everything named foo in the Symbol Table:  $foo  @foo   %foo  &foo )
 Subroutine  &   before v5 it was &fun() to call a user-defined function fun()
-                wrt built-in function (ex print()) that don't want it.
+                wrt built-in function (ex print()) that doesn't want it.
                 Now it's optional. It must be used only when assigning the name
                 of the function to a reference: $r=\&fun;
 
@@ -475,7 +475,7 @@ HASH
    Linguistically, a hash relationship is genitive or possessive, ( “of” in English)
    The wife of Adam is Eve: $wife{"Adam"} = "Eve";
 
-undef:   accessing a key that doen't exit or accessing outside
+undef:   accessing a key that doesn't exist or accessing outside
          the hash gives  'undef'
 
             my %scientists = (                  %h = ('foo', 35, 'bar', 12.4, 2.5, 'hello',
@@ -515,11 +515,11 @@ undef:   accessing a key that doen't exit or accessing outside
 
     - array to hash
             I used this trick to convert an array
-            (where i loaded the lines of a file: @lines=<$fh> <--- 1 single command)
+            (where I loaded the lines of a file: @lines=<$fh> <--- 1 single command)
             into and hash:
             %lines = map { $_ => 1 } @lines;
             the lines are the keys and the values (useless) are all 1.
-            This can be usefull for fast serach/test:
+            This can be usefull for fast search/test:
                  if (exists $lines {$k}) {
 
 
@@ -846,7 +846,7 @@ REFERENT        is 'what' a reference is pointing to.
                           ^         ^
                      referenCE      referenT
 
-                     - A referent doesn’t really have a name of its own, apart from the references to it.
+                     - A referenT doesn’t really have a name of its own, apart from the references to it.
                      - A referenT is only DESTROYED when ALL the referenCEs to it are eliminated.
                        you can determine the underlying refcount with the Devel::Peek module, bundled with
                        Perl.
@@ -1449,7 +1449,7 @@ SUB
 FILE
 --------------------------
             As said it's the last possible value for a SCALAR.
-            It's the value retrived with function 'open'
+            It's the value retrieved with function 'open'
             my $result = open my $fh, "<", "pippo.txt";     $result is FALSE on errors
             close $fh  # to close
                                                         ___file name ("a.txt")
