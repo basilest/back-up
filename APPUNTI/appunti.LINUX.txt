@@ -81,6 +81,21 @@
 
                                                    ec : elliptic curve
 
+    - Once having a public key (eg id_rsa.pub) it's possible to log into a remote server R
+      doing this on R:
+                     - create or enter into dir ~/.ssh   (must have chmod 700)
+                     - append in ~/.ssh/authorized_keys (or create if not present, with chmod 640)
+                       the exact text of ~/.ssh/id_rsa (with no new line)
+                     - (some servers that the file is called with an ending 2: a authorized_keys2)
+
+                   ______________________________________
+                   | Most probably the above commands are executed directly onto server R
+                   | but anyhow ssh allows to execute each as ex:
+                   |    - ssh basilest@R mkdir -p .ssh   (and add the password at prompt)
+                   |    - cat .ssh/id_rsa.pub | ssh basilest@R 'cat >> .ssh/authorized_keys'
+                   |_____________________________________
+
+
 
     - 'ssh-keygen': the above files are created by 'ssh-keygen':
                     ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"  -f pippo_rsa
@@ -1303,8 +1318,11 @@ stty              s[peed]-Terminal
                   it returns the netwoork speed the Terminal is running
                   ex
                       stty -a     --> speed 9600 baud; 46 rows; 189 columns;
+                      stty -echo  --> avoid to echo what I type (disable INPUT echo) still the OUTPUT is shown
+                      stty  echo  --> restore the normal echo
 
-
+                                      (the -echo / echo  sequence could be ussefull whne sending
+                                       with some cmd, some text on a terminal that must not be shown)
 
 
 --------------------------------

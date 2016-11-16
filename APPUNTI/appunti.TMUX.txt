@@ -5,6 +5,16 @@
    STARTING         tmux
 
 
+   SCRIPTs          instead of writing all the folowing possible cmds
+                      (eg. send-keys -t mymain:e2e.2 'sudo su - CHIPSe2e4' C-m)
+                    in a tumx conf file tmux.xxxxxx.conf
+                    It is possible to write a SHELL file (ex. xxxxx.sh)
+                    and put in front of each cmd 'tmux'
+                      (eg. tumux send-keys -t mymain:e2e.2 'sudo su - CHIPSe2e4' C-m)
+
+
+
+
 
    SESSIONS
               - create new:    tmux new -s xxxx  (long: tmux new-session -s xxxx)
@@ -69,8 +79,8 @@
                                                             ex. bind-key -n C-r source-file ~/.tmux.conf
                                                             (anyhow this will remove C-r from any application)
                         -r                                  to repeat the command without PREFIX in the following
-                                                            (in they occur within 0.5 sec)
-                                                            usefull when I bind to change sieze of panes (see below
+                                                            (if they occur within 0.5 sec)
+                                                            usefull when I bind to change size of panes (see below
                                                                     bind -r H resize-pane -L 5
                                                             )
 
