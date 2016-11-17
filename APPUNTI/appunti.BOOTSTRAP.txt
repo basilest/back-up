@@ -11,7 +11,7 @@
                     2013   ver 3
                     2014   ver 4:  - added support for:
                                       .Sass  (to replace Less)
-                                      .Flexbox 
+                                      .Flexbox
 
                                    . rewrote all JS plugins
 
@@ -60,8 +60,8 @@
                      <div class="row">                          <div class="row">
                            <div class="col-sm-4">...</div>            <div class="col-sm-4">...</div>
                            <div class="col-sm-4">...</div>            <div class="col-sm-8">...</div>
-                           <div class="col-sm-4">...</div>      </div> 
-                     </div>                                          
+                           <div class="col-sm-4">...</div>      </div>
+                     </div>
 
 
 
@@ -78,13 +78,13 @@
        - <abbr> ..... </abbr>         to add a mouse-over help message:
                                       <abbr title="World Health Organization">WHO</abbr>
 
-       - <blockquote> ..... </b..>    to have a left-align 'block-quoted' text 
+       - <blockquote> ..... </b..>    to have a left-align 'block-quoted' text
 
-           - <blockquote class="blockquote-reverse">> ..... </b..>    to have a right-align 
+           - <blockquote class="blockquote-reverse">> ..... </b..>    to have a right-align
 
 
 
-       - <code> ..... </code>         to have red-text    on  grey-backg. 
+       - <code> ..... </code>         to have red-text    on  grey-backg.
        - <kbd> .....  </kbd>          to have white-text  on  black-backg.
        - <pre> .....  </pre>          to preserve formatting
 
@@ -94,7 +94,7 @@
                                           <dd>- black hot drink</dd> <-- its description
                                           <dt>Milk</dt>
                                           <dd>- white cold drink</dd>
-                                      </dl>     
+                                      </dl>
 
 
 
@@ -115,22 +115,22 @@
 
 
 
-       .lead                                   Makes a paragraph stand out     
-       .small                                  smaller text (set to 85% of the size of the parent)   
-       .text-left                              left-aligned 
-       .text-center                            center-aligned 
-       .text-right                             right-aligned 
-       .text-justify                           justified 
-       .text-nowrap                            no wrap 
-       .text-lowercase                         lowercased 
-       .text-uppercase                         uppercased 
-       .text-capitalize                        capitalized 
-       .initialism                             Displays inside an <abbr> in a slightly smaller font 
-       .list-unstyled                          Removes the default list-style and left margin on list items 
-                                               (works on both <ul> and <ol>). 
-       .list-inline                            Places all list items on a single line  
+       .lead                                   Makes a paragraph stand out
+       .small                                  smaller text (set to 85% of the size of the parent)
+       .text-left                              left-aligned
+       .text-center                            center-aligned
+       .text-right                             right-aligned
+       .text-justify                           justified
+       .text-nowrap                            no wrap
+       .text-lowercase                         lowercased
+       .text-uppercase                         uppercased
+       .text-capitalize                        capitalized
+       .initialism                             Displays inside an <abbr> in a slightly smaller font
+       .list-unstyled                          Removes the default list-style and left margin on list items
+                                               (works on both <ul> and <ol>).
+       .list-inline                            Places all list items on a single line
        .dl-horizontal                          Lines up the terms (<dt>) and descriptions (<dd>) in <dl> elements side-by-side.
-       .pre-scrollable                         Makes a <pre> element scrollable    
+       .pre-scrollable                         Makes a <pre> element scrollable
 
 
 
@@ -145,10 +145,10 @@
                  <tr>                                 - class="table table-bordered"   1 border
                       <th>Firstname</th>              - class="table table-hover"      grey when mouse over
                       <th>Lastname</th>               - class="table table-condensed"  less margin between rows
-                 </tr>                                - 
+                 </tr>                                -
            </thead>                                   - for any type, any ROW can be set to
            <tbody>                                      one of these classes to have context-color:
-                 <tr>                                     
+                 <tr>
                       <td>John</td>                       <tr class="success">       green-backg
                       <td>Doe</td>                        <tr class="danger">        red-bg
                  </tr>                                    <tr class="info">          light.blue-bg
@@ -160,14 +160,14 @@
 
 
           RERESPONSIVE TABLES:
-               are tables defined inside a 
-                       <div> 
+               are tables defined inside a
+                       <div>
                with class .table-responsive:
 
                               <div class="table-responsive">
                                 <table class="table">
-               
-               The table will then scroll horizontally on small devices (under 768px). 
+
+               The table will then scroll horizontally on small devices (under 768px).
                When viewing on anything larger than 768px wide, there is no difference
 
 
@@ -178,137 +178,439 @@
     _____________________________ IMAGE
 
 
-       Rounded Corners                      <img src="a.jpg" class="img-rounded" 
-       Circle                               <img src="a.jpg" class="img-circle" 
-       Thumbnail                            <img src="a.jpg" class="img-thumbnail" 
-       Responsive Images
-            automatically adjust to fit 
+     - Rounded Corners                      <img src="a.jpg" class="img-rounded"
+     - Circle                               <img src="a.jpg" class="img-circle"
+     - Thumbnail                            <img src="a.jpg" class="img-thumbnail"
+     - Responsive Images
+            automatically adjust to fit
             the size of the screen.         <img src="a.jpg" class="img-responsive"
 
 
-       Responsive Embeds
+     - Responsive Embeds
             for videos
             They apply to elem:
-                <iframe>, <embed>, 
-                <video>,  <object> 
+                <iframe>, <embed>,
+                <video>,  <object>
 
-            of class .embed-responsive-item  
+            of class .embed-responsive-item
             that must be wrapped into a
                   <div>
             of class .embed-responsive....
-            with 1 of the 2 formats 
+            with 1 of the 2 formats
             4:3  16:9
-                                            <div class="embed-responsive embed-responsive-16by9">
+                                            <div class="embed-responsive embed-responsive-16by9"> <---- the other is so ...-4by3
                                                         <iframe class="embed-responsive-item" src="..."></iframe>
-                                                                                  </div>
 
-                                                                                  What is aspect ratio?
 
+    _____________________________ JUMBOTRON   & PAGE HEADER
 
 
-                                                                                  The aspect ratio of an image describes the proportional relationship between its width and its height. Two common video aspect ratios are 4:3 (the universal video format of the 20th century), and 16:9 (universal for HD television and European digital television).
+       JUMBOTRON:       <div class="jumbotron">
+       -----------                   ^
+       They are <div> with class jumbotron:
 
-                                                                                  You can choose between two aspect ratio classes:
-                                                                                  <!-- 16:9 aspect ratio -->
-                                                                                  <div class="embed-responsive embed-responsive-16by9">
-                                                                                    <iframe class="embed-responsive-item" src="..."></iframe>
-                                                                                    </div>
+       The effect is to have a BIG GREY rounded-rect containing any HTML
+       (inside font is incresed)
 
-                                                                                    <!-- 4:3 aspect ratio -->
-                                                                                    <div class="embed-responsive embed-responsive-4by3">
-                                                                                      <iframe class="embed-responsive-item" src="..."></iframe>
-                                                                                      </div>
-                                                                                      Test Yourself with Exercises!
+       To limit the rect-width, usually they are wrapped into a <div container>:
 
-                                                                                            
+                  <div class="container">
+                    <div class="jumbotron">
 
 
+       They are <div> inside a <div container>:
 
-    _____________________________ REDEFINE HTML TAGS
+       PAGE HEADER:   <div class="page-header">
+       -----------                ^
 
+       They are <div> with class page-header.
+       They are used to have an header with a line below (create logical sections/chap. in a page text)
 
-       G
+       <div class="page-header">
+         <h1> .....  </h1>
 
 
 
-    _____________________________ REDEFINE HTML TAGS
 
+    _____________________________ WELLS
 
-       G
 
+       <div class="well"> ...             medium rounded-grey rect around text
+       <div class="well well-sm"> ...     smaller rect
+       <div class="well well-lg"> ...     larger rect
+                   ^    ^
 
 
-    _____________________________ REDEFINE HTML TAGS
 
 
-       G
+    _____________________________ ALERTS
 
 
+       Like WELLS but instead of a grey-rect the add the usual Green / light-Blue / light-Yellow / light-Red
 
-    _____________________________ REDEFINE HTML TAGS
+       <div class="alert alert-success">     GREEN
+       <div class="alert alert-info">        B
+       <div class="alert alert-warning">     Y
+       <div class="alert alert-danger">      R
+                         ^
 
+       To have any included Links displayed instead of the normal blue, as the other text
+       use the proper class:
 
-       G
+       <a href=".." class="alert-link">
+                           ^
 
 
 
-    _____________________________ REDEFINE HTML TAGS
+    _____________________________ BUTTONS
 
 
-       G
+       The HTML for a button can be any of these 3:
 
+            <button type="button" ...
+            <input  type="button" ...
+            <input  type="submit" ...
 
+       The Bootstrap class can be then any of these;
 
-    _____________________________ REDEFINE HTML TAGS
+                                                                     TEXT COLOUR    BUTTON COL
+                                                                     __________________________
+            <button type="button" class="btn   btn-default"> ..          black        white
+            <button type="button" class="btn   btn-primary"> ..          white         BL
+            <button type="button" class="btn   btn-success"> ..           "            G
+            <button type="button" class="btn   btn-info">    ..           "            light-BL
+            <button type="button" class="btn   btn-warning"> ..           "            Y
+            <button type="button" class="btn   btn-danger">  ..           "            R
+            <button type="button" class="btn   btn-link">    ..          blue          nothing
+                                         ^     ^
 
 
-       G
+       SIZE:
+            I can add any of these 4 sizes: btn-lg .btn-md .btn-sm .btn-xs
 
+                    <button type="button" class="btn btn-primary btn-lg">
+                                                                 ^
 
 
-    _____________________________ REDEFINE HTML TAGS
+       BLOCK BUTTON:
+            The width spans the entire parent width
 
+                    <button type="button" class="btn btn-primary btn-block">
+                                                                 ^
 
-       G
+       DISABLE / ENABLE:
+                    <button type="button" class="btn btn-primary disabled">   <-- (otherwise "active")
+                                                                 ^
 
 
 
-    _____________________________ REDEFINE HTML TAGS
+    _____________________________ SPECIAL BUTTONS
 
 
-       G
+       GROUP (HORIZ.):      inside a <div> od proper class
 
+                                     <div class="btn-group">
+                                                 ^
+                                               <button type="button" class="btn btn-primary">   1
+                                               <button type="button" class="btn btn-primary">   2
+                                               <button type="button" class="btn btn-primary">   3
 
 
-    _____________________________ REDEFINE HTML TAGS
+                            SIZE:   can be set at group level for all the included buttons:
 
+                                             <div class="btn-group btn-group-lg">
+                                                                   ^
 
-       G
 
 
 
-    _____________________________ REDEFINE HTML TAGS
+       GROUP (VERTIC.):    The same, only as a vertical stack
 
+                                             <div class="btn-group-vertical">
+                                                         ^
+       GROUP (JUSTIFIED): They span the entire width
 
-       G
+                          <div class="btn-group   btn-group-justified">
+                                                  ^
+       DROPDOWN:          They open a drop-down menu
+                          To have a down arrow use class "caret"   <span class="caret"></span>
 
+                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">     Sony <span class="caret"></span>  </button>
 
+                                       <ul class="dropdown-menu" role="menu">
+                                                  <li><a href=" .. ">  Tablet      </a></li>
+                                                  <li><a href=" .. ">  Smartphone  </a></li>
+                                       </ul>
 
-    _____________________________ REDEFINE HTML TAGS
+       SPLIT-DROPDOWN:    Just put the "caret" separeted
 
+                              <div class="btn-group">
 
-       G
+                                <button type="button" class="btn btn-primary">                                        Sony                        </button>
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> <span class="caret"></span> </button>
 
+                                       <ul class="dropdown-menu" role="menu">
+                                                  <li><a href=" .. ">  Tablet      </a></li>
+                                                  <li><a href=" .. ">  Smartphone  </a></li>
 
 
-    _____________________________ REDEFINE HTML TAGS
 
 
-       G
+    _____________________________ GLYPHICONS
 
 
+       There are 260 symbols ('Glyphicons') ex. the 'envelop' or the "printer"
+       They can be used as
+                             <span class="glyphicon    glyphicon-envelope"></span>
+                                          ^            ^
 
-    _____________________________ REDEFINE HTML TAGS
+       A full list is available at http://www.w3schools.com/bootstrap/bootstrap_ref_comp_glyphs.asp
+
+
+
+
+
+    _____________________________ BADGES AND LABELS
+
+
+       BADGES:  the little num (ex. 5) close to something (ex. Inbox) to specify an indicator
+                (Bootstrap default is: bold-white  on grey)
+
+                <span class="badge">   5   </span>
+                             ^
+
+       BADGES:  the same as BADGES with text instead (ex. "new" close to "Inbox")
+                Here the default and the other colors:
+
+                 <span class="label    label-default"> ..
+                 <span class="label    label-primary"> ..
+                 <span class="label    label-success"> ..
+                 <span class="label    label-info">    ..
+                 <span class="label    label-warning"> ..
+                 <span class="label    label-danger">  ..
+                              ^        ^
+
+
+
+    _____________________________ PROGRESS BAR
+
+
+       Based on CSS3 (for some animation effects) they are not supported by IE9.
+
+                   <div class="progress">
+                               ^
+                     <div class="progress-bar" role="progressbar"  style="width:70%"> XXX  <--- It will be 70% width and with text XXX inside the bar
+                                 ^             ^                   ^
+
+                   <div class="progress">
+                     <div class="progress-bar" role="progressbar"  style="width:70%"> <span class="sr-only"> XXX </span>XXX  <--- It will be 70% without text XXX inside
+                                                                                                   ^
+
+
+       To add the usual COLORS:
+
+                     <div class="progress-bar  progress-bar-success"
+                     <div class="progress-bar  progress-bar-info"
+                     <div class="progress-bar  progress-bar-warning"
+                     <div class="progress-bar  progress-bar-danger"
+                                               ^
+
+       To add the STRIPED effect
+
+                     <div class="progress-bar progress-bar-success progress-bar-striped""
+                                                                   ^
+
+
+       To add the striped + ANIMATED effect
+
+                     <div class="progress-bar progress-bar-striped active"
+                                                                   ^
+
+
+       To STACK different pieces (different width < 100%)
+       wrapped all, into the same <div>
+
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" style="width:40%"> ..
+                        <div class="progress-bar progress-bar-warning" role="progressbar" style="width:10%"> ..
+                        <div class="progress-bar progress-bar-danger"  role="progressbar" style="width:20%"> ..
+                      </div>
+
+
+
+
+
+
+    _____________________________ PAGINATION   (and BREADCRUMBS)
+
+
+       It's the usual array of squares with the num inside to jump to a page
+       It's implemneted as <ul> of proper class:
+
+                       <ul class="pagination">
+                                  ^
+                                 <li>   <a href=" .. ">   1   </a>   </li>
+                                 <li>   <a href=" .. ">   2   </a>   </li>
+                                 <li>   <a href=" .. ">   3   </a>   </li>
+                                 <li>   <a href=" .. ">   4   </a>   </li>
+                                 <li>   <a href=" .. ">   5   </a>   </li>
+                       </ul>
+
+
+       The ACTIVE page  is the <li> with proper class (and is coloured BLUE)
+
+                                 <li class="active">  <a href=" .. ">   2   </a>  </li>
+                                            ^
+
+
+
+       A DISABLED page  is any <li> with proper class (and is coloured GREY-not-clickable)
+
+                                 <li class="disabled">  <a href=" .. ">   2   </a>  </li>
+                                            ^
+
+
+
+       SIZE of the array-buttons can be of 2 types
+
+                       <ul class="pagination pagination-lg">  LARGE
+                       <ul class="pagination pagination-sm">
+                                             ^
+
+
+
+       BREADCRUMBS  are again a <ul> and they are the navigational hierarchy in a filesystem like pathname
+                    (ex      Home / Private / Pictures / Vacation)
+
+                        <ul class="breadcrumb">
+                                   ^
+                                 <li>   <a href=" .. ">   Home        </a>    </li>
+                                 <li>   <a href=" .. ">   Private     </a>    </li>
+                                 <li>   <a href=" .. ">   Pictures    </a>    </li>
+                                 <li class="active">      Vacation            </li>
+                                            ^
+
+
+    _____________________________ PAGER
+
+
+       Stiil another <ul> to add 2 buttons for PREVIOUS / NEXT
+
+                        <ul class="pager">
+                                   ^
+                                 <li>   <a href="#">      Previous   </a>   </li>
+                                 <li>   <a href="#">      Next       </a>   </li>
+
+       To position at the sides of the page add proper class to the <li>
+
+                        <ul class="pager">
+                                 <li class="previous">   <a href="#">      Previous   </a>   </li>
+                                 <li class="next">       <a href="#">      Next       </a>   </li>
+                                            ^
+
+
+
+
+    _____________________________ LIST
+
+
+       The simplest LIST is again a <ul> anyhow it's displayed as a TABLE of 1 COL
+
+                          <ul class="list-group">
+                                     ^
+                                 <li class="list-group-item">     First item    </li>
+                                 <li class="list-group-item">     Second item   </li>
+                                            ^
+
+
+
+
+       A list where the items are <a href>  (links) add a grey-on-mouse-over effect to the ROWs
+
+                          <ul class="list-group">
+                                 <a href="#" class="list-group-item">     First item    </li>
+                                 <a href="#" class="list-group-item">     Second item   </li>
+                                  ^
+
+
+
+
+       The item of the list with class "active" is displayed in a BLUE ROW
+
+                          <ul class="list-group">
+                                 <a href="#" class="list-group-item">            First item    </li>
+                                 <a href="#" class="list-group-item active">     Second item   </li>
+                                                                    ^
+
+
+
+
+       The items of the list with class "disabled" are displayed in a GREY-NOT-CLICKABLE ROW
+
+                          <ul class="list-group">
+                                 <a href="#" class="list-group-item">            First item    </li>
+                                 <a href="#" class="list-group-item disabled">   Second item   </li>
+                                                                    ^
+
+
+
+       The items with these classes are COLOURED as usual
+
+                          <ul class="list-group">
+                                 <li class="list-group-item list-group-item-success">   ..
+                                 <li class="list-group-item list-group-item-info">      ..
+                                 <li class="list-group-item list-group-item-warning">   ..
+                                 <li class="list-group-item list-group-item-danger">    ..
+                                                                            ^
+
+
+
+
+
+    _____________________________ PANELS
+
+
+       A panel is a <div> "panel" (which can be with the usual colours)
+       with inside a <div> "body"
+       and optionally a "header" and a "footer"
+
+       - A Panel is a border around the content
+       - Header and Footer are grey rows
+       - to group more panel use a wrapping <div> "panel-group"
+
+
+
+       <div class="panel panel-default">     <-----------------------------------   <div class="panel panel-primary">
+                         ^                                                          <div              panel-success">
+                 <div class="panel-body">A Basic Panel</div>                        <div              panel-info">
+       </div>                ^                                                      <div              panel-warning">
+                                                                                    <div              panel-danger">
+       <div class="panel panel-default">
+                     <div class="panel-heading">  Panel Heading  </div>
+                                 ^
+                     <div class="panel-body"> ..
+       </div>
+
+       <div class="panel panel-default">
+                     <div class="panel-body"> ..
+                     <div class="panel-footer">  Panel Footer  </div>
+                                 ^
+       </div>
+
+       <div class="panel-group">
+                   ^
+                     <div class="panel panel-default">
+                         <div class="panel-body">  ..
+                     </div>
+                     <div class="panel panel-default">
+                         <div class="panel-body">  ..
+                     </div>
+       </div>
+
+
+
+
+    _____________________________ DROPDOWN
 
 
        G
