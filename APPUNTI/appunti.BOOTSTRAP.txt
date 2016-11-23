@@ -1,6 +1,6 @@
     _____________________________ WHAT IT IS & HISTORY
              Bootstrap is
-                 standared framework for
+                 standard framework for
                        - FRONT-END HTML/ CSS/ JAVASCRIPT
                        - aim to self adjust to different devices (eg. MOBILE (small phones) up to large desktops)
                        - uses jquery for cross browser compatibility
@@ -20,8 +20,8 @@
 
     _____________________________ WHERE FIND IT
 
-      - Download Bootstrap from getbootstrap.com
-      - Include Bootstrap from a CDN  (like jquery)
+      - Download from getbootstrap.com
+      - Include  from a CDN  (like jquery)
 
 
       It mainly consists of 3 things to add in the HTML header
@@ -39,7 +39,7 @@
 
        Grid layout comes with:
 
-           - a standard 1170 pixel wide.
+           - a standard 1170 pixel width.
            - 12 columns:
                   - they can be grouped.
                     The general syntax is:
@@ -54,7 +54,7 @@
                                             md (for desktops)
                                             lg (for larger desktops)
 
-                    And the total should be then 12 inside a 'row' class
+                    And the total should be 12 inside a 'row' class
                     ex:
 
                      <div class="row">                          <div class="row">
@@ -137,7 +137,7 @@
     _____________________________ TABLE
 
 
-       Don't have a vertical sep. (Only row lines sep.)
+       Don't have a vertical border (Only row lines sep.)
        The HTML is the usual:
 
        <table class="table">      <------ classes can be :
@@ -145,7 +145,7 @@
                  <tr>                                 - class="table table-bordered"   1 border
                       <th>Firstname</th>              - class="table table-hover"      grey when mouse over
                       <th>Lastname</th>               - class="table table-condensed"  less margin between rows
-                 </tr>                                -
+                 </tr>                                 
            </thead>                                   - for any type, any ROW can be set to
            <tbody>                                      one of these classes to have context-color:
                  <tr>
