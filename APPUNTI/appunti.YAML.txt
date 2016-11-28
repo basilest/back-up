@@ -93,7 +93,7 @@
                ? item2
                ? item3
 
-           # Like Python, sets are just maps with null values; the above is equivalent to:
+           # Like Python, sets are just maps with null values; the above is equivalent to:stopchips
            set2:
                item1: null
                item2: null

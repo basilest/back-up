@@ -45,11 +45,85 @@
                     TLS    Transport Layer Security (TLS) - more modern
 
        Snowden, revealed that since 2010, the NSA had effectively broken/bypassed SSL/TLS
+
+
+--------------------------------------------------- / Encription
+
+       SERVER             13           CLIENT
+ i)    ----------------- [P]-----------------   a common prime number [P] is agreed
+                                                between CLIENT & SERVER
+                          7
+ ii)   -----------------[AES]----------------   a common algorithm ("encryption generator" (ex AES))
+                                                is agreed. Ex. choose another PRIME P2  (7)
+ iii)   8                                5
+       [pS]                             [pC]    2 normal integers are individually chosen by CLIENT and SEVER
+                                                They are kept secret and not sent.
+ iv)    1                                6
+       [pubS]                           [pubC]  2 public keys are generated individually (& sent)
+                                                using some formula F and the info so far:
+
+                                                          ( P , AES , pS ) ---> pubS
+                                                          ( P , AES , pC ) ---> pubC
+
+                                                ex F: (P ^ pS   mod  P2)
+                                                                      13 ^ 8   % 7 = 815730721 % 7 = 1
+                                                                      13 ^ 5   % 7 = 371293    % 7 = 6
+
+
+ v)    [K]                              [K]     Diffie-Hellman alg. proves that working individually with the info so far,
+                                                both CLIENT & SERVER calculate the same number [K]
+
+                                                          Diffie-Hellman ( P - pS - pubC ) ---> K
+                                                          Diffie-Hellman ( P - pC - pubS ) ---> K
+
+                                                                      6  ^ 8   % 7 = 1679616  % 7 = 1
+                                                                      1  ^ 5   % 7 = 1        % 7 = 1
+
+                                                called "Session key"
+                                                that is used to encrypt all the communication that follows.
+
+                                               The magic is due to a property of modulo exponents:
+
+                                                           ( P ^ x mod P2 ) ^ y  mod P2  = P ^ xy  mod P2   = K
+                                                           ( P ^ y mod P2 ) ^ x  mod P2  = P ^ yx  mod P2   = K
+
+
+        To have K that can be any value between 1 - (P-1)
+        the P2 at step ii) is chosen as a "primitive root modulo P" that is a quite complex stuff
+        and it's not easy to locate it with a simple formula, even if they are still calculated with
+        more complex calculations.
+
+       session key
+       Asymmetrical Encryption
+       Symmetrical Encryption
+       aes128-ctr
+       1st authentication : establish encryption to protect future communication.
+       2nd encrypting the connection
+       public/private asymmetrical key pairs that can be created are only used for authentication,
+       public  key:  can only encrypt messages (not able to decrypt back)
+       private key:  the only component capable to decrypt
+       session key:  Diffie-Hellman
+                     client & server combine individually their own private data with public data
+                     from the other system to arrive at an identical secret session key.
 --------------------------------------------------- / ssh
-       ________            _________
+        SERVER              CLIENT
+         |                  | ~/.ssh/known_hosts
+         |                  |       /id_rsa
+         |              1)  |       /id_rsa.pub <--- ex. "ssh-rsa AAAAB3N.....sbasile@pd12682.internal.ch"
+         |                  |            |                     ^
+         |                  |            |to copy here
+         |                  |            |
+     2)  |~/,ssh/authorized_keys  <------' 1 line for each pub-key (so copy pasted here the client id_rsa.pub)
+         |                  |              (nb. each *.pub key has the 1st chars saying its type: rsa/dsa/...)
+       __|_____            _|_______       The server will authenticate only these clients
       |        |          |         |
       |  sshd  |  <=====> |   ssh   |
       |________|          |_________|
+
+
+      There could be different ways to configure the handshaking, anyhow
+      roughly it is:
+             1) a client connects
 
     - 'sshd':   is the real OpenSSH daemon (on the server)
                 that interacting with the other ssh client
