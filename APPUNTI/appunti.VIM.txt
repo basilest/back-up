@@ -1,3 +1,7 @@
+------------------------------------------------------
+export TERM=xterm          if there are some errors like "Unknown terminal type"
+                           the effect is otherwise a vi with 1 single line on screen
+------------------------------------------------------
 substitute something with a new line:  use \r
 search for a new line : use \n
 

@@ -438,28 +438,52 @@ TomCat    developed by the Apache Software Foundation (ASF)
    and provides
      a "pure Java" HTTP web server
 
- $CATALINA_HOME     in ~/.bashrc:  export CATALINA_HOME=~/NEW_JOB/TOMCAT/apache-tomcat-8.0.15
- $CATALINA_BASE
- $JRE_HOME
- $JAVA_HOME         in ~/.bashrc:  export JAVA_HOME=/usr/lib/jvm/default-java
- $CATALINA_OPTS
- $JAVA_OPTS
- $CATALINA_PID
 
+ Tomcat is normally installed in a dir /opt/tomcat/
+ with inside other dirs
+ (mainly:
 
-launch tomcat:
-      $CATALINA_HOME/bin/startup.sh
-      or
+       ./bin    (with the exe startup.sh / catalina.sh / shutdown.sh )
+       ./temp
+ )
+
+ catalina.sh is what is required to start & stop (the others are aliases):
+
       $CATALINA_HOME/bin/catalina.sh start
+      $CATALINA_HOME/bin/catalina.sh stop
 
+      or
+
+      $CATALINA_HOME/bin/startup.sh
+      $CATALINA_HOME/bin/shutdown.sh
+
+ The env vars are set in catalina.sh
+ mainly they are CATALINA_HOME and JAVA_HOME / JRE_HOME
+ so that they can be set already in ~/.bashrc
+
+  export CATALINA_HOME=/opt/tomcat
+
+ The 2 JAVA vars could be already set, anyhow they are the dir where the java & javac
+ binaries are located:
+
+    . type java                        /usr/bin/java              (that is a symbolic link)
+    . ls -l /usr/bin/java              -> /etc/alternatives/java     "         "      "
+    . ls -l /etc/alternatives/java     -> /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+                                                                                ^    ^
+
+      so JRE_HOME   should be  /usr/lib/jvm/java-8-openjdk-amd64/jre     (the bin is added by Tomcat)
+
+      There is in  /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+      that is a link     -> ../jre/bin/java     (<----- to the JRE)
+
+      So even
+      JAVA_HOME  could be set as    /usr/lib/jvm/java-8-openjdk-amd64/   (the bin is added by Tomcat)
+
+      anyhow the important one is JRE_HOME and if both are set tomcat will refer to JRE_HOME.
 
 open firefox:
       http://localhost:8080
 
-stop tomcat:
-      $CATALINA_HOME/bin/shutdown.sh
-      or
-      $CATALINA_HOME/bin/catalina.sh stop
 
 ----------------------------------------------------------------------------------------------------
 Servlet version:3.1   May 2013  JavaEE 7

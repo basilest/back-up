@@ -59,7 +59,7 @@
            h: Yes we have No bananas  # a string, "Yes" and "No" disambiguated by context.
 
 
-  &        add a mark (to then refer the item)
+  &        add a mark (to then refer the item)     like  C ( & for var address, and * for then usage)
   *        refers a marked item
 
            - step:  &id001                  # defines anchor label id001

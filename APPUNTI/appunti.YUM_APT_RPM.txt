@@ -1,0 +1,174 @@
+YUM          . utility to manage packages in Linux systems
+
+             . written in Python
+
+             . ~ 2003 written at the  Duke University Department of Physics
+               to replace YUP (the package manager of a Linux distribution: Yellow Dog Linux)
+
+             . The menaing it's so Yellowdog Updater, Modified
+
+             . 2007 was considered "the tool of choice" for RPM-based Linux
+               Yellow Dog Linux itself, replaced its original YUP
+
+             . based on RPM
+
+             . Can be extended with other Python plugins (especially "yum-utils")
+
+             . Can be extended with GUI front-ends (mainly "Yum Extender")
+
+
+    METADATA     . metadata is the Information about packages
+                   metadata are combined with information inside each package
+                   to determine (and resolve, if possible) dependencies among the packages.
+
+
+    createrepo   . the tool to create the repository of metadata
+                   in XML (or SQLite with option -d )
+
+    mrepo        . another tool (previously known as Yam)
+                   to create & manage repo
+
+DNF          . DNF is a rewrite of YUM based on the gitHub project "libsolv" to find
+               the package dependencies.
+
+
+_______________________________________ ANSIBLE
+
+
+         . is a configuration management and provisioning tool, similar to Chef, Puppet or Salt
+
+         . is "just SSH"; It uses SSH to connect to servers and run the configured TASKS
+           If I'm running Ansible as user vagrant, it will attempt to connect as user vagrant on the other servers.
+
+         . -k  Ask for a password rather than use key-based authentication:
+               ansible all -m ping -k -u vagrant
+
+         . the output we get from Ansible commands is in JSON format
+
+         . Playbooks and Roles in Ansible are instead in Yaml.
+
+         . is "agentless" - there's no central agent(s) running.
+
+         . Tasks are idempotent: its safe to run over and over again.
+
+
+ansible $groupname -i $inventory -m $module -a '$module_arguments'
+          |              |              |            |
+          |              |              |            |_____________  the arguments you'd normally pass to a task ( ex 'name=foo state=restarted')
+          |              |              |__________________________  one of the standard Ansible modules (ex 'service', 'command') (without -m the default is 'command')
+          |              |_________________________________________  an inventory file (as used by a playbook)
+          |________________________________________________________  a group in the inventory
+
+    (the -s flag runs via sudo):
+
+INVENTORY FILES      are used to group servers,
+                     to then identify all that group with its name.
+                      ex:
+                           [zookeepers]          <-- this is the name of the group
+                            zk1
+                            zk2
+                            zk3
+
+                           [webservers]          <-- group name
+                            apache1
+                            apache2
+
+                           [databases]           <-- group name
+                             db1
+
+PLAYBOOK FILES       the 'makefiles', (just with the yaml syntax):
+                     the structure is:
+
+                          - hosts: xxxx     <--- I use one of the group name (taken from the INVENTORY list)
+                            roles: yyyy
+                            tasks: zzzz
+                                 - name: nnnnn nn nn
+                                   notify: hhhh hh hh          <-- the name of the handler I want to fire
+                                   mmmm aaa=vv aaa=vv aaa=vv   <-- the name of the module and its args
+                            handlers:
+                                 - name: hhhh hh hh
+                                   mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
+                     ________________________ ex:
+                          ---
+                          - hosts: all
+                            roles:
+                                 - timezone
+                                 - logagent
+                                 - proxyworkaround
+
+                          - hosts: backends
+                            roles:
+                                 - foo
+
+                          - hosts: webservers
+                            roles:
+                                 - apache
+                                 - tomcat
+
+                          - hosts: databases
+                            roles:
+                                 - mysql
+
+                     They are executed by the cmd: ansible-playbook
+
+                              > ansible-playbook -i some_inventory  xxxxx.yml
+
+                              same options (-k -u -s applies:)
+                              > ansible-playbook -s -k -u vagrant nginx.yml
+
+
+    ansible all        -i production/hosts -m yum      -s -a "name=* state=latest"                  # upgrade all packages on all production servers
+    ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
+    ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
+
+MODULES:  the most used modules are:
+
+  shell:   is not actually a module, it just allows to write directly bash commands to execute
+           ansible all -s -m shell -a 'apt-get install nginx'
+            n.b. the above will execute the bash commands on ALL ! the servers at once.
+
+  setup:   to gather information from all the servers:
+           ansible jmaster -i vagrant/ -m setup           this will retrieve tons of data (ex. kernel version,
+                                                          architecture, all interfaces, ip address, subnet masks,
+                                                          disk mounts, free space, ...)
+
+           ansible jmaster -i vagrant/ -m setup -a 'filter=*mb*'    # arg to grep out only something
+
+
+  serivise:   to start / stop services
+           Usually it's something like:
+              service: name=nginx state=started    <---- the "state" is the important arg:
+                                                         it is  the state you wish the service to be in,
+                                                         You do not define the 'change' you want.
+                                                         Ansible will decide if a change is needed.
+
+
+ROLES:    Roles are main.yml files distributed in the dirs of the project,
+          (Ansible will search for them automatically).
+          The definition is name of the role + names of the dirs:
+
+          rolename                            ./
+           - files                             |_   files / main.yml
+           - handlers                          |_   handlers / main.yml
+           - meta          --is suppsed this ->|_   meta / main.yml
+           - templates                         |_   templates / main.yml
+           - tasks                             |_   tasks / main.yml
+           - vars                              |_   vars / main.yml
+
+       __________________
+            dependencies:               <--- to make the role dependent on role xxxx
+                - { role: xxxxx }
+       __________________
+
+
+
+TEMPLATES:  Are files with any name but normally xxxx.j2
+          (based on Python's Jinja2 template engine.).
+
+
+
+
+
+
+_______________________________________ ANSIBLE
+

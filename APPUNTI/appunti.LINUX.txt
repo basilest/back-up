@@ -2022,13 +2022,20 @@ __  iostat
                          ex. iostat -p          dump partitions for all devices
                          ex. iostat -p sda        "      "       "   device sda
 
-____________________
+____________________ od iconv
 __  iconv
 
      cat a.txt | iconv -f utf-8 -t ucs-4le | od -tx4       (little endian)
                                    ucs-4be                 (big endian)
 
+     od -cx     to see the chars as both char and hex format.
+                ex  '  \n   ’  **  **  \n   “  **  **  \n   "  \n
+                      0a27    80e2    0a99    80e2    0a9c    0a22
 
+                0a is the new line
+
+     echo -e "\xE2\x80\x99\xA0"     to verify that the char ’ (different from ')
+                                    has the UTF-8 coding: e2 80 99
 ____________________
 __  dd
 

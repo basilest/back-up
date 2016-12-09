@@ -39,17 +39,17 @@
   It's written to fix the portability issue of the makefile (ex.
         - makefile unix     : rm -rf classes/
         - makefile windows  : rmdir /S /Q classes/
-  ). In Ant there are sp some builtin commands like <'delete' dir="classes" />
+  ). In Ant there are some builtin commands like <'delete' dir="classes" />
 
 
 ---------------------------------------------- MAVEN
 MAVEN (whose executable is /usr/local/bin//mvn) can be considered a modern make.
-      If make reads a MakeFile,
+      If make reads a Makefile,
       maven reads an XML called pom.xml (Project Object Model)
       which is stored in the dir which will then be considered the root for the project.
       From there I can run mvn with all the required options and args.
 
-      Like a big project can have a tree struct, with different MakeFiles, the same way
+      Like a big project can have a tree struct, with different Makefiles, the same way
       there could be many Poms.xml, where all POMs inherits from the Super POM.
 
       Gradle is a more powerfull alternative. It doens't use XML but another text file.
@@ -150,7 +150,7 @@ Depend. Identification: Depend. are usually ZIP, JAR, WAR or also EAR (entrepris
                              version:    Ex 1.0.0, 2.3.1-SNAPSHOT, 4.3.6.Final.
                              type:       the packing generated. Ex JAR, WAR, EAR.
 
-Direct and Transitive Dep:     Transitive are the Indirect Dep.which can comes from the Direct
+Direct and Transitive Dep:     Transitive are the Indirect Dep.which can come from the Direct
                                Direct:     A B C D E
                                Transitive: F G F H H I F B I
 
@@ -326,7 +326,7 @@ plug-in         int the following the args to mvn are in the form plugin:goal
                 </project>
 
                 (*) <build>   can have a son  <finalName>new_name</finalName>
-                              if I want the output artifact named differenly from the default
+                              if I want the output artifact named differently from the default
 
 3 phases:   independently of the artifact being produced, Maven follows 3 phases:
                   Default: compile package, install & store the project
@@ -372,7 +372,7 @@ Plugin Develop    a plug-in is simply a collection of goals. Thus, when we talk 
 --------------------------------------------- MAVEN Archetypes
 
                   Maven archetypes are project templates that allow users to generate new projects easily.
-                  Have tree dir build for free, and required plugin (ex approved Javascript classe to be
+                  Have tree dir build for free, and required plugin (ex approved Javascript classes to be
                   downloaded in the proper place already)
 archetype plugin:  > 'mvn archetype:generate'  to see hundreads available
                       mvn archetype:generate -DarchetypeCatalog=local     to see only the local catalog
@@ -389,12 +389,12 @@ archetype plugin:  > 'mvn archetype:generate'  to see hundreads available
                      </plugin>
 
                 Yes. Maven has embedded web servers, Tomcat or Jetty. Above we have loade plugin for Tomcat
-                So no lunch as:
+                So now lunch as:
                                 mvn tomcat7:run
                 and open you browser: http://localhost:8080/xxxxxxx/.
-                xxxxxxx is tne name you called you artifact.
+                xxxxxxx is tne name you called your artifact.
 
-multi-modules:  if a project is split in more child modules heach with its pom, and 1 father pom the
+multi-modules:  if a project is split in more child modules heach with its pom, and 1 father pom, then
                 the tree should be something like
 
                          proj_dir                          the father pom has a section
@@ -405,7 +405,7 @@ multi-modules:  if a project is split in more child modules heach with its pom, 
                             |                                </modules>
                             |---- Mod2                     </project>
                             |      |___ pom
-                            |                              while each son pom addres back with this section
+                            |                              while each son pom addresses back with this section
                             |---- Mod3                      <parent>
                                    |___ pom                 <groupId>com.apress.gswmbook</groupId>
                                                             <artifactId>proj_dir</artifactId>
