@@ -38,18 +38,27 @@ _______________________________________ ANSIBLE
          . is a configuration management and provisioning tool, similar to Chef, Puppet or Salt
 
          . is "just SSH"; It uses SSH to connect to servers and run the configured TASKS
-           If I'm running Ansible as user vagrant, it will attempt to connect as user vagrant on the other servers.
+           If I'm running Ansible as user vagrant, it will attempt to connect as user vagrant.
 
          . -k  Ask for a password rather than use key-based authentication:
                ansible all -m ping -k -u vagrant
 
-         . the output we get from Ansible commands is in JSON format
+         . is "agentless" - no central agent(s) is running.
 
-         . Playbooks and Roles in Ansible are instead in Yaml.
+         . the output we get from Ansible commands is JSON
 
-         . is "agentless" - there's no central agent(s) running.
+         . The blocks are:
+               . Inventory:  a file with the list of servers to work on
+               . Playbooks:  the files (like makefiles) with the things to do
+               . Modules:    the set of commands that Ansible can perform (ex. copy, setup or whatever)
+                             are provided as a library of modules, so that each time a modules is chosen
+                             and called (like a script)
 
-         . Tasks are idempotent: its safe to run over and over again.
+                         . Modules are  I D E M P O T E N T :
+                           it's safe to run over and over again.
+
+         . Playbooks / Roles in Ansible are instead in YAML.
+
 
 
 ansible $groupname -i $inventory -m $module -a '$module_arguments'
@@ -76,7 +85,7 @@ INVENTORY FILES      are used to group servers,
                            [databases]           <-- group name
                              db1
 
-PLAYBOOK FILES       the 'makefiles', (just with the yaml syntax):
+PLAYBOOK FILES       the 'makefiles', (only it is with the YAML syntax):
                      the structure is:
 
                           - hosts: xxxx     <--- I use one of the group name (taken from the INVENTORY list)
@@ -84,13 +93,15 @@ PLAYBOOK FILES       the 'makefiles', (just with the yaml syntax):
                             tasks: zzzz
                                  - name: nnnnn nn nn
                                    notify: hhhh hh hh          <-- the name of the handler I want to fire
-                                   mmmm aaa=vv aaa=vv aaa=vv   <-- the name of the module and its args
-                            handlers:
+                                   mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
+                            handlers:                          <-- handlers are executed only is some 'task' calls them explicitly with a 'notify'
                                  - name: hhhh hh hh
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
                      ________________________ ex:
                           ---
                           - hosts: all
+                            vars:                              <-- I can define some var (ex docroot)
+                                 - docroot: /var/www/serversforhackers.com/public
                             roles:
                                  - timezone
                                  - logagent
@@ -109,7 +120,7 @@ PLAYBOOK FILES       the 'makefiles', (just with the yaml syntax):
                             roles:
                                  - mysql
 
-                     They are executed by the cmd: ansible-playbook
+                     They are executed by the cmd: ansible-playbook         <------ NB
 
                               > ansible-playbook -i some_inventory  xxxxx.yml
 
@@ -135,7 +146,7 @@ MODULES:  the most used modules are:
            ansible jmaster -i vagrant/ -m setup -a 'filter=*mb*'    # arg to grep out only something
 
 
-  serivise:   to start / stop services
+  service:   to start / stop services
            Usually it's something like:
               service: name=nginx state=started    <---- the "state" is the important arg:
                                                          it is  the state you wish the service to be in,
@@ -143,17 +154,25 @@ MODULES:  the most used modules are:
                                                          Ansible will decide if a change is needed.
 
 
-ROLES:    Roles are main.yml files distributed in the dirs of the project,
-          (Ansible will search for them automatically).
-          The definition is name of the role + names of the dirs:
+ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the scetions are moved into
+          separate makefiles (named all "main.yml") in specific subdirs.
+          These smaller makefiles are called "Roles".
+          (Ansible will search for them automatically if in the ansible config file (ex /etc/ansible/ansible.cfg
+           there is a link to where the role-dir is located:
+              /etc/ansible/ansible.cfg:
+
+                      roles_path    = /vagrant/ansible/roles     <--- this is supposed to be the role-dir so
+                                                                      a role "xxxx" will be a file /vagrant/ansible/roles/xxxx
+          ).
+
 
           rolename                            ./
-           - files                             |_   files / main.yml
-           - handlers                          |_   handlers / main.yml
-           - meta          --is suppsed this ->|_   meta / main.yml
-           - templates                         |_   templates / main.yml
-           - tasks                             |_   tasks / main.yml
-           - vars                              |_   vars / main.yml
+           - files                             |_   files                    "files" dir should be used to copy/download files (so here usually there is no "main.yml" file)
+           - handlers                          |_   handlers / main.yml      "handlers" dir should be used to move into a "main.yml" the handler section of the big makefile
+           - meta          --is suppsed this ->|_   meta / main.yml          "meta"           "                 "             "      meta info (mainly the "depencencies" section)
+           - templates                         |_   templates                "tenplates" dir (like "files") contains no "main.yml" but stores .j2 files
+           - tasks                             |_   tasks / main.yml         "tasks" dir should contain the core section of the big makefile
+           - vars                              |_   vars / main.yml          "vars" should contain the var section
 
        __________________
             dependencies:               <--- to make the role dependent on role xxxx
@@ -165,6 +184,15 @@ ROLES:    Roles are main.yml files distributed in the dirs of the project,
 TEMPLATES:  Are files with any name but normally xxxx.j2
           (based on Python's Jinja2 template engine.).
 
+
+FACTS:    "Fact" is the Ansible-word to identify the act of gathering info
+          so that what to do becomes clear. (Like make that builds according to files timetamps)
+
+VAULTs:   They are the solution to store sensible info (like passwords) ant make them accessible to Ansible.
+          To create/edit/... them use the command: ansible-vault
+
+                  Usage: ansible-vault [create|decrypt|edit|encrypt|rekey] \
+                        [--help] [options] file_name
 
 
 
