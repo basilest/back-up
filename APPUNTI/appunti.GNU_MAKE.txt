@@ -27,7 +27,7 @@
    4. Linking
       plugs-in the real addresses for all the external unresolved place holders
       It's enough comparing the SIZE of p.o (object) with p (linked)
-      the see how much of the external has been built into p.
+      to see how much of the external was built into p.
 
 
    -------------------------------------------------------- Cross compiler
@@ -64,7 +64,7 @@
            C, C++ (1987)
            Objective-C, Objective-C++, Fortran, Java, Ada, and Go among others.
 
-   --------------------------------------------------------
+   -------------------------------------------------------- MAKE
    make utility is not limited to programs.
 
    It decides if some files must be updated automatically from others
@@ -74,7 +74,7 @@
    can be run within a shell.
 
    general form
-       target:  dependency  <---- files. When each of this change, the target maust be rebuilt
+       target:  dependency  <---- files. When each of this change, the target must be rebuilt
        <tab>    rules       <---  commands  (on the same line or 1 on each own)
                             <tab>  you can use another char, setting .RECIPEPREFIX:
                                    .RECIPEPREFIX = >
@@ -83,7 +83,7 @@
 
 
 
-   instead of lines below with a <tab> works also the 1.line form with command after a ';'
+   instead of lines below with a <tab>, it works also the 1.line form with command after a ';'
 
        target:   dependency  ;   rules         #to use in simple cases
 
@@ -179,6 +179,7 @@
                Only exception is that in the Makefile I use the keyword 'override'
 
                        override  var = 4
+                          ^
 
           Automatic variables: $@         (explained some lines below ....)
                                $<
@@ -196,8 +197,8 @@
 
    It can also be used the style:
 
-   to group all the target on left separated by , and its common dependency after :
-   1 group for each deendency
+   to group all the targets on left separated by , and their common dependency after :
+   1 group for each depndency
 
        $(objects) : defs.h
        kbd.o command.o files.o : command.h
@@ -212,7 +213,7 @@
 
                  make  target
 
-   to print only the action that make would do use
+   to print only the action that make would use
 
                 make -n target
 
@@ -231,12 +232,12 @@
    and reads from each listed file in turn. When that is finished, make resumes reading the
    makefile in which the directive appears.
 
-   One case is when some dependency are generated automatically by some other source.
+   One case is when some dependency is generated automatically by some other source.
    They are then chained insdie the makefile with an 'include'.
 
-   If the specified included 'file' is not found, there is only 1 waring, but make goes ahead
+   If the specified included 'file' is not found, there is only 1 warning, but make goes ahead
    to do its best. To have not even the warning write  -include   instead nomrmal include.
-   One way to not find is becouse the file is out from the search path, that is:
+   One way to not find is because the file is out from the search path, that is:
 
                                                -  current dir
                                                -  /usr/local/include
@@ -245,7 +246,7 @@
                                                -  /usr/include
 
    -------------------------------------------------------- %
-      % specify a pattern. (is like the * in bash)  So I can write something like:
+      % specifies a pattern. (is like the * in bash)  So I can write something like:
 
              %.class: %.java; javac $<          (the meaning of $<  is some line below ...)
 
@@ -262,7 +263,7 @@
       make will execute 'rules' on xxxx
       If a file named xxxx is already present make does nothing. So the right way is:
 
-               %: force            <--- make xxxx will be anyho done depending on 'force'
+               %: force            <--- make xxxx will be anyhow dependent on 'force'
                <tab>  rules
 
                force:  ;           <---- 'force' is an empy target, anyhow specific
