@@ -92,7 +92,7 @@ JAR and CLASSPATH
              is much more unlikely than the other and can compiles alternating the code
              ex if the code was if (x > y) {A} else {B} (where the else always requires a jump
              after the test-instruction) but 99.99 % is always x <= y
-             JIT will compile reverting the test as if it was if (X <= y) {B} else {A}
+             JIT will compile reverting the test as if it was if (x <= y) {B} else {A}
 
              At the end JIT is intended to kill JUMPS in the Assembly code.
 
@@ -747,11 +747,18 @@ Anonymous class                 class X {
 
 Class Modifiers:     before the 'class':
 
-    abstract - a class only serves as a base and cannot be instantiated.
-    static   - Nested classes, specifies that the class does not belong to a specific instance of the containing class.
-    final    - cannot be extended and cannot have any subclasses.
+    -         - no modifiers at all, means 'package-private' and the class is visible only to the other classes of the same package.
+    public    - visible everywhere.
+    abstract  - a class only serves as a base and cannot be instantiated.
+    static    - Nested classes, specifies that the class does not belong to a specific instance of the containing class.
+    final     - cannot be extended and cannot have any subclasses.
 
 Function Modifiers:
+    -         - no modifiers at all, means 'package-private' and the function can be called/visible only by the same package classes
+    public    - visible everywhere.
+    private   - visible only inside that class
+    protected - visible only : any class some-package
+                               any child-class external-package
 
     abstract - functions can be present only in abstract classes, have no body and must be overridden in a subclass
     static - Makes accessible without creation of a class instance. cannot access non-static members in the same class.
@@ -762,6 +769,10 @@ Function Modifiers:
                    For synchronized methods the monitor is the class instance or java.lang.Class if the method is static.
 
 Var Modifiers:
+    -         - as functions
+    public    - as functions
+    private   - as functions
+    protected - as functions
 
     static - idem
     final - Allows the field to be initialized only once in a constructor or inside initialization block
@@ -792,8 +803,8 @@ Overriding methods:    Unlike C++, all non-final methods can be overridden
                         }
                     }
 
-Interfaces:   1 abstract class, with vars but functions are with no body.
-              Classes that implement that Interface, override all the functions:
+Interfaces:   1 abstract class, with vars but where the functions have no body.
+              Classes that implement an Interface, defines its all functions:
 
 interface ActionListener {                  class ActionHandler implements ActionListener, RequestListener {
     int ACTION_ADD = 0;                         public void actionSelected(int action) {
@@ -849,8 +860,8 @@ public interface Pair<K, V> {                   public class OrderedPair<K, V> i
                                                 }
 
 
-when declaring (instanciating with real types) I go to substitute
-the genreic type with "type arguments"
+when declaring (instantiating with real types) I go to substitute
+the generic type with "type arguments"
         Pair<String, Integer> p1 = new OrderedPair<String, Integer>("Even", 8);
         Pair<String, String>  p2 = new OrderedPair<String, String>("hello", "world");
 
@@ -864,7 +875,7 @@ the "type":
 The official word to refer to this compiler ability and its algorithm to identify
 the most specific type that fits is TYPE-INFERENCE
 
-Type erasure:  One the compiler has written the code, it deletes the Type arguments
+Type erasure:  Once the compiler has written the code, it deletes the Type arguments
                so there is no way to determine it (ex Integer or any parent (Number or Object))
 
                so the following will print "Equal [class java.util.ArrayList]"
@@ -880,7 +891,7 @@ Type erasure:  One the compiler has written the code, it deletes the Type argume
 
 ---------------------- lambda expression
            It introduces in Java some functional mechanism (like LISP and Javascript)
-           allowing the functions to be instanciated.
+           allowing the functions to be instantiated.
 
            They are
              - anonimous functions, with a '->' instead of the { }
@@ -955,7 +966,7 @@ The main difference is that method declarations must
            - @Override         : this instructs the compiler to throw an exception
                                  when the overriding link between the 2 methods (Parent/Child)
                                  should be broken
-           - @Deprecated       : when a class, method, field is annotaed as Deprecated, the complier
+           - @Deprecated       : when a class, method, field is annotated as Deprecated, the complier
                                  should thow a warning when anyone is still carrying on using it.
                                  Javadoc relies on a lowercase tag '@deprecated' to document the usage:
                                  /**

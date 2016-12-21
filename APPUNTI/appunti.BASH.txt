@@ -1,7 +1,7 @@
 
 
 
-write my own buil-in and keep into the running shell
+write my own built-in and keep into the running shell
 
 ----------------------------------------------------------
 
@@ -18,7 +18,7 @@ write my own buil-in and keep into the running shell
 
  $$              PID of the current shell (not subshell).
  $_              most recent parameter
-   (             or at startup, the abs path of the command to start the current shell immediately after startup).
+                 (or at startup, the abs path of the command to start the current shell immediately after startup).
  $?              EXIT STATUS of most recent foreground pipeline
  $!              PID of the most recent background command.
  $-              current options set for the shell.  (ex of output--> himBH)
@@ -80,7 +80,9 @@ Parenthesis
 
 	 1) ( command1; command2 )             Command group executed within a subshell  (nb. runs a child SHELL)
 	 2) Array=(element1 element2 element3) Array initialization
-	 3) result=$(COMMAND)                  Command substitution, new style
+	 3) result=$(COMMAND)                  Command substitution, new style - used to assign the OUTPUT of a command (runs a child SHELL)
+                                           nb. command sub. can be nested $(ls $(pwd))
+                                               like the old ` ` that required anyhow to escape the internals: ` .. \` \` ...`
 	 4) >(COMMAND)                         Process substitution
 	 5) <(COMMAND)                         Process substitution
 
@@ -111,7 +113,6 @@ Double Parenthesis   (vars inside can be written with or without the '$')
          $(( 5 > 3 ))     echo $?   --> 1
          [ 5 -gt 3 ]      echo $?   --> 0
 
-nb. command sub. can be nested $(ls $(pwd))
 ____________________________________________________________
   PARSER
 ____________________________________________________________
@@ -879,7 +880,7 @@ ____________________________________________________________
       2>pippo.txt  2>>pippo.txt         redirect stderr to write/append on pippo.txt
       &>pippo.txt  &>>pippo.txt         redirect both 1 and 2 to write/append on pippo.txt
 
-     Other 7 numbers (3-9) are available as fd
+     Other 7 numbers (3-9) are available as fd (on MAC any ex. 85)
      (a fd is the C file handle  (pointer to an 'open' file))
 
 
@@ -970,7 +971,7 @@ ____________________________________________________________
      >|  force redirection: forcibly overwrite an existing file.
          When bash is called as
                           bash -C        (said 'noclobber')
-         it means it's prevented file overwrite.
+         it means it prevents file overwrite.
          Still, even if called as bash -C, the >| will overwrite !!!
 
 

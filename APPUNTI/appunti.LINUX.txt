@@ -1853,8 +1853,7 @@ __  find
                     |        |           -print0    adds a NUL      after the filename
                     |        |                      is the best when find is piped as it skips that newline
                     |        |                      (and avoids mess in cases where a filename has a new-line (in unix is possible))
-                    |        |                       if a filename contains a NULL in the name (in unix is possible) a piped xargs
-                    |        |                       should have the option -0    xargs -0
+                    |        |                       if it is piped into a xargs, xargs should be   xargs -0 ...
                     |        all the usual options:
                     |        -name  -type -maxdepth .... -o -not
                     |
@@ -1879,8 +1878,7 @@ __  find
         -s               To alter the normal searching order going alphabetically
 
         -prune           To not descend in the current file (usefull so on dirs only) ex: find . -name xxxx -prune
-
-                         -d   is use to go in the opposite way, from the bottom up to the specifed  dir.
+                         (for the meaning of -d option, prune doesn't work if  -d  was specified).
 
         -empty           to find empty file or dir:   find -empty           (both files and dirs)
                                                       find -type f -empty   (files)
@@ -1917,13 +1915,13 @@ __  find
                                 -N : less than    -->  -mtime -2    less than 2 days ago
                                 +N : more than    -->  -mtime +2    more than 2 days ago
 
-        -cmin              the same of the -ctime -atime -mtime  but for MINUTES instead DAYS
+        -cmin              the same of the -ctime -atime -mtime  but for MINUTES instead of DAYS
 
-        -size 50M          based on size  (usual for N / -N / +N)
+        -size 50M          based on size  (usual convention for N / -N / +N)
 
         -exec              to execute a command on what is found.
                            {} is the alias for the current item found
-                           and it can be used as the varibale parte in the command
+                           and it can be used as the variable in the command
 
                            ex, .... -exec rm -f {} \;
 
@@ -1934,10 +1932,10 @@ __  find
 
                                         ex -exec chmod 755 {} +
 
-                                            will be transtalet into chmod 775 f1 f2 f3 f4
-                                            inteda the slower chmod 775 f1
-                                                              chmod 775 f2
-                                                              chmod 775 f3
+                                            will be translated into chmod 775 f1 f2 f3 f4
+                                            instead the slower chmod 775 f1
+                                                               chmod 775 f2
+                                                               chmod 775 f3
                                                               ....
         find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
 
