@@ -59,7 +59,7 @@
            h: Yes we have No bananas  # a string, "Yes" and "No" disambiguated by context.
 
 
-  &        add a mark (to then refer the item)
+  &        add a mark (to then refer the item)     like  C ( & for var address, and * for then usage)
   *        refers a marked item
 
            - step:  &id001                  # defines anchor label id001
@@ -93,7 +93,7 @@
                ? item2
                ? item3
 
-           # Like Python, sets are just maps with null values; the above is equivalent to:
+           # Like Python, sets are just maps with null values; the above is equivalent to:stopchips
            set2:
                item1: null
                item2: null

@@ -45,11 +45,85 @@
                     TLS    Transport Layer Security (TLS) - more modern
 
        Snowden, revealed that since 2010, the NSA had effectively broken/bypassed SSL/TLS
+
+
+--------------------------------------------------- / Encription
+
+       SERVER             13           CLIENT
+ i)    ----------------- [P]-----------------   a common prime number [P] is agreed
+                                                between CLIENT & SERVER
+                          7
+ ii)   -----------------[AES]----------------   a common algorithm ("encryption generator" (ex AES))
+                                                is agreed. Ex. choose another PRIME P2  (7)
+ iii)   8                                5
+       [pS]                             [pC]    2 normal integers are individually chosen by CLIENT and SEVER
+                                                They are kept secret and not sent.
+ iv)    1                                6
+       [pubS]                           [pubC]  2 public keys are generated individually (& sent)
+                                                using some formula F and the info so far:
+
+                                                          ( P , AES , pS ) ---> pubS
+                                                          ( P , AES , pC ) ---> pubC
+
+                                                ex F: (P ^ pS   mod  P2)
+                                                                      13 ^ 8   % 7 = 815730721 % 7 = 1
+                                                                      13 ^ 5   % 7 = 371293    % 7 = 6
+
+
+ v)    [K]                              [K]     Diffie-Hellman alg. proves that working individually with the info so far,
+                                                both CLIENT & SERVER calculate the same number [K]
+
+                                                          Diffie-Hellman ( P - pS - pubC ) ---> K
+                                                          Diffie-Hellman ( P - pC - pubS ) ---> K
+
+                                                                      6  ^ 8   % 7 = 1679616  % 7 = 1
+                                                                      1  ^ 5   % 7 = 1        % 7 = 1
+
+                                                called "Session key"
+                                                that is used to encrypt all the communication that follows.
+
+                                               The magic is due to a property of modulo exponents:
+
+                                                           ( P ^ x mod P2 ) ^ y  mod P2  = P ^ xy  mod P2   = K
+                                                           ( P ^ y mod P2 ) ^ x  mod P2  = P ^ yx  mod P2   = K
+
+
+        To have K that can be any value between 1 - (P-1)
+        the P2 at step ii) is chosen as a "primitive root modulo P" that is a quite complex stuff
+        and it's not easy to locate it with a simple formula, even if they are still calculated with
+        more complex calculations.
+
+       session key
+       Asymmetrical Encryption
+       Symmetrical Encryption
+       aes128-ctr
+       1st authentication : establish encryption to protect future communication.
+       2nd encrypting the connection
+       public/private asymmetrical key pairs that can be created are only used for authentication,
+       public  key:  can only encrypt messages (not able to decrypt back)
+       private key:  the only component capable to decrypt
+       session key:  Diffie-Hellman
+                     client & server combine individually their own private data with public data
+                     from the other system to arrive at an identical secret session key.
 --------------------------------------------------- / ssh
-       ________            _________
+        SERVER              CLIENT
+         |                  | ~/.ssh/known_hosts
+         |                  |       /id_rsa
+         |              1)  |       /id_rsa.pub <--- ex. "ssh-rsa AAAAB3N.....sbasile@pd12682.internal.ch"
+         |                  |            |                     ^
+         |                  |            |to copy here
+         |                  |            |
+     2)  |~/,ssh/authorized_keys  <------' 1 line for each pub-key (so copy pasted here the client id_rsa.pub)
+         |                  |              (nb. each *.pub key has the 1st chars saying its type: rsa/dsa/...)
+       __|_____            _|_______       The server will authenticate only these clients
       |        |          |         |
       |  sshd  |  <=====> |   ssh   |
       |________|          |_________|
+
+
+      There could be different ways to configure the handshaking, anyhow
+      roughly it is:
+             1) a client connects
 
     - 'sshd':   is the real OpenSSH daemon (on the server)
                 that interacting with the other ssh client
@@ -100,7 +174,6 @@
     - 'ssh-keygen': the above files are created by 'ssh-keygen':
                     ex. ssh-keygen -t rsa -b 4096 -C "your_email@example.com"  -f pippo_rsa
 
-
                               -t : rsa1            for SSH v.1
                                    rsa,dsa,ecdsa   for SSH v. 2
                               -b : min is    768
@@ -139,18 +212,21 @@
                                6	Host wswebdev1
                                7	  HostName %h.orctel.internal
                           id_dsa
-                               1	-----BEGIN DSA PRIVATE KEY-----
+                               1	-----BEGIN DSA PRIVATE KEY-----    <--- this was without a passphrase
                                2	MIIBugIBdAKBgQCpHnP/mm59BzhOKjelK+BqozuwK3Li804qXkOfW0PC1em2CXAn
                                3	Al2AVYG/5ydl5uNuW1NEb+phcuLkhNhXYbf0fs7+q6Xbm/9Nt3I74Z4OFkSEUYfV
-                               4	ax6C5klFOIhKPdPsQrw2WTY7qxlCkDr35iM5aX6QMmXwlcjQEcBzApd0ewIVAJfM
-                               5	XS0/jtJxOsHyiDgbbdNtMHKNAoGADtHGS8AjQStl3l3hRpTPnXTW1hEeGZq6uKVO
-                               6	rWIQnu7VDra6EWP9b8MbLd+oe5DLJ4TaBt72NJvUnEpoOy+KGEyXcJs6j7gz9uzQ
-                               7	6JEo0m3qPI2LdD3mzhWQQnZIfdBRTOveWX6mJjQhYQrB/8mpLZmW/AZPul5WOyGm
-                               8	jZf4NsgCdYBodeUlJUEug4kxfsbVUdLct6ZPKaJFJZB2x5cvfhUP/Ytn7fQNjxiD
-                               9	v7NyFi0WGl3h3x8J8z6tdglbU0m1/Ei2iclOiew8w0PMXPYITW1rUk2hqzWz0lMj
+                                                   ....
                               10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
                               11	v5Iq6mWKZqVm0sEniWY=
                               12	-----END DSA PRIVATE KEY-----
+                                             id_dsa
+                                                  1	-----BEGIN DSA PRIVATE KEY-----    <--- this how it looks with a passphrase
+                                                  2	Proc-Type: 4,ENCRYPTED
+                                                  3	DEK-Info: AES-128-CBC,2DADDEF9CB50685509A1197A4D244772
+                                                                      ....
+                                                 10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
+                                                 11	v5Iq6mWKZqVm0sEniWY=
+                                                 12	-----END DSA PRIVATE KEY-----
                           id_dsa.pub
                                1	ssh-dss AAAAB3NzaC1kc3MAAACBAKkdc/+abn0HO....== sbasile@pd12682.companieshouse.local
                           id_rsa
@@ -160,7 +236,7 @@
                               51	-----END RSA PRIVATE KEY-----
                           id_rsa.pub
                                1	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ....== sbasile@pd12682.internal.ch
-                          known_hosts
+                          known_hosts   <--- stores the servers where I connected to
                                1	wswebdev2.orctel.internal,192.168.60.202 ssh-rsa AAAAB3NzaC1yc2....
                                2	wswebdev1.orctel.internal,192.168.60.201 ssh-rsa AAAAB3NzaC1yc2....
                                3	github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDb....
@@ -168,6 +244,10 @@
                           ssh_config
                                1	ServerAliveInterval 15
                                2	ServerAliveCountMax 3
+
+                      passphrase : when generating a key, if no passphrase is specified the key (ex. id_rsa file)
+                                   is in clear text. With a passphrase it is encripted, so even if an hacker can access my id_rsa
+                                   it's not yet usable.
 
     - 'ssh-agent':     it can be started to run in background,
 
@@ -199,7 +279,10 @@
     - 'ssh-add':   adds any desired keys to the agent  (ex. ssh-add ~/.ssh/id_rsa)
 
                        ssh-add         with no arguments adds the 4 files (D) above, (or what present of them)
+                                       (the passphrase (if any) must be filled)
                        ssh-add -l      list of the keys inside the agent
+                       ssh-add -d      To remove the loaded keys (it can be usefull to test the passpharse
+                                       because after the ssh-add -d another ssh-add  will ask for the passphrase)
 
     - The sequence is usually:
                                1. eval "$(ssh-agent -s)"       create a running instance of ssh-agent
@@ -1761,7 +1844,99 @@ ____________________
 __  find
 
 
-        find . -name "*.tmpl" -o -name '*.json'       <---- 2 -name with a -o  (-o is short for -or, works also both: !  -not)
+        find  has 3 parts:
+
+             find [paths] [filters]   [actions]
+                    |        |             |
+                    |        |           what to do   (default action is -print:  so find .   is the same as find . -print)
+                    |        |           -print     adds a new line after the filename
+                    |        |           -print0    adds a NUL      after the filename
+                    |        |                      is the best when find is piped as it skips that newline
+                    |        |                      (and avoids mess in cases where a filename has a new-line (in unix is possible))
+                    |        |                       if it is piped into a xargs, xargs should be   xargs -0 ...
+                    |        all the usual options:
+                    |        -name  -type -maxdepth .... -o -not
+                    |
+                The 'LIST' (yes, they can be more than 1: find /a /b /c)
+                of dirs where to search.
+                   A trailing /    ex /test/
+                   'can' be added for normal dirs
+                   and 'MUST' be added if they are SYMLINKS
+               _______________________________
+
+        -type    d     dir     ex    find . -type d
+                 f     regular file
+                 l     sym link
+
+        -maxdepth 2      to limit the subdir recursive search   (maxdepth 1  is only the current dir omitting any subdir)
+
+        -depth    2      to limit at exact level 2 (neither lower nor upper)
+
+        -d               find normally 'descends' : 1st dir / 2nd its files / 3rd recursive on any subdirs
+                         -d   is use to go in the opposite way, from the bottom up to the specifed  dir.
+
+        -s               To alter the normal searching order going alphabetically
+
+        -prune           To not descend in the current file (usefull so on dirs only) ex: find . -name xxxx -prune
+                         (for the meaning of -d option, prune doesn't work if  -d  was specified).
+
+        -empty           to find empty file or dir:   find -empty           (both files and dirs)
+                                                      find -type f -empty   (files)
+                                                      find -type d -empty   (dirs)
+
+        -not   (!)    to negate:
+        -o            to boolean 'or':
+                         find ./test -not -name "*.php"
+                         find ./test -name 'abc*' ! -name '*.php'
+                         find . -name "*.tmpl" -o -name '*.json'
+
+        -perm 0664         to search based on permissions (here find anything with chmod 0664)
+
+        -perm /u=r         letters instead of numbers (note the starting /)
+                           ex. all executable /a=x
+
+        -user basilest     to serach based on user
+
+        -group develop     to search based on group
+
+        -ctime             for time functions there are :
+
+                           atime: (access time) changed when you open a file but also when a file is used
+                                                for other operations like grep, sort, cat, head, tail and so on.
+
+                           mtime: (modify time) changed when you change or only save a file
+
+                           ctime: (change time) is the 'inode' change time. It changes when the file attributes are changed,
+                                                like changing the owner / permission / moving the file / and of course  modify a file.
+                                                for other operations like grep, sort, cat, head, tail and so on.
+
+                           values are
+                                 N : exact        -->  -mtime 2     exact 2 days ago
+                                -N : less than    -->  -mtime -2    less than 2 days ago
+                                +N : more than    -->  -mtime +2    more than 2 days ago
+
+        -cmin              the same of the -ctime -atime -mtime  but for MINUTES instead of DAYS
+
+        -size 50M          based on size  (usual convention for N / -N / +N)
+
+        -exec              to execute a command on what is found.
+                           {} is the alias for the current item found
+                           and it can be used as the variable in the command
+
+                           ex, .... -exec rm -f {} \;
+
+                              \;   <--- this close the command
+                              +    <--- this close the command in case
+                                        it's possible to collapse more conceptual {} for
+                                        the same command execution (that make it faster)
+
+                                        ex -exec chmod 755 {} +
+
+                                            will be translated into chmod 775 f1 f2 f3 f4
+                                            instead the slower chmod 775 f1
+                                                               chmod 775 f2
+                                                               chmod 775 f3
+                                                              ....
         find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
 
 
@@ -1769,32 +1944,9 @@ __  find
         find -E . -regex '.*\.(jpg|png)'                      <--- shortcut for above in some linux
 
 
-        -type    d     dir     ex    find . -type d
-                 f     regular file
-                 l     sym link
-
         to exclude dirs (ex. /xxx)
                   path  '.....' -prune -o print<---- nb  xxx doesn't work as the match should be full
                                                           so works ./xxx/*
-
-        -exec       to execute a command on what is found.
-                    {} is the alias for the current item found
-                    and it can be used as the varibale parte in the command
-
-                    ex, .... -exec rm -f {} \;
-
-                       \;   <--- this close the command
-                       +    <--- this close the command in case
-                                 it's possible to collapse more conceptual {} for
-                                 the same command execution (that make it faster)
-
-                                 ex -exec chmod 755 {} +
-
-                                     will be transtalet into chmod 775 f1 f2 f3 f4
-                                     inteda the slower chmod 775 f1
-                                                       chmod 775 f2
-                                                       chmod 775 f3
-                                                       ....
 ____________________
 __  lsof
              is an 'utility' not a bash builtin
@@ -1868,13 +2020,20 @@ __  iostat
                          ex. iostat -p          dump partitions for all devices
                          ex. iostat -p sda        "      "       "   device sda
 
-____________________
+____________________ od iconv
 __  iconv
 
      cat a.txt | iconv -f utf-8 -t ucs-4le | od -tx4       (little endian)
                                    ucs-4be                 (big endian)
 
+     od -cx     to see the chars as both char and hex format.
+                ex  '  \n   ’  **  **  \n   “  **  **  \n   "  \n
+                      0a27    80e2    0a99    80e2    0a9c    0a22
 
+                0a is the new line
+
+     echo -e "\xE2\x80\x99\xA0"     to verify that the char ’ (different from ')
+                                    has the UTF-8 coding: e2 80 99
 ____________________
 __  dd
 

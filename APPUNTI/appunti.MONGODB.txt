@@ -1,3 +1,354 @@
+-----------------------------------
+           MongoDB is implemented in C++.
+           Drivers and client libraries are typically written in their respective languages,
+           although some drivers use C extensions for better performance.
+
+           Documents are stored as JSON items
+           and JAVASCRIPT code can be used to manage them on the fly
+           ex. how to duplicate a doc:
+                     . get it (into a var)
+                     . change what you need
+                     . add the var:
+
+                > db.coll.insert({_id: 'h_A', val: 1})
+                > var orig = db.coll.findOne({_id: 'h_A'})  <-- GET
+                > orig._id = 'h_B'                          <-- CHANGE
+                > db.coll.insert(orig)                      <-- ADD
+
+-----------------------------------
+1. run the daemon in a shell:
+
+           mongod                             # with no params
+           mongod --dbpath mongo_test/        # or specify in which dir the DB is
+
+   the above 2 ways keep that shell not usable
+   a way is to run as a daemon (param "--fork", having it running in background so a prompt is back in the same shell)
+
+           mongod --fork --logpath /var/log/mongodb.log
+
+                          the --logpath specify the log file the write on
+
+   the daemon is so running (foreground or background)
+   listening to its standard port 27017:
+
+   2016-12-20T07:34:33.178+0000 I CONTROL  [initandlisten] MongoDB starting : pid=3317 port=27017 dbpath=mongo_test/ 64-bit host=pd12968.internal.ch
+   ...
+   ...
+   ...
+   ...
+
+2. in another shell run "mongo" which opens the mongo shell
+   to run interactive commands that are in the forms
+               db.xxxxxx()
+
+   to see them all:
+
+   > db.help()
+
+
+
+
+  to save interactive command output into a file:
+
+  1st way: mongo dbname << EOF > output.json     # then run the command and ^D
+  2nd way:
+-----------------------------------
+           to have info on the db:
+
+                db.stats()
+
+           {
+				"db" : "test",
+				"collections" : 0,
+				"views" : 0,
+				"objects" : 0,
+				"avgObjSize" : 0,
+				"dataSize" : 0,
+				"storageSize" : 0,
+				"numExtents" : 0,
+				"indexes" : 0,
+				"indexSize" : 0,
+				"fileSize" : 0,
+				"ok" : 1
+           }
+
+----------------------------------- see DB list
+
+                              In MongoDB default database is 'test'.
+                              If I don't create any database,
+                              the collections will be stored in 'test'
+
+           show dbs                        # To see the DB list
+
+           db                              # To see which is the current DB
+
+           use stef                        # To create a new db named "stef" if not present
+                                             otherwise, just to select that as the current DB to work on
+
+           db.createCollection("cccc")     # to create a collection cccc
+
+           db.createCollection("cccc",     # to create cccc with the 4 Optional params
+                                { capped : true,       if 'true', cccc is size limited (oldest entries are overwritten)
+                                  autoIndexID : true,  if 'true', cccc has an index auto-created (on _id fiel)
+                                  size : 6142800,      max size (in bytes)       for 'capped'
+                                  max  : 10000 } )     max size (in num of docs) for 'capped'
+
+           show collections   # to see the collections in the DB
+
+           db.cccc.find()     # to see all the content of the cccc collection  (more on find() below)
+
+           db.cccc.insert({"name":"tutorials point"})   # to insert a doc in collection cccc
+                                                          If cccc is not already created, it creates it
+                                                          (so another way to create)
+
+           db.cccc.insert({                                                  4         3           2          3
+                            _id: ObjectId(7df78ad8902c),  <-- 12 bytes  |timestamp| machine id |proc id| increment |
+                            title: 'MongoDB Overview',
+                            description: 'MongoDB is no sql database',
+                            by: 'tutorials point',
+                            url: 'http://www.tutorialspoint.com',
+                            tags: ['mongodb', 'database', 'NoSQL'],
+                            likes: 100
+                         })
+
+           db.cccc.insert([   <----- '[' an array of docs
+                          {
+                            aa: 'vvvv 1',
+                            aa: 'vvvv 2'
+                          },
+                          {
+                            aa: 'vvvv 3',
+                            aa: 'vvvv 4'
+                          },
+                          {
+                            aa: 'vvvv 5',
+                            aa: 'vvvv 6'
+                          }
+                         ])
+
+           db.cccc.save(doc)            # another way to insert a doc in cccc
+                                        - without the '_id' in 'doc' it is like 'insert'
+                                          (and _id is auto created)
+                                        - with an '_id' it replaces that entry
+
+           db.cccc.update(doc)         # like 'save()' but while the save() substitutes in full the doc
+                                         the update() changes only the fields provided
+
+           db.cccc.drop()              # To delete cccc
+
+           db.dropDatabase()           # To delete the selected DB
+
+           db.cccc.find()              # To query/select from cccc
+
+           db.cccc.find().pretty()     # To have a better output
+
+           db.cccc.find({},{"k":1 "k2":0}) # normally find will return ALL the fields of a doc
+                                         (like all the cols of a table)
+                                         to have only some fileds turn them OFF/ON with :0 :1
+                                         Note the syntax:   {} , {.....}       <--- so first a {}
+                                        (This way it's possible to skip _id field
+                                         because, by default, _id field is always returned)
+
+           db.cccc.findOne()           # To query/select from cccc - ONLY 1 doc
+
+           db.cccc.find({"kk":"vv"})   # add the WHERE clause key=val :
+                                         ex  db.cccc.find({"by":"tutorials point"})
+                                         The other operators use the strange syntax with a '$'
+
+                                             $lt    <
+                                             $lte   <=
+                                             $gt    >
+                                             $gte   >=
+                                             $ne    !=
+
+                                        Still in the form:
+
+                                            {"kk" :
+                                             { $op : "vv" }
+                                            }
+
+                                        ex.   db.cccc.find({"price" : {$gt:50}i})
+
+                                        The AND - OR  are the operators $and $or
+                                        with the syntax
+
+                                            { $op : [            <---  '['  an array
+                                              {"k1" : "v1" },
+                                              {"k1" : "v1" },    <-- the comma ',' separated items
+                                              {"k1" : "v1" }
+                                             ]
+                                            }
+
+                                        The AND can be omitted as a simple list of values
+                                        separated by commas is managed as an implicit AND
+
+
+           db.cccc.find().limit(5)     # like bash head -5. It outputs not more than those docs
+           db.cccc.find().skip(5)      # It outputs starting after the firts 5 (skipping them)
+           db.cccc.find().sort({"k":1})   # :1 means ascending (<--default)  (:-1 descending)
+           db.cccc.find().count()      # on the shell it can be omitted .find() : db.cccc.count()
+
+           db.cccc.remove(...)         # delete from cccc the docs specified by any clause (...)
+                                       ex. db.cccc.remove({'price': 5})
+                                       with no args it deleted ALL the docs
+                                       db.cccc.remove()
+
+           db.cccc.ensureIndex({k:1})  # to create an index on field "k"  (ex. {"price":1})
+                                         :1 ascending  :-1 descending
+
+                                       nb. MongoDB limits the size of your sort without an index.
+                                       That is, if you try to sort a very large
+                                       result set which can’t use an index, you’ll get an error
+
+                                       Using 'limit' in conjunction with sort , can be a way
+                                       to avoid running into problems when sorting on non-indexed field
+
+           db.cccc.aggregate(...)      # to subfilter according to the similar count/min/avg/max SQL operators.
+                                         The following operators must be preceded by the 'aggregate' operator: $group
+
+                                              $sum
+                                              $avg
+                                              $min
+                                              $max
+                                              $push
+                                              $first
+                                              $last
+                                              $addToSet
+
+                                       So the general syntax is   .aggregate (
+                                                                               [
+                                                                                 $group  :
+                                                                                    { "k"  :
+                                                                                         {Sop : __ }
+                                                                                    }
+                                                                               ]
+                                                                            )
+
+           references 1                # instead of having each doc FULLY SELF-CONTAINED
+                                         (ex suppose the 'address' information of all the employes
+                                          of a company is the same, so it could be usefull to just
+                                          reference it externally and not SELF-CONTAINED in each employer)
+
+                                        {
+                                           "_id":ObjectId("52f..."),
+                                            "contact": "987654321",
+                                            "dob": "01-01-1991",
+                                            "name": "Tom Benzamin",
+                                            "address_ids": ObjectId("c4a5...")  <-- reference to external doc
+                                       }
+
+                                       Then to retrieve:
+
+                                       >var result = db.users.findOne({"name":"Tom Benzamin"},{"address_ids":1})
+                                       >var addresses = db.address.find({"_id":{"$in":result["address_ids"]}})
+
+           references 2                # a second more general way to add a ref is
+                                         to assign the special 3 fields named "$ref" $id" "$db"
+                                         {
+                                            "_id":ObjectId("53402597d852426020000002"),
+                                              "address": {
+                                                     "$ref": "address_home",   <-- the name of the collection
+                                                     "$id": ObjectId("534009e4d852427820000002"), <-- the doc inside that collection
+                                                     "$db": "tutorialspoint"   <-- this is optional (the name of DB)
+                                                     },
+                                              "contact": "987654321",
+                                              "dob": "01-01-1991",
+                                              "name": "Tom Benzamin"
+                                         }
+
+
+
+           db                          # To see the DB list
+
+           db                          # To see the DB list
+-----------------------------------
+           REPLICA SET     (is the SET of PRIMARY + SECONDARY nodes
+                            to manage data redunandy/crash recovery)
+
+           _______________________
+          | MongoDB works with N nodes, of which
+          |    . 1 and only 1 is a PRIMARY node that receives the WRITEs
+          |      and forwards them to the others N-1 SECONDAY nodes
+          |
+          |    . If the PRIMARY node goes OUT of service, 1 of the SECONDARYs
+          |      is elected PRIMARY
+          |
+          |    . If the old PRIMARY is put back in service, it joins
+          |      but now as a SECONDARY
+          |_______________________
+
+          To set-up:
+                    1.a  start 1 daemon with arg --replSet    (suppose this is on a machine host75.net)
+                         mongod --port 27017 --dbpath "..." --replSet nnnn   <-- the name to give to the SET
+
+                    1.b  connect with a mongo shell to configure it:
+                           - rs.initiate()      # initiate a new set
+                           - rs.conf()          # to inspect current configuration
+                           - rs.status()        # to inspect current status
+
+                         mongod --port 27017 --dbpath "..." --replSet nnnn
+
+                    2.a  start normally any other SECONDARY  daemons
+
+                    2.b  connect with a mongo shell to configure them:
+                           - rs.add("host75.net:27017")      # attach as SECONDAY to the SET
+
+
+          > db.isMaster()         <--  to know which node I am
+                               {
+                                       "ismaster" : true,
+                                       "maxBsonObjectSize" : 16777216,
+                                       "maxMessageSizeBytes" : 48000000,
+                                       "maxWriteBatchSize" : 1000,
+                                       "localTime" : ISODate("2016-12-20T11:50:46.847Z"),
+                                       "maxWireVersion" : 5,
+                                       "minWireVersion" : 0,
+                                       "readOnly" : false,
+                                       "ok" : 1
+                               }
+
+
+
+
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
+           .
+-----------------------------------
 In contrast to RELATIONAL DATABASES (and their notion of "Relation", i.e., a tuple (or row)
 of related strong-typed data) there are NoSQL databases:
                            NoSQL DB
@@ -170,36 +521,9 @@ update() / set()    db.unicorns.update ({name: 'Roooooodles'}, {weight: 590})   
 
 
 
-more on find()      find turns a' cursor' whose execution is delayed until needed.
-                    In the shell find is executed immediately. This is a behavior of the shell only.
-                    find takes a second optional parameter called “projection”. This
-                    parameter is the list of fields we want to retrieve or exclude.
                     db.unicorns.find({}, {name: 1});          turns only field name
                     db.unicorns.find({}, {name:1, _id: 0};    avoid turning _id
-                                                              (By default, _id field is always returned)
 
-                    order:  1 for ascending and -1 for descending.
-                           db.unicorns.find().sort({weight: -1})
-                           db.unicorns.find().sort({name: 1, vampires: -1})
-
-                           nb. MongoDB limits the size of your sort without an index.
-                           That is, if you try to sort a very large
-                           result set which can’t use an index, you’ll get an error
-
-                           Using 'limit' in conjunction with sort , can be a way
-                           to avoid running into problems when sorting on non-indexed field
-
-                    limit / skip:  ex. get the 2nd and 3rd heaviest unicorn:
-                           db.unicorns.find().sort({weight: -1}).limit(2).skip(1)
-
-                    count:
-                           db.unicorns.find({vampires: {$gt: 50}}).count()
-
-                           the count is a cursor method (so as above find() . count )
-                           On the shell there is a shortcut
-                                         db.unicorns.count({vampires: {$gt: 50}})
-                           that make it seems as a method of a collection,
-                           but it's only a shell shortcut, it's still remain a cursor method.
 
 ____________________________________________________________ NO JOIN
 

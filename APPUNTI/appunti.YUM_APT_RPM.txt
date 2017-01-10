@@ -1,0 +1,211 @@
+YUM          . utility to manage packages in Linux systems
+
+             . written in Python
+
+             . ~ 2003 written at the  Duke University Department of Physics
+               to replace YUP (the package manager of a Linux distribution: Yellow Dog Linux)
+
+             . The menaing it's so Yellowdog Updater, Modified
+
+             . 2007 was considered "the tool of choice" for RPM-based Linux
+               Yellow Dog Linux itself, replaced its original YUP
+
+             . based on RPM
+
+             . Can be extended with other Python plugins (especially "yum-utils")
+
+             . Can be extended with GUI front-ends (mainly "Yum Extender")
+
+
+    METADATA     . metadata is the Information about packages
+                   metadata are combined with information inside each package
+                   to determine (and resolve, if possible) dependencies among the packages.
+
+
+    createrepo   . the tool to create the repository of metadata
+                   in XML (or SQLite with option -d )
+
+    mrepo        . another tool (previously known as Yam)
+                   to create & manage repo
+
+DNF          . DNF is a rewrite of YUM based on the gitHub project "libsolv" to find
+               the package dependencies.
+
+
+_______________________________________ ANSIBLE
+
+
+         . is a configuration management and provisioning tool, similar to Chef, Puppet or Salt
+
+         . is "just SSH"; It uses SSH to connect to servers and run the configured TASKS
+           If I'm running Ansible as user vagrant, it will attempt to connect as user vagrant.
+
+         . -k  Ask for a password rather than use key-based authentication:
+               ansible all -m ping -k -u vagrant
+
+         . is "agentless" - no central agent(s) is running.
+
+         . the output we get from Ansible commands is JSON
+
+         . The blocks are:
+               . Inventory:  a file with the list of servers to work on
+               . Playbooks:  the files (like makefiles) with the things to do
+               . Modules:    the set of commands that Ansible can perform (ex. copy, setup or whatever)
+                             are provided as a library of modules, so that each time a modules is chosen
+                             and called (like a script)
+
+                         . Modules are  I D E M P O T E N T :
+                           it's safe to run over and over again.
+
+         . Playbooks / Roles in Ansible are instead in YAML.
+
+
+         ansible comes with a list of executables: ie.
+                                 ansible
+                                 ansible-console
+                                 ansible-doc
+                                 ansible-galaxy     to reuse roles from community (ansible-galaxy list: Show currently installed roles.)
+                                 ansible-playbook
+                                 ansible-pull
+                                 ansible-vault
+
+ansible $groupname -i $inventory -m $module -a '$module_arguments'
+          |              |              |            |
+          |              |              |            |_____________  the arguments you'd normally pass to a task ( ex 'name=foo state=restarted')
+          |              |              |__________________________  one of the standard Ansible modules (ex 'service', 'command') (without -m the default is 'command')
+          |              |_________________________________________  an inventory file (as used by a playbook)
+          |________________________________________________________  a group in the inventory
+
+    (the -s flag runs via sudo):
+
+INVENTORY FILES      are used to group servers,
+                     to then identify all that group with its name.
+                      ex:
+                           [zookeepers]          <-- this is the name of the group
+                            zk1
+                            zk2
+                            zk3
+
+                           [webservers]          <-- group name
+                            apache1
+                            apache2
+
+                           [databases]           <-- group name
+                             db1
+
+PLAYBOOK FILES       the 'makefiles', (written in YAML):
+                     the structure is:
+
+                          - hosts: xxxx     <--- I use one of the group name (taken from the INVENTORY list)
+                            roles: yyyy
+                            tasks: zzzz
+                                 - name: nnnnn nn nn
+                                   notify: hhhh hh hh          <-- the name of the handler I want to trigger
+                                   mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
+                            handlers:                          <-- handlers are executed only is some 'task' calls them explicitly with a 'notify'
+                                 - name: hhhh hh hh
+                                   mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
+                     ________________________ ex:
+                          ---
+                          - hosts: all
+                            vars:                              <-- I can define some var (ex docroot)
+                                 - docroot: /var/www/serversforhackers.com/public
+                            roles:
+                                 - timezone
+                                 - logagent
+                                 - proxyworkaround
+
+                          - hosts: backends
+                            roles:
+                                 - foo
+
+                          - hosts: webservers
+                            roles:
+                                 - apache
+                                 - tomcat
+
+                          - hosts: databases
+                            roles:
+                                 - mysql
+
+                     They are executed by the cmd: ansible-playbook         <------ NB
+
+                              > ansible-playbook -i some_inventory  xxxxx.yml
+
+                              same options (-k -u -s applies:)
+                              > ansible-playbook -s -k -u vagrant nginx.yml
+
+
+    ansible all        -i production/hosts -m yum      -s -a "name=* state=latest"                  # upgrade all packages on all production servers
+    ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
+    ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
+
+MODULES:  (to see the installed ones: ansible-doc -l)
+           the most used modules are:
+
+  shell:   is not actually a module, it just allows to write directly bash commands to execute
+           ansible all -s -m shell -a 'apt-get install nginx'
+            n.b. the above will execute the bash commands on ALL ! the servers at once.
+
+  setup:   to gather information from all the servers:
+           ansible jmaster -i vagrant/ -m setup           this will retrieve tons of data (ex. kernel version,
+                                                          architecture, all interfaces, ip address, subnet masks,
+                                                          disk mounts, free space, ...)
+
+           ansible jmaster -i vagrant/ -m setup -a 'filter=*mb*'    # arg to grep out only something
+
+
+  service:   to start / stop services
+           Usually it's something like:
+              service: name=nginx state=started    <---- the "state" is the important arg:
+                                                         it is  the state you wish the service to be in,
+                                                         You do not define the 'change' you want.
+                                                         Ansible will decide if a change is needed.
+
+
+ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the sections are moved into
+          separate makefiles (named all "main.yml") in specific subdirs.
+          These smaller makefiles are called "Roles".
+          (Ansible will search for them automatically if in the ansible config file (ex /etc/ansible/ansible.cfg)
+           there is a link to where the role-dir is located:
+              /etc/ansible/ansible.cfg:
+
+                      roles_path    = /vagrant/ansible/roles     <--- this is supposed to be the role-dir so
+                                                                      a role "xxxx" will be a file /vagrant/ansible/roles/xxxx
+          ).
+
+
+          rolename                            ./
+           - files                             |_   files                    "files" dir should be used to copy/download files (so here usually there is no "main.yml" file)
+           - handlers                          |_   handlers / main.yml      "handlers" dir should be used to move into a "main.yml" the handler section of the big makefile
+           - meta          --is suppsed this ->|_   meta / main.yml          "meta"           "                 "             "      meta info (mainly the "depencencies" section)
+           - templates                         |_   templates                "tenplates" dir (like "files") contains no "main.yml" but stores .j2 files
+           - tasks                             |_   tasks / main.yml         "tasks" dir should contain the core section of the big makefile
+           - vars                              |_   vars / main.yml          "vars" should contain the var section
+
+       __________________
+            dependencies:               <--- to make the role dependent on role xxxx
+                - { role: xxxxx }
+       __________________
+
+
+
+TEMPLATES:  Are files with any name but normally xxxx.j2
+          (based on Python's Jinja2 template engine.).
+
+
+FACTS:    "Fact" is the Ansible-word to identify the act of gathering info
+          so that what to do becomes clear. (Like make that builds according to files timetamps)
+
+VAULTs:   They are the solution to store sensible info (like passwords) ant make them accessible to Ansible.
+          To create/edit/... them use the command: ansible-vault
+
+                  Usage: ansible-vault [create|decrypt|edit|encrypt|rekey] \
+                        [--help] [options] file_name
+
+
+
+
+
+_______________________________________ ANSIBLE
+

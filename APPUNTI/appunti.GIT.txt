@@ -554,6 +554,12 @@ git gc --prune     # to remove garbaged collection
                                             | $GIT_DIR
                                             | .git             .git/  is the default name for the repo dir, but it's not fixed.
                                             |                   GIT reads var $GIT_DIR to do this.
+                                            |                   n.b. EACH (yes nb. EACH !!) repository has its own .git dir
+                                            |                        and so all the files in there (not only the index, but
+                                            |                        the ref (ex. the remotes !!! names and protocol used hhtps/git/...))
+                                            |                        are settings specific to only that repo.
+                                            |                        Another repo can have complete different settings
+                                            |
                                             |
                                             | $GIT_EDITOR      to set a preferred editor (ex.  export GIT_EDITOR=vim   # .bashrc)
                                             |
@@ -1281,7 +1287,7 @@ git gc --prune     # to remove garbaged collection
                                             |                                                  100644 e63164d9518b1e6caf28f455ac86c8246f78ab70 2  A.txt
                                             |                                                  100644 562080a4c6518e1bf67a9f58a32a67bff72d4f00 3  A.txt
                                             |
-                                            |                                              N.B. normally a file (with no conflicts) has stage numebr 0
+                                            |                                              N.B. normally a file (with no conflicts) has stage number 0
                                             |                                                  100644 562080a4c6518e1bf67a9f58a32a67bff72d4f00 0  A.txt
                                             |
                                             |                                              I can then look for ex at 2 A.txt :
