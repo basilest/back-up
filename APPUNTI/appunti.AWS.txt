@@ -1,0 +1,139 @@
+Why AWF:  Fastest growing cloud computing platform
+          
+
+
+AWS  SERVICES    2011:     82
+                 2012:    159
+                 2013:    280
+                 2014:    516
+                 2015:    735
+                 2016:  +1000
+|________________________________________________________|
+|TECHNOLOGY PARTNER:   each different technology         |
+|                      to   I N T E R A C T  to AWS      |  AWS-Partner-Certifications <----
+|                                                        |
+|CONSULTING PARTNER:   ...Accenture Datapipe             |
+|________________________________________________________|
+|                                                        |
+|
+      To be a PARTNER  a company 
+      must have a proper number of CERTIFIED EMPLOYEE
+
+
+
+
+      ASSOCIATE        (SOLUTIONS ARCHIT.     DEVELOPER       SYSOP ADMIN
+                                                   |           |
+      PROFESSIONAL           "                    DEVOPS-PROFES.)
+
+      SPECIALITY          SECURITY      ADVANCED NETWORKING      BIG DATA
+
+
+
+
+      
+     . AWS  FUNDAMENTALS
+     . DESIGN  & DEVELOP
+     . DEPLOYM & SECURITY
+     . DEBUGING
+
+
+
+       AWS PLATFORM:  1. Messaging
+                      2. Security & Identity
+                      3. Management Tools
+                      4. Storage
+                      5. Databases
+                      6. Networking & Content Delivery
+                      7. Compute
+                      8. AWS Global Infrastructure: REGIONS / AVAILABILITY ZONES / EDGE LOCATIONS
+
+
+
+             8. AWS Global Infrasructure:
+
+                      REGION         = Geog. AREA of 2+ AVAILAB. ZONES
+                      AVAILAB. ZONES = Data Center
+                      EDGE LOC       = They CACHE the contet (i.e. a video from Australia
+                                                              requested by a 1st user in NEW YORK
+                                                              is actually transferred across.
+                                                              A 2nd NEW YORK user will find it cahed)
+                                       Said otherwise EDGE LOC are
+                                       Content-Delivery-Network (CDN)  End Point for CloudFront    
+
+                           . EDGE LOCs >> REGIONs
+                           . Not all REGIONs have ALL the services
+                                  
+             6. Networking & Content Delivery: 
+                                                . VPC: Virtual Private Cloud 
+                                                  (think of it as a Virtual DATA CENTER)
+
+                                                  They can be >1 in a REGION
+ 
+
+                                                . Route53: Amazon DNS service
+                                                           (nb. 53 is DNS standard port)
+
+                                                . CloudFront: The Cache service made by many
+                                                              EDGE locat.
+
+                                                . Direct Connect: Connect my office to AWS
+                                                              with a physical dedicated machine (and line)
+                                                              (for security reason)
+
+             7. Compute
+                                                . EC2: they are the VM (like Virtualbox)
+                                                       So think of EC2 as the service for Virtualization
+
+                                                       It's implemented by Docker container called: 
+                                                     - EC2 Container service
+
+                                                     - Elastic Beanstalk: when passing to it any piece of code
+                                                                          it provisions the required infranstructure
+                                                                          to run the code
+
+                                                     - Lambda: the flexible service behind all
+                                                 
+             1. Messaging
+             2. Security & Identity
+             3. Management Tools
+             4. Storage
+             5. Databases
+             8. AWS Global Infrasructure:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

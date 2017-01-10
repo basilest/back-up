@@ -27,7 +27,7 @@
    4. Linking
       plugs-in the real addresses for all the external unresolved place holders
       It's enough comparing the SIZE of p.o (object) with p (linked)
-      the see how much of the external has been built into p.
+      to see how much of the external has been built into p.
 
 
    -------------------------------------------------------- Cross compiler
@@ -74,7 +74,7 @@
    can be run within a shell.
 
    general form
-       target:  dependency  <---- files. When each of this change, the target maust be rebuilt
+       target:  dependency  <---- files. When each of this change, the target must be rebuilt
        <tab>    rules       <---  commands  (on the same line or 1 on each own)
                             <tab>  you can use another char, setting .RECIPEPREFIX:
                                    .RECIPEPREFIX = >
