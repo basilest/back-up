@@ -2,6 +2,19 @@
            MongoDB is implemented in C++.
            Drivers and client libraries are typically written in their respective languages,
            although some drivers use C extensions for better performance.
+
+           Documents are stored as JSON items
+           and JAVASCRIPT code can be used to manage them on the fly
+           ex. how to duplicate a doc:
+                     . get it (into a var)
+                     . change what you need
+                     . add the var:
+
+                > db.coll.insert({_id: 'h_A', val: 1})
+                > var orig = db.coll.findOne({_id: 'h_A'})  <-- GET
+                > orig._id = 'h_B'                          <-- CHANGE
+                > db.coll.insert(orig)                      <-- ADD
+
 -----------------------------------
 1. run the daemon in a shell:
 
@@ -24,7 +37,7 @@
    ...
    ...
 
-2. in another shell run "mongo" which open the mongo shell
+2. in another shell run "mongo" which opens the mongo shell
    to run interactive commands that are in the forms
                db.xxxxxx()
 
@@ -82,6 +95,8 @@
 
            show collections   # to see the collections in the DB
 
+           db.cccc.find()     # to see all the content of the cccc collection  (more on find() below)
+
            db.cccc.insert({"name":"tutorials point"})   # to insert a doc in collection cccc
                                                           If cccc is not already created, it creates it
                                                           (so another way to create)
@@ -136,7 +151,7 @@
 
            db.cccc.findOne()           # To query/select from cccc - ONLY 1 doc
 
-           db.mycol.find({"kk":"vv"})  # add the WHERE clause key=val :
+           db.cccc.find({"kk":"vv"})   # add the WHERE clause key=val :
                                          ex  db.cccc.find({"by":"tutorials point"})
                                          The other operators use the strange syntax with a '$'
 
@@ -146,7 +161,7 @@
                                              $gte   >=
                                              $ne    !=
 
-                                        Still with the syntax
+                                        Still in the form:
 
                                             {"kk" :
                                              { $op : "vv" }
@@ -211,7 +226,7 @@
 
            references 1                # instead of having each doc FULLY SELF-CONTAINED
                                          (ex suppose the 'address' information of all the employes
-                                          of a company is the same, so i could be usefull to just
+                                          of a company is the same, so it could be usefull to just
                                           reference it externally and not SELF-CONTAINED in each employer)
 
                                         {

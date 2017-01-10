@@ -1,0 +1,124 @@
+
+.   GO can be installed with a package manager (homebrew, apt-get, ..)
+    and i.e. on a mac it goes in /usr/local/go/bin/go
+
+    or as it is open source:  git@github.com:golang/go.git
+    it can also be compiled from source:
+
+                      . clone the repo in ~
+                        that will create dir: ~/go
+
+            .   anyhow the source code is nowadays written in GO itself
+                so to compile it, there are different options:
+
+
+                1 option is to download the last stable old version of GO
+                  still written in C and compile it (with gcc)
+
+                  https://storage.googleapis.com/golang/go1.4-bootstrap-20161024.tar.gz
+
+                      mkdir ~/go.bin/
+                      cd ~/go.bin/ && wget ......tar.gz && tar xzvf ....
+
+                  in this way you have the GO (old) compiler: ~/go.bin/bin/go
+
+
+                  1.a. compile the source in ~/go/src (with $GOROOT_BOOTSTRAP=~/go.bin
+                       no other env vars are required now, when complete it is usefull to set
+                       GOPATH (while GOROOT since some version of GO is nomore to be set
+                       but builtin into GO (type: "go env" to see it)) and update PATH to find them )
+                       having the executable of the new compiler (compiled with the old)
+                       that is located in ~/go/bin
+                           now $GOROOT_BOOTSTRAP is no more  needed
+                           while in ~/.bash_profile add:
+                               export GOPATH="$HOME/go"
+                               export PATH="$PATH:$GOPATH/bin"
+
+
+                       recompile again (having the executable compiled with the new code)
+                       nb. it's maybe  better to save the previous go (mv ~/go/bin/go ~/go/bin/go.prev)
+                           as at each rebuilt it's overwritten
+
+                2 install with a package manager, then follow 1.a
+
+                2 install with a package manager, then follow 1.a
+
+
+                compiling the code
+                you need
+
+
+                     2. install a binary version of GO
+
+
+
+
+
+
+
+
+
+1) create a dir ~/go.bootstrap
+2) download there the go1.4-bootstrap-20161024.tar.gz and untar  (it will create a 'root' dir ./go)
+3) optionally mv everything up one level (get rid of './go' dir)
+4) cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
+5) so now we have the go compiler: (the old written in C: version 1.4)
+6) clone the GO source code:
+           6.a    mkdir ~/go.src
+           6.b    cd ~/go.src  && git clone git@github.com:golang/go.git
+           6.c    optionally get rid of the 'root' './go' dir created and move all up one level.
+7) to compile the new GO source with the GO1.4 compiler is only required to define 1 env var:
+   export GOROOT_BOOTSTRAP="$HOME/go.bootstrap"    (it must point to the 'tree' (so up 1 level the ./bin/go executable)
+8) add the path to find the executable: export PATH=$PATH:$GOROOT_BOOTSTRAP/bin
+9) now we can compile:
+           9.a    cd ~/go.src/src && ./all.bash  (it will compile with the go1.4, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
+
+10) both GOROOT_BOOTSTRAP and PATH have been set at the command line.
+    (even the full ~/go.bootstrap dir is no more required)
+    The setting to write in bash_profile is PATH:$PATH:~/go.src/bin   (<-- this will find our last version of go)
+
+
+    The problem to compile GO with a go compiler, is that the go compiler must be
+    identified as a
+         FULL-tree located by the var GOROOT_BOOTSTRAP
+    this means that if GOROOT_BOOTSTRAP = xxxxx than there will be
+                     xxxxx / bin / <---- with the executables
+                     xxxxx / src    with the code
+                     xxxxx / pkg    with the related import
+
+    The new GO tree with the new code (ex in the dir ~/yyyyy
+    ~/yyyyy/src   ~/yyyyy/pkg)
+    will be compiled with cd ~/yyyyy/src && ~/.all.bash
+    with the go compiler located in ~/xxxxx/bin   <--- this must be in $PATH
+
+
+export GOROOT="$HOME/go.src"
+export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
+export GOROOT_FINAL="$HOME/go.final"
+export GOBIN="$HOME/go.bin"
+
+~/go.src/src : ./all.bash:
+                                .....
+                                Installed Go for darwin/amd64 in /Users/sbasile/go.src
+                                The binaries expect /Users/sbasile/go.src to be copied or moved to /Users/sbasile/go.final
+
+
+
+
+~/go.bin/    go gofmt
+
+
+
+ERROR: Cannot find /Users/sbasile/go.bootstrap/go/bin/go.
+Set $GOROOT_BOOTSTRAP to a working Go tree >= Go 1.4.
+
+
+
+
+
+     1. export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
+     2. > cd $HOME/go.bootstrap/go/src  && ./all.bash --> this will create the 2 binaries (go / gofmt) in GOBIN: ~/go/
+     3. > type go :
+                  go is /Users/sbasile/go/go
+
+

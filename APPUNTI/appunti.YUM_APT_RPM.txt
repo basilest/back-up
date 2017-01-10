@@ -60,6 +60,14 @@ _______________________________________ ANSIBLE
          . Playbooks / Roles in Ansible are instead in YAML.
 
 
+         ansible comes with a list of executables: ie.
+                                 ansible
+                                 ansible-console
+                                 ansible-doc
+                                 ansible-galaxy     to reuse roles from community (ansible-galaxy list: Show currently installed roles.)
+                                 ansible-playbook
+                                 ansible-pull
+                                 ansible-vault
 
 ansible $groupname -i $inventory -m $module -a '$module_arguments'
           |              |              |            |
@@ -85,14 +93,14 @@ INVENTORY FILES      are used to group servers,
                            [databases]           <-- group name
                              db1
 
-PLAYBOOK FILES       the 'makefiles', (only it is with the YAML syntax):
+PLAYBOOK FILES       the 'makefiles', (written in YAML):
                      the structure is:
 
                           - hosts: xxxx     <--- I use one of the group name (taken from the INVENTORY list)
                             roles: yyyy
                             tasks: zzzz
                                  - name: nnnnn nn nn
-                                   notify: hhhh hh hh          <-- the name of the handler I want to fire
+                                   notify: hhhh hh hh          <-- the name of the handler I want to trigger
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
                             handlers:                          <-- handlers are executed only is some 'task' calls them explicitly with a 'notify'
                                  - name: hhhh hh hh
@@ -132,7 +140,8 @@ PLAYBOOK FILES       the 'makefiles', (only it is with the YAML syntax):
     ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
     ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
 
-MODULES:  the most used modules are:
+MODULES:  (to see the installed ones: ansible-doc -l)
+           the most used modules are:
 
   shell:   is not actually a module, it just allows to write directly bash commands to execute
            ansible all -s -m shell -a 'apt-get install nginx'
@@ -154,10 +163,10 @@ MODULES:  the most used modules are:
                                                          Ansible will decide if a change is needed.
 
 
-ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the scetions are moved into
+ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the sections are moved into
           separate makefiles (named all "main.yml") in specific subdirs.
           These smaller makefiles are called "Roles".
-          (Ansible will search for them automatically if in the ansible config file (ex /etc/ansible/ansible.cfg
+          (Ansible will search for them automatically if in the ansible config file (ex /etc/ansible/ansible.cfg)
            there is a link to where the role-dir is located:
               /etc/ansible/ansible.cfg:
 

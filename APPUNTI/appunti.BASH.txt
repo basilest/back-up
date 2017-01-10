@@ -62,10 +62,11 @@ Curly Braces
                                                     . it's not executed in an SUBSHELL but inline
                                                     . vars defined inside are then visible even outside
 
-	 5) {string1,string2,string3,...}           Brace expansion  ex.
+	 5) {string1,string2,string3,...}           Brace expansion  ex. (<-- NO SPACE after the ',')
                                                 a{d,c,b}e --> ade ace abe)
                                                 /usr/{ucb/{ex,edit},lib/{ex?.?*,how_ex}}
                                                          --> /usr/ucb/ex /usr/ucb/edit /usr/lib/ex?.?* /usr/lib/how_ex
+
 	 6) {x..y[..incr]}                          Extended brace expansion
                                              echo {1..5}         1 2 3 4 5
                                              echo {1..5..2}      1 3 5
@@ -73,20 +74,21 @@ Curly Braces
                                              echo {001..005..2}  001 003 005
                                              echo {a..z}         a b c d e f g h i j k l m n o p q r s t u v w x y z
                                              echo {a..z..2}      a c e g i k m o q s u w y
-                                            nb. It can be nested:
-                                               b{ar{d,n,k},ed}s  --> bards barns barks beds
 
-Parenthesis
+                                                    nb. It can be nested:
+                                                       b{ar{d,n,k},ed}s  --> bards barns barks beds
+
+Parentheses
 
 	 1) ( command1; command2 )             Command group executed within a subshell  (nb. runs a child SHELL)
 	 2) Array=(element1 element2 element3) Array initialization
 	 3) result=$(COMMAND)                  Command substitution, new style - used to assign the OUTPUT of a command (runs a child SHELL)
                                            nb. command sub. can be nested $(ls $(pwd))
                                                like the old ` ` that required anyhow to escape the internals: ` .. \` \` ...`
-	 4) >(COMMAND)                         Process substitution
+	 4) >(COMMAND)                         Process substitution  <--- NO SPACE: >(    <(
 	 5) <(COMMAND)                         Process substitution
 
-Double Parenthesis   (vars inside can be written with or without the '$')
+Double Parentheses   (vars inside can be written with or without the '$')
 
    	 1) (( var = 78 ))                     Integer arithmetic
    	 2) var=$(( 20 + 5 ))                  Integer arithmetic, with variable assignment
@@ -181,7 +183,7 @@ ____________________________________________________________
 
 
       CTRL          CTRL like DEL/BACKSPACE/ALT are some more 'special' chars
-                    Moste known are:
+                    Most common:
                        CTRL-C      intr  (kill 2)
                        CTRL-D      eof
                        CTRL-\      term  (kill 15) more powerfull than 2
@@ -195,7 +197,7 @@ ____________________________________________________________
 ____________________________________________________________
   CTRL ------- READLINE & BIND
 
-  All the CTRL comes from the READLINE C-Library that in GNU is the
+  All the CTRLs come from the READLINE C-Library that in GNU is the
   common code to many applications.
   I can write a C prog myself, that including the library:
          #include <readline/readline.h>
@@ -397,7 +399,7 @@ To use the long name, the syntax is
        bash -v      prints also each cmd before executing it.
        bash -x      (xtrace) debugging an expanded form of bash -v
 
-       bash -p      run as root  (privileged)
+       bash -p      run as root  (priviledged)
        bash -t      run only 1st cmd and exit
        bash -s      run cmd from (stdin)
        bash -n      like make -n    goes through all the script cmds
@@ -466,7 +468,7 @@ ____________________________________________________________
       A function as it's executed inline (not in a subshell) is faster than
       writing in a script
 
-      declare -f:   to see all the function defined in current shell (only the NAME)
+      declare -f:   to see all the function defined in current shell
       declare -F:   to see all the function defined in current shell (only the NAME)
       type xxxxx:   to see the code
 ____________________________________________________________
@@ -572,11 +574,11 @@ use command exit
 
 exit        #The right and proper method of "exiting" from a script.
 
-maybe with a variable to return a value
+            maybe with a variable to return a value
 
-E_NOTROOT=87   # Non-root exit error.
-  .......
-  exit $E_NOTROOT
+            E_NOTROOT=87   # Non-root exit error.
+              .......
+              exit $E_NOTROOT
 ____________________________________________________________
 BUILTIN
 ____________________________________________________________
