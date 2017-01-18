@@ -394,6 +394,69 @@ Model-View-Controller (MVC)     design pattern that used together
                 1. The overhead of including all the static resources
                    (Images, CSS, and JavaScript) in JSF components tree.
                 2. Missing standard and transparent caching functionalities.
+
+
+
+
+JAVA EE         Java EE is an abstract specification. 
+                Anybody is open to develop and provide a working implementation. 
+                
+                Implementations are 
+                         WildFly, 
+                         TomEE, 
+                         GlassFish, 
+                         Liberty, 
+                         WebLogic, etc. 
+                
+APP: SERVER     called APPLICATION SERVERS, 
+ 
+SERVL. CONT     There are also SERVLET CONTAINERS which implement only the 
+                JSP/Servlet part of the huge Java EE API, such as 
+                         Tomcat, 
+                         Jetty, etc.
+                
+                Java-EE developers, should write code utilizing only javax.* classes 
+                instead of org.jboss.wildfly.*, com.sun.glassfish.*, etc), so the code will run
+                on any (APPLICATION) SERVER. 
+                
+                The Java EE SDK download from Oracle.com contains basically the GlassFish server 
+                and optionally also the NetBeans IDE. 
+                
+                
+SPRING          Spring is a standalone framework which substitutes and improves 
+                many parts of Java EE. 
+                Spring doesn't necessarily require Java EE to run. 
+                A barebones servletcontainer like Tomcat is already sufficient. 
+                Simply put, Spring is a competitor of Java EE. 
+                E.g. "Spring" (standalone) competes EJB/JTA, Spring MVC competes JSF/JAX-RS, 
+                Spring DI/IoC/AOP competes CDI, Spring Security competes JAAS/JASPIC, etc.
+                
+                Back during the old J2EE/EJB2 times, the EJB2 API was terrible i
+                to implement and maintain. 
+                Spring was then a much better alternative. 
+EJB3            But since EJB3 (Java EE 5), the EJB API was much improved based 
+                on lessons learnt from Spring. 
+                Since CDI (Java EE 6), there's not really a reason to look 
+                at again another framework like Spring.
+
+
+JSP             JSP is a technology running on a SERVER which allows you 
+                to write template text in CLIENT side languages HTML, CSS, JavaScript ...
+                JSP supports the so-called taglibs which are backed by pieces of Java code 
+                with which you can control the page flow and/or output dynamically (programmatically). 
+                A well known taglib is JSTL. 
+                JSP also supports Expression Language (EL), with syntax like ${} which 
+                can be used to access backend data.
+
+VIEW  JSP       To view a JSP: Install Apache on your PC. Put the JSP file in 
+                                   /htdocs/JSP 
+                Name the JSP file index.jsp. Open Apache and start the web service 
+                (the top one. Click Start) To view it, go to your browser and  go to
+                127.0.0.1/JSP. or more explicit even 127.0.0.1/JSP/index.jsp
+
+
+                When a JSP is requested for the first time or when the webapp starts up, the servlet container will compile the JSP file into a class extending HttpServlet and use it during the webapp's lifetime. You can find the generated source code in the server's work directory. In, for example, Tomcat, it's the /work directory. On a JSP request, the servlet container will execute the compiled JSP class and send the generated output (usually just HTML/CSS/JS) through the webserver over the network to the client side, which in turn displays it in the browser.
+
 ----------------------------------------------------------------------------------------------------
 Struts
 ----------------------------------------------------------------------------------------------------

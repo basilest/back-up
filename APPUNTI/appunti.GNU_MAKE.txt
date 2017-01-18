@@ -27,7 +27,7 @@
    4. Linking
       plugs-in the real addresses for all the external unresolved place holders
       It's enough comparing the SIZE of p.o (object) with p (linked)
-      to see how much of the external was built into p.
+      to see how much of the external has been built into p.
 
 
    -------------------------------------------------------- Cross compiler

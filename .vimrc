@@ -200,7 +200,9 @@ set mouse=a
 set nu
 "set relativenumber
 set hlsearch
-"set ic
+set incsearch
+set showcmd
+set ic
 
 set tabstop=4
 set shiftwidth=4

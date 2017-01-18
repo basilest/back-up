@@ -2791,10 +2791,13 @@ ____________________________________________________________ shared library
   In a static library the final exe is a single file with all the code inside.
   (static lib are files .a
     .a is an archive files, containg 1 or more files
-       is created by the ar (deprecated by tar) command.
+       is created by the ar command.
        ar is currently used only to create .a static libs.
        gcc is able to read the .a format and extract the .o files
        it needs.
+       ar is also the format of the debian packages  (.deb)
+       To see the typical symbol relocation table of a file ar 
+       use  ar tvf xxxxx     or even      nm -s    xxxxxx.deb
   )
 
   Anyhow it could even be, that if the memory page of a static library is not already
