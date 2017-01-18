@@ -425,6 +425,16 @@ BOOLEAN VARIABLES
      is stopped as soon as possible. Any remaining right part is not conisdered.
      Besides the precedence the 2 families behave identically.
 
+     //           // operator is exactly the same as ||,
+                  except that it tests DEFINEDNESS instead of TRUTH.
+                  EXPR1 // EXPR2 returns EXPR1 if it's defined, otherwise EXPR2.
+                  (EXPR1 is evaluated in scalar context,
+                   EXPR2 in the context of // itself).
+                  Usually, this is the same result as defined(EXPR1) ? EXPR1 : EXPR2
+                  (except that the ternary-operator can be used as a lvalue, while EXPR1 // EXPR2 cannot).
+                  This is very useful for providing default values for variables.
+                  If you actually want to test if at least one of $a and $b is defined,
+                  use defined($a // $b).
 
 --------------------------
 ARRAY
