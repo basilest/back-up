@@ -7,24 +7,34 @@
                                          - variables
       API:         available in most languages (to manage YAML files)
 
----       starts a doc
+---       starts a doc (3 dashes)  the section before --- can be used to write YAML 'directives'
 
-...       ends a doc
+...       ends a doc   (3 dots) // this is OPTIONAL
 
   #       comment
+  SAME INDENTETION:    the fields of my 'sctuture' are identified just because they are indented with the same
+                       num of spaces ((<Tab> NEVER allowed))
 
-  -       all MEMBERS of a list starts with a -
-          each with the same INDENTATION (<Tab> NEVER allowed)
+
+
+  _______________ LIST / (ARRAY):
+  -       all MEMBERS of a list starts with a -    (it's like the C enum, a list of the possible values)
                       fruits:
                           - Apple
                           - Orange
                           - Strawberry
                           - Mango
 
+          compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango]      <-- in 1 line among '[' ']' separated by ','
+
+
+
+  _______________ HASH:
   key: value        NB. a ' ' (space) must follow the ':'
                         Quote if there is a :
                         foo: "somebody said I should put a colon here: so I did"
                                                                      ^
+          compact forms:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line among '{' '}' separated by ','
 
   |  >              to wrap long lines  (the > NOT include \n)
 
@@ -39,9 +49,22 @@
                                 despite appearances
 
 
-  compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango]              <-- array (only values)
-                    martin: {name: Martin D'vloper, job: Developer, skill: Elite}  <-- hash  (also keys)
                                  ^                     ^                 ^
+
+  ?                A question mark indicate a complex-mapping-KEY.
+
+                             ? - Detroit Tigers           |  all
+                               - Chicago cubs             |  a key
+                             :
+                               - 2001-07-23
+
+                             ? [ New York Yankees,        |  all
+                                 Atlanta Braves ]         |  a key
+                             : [ 2001-07-02, 2001-08-12,
+                                 2001-08-14 ]
+
+
+
 
   {{  }}            As the single { } means a list (see above)
                     the VALUE of a VAR is written as {{ var }}
@@ -59,8 +82,9 @@
            h: Yes we have No bananas  # a string, "Yes" and "No" disambiguated by context.
 
 
-  &        add a mark (to then refer the item)     like  C ( & for var address, and * for then usage)
+  &xxx     add a mark-label named xxx (to then refer the item with *xxx)     like  C ( & for var address, and * for then usage)
   *        refers a marked item
+           nb.1 << is the symbol to 'merge 1 hash into another'
 
            - step:  &id001                  # defines anchor label id001
                instrument:      Lasik 2000
@@ -83,7 +107,51 @@
                spotSize: 2mm
            - step: *id002
 
+           nb.2 << for hash merge do not go down on levels (it's not recursive) it means
+                   that if an hash is more structured (ex
 
+                                    defaults: &defaults                             |  this is the block
+                                        input_location: common_input                |  I'd like to reuse
+                                        output_location: dev_location               |
+                                        mail:                                       |
+                                          sender_name: sender                       |
+                                          smtp_server: your_server                  |
+                                          login: your_login                         |
+                                          password: top_secret                      |
+                                      development:            _______________________
+                                        <<: *defaults                               | I reuse it here
+                                        mail:                                       | but since field 'mail' is down 1 level
+                                          sender_name: sender_dev                   | it will not work the merge on that
+                                      production:            ________________________ and the final result is sender_name: sender_dev (only 1 entry, I miss the defaults' 4)
+                                        <<: *defaults                               |
+                                        output_location: prod_location              |
+                                        mail:                                       |
+                                          sender_name: sender_prod                  |
+
+                                                        common_settings: &common_settings        |_____ the solution is the add a reference for each section (1 here)
+                                                           input_location: common_input          |
+                                                           output_location: dev_location         |
+                                                           mail_defaults: &mail_defaults         | ____ (1 here)
+                                                             sender_name: sender                 |
+                                                             smtp_server: your_server            |
+                                                             login: your_login                   |
+                                                             password: top_secret                |
+                                                                                                 | ____ (1 here)
+                                                           defaults: &defaults                   |
+                                                             <<: *common_settings                |
+                                                             mail:                               |
+                                                               <<: *mail_defaults                |
+                                                           development:                          |
+                                                             <<: *defaults                       |
+                                                           production:                           |
+                                                             <<: *defaults                       |
+                                                             mail:                               |
+                                                               <<: *mail_defaults                |
+                                                               sender_name: sender_prod          |
+
+                                ________________________________________________________
+                                 The solution becomes a mess if the are more levels !  <------ N.B.
+                                ________________________________________________________
 
 
   ?        set

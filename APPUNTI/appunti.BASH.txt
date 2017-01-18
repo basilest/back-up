@@ -2063,7 +2063,7 @@ ____________________________________________________________
 
    uptime  info on how long sys is running / logged users /
        average of blocked proc (waiting for resouces) (average on last 1,5,15 min)
-       A system relatively busy (web server) presents somehing as:
+       A system relatively busy (web server) presents something as:
 
        1:20pm up 3 days 15:49, 1 user, load average: 1.47, 1.10, 0.83
 

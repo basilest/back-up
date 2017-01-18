@@ -660,6 +660,7 @@ git gc --prune     # to remove garbaged collection
                                             |                               *.[oa]
                                             |                               *~          <--- ex aaaaaa.txt~
                                             |
+                                            |                   git config --global core.excludesfile ~/.gitignore      <---- to set a global gitignore for any REPO
                                             |
                                             |
                                             | git diff / git diff --cached [or synonym --staged]

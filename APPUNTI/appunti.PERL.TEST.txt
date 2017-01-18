@@ -32,7 +32,7 @@
     //
     // N.B. MEANING of 'tests' and what a Test::More file actually is:
     //      When you write a Perl test using Test::More you write a Perl file ending with .t (ex xxx.t,
-    //      and by convention ofet located in a ./t/ directory)
+    //      and by convention often located in a ./t/ directory)
     //      using one of its 20 constructs
     //      (e.g ok, is, like ...)
     //      Each time you write a line in xxx.t using one of its construct, then:
@@ -44,7 +44,7 @@
     //
     //      Then run it just as:  perl -I.... xxx.t     (-I with all the required include paths)
     //                                                   If it's in dir t/ just add it: perl -I.... t/xxx.t
-    //      The text produced on output by running the script is called TAP (Test Anything Protocol)
+    //      The text (produced on output by running the script) is called TAP (Test Anything Protocol)
     //      another way to  run the xxx.t is through the command 'prove'
     //                   prove -I.... xxx.t             prove produces an output more short, parsing the TAP
     //

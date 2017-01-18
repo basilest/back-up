@@ -1,0 +1,60 @@
+
+            - defined in RFC4627.txt  (2006)
+
+            - text SERIALIZATION of structured data.
+
+            - derived from the 'literal' JAVASCRIPT type (i.e. the CONSTANTs)
+
+
+            - 4 TYOES  (PRIMITIVE)
+
+                       . number
+                       . strings   (sequence of zero or more Unicode) between " "   (' not allowed)
+                       . bool
+                       . null
+
+
+            - 2 TYOES  (STRUCTURED)
+
+                       . object:  U N O R D E R E D   collection
+                                  of    <name>  : <value>
+                                         |          |
+                                       a string      . a string   |
+                                                     . a number   |    4
+                                                     . a bool     |    PRIMITIVE
+                                                     . null       |
+                                                     . object        |  2
+                                                     . array         |  STRUCTURED
+
+                       . array:  O R D E R E D  SEQ. OF 0 OR MORE <value>
+
+            - keywords
+
+                (6 SPECIAL CHARS)
+
+                       1 :      seperates <name> : <value>
+                       2 ,      separates different names   n1:v1, n2:v2
+                                                                 ^
+                                separates array's elem      [ e1, e2, e3 ]
+                                                                ^   ^
+                       3 [
+                       4 ]
+                       5 {
+                       6 }
+
+                (2 STRINGS)
+
+                       1 null
+                       2 true
+                       3 false
+
+            - NUMBERs
+                      . [-] [0-9]         prefixed optional -
+                      . 0000              NOT allowed prefixing '0'
+                      . 12.67             decimals
+                      . [eE] [+-] [0-9]   exponent
+                      . octal and HEX     NOT allowed
+
+            - STRINGS
+                      . \        any char can be ESCAPED
+

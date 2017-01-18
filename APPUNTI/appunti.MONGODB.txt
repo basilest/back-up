@@ -15,6 +15,18 @@
                 > orig._id = 'h_B'                          <-- CHANGE
                 > db.coll.insert(orig)                      <-- ADD
 
+
+                ________________________________________________________________________________
+               |NB. always use 'findOne()' when setting a var and not 'find()'                 |
+               |                                                                               |
+               |           var o=db.company_profile.findOne({"_id":"LP006400"}) <---- OK       |
+               |           var o=db.company_profile.find   ({"_id":"LP006400"}) <---- NOT OK   |
+               |                                                                               |
+               |    findOne: returns a doc, so the var can be used over and over               |
+               |    find   : returns a cursor, so it can be for 1 statement, the the var seems |
+               |             vanished (as the cursor has been used one and should be reloaded) |
+               |_______________________________________________________________________________|
+
 -----------------------------------
 1. run the daemon in a shell:
 
@@ -45,8 +57,10 @@
 
    > db.help()
 
-
-
+  _________________
+  |
+  | mongo --host mongodb://envb.mongo.ch.gov.uk --port 15307     <---- it I want to connect to a remote host
+  |_________________
 
   to save interactive command output into a file:
 
@@ -94,6 +108,7 @@
                                   max  : 10000 } )     max size (in num of docs) for 'capped'
 
            show collections   # to see the collections in the DB
+           db.getCollectionNames()   # does the same
 
            db.cccc.find()     # to see all the content of the cccc collection  (more on find() below)
 
@@ -135,6 +150,8 @@
                                          the update() changes only the fields provided
 
            db.cccc.drop()              # To delete cccc
+
+           db.ccc111.aggregate([ { $match: {} }, { $out: "ccc222" } ])      # to copy a collection ccc111 into ccc222
 
            db.dropDatabase()           # To delete the selected DB
 
