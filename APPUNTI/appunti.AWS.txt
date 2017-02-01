@@ -1,4 +1,4 @@
-Why AWF:  Fastest growing cloud computing platform
+Why AWF:  It is the FASTEST growing cloud computing platform
           
 
 
@@ -57,7 +57,7 @@ AWS  SERVICES    2011:     82
                       EDGE LOC       = They CACHE the contet (i.e. a video from Australia
                                                               requested by a 1st user in NEW YORK
                                                               is actually transferred across.
-                                                              A 2nd NEW YORK user will find it cahed)
+                                                              A 2nd NEW YORK user will find it cached)
                                        Said otherwise EDGE LOC are
                                        Content-Delivery-Network (CDN)  End Point for CloudFront    
 
@@ -88,21 +88,435 @@ AWS  SERVICES    2011:     82
                                                        It's implemented by Docker container called: 
                                                      - EC2 Container service
 
-                                                     - Elastic Beanstalk: when passing to it any piece of code
-                                                                          it provisions the required infranstructure
+                                                     - Elastic Beanstalk: when uploading to it any piece of code
+                                                                          it sets up the required infrastructure
                                                                           to run the code
 
                                                      - Lambda: the flexible service behind all
-                                                 
-             1. Messaging
-             2. Security & Identity
-             3. Management Tools
+
              4. Storage
+                                                4 components:
+
+                                                1 S3 (old as AWS, it stays for 3 S: Simple Storage Service)  
+                                                                   think of it as a VIRTUAL DISK (DropBox)
+                                                                   in the cloud to store OBJECTS
+                                                                   (any file / format [not DB])
+
+                                                2 GLACIER  low cost service to ARCHIVE files (ex for law
+                                                           you must keep files for 7 years)
+
+                                                3 EFS new service (Elastich File Service) this is where
+                                                      (instead of S3) you install DB and applications (ex. a game)
+
+                                                4 Storage GATEWAY:  a VM image that must be installed
+                                                  in my Company's premises to connect to S3.
+
+
+                                                 
              5. Databases
+                                                . RDS (Relational DB Service) includes all the main ones
+                                                  Oracle, MySQL, ...     <--- the relational ones
+
+                                                . DynamoDB (for the NON-Relational DB, or No-SQL)
+                                                  very scalable (& high performance)
+                                                  
+                                                . Redshift (Amazon warehousing) where to store copies 
+                                                  of my Production DB, to perform calculation, statistics, measures
+                                                  OUT-FROM my production env (whose perform. would otherwise suffer)
+
+                                                . ElastichSearch (Cache for Redshift) ex to store the top-10
+                                                  sold items or other very used info (better ito retrieve
+                                                  from here, than each time from DB)
+
+
+
+
+             1. Migration
+                                                . Snowball : a physical appliance (factor size = a suitcase)
+                                                             to transfer physical DISKs to Amazon
+                                                             and it will store them into S3 or EFS
+
+                                                . DMS (DB Migration Service) to transfer my DB to the cloud
+                                                  or then to move to different REGIONS
+                                                  The good thing is that it can convert to another format
+                                                  (ex. an ORACLE DB to a MySQL DB)
+
+                                                . SMS (Server Migration S.) to migrate a VM (ex VMware)
+                                                  to the Cloud.
+                                                
+
+
+             1. Analytics
+                                                . Athena: new service (2017) to run SQL query on S3
+
+                                                . EMR  (Elastich 
+
+                                                . Cloud   Search  : they do the same just Elast. S is an
+                                                . Elastic Search  : (open source) framework
+
+                                                . Kinesis: realtime analysis (it analyse tera bytes / h)
+                                                           it's a stream monitor
+
+                                                . Data pipeline (like the UNIC pipe) moves data from one
+                                                  service to another 
+
+                                                . Quick Sight: Buiseness analytic tool, with visualisation
+                                                               and a dashboard
+
+
+             2. Security & Identity
+                                                . IAM: fondamental component of AWS (present anywhere)
+                                                       
+                                                . Inspector: a Service to install in my VMs to scan and
+                                                             monitor what's going on.
+
+                                                . Directory Service: to use active directories (connect
+                                                  Microsoft to AWS)
+
+                                                . WAF (Web Application Firewall) 
+
+                                                . Artifacts: to manage certifications (ISO....) docs
+             
+
+
+             3. Management Tools
+                                                . Cloud Watch: to monitor performances
+
+                                                . Cloud Formation: fondamental topic, it allows to deploy
+                                                  my AWS env designing my virtual devices (routers, firewalls...)
+                                                  with writing some TEMPLATES or even 1 SINGLE LINE of CODE.
+
+                                                . Cloud Trail: 
+
+                                                . Opsworks: to automated deployment
+
+                                                . Config: monitor my env. and warns if my config is not OK
+                                                          (even at runtime, ex some users are acting against
+                                                           some policies)
+
+                                                . Service Catalog
+
+                                                . Trusted Advisor
+
+
+
+
+             1. Application Services
+                                                . Step Functions: new (2017)
+
+                                                . SWF
+
+                                                . API Gateway: a door to enter my BackeEnd services
+
+                                                . AppStream: to stream desktop App to my user.
+
+                                                . Elastic Transcoder: to transcode avideo in different format
+                                                                      (ex desktop, mobile, ...)
+
+
+
+
+             1. Developer Tools
+                                                . Code Commit: like GitHub
+
+                                                . Code Build: to compile my code in different env (cross compile)
+
+                                                . Code Deploy: to deploy code to my EC2 
+
+                                                . Code Pipeline: to keep trac of different version of code
+                                                                 (testing, live, preprod, ...)
+
+
+             1. Mobile Services
+                                                . Mobile Hub: to configure my App if it's a mobile one
+                                                              (Backend, data storage, user auth, ...)
+                                                              It has an own Console, not the AWS common one.
+
+                                                . Cognito: to log into my App through social id 
+                                                           (facebook, google, ...)
+
+                                                . Device Farm: to test my App on hundreds of different HW-OS
+                                                                (Android, IOs, ...)
+
+                                                . Mobile Analytics: to monitor data
+
+                                                . Pin point: new (2017) to use like google Analytic for my App
+                                                             trace user behaviour ...
+
+
+
+
+             1. Business Productivity
+                                                . Work Docs: to store docs in a safe place.
+
+                                                . Work Mail: to send & receive emails
+
+
+             1. Internet of Things
+                                                . iOT: new (2017) probably a self Certification 
+
+
+             1. Desktop - App streaming
+                                                . Work Spaces: VDI (like having my Desktop in th Cloud)
+
+                                                . AppStream 2.0: to stream my Desktop-App to my user
+
+                                                . Work Spaces: VDI
+
+
+
+             1. Artificial Intelligence
+                                                . Book from Nick Bostrom
+                                                       SUPERINTELLIGENCE
+
+                                                . Alexa
+                                                       use 'lex' driver
+                                                       use 'Polly' translates text into mp3 audio
+                                                       'Machine learning' to predict data according to 
+                                                                          an input data-set
+                                                       'Rekognition' understand what is present in a picture
+
+
+             1. Messaging
+                                                . SNS
+                                                . SQS: a queue system (I can store jobs in a queue)
+                                                . SES: Simple Email Service
+
+
              8. AWS Global Infrasructure:
 
 
 
+
+
+_________________________________________________________ Identity Access Management - (IAM)
+
+               It provides:
+
+             . CENTRALIZED control of my AWS
+             . SHARED access (I can invite others)
+             . GRANULAR Permissions
+                        ex. John Smith can only use DinamoDB
+             . Identity Federation (ie. Linkedin, facebook, ... to login)
+             . Multi Factor Authent. (MFA) (like GitHub)  [can be virtual or physical]
+             . Provide TEMP access (TEMP users)
+             . Password ROTATION Policy (and even password chars-range/len constraints)
+             . Support PCI DSS Compliance (for Credit Card / Paypal ...)
+
+
+                  key terms:
+                         . USER
+                         . GROUP    = set of USERs
+                         . ROLE     = when assigned to AWS services the can communicate
+                         . POLICIES = A DOCUMENTS to define the PERMISSIONS
+
+                           NEW Users have NO premission when first created
+                           NEW Users when first created receive: ACCESS Key +            <--- they are not the user+password pair
+                                                                 SECRET ACCESS Key            but are the tokens that can be used
+                                                                 to log into the CONSOLE      when accessing (programmatically) 
+                                                                                              using the 
+                                                          they can be seen                              . APIs
+                                                          only the first time                           . command line
+                                                          (that is so the time to download/save them)
+                                                          because otherwsie you need to 
+                                                          create them again
+
+
+             SAML : Secure Assertive Markup Language (the auth. used to access Windows Active Directory)
+
+
+             Windows Active dir. is accessed FIRST, and then I get a TEMPORARY access credential to AWS
+
+_________________________________________________________ Web Identity Federation (with Mobile App)
+
+             Web Identity Federation Playground : https://web-identity-federation-playground.s3.amazonaws.com/index.html
+
+
+                 1. I log in a web account (ex. Facebook) (called the "Identitiy  provider")
+                 2. I receive a TOKEN
+                 3. setting the token in my policy,  <----  I see the countdown in sec of my TOKEN expiration
+                    I can receive temporary credentials
+                    clicking on "Call AssumeRoleWithWebIdentity" <--- where the 'Role'
+                                                                      is ARN
+                                                                      arn:aws:iam::877950674958:role/WebIdFed_Facebook
+
+
+                    ex. of Token:
+                                    accessToken: EAAIZCWusQngMBAB1q...zsE
+                                    userID: 1721332184847663
+                                    expiresIn: 5086
+
+
+
+                    I see the request message:
+                                                  GET / HTTP/1.1
+                                                  Host: sts.amazonaws.com
+                                                  Content-Type: application/json; charset=utf-8
+                                                  URL: https://sts.amazonaws.com/?Pr
+
+
+                    and the response
+												<AssumeRoleWithWebIdentityResponse
+												  xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+												  <AssumeRoleWithWebIdentityResult>
+													<Audience>632609676762627</Audience>
+													<AssumedRoleUser>
+													  <Arn>arn:aws:sts::877950674958:assumed-role/WebIdFed_Facebook/web-identity-federation</Arn>
+													  <AssumedRoleId>AROAJJXNICVEOTE5KRC2W:web-identity-federation</AssumedRoleId>
+													</AssumedRoleUser>
+													<Provider>graph.facebook.com</Provider>
+													<Credentials>
+													  <AccessKeyId>ASIAJ5KKX6AZ4UBCTXCQ</AccessKeyId>
+													  <SecretAccessKey>83CfHgfQnkTCxxfVWoCks+d6AfxBGBmm57WfhthD</SecretAccessKey>
+													  <SessionToken>FQoDYXdV...............................................................
+													  <Expiration>2017-01-17T22:53:07Z</Expiration>
+													</Credentials>
+													<SubjectFromWebIdentityToken>1721332184847663</SubjectFromWebIdentityToken>
+												  </AssumeRoleWithWebIdentityResult>
+												  <ResponseMetadata>
+													<RequestId>9dddc325-dd05-11e6-8095-87e3e4c47226</RequestId>
+												  </ResponseMetadata>
+												</AssumeRoleWithWebIdentityResponse>
+
+
+
+_________________________________________________________ S3 - EC2   (Elastic Compute Cloud)
+
+             I can provision my virtual server with what I need
+             and the scale with ease (if I need more capacity)
+             I pay EC2 according to how many resources I ask
+                   
+                     I can pay:
+                         - ON DEMAND:  counting how many hours
+                         - RESERVED:   I pay for 1 or 3 years (discount)
+                         - SPOT:       cheapest (I can be shutdown with 1 hour notice
+                                                 if I exceed the discounted agreed usage)
+                                                 This model can be good if my App is something
+                                                 that starts & requires a lot of resources only
+                                                 sometimes (a big calculation only when some data arrives)
+                                                 then can be shutdown.
+
+                                                 nb. If it's me to shutdown I'll pay for the time it runs
+                                                     otherwise if it's Amazon to shutdown I'll not pay.
+
+
+                           'ON DEMAND' can be added to 'RESERVED' if needed
+                           (ex on a black Friday I need more resources
+                            I pay just for that day my required extra
+                            than I turn back to normal 'RESERVED')
+                           
+             Families (
+                         T2       General Purpose (cheap)     webser/small DB
+                         M4, M3    "                          Application server
+                         C4, C3   CPU Intensive
+                         R3       Memory intensive            DB or App
+                         G2       Graphic (Video encoding)
+                         I2       High Speed                  (NOSQL DB)
+                         D2       Dense Storage               Files server
+                      )
+                            
+             EBS : is like a HARD-DISK (a block device) in the cloud (so replicated from failure)
+                   It allow me to create virtual 'storage volumes' and attach to 1 EC2  (to mount to >1EC2 --> use EF)
+                   then:
+                           . create a file-system on top
+                           . run a DB
+             Families (
+                         SSD (GP2)  99.9999% availability
+                                    <= 10.000 IOPS     
+
+                         IOPS SDD (IO1)  IOPS (Iput-Output.Per-Second)
+                                    if I need > 10000 IOPS  (ex. NOSQL DB)
+
+                         MAGNETIC (Standard)
+                                    lowest cost per Giga
+                      )
+
+                  
+_________________________________________________________ EC2
+
+             . Log into Console 
+             . Choose EC2
+             . I can Choose my best region
+             . I can see the status of Region and Availability Zones
+             . Then I can create a EC2 from some defaults (Suse, RedHat, Ubuntu (anche Windows!)
+                                                          and a Linux version from Amazon.)
+
+             . Some EC2 are HVM (Hardware Virtual Machine)
+                 others are PV  (Para Virtual) 
+
+             . EC2 are presented with the family id. (T2, M4, C4, ...)
+               how much RAM and how many CPUs
+               I can even choose the network params (IP/subnet mask [1 subnet = 1 Availability Zone])
+               and If I want to open/attach a SPOT accoun
+
+             . In the advanced session I can enter in a text-box some config script commnds
+               ex. 
+                    #!/bin/bash
+                    yum update -y
+
+             . It's FREE to create simple EC2 (ex. 8 GB & 24 IOS)
+             . The defaults of the ROOT Volume (where the OS is stored) are:
+                               - "Delete on Termination" flag = ON, so the FREE EC2 by default are deleted on close.
+                               - Encryption is OFF (and CANNOT be set ON)
+
+             . I can add other volumes (not only the ROOT). Ex 1 EBS
+               These volumes CAN be Encrypted
+
+             . I can add TAGS (in the usual HASH forms (KEY:VALUE pair)
+               ex Developer:TEST
+
+             . I can add security policy (a virtual firewall)
+               ex define SSH  on port 22 to access everywhere +
+                         HTTP on port 80
+               (both on TCP)
+
+
+
+             . At the end, LAUNCH the new EC2
+
+
+             . If I download the public key (file xxxxx.pub) I can
+               log from my laptop-terminal as:
+                     :w
+
+                     1. chmod 600 xxxxx.pub
+                     2. ssh basilest-amazon@52.48..78.87 -i xxxxx.pub
+ 
+
+
+
+
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
+_________________________________________________________ Identity Access Management - (IAM)
 
 
 
