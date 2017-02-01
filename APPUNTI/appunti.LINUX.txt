@@ -1841,6 +1841,27 @@ __  ls
                           ex
                              eval $(dircolors -p | perl -pe 's/LINK\s+[0-9;]+/LINK 01;36/' | dircolors -)
 ____________________
+__  sort
+    to sort with the option -k (that allow to specify the column to use as key)
+    it must be always used even -b, otherwise it doesn't work:
+    The syntax of a -k is <num col>,<position of the char>        n.b. positions start from 1
+
+    ex: to sort by the  4th col of this:
+
+    0   2 Que  12/08/12  16:51
+    988 1 Act  10/29/12  03:51
+    49  6 Wri  07/30/12  20:01
+    49  3 Wri  07/25/12  20:01
+    988 8 Wri  08/09/12  06:45
+    988 5 Wri  09/23/11  06:45
+    988 7 Wri  02/09/11  06:45
+               ^  ^  ^
+            1,2  4,5  7,8  <------ char positions at the 4th col
+
+         sort -k 4.7,4.8    -k 4.1,4.2    -k 4.4,4.5
+
+
+____________________
 __  find
 
 
@@ -2796,7 +2817,7 @@ ____________________________________________________________ shared library
        gcc is able to read the .a format and extract the .o files
        it needs.
        ar is also the format of the debian packages  (.deb)
-       To see the typical symbol relocation table of a file ar 
+       To see the typical symbol relocation table of a file ar
        use  ar tvf xxxxx     or even      nm -s    xxxxxx.deb
   )
 

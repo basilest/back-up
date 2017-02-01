@@ -1,3 +1,9 @@
+------------------------------------------------------ save vim sessions
+:mksession ~/mysession.vim                       # save in that file
+
+             to then load it:
+                             1st way: :source ~/mysession.vim
+                             2nd way: $ vim -S ~/mysession.vim
 ------------------------------------------------------
 export TERM=xterm          if there are some errors like "Unknown terminal type"
                            the effect is otherwise a vi with 1 single line on screen

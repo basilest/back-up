@@ -2,12 +2,12 @@ YUM          . utility to manage packages in Linux systems
 
              . written in Python
 
-             . ~ 2003 written at the  Duke University Department of Physics
+             . ~ 2003: written at the  Duke University Department of Physics
                to replace YUP (the package manager of a Linux distribution: Yellow Dog Linux)
 
-             . The menaing it's so Yellowdog Updater, Modified
+             . The meaning it's so Yellowdog Updater, Modified
 
-             . 2007 was considered "the tool of choice" for RPM-based Linux
+             . 2007: was considered "the tool of choice" for RPM-based Linux
                Yellow Dog Linux itself, replaced its original YUP
 
              . based on RPM

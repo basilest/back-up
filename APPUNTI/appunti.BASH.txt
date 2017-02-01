@@ -1223,6 +1223,13 @@ Arguments passed to the script:  $0, $1, $2, $3 . . .
          As the difference between S* and $@ is that the second quotes the words (between IFS)
          the difference arises when quoting them (ex using "$*"  "$@")
          the first produces 1 single word, the second many.
+         ex. suppose I have a function xxx that receives some args,
+             and then forwards all of them to another function zzz:
+                         zzz  "${@}"    <--- OK        in zzz are defined $1 $2 $3 ...
+                         zzz  "${*}"    <--- NOT OK    in zzz is defined only a BIG S1
+             N.B. If I want to forward only some skipping the first X (ex. 2)
+                  I'll do
+                         zzz "${@:2}"      # or more generally    zzz "${@:$X}"
 
   ex.
    args=$#               # Number of args passed.

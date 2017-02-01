@@ -6,7 +6,7 @@
             - derived from the 'literal' JAVASCRIPT type (i.e. the CONSTANTs)
 
 
-            - 4 TYOES  (PRIMITIVE)
+            - 4 TYPES  (PRIMITIVE)
 
                        . number
                        . strings   (sequence of zero or more Unicode) between " "   (' not allowed)
@@ -14,7 +14,7 @@
                        . null
 
 
-            - 2 TYOES  (STRUCTURED)
+            - 2 TYPES  (STRUCTURED)
 
                        . object:  U N O R D E R E D   collection
                                   of    <name>  : <value>
@@ -42,7 +42,7 @@
                        5 {
                        6 }
 
-                (2 STRINGS)
+                (3 STRINGS)
 
                        1 null
                        2 true

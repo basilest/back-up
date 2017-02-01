@@ -1,3 +1,4 @@
+---------------------
   | $GIT_DIR
   | $GIT_EDITOR      to set a preferred editor (ex.  export GIT_EDITOR=vim   # .bashrc)
   | $GIT_AUTHOR_NAME        anothe way instead of setting
@@ -69,6 +70,28 @@ git branch -d $(git branch --merged) <--- git branch --merged    all branches th
                                           list of those unmerged branches
 
 
+--------------------------------------------------------------- Commiting with Submodules:
+
+     after changing the original repo  (so change & add & commit & push)
+     to change ALL the other repos that use it, as a submodule do this for each of them:
+
+
+        for i in all the repo
+
+             cd i
+             git submodule init                 <---- do this in root repo dir
+             git checkout -b feature/<name>     <---- create a branch in root repo dir
+             cd api-enumerations                <---- cd into the dir of the submdoule
+             git checkout develop
+             git pull
+             git checkout <branch where the changes were made on the repo>
+             git pull (probably wont need this as it will be the first time you checkout this branch in the submodule, but you can do it for safety/sanity)
+             cd ..
+             git add api-enumerations
+             git commit (message usually just contains bump submodule and the jira ticket number)
+             git push
+
+---------------------------------------------------------------
 
 
 
@@ -1152,6 +1175,7 @@ git gc --prune     # to remove garbaged collection
                                             | git branch                  list only local branches
                                             | git branch -r               list remote
                                             | git branch -a               list ALL
+                                            | git rev-parse --abbrev-ref HEAD        to see the name of the current branch
                                             |
                                             |              "master" branch.
                                             |                there is nothing special. It's created by default on a "git init"
@@ -1247,6 +1271,8 @@ git gc --prune     # to remove garbaged collection
                                             |                  prune away commits that are no longer referenced (by a branch or tag name).
                                             |                  They are collected as garbage by the git gc tool.
                                             |
+                                            | git push origin :feature/april_17/ci_pflp_indicator   <----- this syntax will remove the REMOTE branch
+                                            |                 ^                                            keeping the LOCAL. The magic is the ':'
                                             |
     3.2 Basic Branching and Merging         |
                                             |                    Before merging,  tidy up wd + index.

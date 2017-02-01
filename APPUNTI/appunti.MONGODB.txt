@@ -159,7 +159,7 @@
 
            db.cccc.find().pretty()     # To have a better output
 
-           db.cccc.find({},{"k":1 "k2":0}) # normally find will return ALL the fields of a doc
+           db.cccc.find({},{"k":1,"k2":0}) # normally find will return ALL the fields of a doc
                                          (like all the cols of a table)
                                          to have only some fileds turn them OFF/ON with :0 :1
                                          Note the syntax:   {} , {.....}       <--- so first a {}
