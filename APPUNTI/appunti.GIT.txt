@@ -1707,6 +1707,76 @@ git gc --prune     # to remove garbaged collection
                                             |
     7.11 Submodules                         |
                                             |
+                                            |   git submodule add https://gith..../xxxx
+                                            |                                              this will clone that repo ...xxxx
+                                            |                                              into a new dir xxxx of current dir
+                                            |
+                                            |                                              The result is also a file .gitmodules
+                                            |                                              inside current dir:
+                                            |
+                                            |   .gitmodules                                example of `cat gitmodules`:
+                                            |
+                                            |                                              [submodule "api-enumerations"]
+                                            |                                                      path = api-enumerations
+                                            |                                                      url = git@github.com:companieshouse/api-enumerations.git
+                                            |
+                                            |   git diff                                   works as usaul but shows that dir xxxx
+                                            |   git diff --submodule                       to have a better output
+                                            |
+                                            |
+                                            |   git clone                                  The clone of a repo WITH submodules inside
+                                            |                                              will leave the dir EMPTY  (it will not clone even the
+                                            |                                              sub repo)
+                                            |
+                                            |   git clone --recursive                      To clone even ALL submodules in their dirs
+                                            |
+                                            |   git submodule init                         1/2: to init the local config file                  (if no [clone --recursive] has been used)
+                                            |   git submodule update                       2/2 to FETCH / CLONE the submodule in the EMPTY dir (if no [clone --recursive] has been used)
+                                            |
+                                            |   cd xxxx  && git fetch / git merge  ( &&    <-- mandatory
+                                            |   cd .. && git diff --submodule )            <-- optional
+                                            |
+                                            |   git submodule update --remote              performs the previous set of (mandatory) commands, in 1
+                                            |   git submodule update --remote xxxx         If I have many submodules and I want to update only xxxx
+                                            |                                              (without xxxx il will update ALL subm.)
+                                            |
+                                            |   git log --submodule                        to add also the submodule info
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+                                            |
+
+
+
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
+  .gitmodules                                example of `cat gitmodules`:
     7.12 Bundling                           |
                                             |
     7.13 Replace                            |
