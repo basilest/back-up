@@ -1709,74 +1709,119 @@ git gc --prune     # to remove garbaged collection
                                             |
                                             |   git submodule add https://gith..../xxxx
                                             |                                              this will clone that repo ...xxxx
-                                            |                                              into a new dir xxxx of current dir
+                                            |                                              into a new dir xxxx inside current dir
                                             |
                                             |                                              The result is also a file .gitmodules
                                             |                                              inside current dir:
                                             |
                                             |   .gitmodules                                example of `cat gitmodules`:
                                             |
-                                            |                                              [submodule "api-enumerations"]
-                                            |                                                      path = api-enumerations
-                                            |                                                      url = git@github.com:companieshouse/api-enumerations.git
+                                            |                                              It contains a [submodule "xxxx"]
+                                            |                                              for each submodule:
                                             |
+                                            |                                            | [submodule "euler_proj"]
+                                            |                                            | 	path = euler_proj
+                                            |                                            | 	url = https://github.com/basilest/euler_proj
+                                            |                                            | [submodule "xhat"]
+                                            |                                            | 	path = xhat
+                                            |                                            | 	url = https://github.com/basilest/xhat
+                                            |                                            |
+                                            |
+                                            |   git submodule add https://gith..../xxxx  qui/    <-- if you want to have a different path
+                                            |                                            ^                                               
+                                            |                                                    in this case the .gitmodules will be:
+                                            |
+                                            |                                            | [submodule "qui"]
+                                            |                                            | 	path = qui
+                                            |                                            | 	url = https://github.com/basilest/euler_proj
+                                            |
+                                            |   git log  --submodule                       to add also the submodule info
                                             |   git diff                                   works as usaul but shows that dir xxxx
                                             |   git diff --submodule                       to have a better output
+                                            |                                              (It can also be set as a fixed config value:
+                                            |                                              git config --global diff.submodule log)
+                                            |                                                                  ^    ^         ^   
+                                            |
+                                            |
+                                            |
+                                            |                                              git config status.submodulesummary 1       to have the command 'git status' tracking better
+                                            |                                                          ^     ^                ^       even the submodule like the other normal files.
+                                            |
+                                            |
                                             |
                                             |
                                             |   git clone                                  The clone of a repo WITH submodules inside
-                                            |                                              will leave the dir EMPTY  (it will not clone even the
-                                            |                                              sub repo)
+                                            |                                              will leave the dirs EMPTY  (it will not clone even the
+                                            |                                              sub repos)
                                             |
                                             |   git clone --recursive                      To clone even ALL submodules in their dirs
                                             |
                                             |   git submodule init                         1/2: to init the local config file                  (if no [clone --recursive] has been used)
                                             |   git submodule update                       2/2 to FETCH / CLONE the submodule in the EMPTY dir (if no [clone --recursive] has been used)
                                             |
-                                            |   cd xxxx  && git fetch / git merge  ( &&    <-- mandatory
-                                            |   cd .. && git diff --submodule )            <-- optional
+                                            |
+                                            |                                                 cd xxxx  && git fetch / git merge  ( &&    <-- mandatory
+                                            |                                                 cd .. && git diff --submodule )            <-- optional
                                             |
                                             |   git submodule update --remote              performs the previous set of (mandatory) commands, in 1
                                             |   git submodule update --remote xxxx         If I have many submodules and I want to update only xxxx
                                             |                                              (without xxxx il will update ALL subm.)
+                                            |                                              
+                                            |                                              the (fecth & merge) work by default on branch master
+                                            |                                              so it's better to specify explicitly the branch
                                             |
-                                            |   git log --submodule                        to add also the submodule info
+                                            |                                               git config submodule.xxxx.branch bbbb 
+                                            |                                                                         ^      ^         
+                                            |                                               git config -f .gitmodules submodule.xxxx.branch bbbb      the same  as before
+                                            |                                                           ^  ^                                          but saving into .gitmodules  
+                                            |                                                                                                         so it remains selfcontained in the repo
+                                            |                                                                                                         if I give it to others
+                                            |                                              REMEMBER: an 'update' works on MASTER (or bbbb if specified)
+                                            |                                              so if I was on another branch, an implicit checkout to MASTER
+                                            |                                              or bbbb is done!
+                                            |                                              
+                                            |                                                   
+                                            |   git submodule update --remote --rebase     To rebase my local subm
+                                            |                                              merging my local commits I did directly on the subm
+                                            |                                              with any new remote commits.
+                                            |   git submodule update --remote --merge      it is like the 'rebase' but when I didn't yet locally
+                                            |                                              committed some changes (so some modified files are not
+                                            |                                              yet saved in to the index with a proper commit)
+                                            |                                              So I save 1 commit (instead 1 local commit + 1 merge,
+                                            |                                              only 1 (local + merge))
+                                            |                                              
+                                            |                                              NB. As the 'update' perform an implicit checkout
+                                            |                                                  to MASTER or bbbb, any LOCAL modified files 
+                                            |                                                  NOT yet committed, is not overwritten, anyhow
+                                            |                                                  the submodule is in an undefined status, of
+                                            |                                                  'detached HEAD'. To fix this, checkout the unsaved branch
+                                            |                                                  and commit. 
+                                            |                                                  
+                                            |                                              cd xxxx && git push        If I changed the files in the xxxx dir of the subm
+                                            |                                                                         then I cd in xxxx and push to the server
+                                            |
+                                            |   git push --recurse-submodules=check        with --recurse-sub... option I can stay in the upper dir
+                                            |                                              and push my main proj. after having push any commit
+                                            |                                              I would have done directly in the subm
+                                            |                                              the 'check' value just stops in case there are some 
+                                            |                                              missing commits in the subm.
+                                            |                                              The other val is 
+                                            |                                                               --recurse-submodules=on-demand
+                                            |                                              that pushes any missing commit first.
+                                            |                                              
+                                            |                                              to set as config preferences:
+                                            |                                              
+                                            |                                                  git config push.recurseSubmodules check
+                                            |                                                  git config push.recurseSubmodules on-demand
+                                            |                                              
+                                            |
+                                            |   git submodule foreach '.........'          the 'foreach' construct allows to spawn a command 
+                                            |                                              on each submodules at once. Ex:
+                                            |                                                     git submodule foreach 'git stash'
+                                            |                                                     git submodule foreach 'git diff'
+                                            |                                                     git submodule foreach 'git checkout -b featureA'
                                             |
                                             |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-
-
-
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
-  .gitmodules                                example of `cat gitmodules`:
     7.12 Bundling                           |
                                             |
     7.13 Replace                            |
