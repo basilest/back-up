@@ -447,9 +447,9 @@ _________________________________________________________ EC2
              . EC2 are presented with the family id. (T2, M4, C4, ...)
                how much RAM and how many CPUs
                I can even choose the network params (IP/subnet mask [1 subnet = 1 Availability Zone])
-               and If I want to open/attach a SPOT accoun
+               and If I want to open/attach a SPOT account
 
-             . In the advanced session I can enter in a text-box some config script commnds
+             . In the advanced section I can enter in a text-box some config script commnds
                ex. 
                     #!/bin/bash
                     yum update -y
@@ -457,10 +457,11 @@ _________________________________________________________ EC2
              . It's FREE to create simple EC2 (ex. 8 GB & 24 IOS)
              . The defaults of the ROOT Volume (where the OS is stored) are:
                                - "Delete on Termination" flag = ON, so the FREE EC2 by default are deleted on close.
-                               - Encryption is OFF (and CANNOT be set ON)
+                               - Encryption is OFF (and it grayed so it CANNOT be set ON) there are 3rd party tools
+                                 to add the Encryption tough 
 
              . I can add other volumes (not only the ROOT). Ex 1 EBS
-               These volumes CAN be Encrypted
+               These volumes have the flag to Encrypt that is available
 
              . I can add TAGS (in the usual HASH forms (KEY:VALUE pair)
                ex Developer:TEST
@@ -477,7 +478,6 @@ _________________________________________________________ EC2
 
              . If I download the public key (file xxxxx.pub) I can
                log from my laptop-terminal as:
-                     :w
 
                      1. chmod 600 xxxxx.pub
                      2. ssh basilest-amazon@52.48..78.87 -i xxxxx.pub
@@ -485,13 +485,183 @@ _________________________________________________________ EC2
 
 
 
+_________________________________________________________ Windows users (configure Putty & SSH)
 
-_________________________________________________________ Identity Access Management - (IAM)
-_________________________________________________________ Identity Access Management - (IAM)
-_________________________________________________________ Identity Access Management - (IAM)
-_________________________________________________________ Identity Access Management - (IAM)
-_________________________________________________________ Identity Access Management - (IAM)
-_________________________________________________________ Identity Access Management - (IAM)
+                                Putty.exe       +
+                                Puttygen.exe
+
+                   
+
+                   AWS lets you 
+                     .  create  a SSH key pair (private & public)
+                     .  download the public as a file  xxxxxx.pem
+
+                   Putty is not able to manage the .pem format so that
+                   there is the Puttygen.exe to convert in a xxxxx.ppk
+                  
+
+
+
+
+
+_________________________________________________________ Configure AWS command line
+
+
+                  to use "User-Credentials" to log  
+                  With ROLEs is more secure.
+
+            1. Create a Amazon-Linux-EC2   (becasue the AWS-command-line-tool is already included)
+            2. Create a User  uuuu
+            3. Create a Group
+            4. Attach the User to the Group
+            5. Attach 1 of up to 10 Policies to the Group
+               (1 good is: "AWS Full Access")
+            6. from your laptop's terminal:
+               ssh uuuu@1.2.3.4 -i xxxxx.pem
+                          ^          ^
+                          |        the public AWS key saved
+                          |________the IP addr. of the EC2
+
+
+
+
+
+
+
+_________________________________________________________ AWS commands
+
+
+            They all 
+                 .  start as 'aws'
+                 .  the 'service' follows (ex s3
+                 .  1 of the many comanfds availabke for that 'service'
+                ex
+                 > aws s3 ls
+
+
+            aws configure         to configure my EC2
+                                  the 1st thing to configure is to add the
+                                  'Acess key ID'  (the 1st of the 2 voices saved when creating the EC2)
+                                  and they even 'Secret Access key'
+
+
+
+                                  Then I can set:
+                                     . region   (ex. us-east-1)
+                                     . default output format (ex. JSON)
+
+
+            aws s3 mb s3://sdfsdfsdf      to create a bucket
+
+            .aws                           the usual hidden dir, containing
+                                             > config       <--- contains the other configure settings (ex. region:us-east-1)
+                                               credentials  <--- contains the 2 'Access' infos
+                                                                                  ^
+                                                                                  SO USING THEM IS VERY INSECURE!!!!!!
+                                                                                  BETTER TO USE OTHER WAYS THAN
+                                                                                  USING THE 'Access key'
+
+
+_________________________________________________________ ACCESS WITH ROLE SETTINGS
+
+               ROLES can be attached 
+                   O N L Y
+               when the EC2 is   C R E A T E D (or provisioned)
+
+
+               So the steps are:
+
+                  1. create a ROLE
+                  2. attach the AWS-S3-FULL-ACCESS Policy
+                  3. Create an EC2 :
+                                   3.1   at the 2nd page in the 'IAM Role' field
+                                         select the ROLE just created.
+                                   3.2   some pages then attach 1 GROUP previously
+                                         created as 'security group'
+
+
+
+                    The EC2 created in that way
+                    DO NOT STORE the credentials!! (So there are no files in .aws dir)
+                  
+
+_________________________________________________________ PHP - SDK
+
+            Script to run in the EC2:
+
+            |
+            |  yum update -y
+            |  yum install httpd24 php56 git -y                 httpd24 is Apache 2.4
+            |  service httpd start                              start Apache
+            |  chkconfig httpd on
+            |  cd /var/www/html
+            |  echo "<?php phpinfo();?>" > test.php
+            |  git clone .....
+            |
+
+               To install the SDK for Php  (that is a AWS Service)
+               run this:
+                        ssh uuuu@1.2.3.4 -i xxxxx.pem
+                        sudo su
+                        cd /var/www/html
+
+                         curl -sS https://getcomposer.org/installer | php
+
+                         php composer.phar require aws/aws-sdk.php
+
+                        the previous cmd creates some dirs (ex. /var/www/html/ vendor/
+                            cd vendor
+                            run (each time you want to open the Php-SDK),
+                            the file 
+                                       autoload.php
+
+
+
+
+_________________________________________________________ Interacting with S3  (using Php SDK)
+
+
+                        ssh uuuu@1.2.3.4 -i xxxxx.pem
+                        cd /var/www/html/ s3/ *.php    <----------------------------------------------------------
+                            1. the first file is createbucket.php :                                                \
+                                                                                                                     \
+              ___________________  include 'connecttoaws.php'   (nb. its connect-to-aws, and include another file of these)
+              |                    $bucket = uniqid("cloudGURU", true)
+              |                    $result = $client->createBucket(array('Bucket' => $bucket));
+              |                                                ...
+              |
+  contains    |
+  at least    |
+  these lines |                    Once the bucket is created it is passed to the other pages like that:
+              |                            <a href=\"xxxxxx.php?bucket=$bucket\">
+              |                                                       ^
+              |
+           require '/var/www/html/ vendor/autoload.php'
+           $client = new Aws\S3\S3Client  ([
+                            'version' => 'latest'one
+                            'eersion' => 'up-east-1'
+                     ]);
+                                                                     
+
+                                   The bucket, once created, can be seen
+                                   in the browser if at the console chosing 'S3'
+
+
+
+                                   The bucket is used to add & remove ojects.
+                                   Ex uploading aaaa.txt will put the aaaa.txt file in the bucket.
+
+
+                                   The bucket can be deleted
+                                   when ALL its contained objects have beeb.
+
+
+
+
+
+
+
+
 _________________________________________________________ Identity Access Management - (IAM)
 _________________________________________________________ Identity Access Management - (IAM)
 _________________________________________________________ Identity Access Management - (IAM)
