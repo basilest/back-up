@@ -960,7 +960,7 @@ git gc --prune     # to remove garbaged collection
                                             |                                        %p     Parent (short) hashes
                                             |                                        %an    Author name
                                             |                                        %ae    Author e-mail
-                                            |                                        %ad    Author date (format respects the --date=option)
+                                            |                                        %ad    Author date (format respects the --date=option)   ex --date=short
                                             |                                        %ar    Author date, relative
                                             |                                        %cn    Committer name
                                             |                                        %ce    Committer email
@@ -968,6 +968,14 @@ git gc --prune     # to remove garbaged collection
                                             |                                        %cr    Committer date, relative
                                             |                                        %s     Subject
                                             |
+                                            |                       COLORS: they can be added with the syntax %Cxxxxx %Creset     where xxxx are red
+                                            |                                                                                                    green
+                                            |                                                                                                    blue
+                                            |                                                                                                    (Yellow)  <0--- yes put () and uppercase Y
+                                            |                                                                                                    (cyan)
+                                            |                                                                                                    (white)
+                                            |                                                                                                    (magenta)
+                                            |                       git log --date=short --pretty="%Cgreen%h%Creset ( %ad ) - %C(Yellow)%an%Creset   [%C(cyan)%s%Creset]"
                                             |
                                             |
                                             | git show                        # show more info for the LAST commit
@@ -2012,14 +2020,6 @@ available git commands in '/usr/lib/git-core'
 133  shell                    :
 134  shortlog                 :
 135  show                     :
-136  show-branch              :
-137  show-index               :
-138  show-ref                 :
-139  stage                    :
-140  stash                    :
-141  status                   :
-142  stripspace               :
-143  submodule                :
 144  subtree                  :
 145  symbolic-ref             :
 146  tag                      :
