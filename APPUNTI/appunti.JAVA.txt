@@ -398,59 +398,59 @@ Model-View-Controller (MVC)     design pattern that used together
 
 
 
-JAVA EE         Java EE is an abstract specification. 
-                Anybody is open to develop and provide a working implementation. 
-                
-                Implementations are 
-                         WildFly, 
-                         TomEE, 
-                         GlassFish, 
-                         Liberty, 
-                         WebLogic, etc. 
-                
-APP: SERVER     called APPLICATION SERVERS, 
- 
-SERVL. CONT     There are also SERVLET CONTAINERS which implement only the 
-                JSP/Servlet part of the huge Java EE API, such as 
-                         Tomcat, 
+JAVA EE         Java EE is an abstract specification.
+                Anybody is open to develop and provide a working implementation.
+
+                Implementations are
+                         WildFly,
+                         TomEE,
+                         GlassFish,
+                         Liberty,
+                         WebLogic, etc.
+
+APP: SERVER     called APPLICATION SERVERS,
+
+SERVL. CONT     There are also SERVLET CONTAINERS which implement only the
+                JSP/Servlet part of the huge Java EE API, such as
+                         Tomcat,
                          Jetty, etc.
-                
-                Java-EE developers, should write code utilizing only javax.* classes 
+
+                Java-EE developers, should write code utilizing only javax.* classes
                 instead of org.jboss.wildfly.*, com.sun.glassfish.*, etc), so the code will run
-                on any (APPLICATION) SERVER. 
-                
-                The Java EE SDK download from Oracle.com contains basically the GlassFish server 
-                and optionally also the NetBeans IDE. 
-                
-                
-SPRING          Spring is a standalone framework which substitutes and improves 
-                many parts of Java EE. 
-                Spring doesn't necessarily require Java EE to run. 
-                A barebones servletcontainer like Tomcat is already sufficient. 
-                Simply put, Spring is a competitor of Java EE. 
-                E.g. "Spring" (standalone) competes EJB/JTA, Spring MVC competes JSF/JAX-RS, 
-                Spring DI/IoC/AOP competes CDI, Spring Security competes JAAS/JASPIC, etc.
-                
+                on any (APPLICATION) SERVER.
+
+                The Java EE SDK download from Oracle.com contains basically the GlassFish server
+                and optionally also the NetBeans IDE.
+
+
+SPRING          Spring is a standalone framework which substitutes and improves
+                many parts of Java EE.
+                Spring doesn't necessarily require Java EE to run.
+                A barebones servletcontainer like Tomcat is already sufficient.
+                Simply put, Spring is a competitor of Java EE.
+                E.g. "Spring" (standalone) competes EJB/JTA, Spring MVC competes JSF/JAX-RS,
+                Spring DI/IoC/AOP competes CDI, Spring Security computes JAAS/JASPIC, etc.
+
                 Back during the old J2EE/EJB2 times, the EJB2 API was terrible i
-                to implement and maintain. 
-                Spring was then a much better alternative. 
-EJB3            But since EJB3 (Java EE 5), the EJB API was much improved based 
-                on lessons learnt from Spring. 
-                Since CDI (Java EE 6), there's not really a reason to look 
+                to implement and maintain.
+                Spring was then a much better alternative.
+EJB3            But since EJB3 (Java EE 5), the EJB API was much improved based
+                on lessons learnt from Spring.
+                Since CDI (Java EE 6), there's not really a reason to look
                 at again another framework like Spring.
 
 
-JSP             JSP is a technology running on a SERVER which allows you 
+JSP             JSP is a technology running on a SERVER which allows you
                 to write template text in CLIENT side languages HTML, CSS, JavaScript ...
-                JSP supports the so-called taglibs which are backed by pieces of Java code 
-                with which you can control the page flow and/or output dynamically (programmatically). 
-                A well known taglib is JSTL. 
-                JSP also supports Expression Language (EL), with syntax like ${} which 
+                JSP supports the so-called taglibs which are backed by pieces of Java code
+                with which you can control the page flow and/or output dynamically (programmatically).
+                A well known taglib is JSTL.
+                JSP also supports Expression Language (EL), with syntax like ${} which
                 can be used to access backend data.
 
-VIEW  JSP       To view a JSP: Install Apache on your PC. Put the JSP file in 
-                                   /htdocs/JSP 
-                Name the JSP file index.jsp. Open Apache and start the web service 
+VIEW  JSP       To view a JSP: Install Apache on your PC. Put the JSP file in
+                                   /htdocs/JSP
+                Name the JSP file index.jsp. Open Apache and start the web service
                 (the top one. Click Start) To view it, go to your browser and  go to
                 127.0.0.1/JSP. or more explicit even 127.0.0.1/JSP/index.jsp
 
@@ -1110,6 +1110,71 @@ The main difference is that method declarations must
 
      - @Documented   if added when defining xxx, it will make Javadoc including the annotation
                      when generating doc for a class F that uses the annotation.
+
+
+----------------------------------------------------------------------------------------------------
+JAVADOC
+----------------------------------------------------------------------------------------------------
+
+     . Javadoc generates HTML code from the source.
+     . It's aim is to document software intended as an API
+
+
+     /**      <--- comments with an extra '*'
+
+     */           <------ NO NEW LINE before the xxxxxxx line
+     xxxxxxxx     <--- this is the item to document
+
+     . Javadoc  generator is released with each delivery of the 'Java Development Kit'
+     . Inside the /**   */  the structure is:
+
+     __________________________ FOR A FUNCTION
+
+          /**
+             blah blah blah ......   <--- 1 LINE with an general description
+             <p>                                   <---- <p> are used to have it separated in the generated HTML
+             blah blah blah ......   <--- N LINES optionally of a more detailed description
+             blah blah blah ......
+             <p>
+
+             @xxxx   <--- then there is a list of tags the possible to be used are:
+             @yyy                 . @param      doc the args:
+             @zzz                                                @param arg1    text text text text
+                                                                 @param arg2    text text text text
+                                                                 @param arg3    text text text text
+                                                                 @param arg4    text text text text
+                                  . @return     doc the return:
+                                                                 @return    text text text text
+                                  . @throws     doc any exception thrown inside the method
+                                  . @see        doc what else to look at
+                                  . @author
+                                  . @version
+                                  . @since      doc version of the package this class was first added to
+          */
+          public int xxxx (...) {
+          }
+
+     __________________________ FOR A VAR
+     /**
+       1 line description
+     */
+     var xxx;
+
+
+
+     More advanced tags:
+      _______________________________________________________________________________________________________________________________________
+          APPLIES TO:                                         TAG
+      _______________________________________________________________________________________________________________________________________
+                                                   |   @exception  classname description  |
+      Method                                       |   @throws     classname description  |  Describes an exception that may be thrown from this method.
+      Class, Interface, Enum, Field, Method        |   @deprecated description            |  Describes an outdated method.
+      Overriding  Method                           |   {@inheritDoc}                      |  Copies the description from the overridden method.
+      Class, Interface, Enum, Field, Method        |   {@link reference}                  |  Link to other symbol.
+      Static Field                                 |   {@value #STATIC_FIELD}             |  Return the value of a static field.
+      Class, Interface, Enum, Field, Method        |   {@code literal}                    |  Formats literal text in the code font. It is equivalent to <code>{@literal}</code>.
+      Class, Interface, Enum, Field, Method        |   {@literal literal}                 |  Denotes literal text. The enclosed text is interpreted as not containing HTML markup or nested javadoc tags.
+
 
 
 ----------------------------------------------------------------------------------------------------

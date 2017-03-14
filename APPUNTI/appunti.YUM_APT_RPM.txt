@@ -102,7 +102,7 @@ PLAYBOOK FILES       the 'makefiles', (written in YAML):
                                  - name: nnnnn nn nn
                                    notify: hhhh hh hh          <-- the name of the handler I want to trigger
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
-                            handlers:                          <-- handlers are executed only is some 'task' calls them explicitly with a 'notify'
+                            handlers:                          <-- handlers are executed only if some 'task' calls them explicitly with a 'notify'
                                  - name: hhhh hh hh
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
                      ________________________ ex:
