@@ -177,6 +177,22 @@
                                              $gt    >
                                              $gte   >=
                                              $ne    !=
+                                             $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '*'
+                                                                so it is ex           db.users.find({"name": /.*m.*/}
+                                                                 or even shorter :    db.users.find({"name": /m/})
+                                                                 or longer            db.users.find({"name": {$regex : /m/}}
+                                                                 or with option       db.users.find({"name": {$regex: /acme.*corp/, $options: "si" } }
+
+                                                                 options are i,s,x,m and only i & m can be also
+                                                                 in the shorter form /  /i
+                                                                                     /  /m
+
+                                                                         . i       case insensitive
+                                                                         . s       the '.' includes \n
+                                                                         . x       (ignores ALL white spaces) and UNIX-like comments: # ...
+                                                                         . m       to match in a multiline the start ^ and end $
+                                                                                   ex in "First line\nSecond line"   a /^S/
+                                                                                       will not match while /^S/m will do
 
                                         Still in the form:
 
@@ -198,6 +214,8 @@
 
                                         The AND can be omitted as a simple list of values
                                         separated by commas is managed as an implicit AND
+                                        ex.
+                                        db.getCollection('queue').find({$and : [{"created" : {$gt : ISODate("2017-03-23")}}, {"created" : {$lt : ISODate("2017-03-24")}}]})
 
 
            db.cccc.find().limit(5)     # like bash head -5. It outputs not more than those docs
@@ -327,38 +345,6 @@
 
 
 
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
 -----------------------------------
            .
 -----------------------------------

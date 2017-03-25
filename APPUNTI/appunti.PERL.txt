@@ -2401,6 +2401,30 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
                  to match inside the ASCII subset of Unicode.
 
 
+---------- plenv
+1. install plenv
+           git clone https://github.com/tokuhirom/plenv.git ~/.plenv
+           put it in $PATH:                                            echo 'export PATH="$HOME/.plenv/bin:$PATH"' >> ~/.bash_profile
+           add `penv init` in bash_profile                             echo 'eval "$(plenv init -)"' >> ~/.bash_profile
+           install pre-build                                           git clone https://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
+           plenv rehash
+
+2. install 5.18.2
+           plenv install 5.18.2 -Dusethreads                           (the  -Dusethreads is required so that then a perl --V will show a x86_64-linux-thread-multi)
+
+3. set it as the default one
+           plenv local 5.18.2
+
+4. install cpanm
+           plenv install-cpanm
+
+3. with cpanm install ubic
+           cpanm Ubic                     (if it fails:  cpanm Ubic --force)
+
+3. with ubic see which services are off
+           ubic status
+
+
 
 
 

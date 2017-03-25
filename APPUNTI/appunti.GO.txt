@@ -1,4 +1,9 @@
 
+go build -gcflags "-m -m"
+
+
+
+
 .   GO can be installed with a package manager (homebrew, apt-get, ..)
     and i.e. on a mac it goes in /usr/local/go/bin/go
 
