@@ -2125,6 +2125,42 @@ perlbrew      to manage multiple Perl installations in your $HOME directory.
               perlbrew use    perl-5.16.0  (works   temporarily  on current shell only)
 
 
+        perlbrew <command> [options] [arguments]
+                     |
+                     |
+                    init           Initialize perlbrew environment.
+                    info           Show useful information about the perlbrew installation
+
+                    install        Install perl
+                    uninstall      Uninstall the given installation
+          ------->  available      List perls available to install
+                    lib            Manage local::lib directories.
+                    alias          Give perl installations a new name
+                    upgrade-perl   Upgrade the current perl
+
+                    list           List perl installations
+          ------->  list-modules   get the list of modules in the current perl installation
+                    use            Use the specified perl in current shell
+          ------->  off            Turn off perlbrew in current shell
+                    switch         Permanently use the specified perl as default
+          ------->  switch-off     Permanently turn off perlbrew (revert to system perl)
+                    exec           exec programs with specified perl enviroments.     <---- ex: perlbrew list-modules | perlbrew exec --with perl-5.16.2@foo-project cpanm
+                                                                                                To Reinstall all modules of an installation to another one.
+                                                                                                run   "perlbrew help exec"
+
+                    self-install       Install perlbrew itself under PERLBREW_ROOT/bin
+          ------->  self-upgrade       Upgrade perlbrew itself.
+
+                    install-patchperl  Install patchperl
+                    install-cpanm      Install cpanm, a friendly companion.
+                    install-multiple   Install multiple versions and flavors of perl
+
+                    download       Download the specified perl distribution tarball.
+                    clean          Purge tarballs and build directories
+                    version        Display version
+                    help           Read more detailed instructions
+
+
 
 --------------------------
 DEBUGGERS
