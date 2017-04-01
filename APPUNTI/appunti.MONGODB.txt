@@ -28,6 +28,13 @@
                |_______________________________________________________________________________|
 
 -----------------------------------
+          _______________________
+          | Actually internally the docuemnts are stored in BSON (a Binary JSON))
+          | usually in  /data/db. There should be 2 files per collection there,
+          |              collection.0       stores the data (and that integer is then incremented as needs be)
+          |              collection.ns      stores the namespacing metadata for the collection.
+          |______________________
+-----------------------------------
 1. run the daemon in a shell:
 
            mongod                             # with no params
@@ -60,6 +67,13 @@
   _________________
   |
   | mongo --host mongodb://envb.mongo.ch.gov.uk --port 15307     <---- it I want to connect to a remote host
+  |_________________
+  |
+  | mongodump --host envb.mongo.ch.gov.uk --port 16007           <---- this creates a dir ./dump/   with inside all the db collections
+  |_________________
+  |
+  | mongorestore                                                 <---- to be run from the dir containing ./dump
+  |                                                                    It populates (restores) a db from ./dump
   |_________________
 
   to save interactive command output into a file:
@@ -98,6 +112,10 @@
 
            use stef                        # To create a new db named "stef" if not present
                                              otherwise, just to select that as the current DB to work on
+
+           db.dropDatabase()               # To remove a database stef:
+                                                           1/2   use stef
+                                                           2/2   db.dropDatabase().
 
            db.createCollection("cccc")     # to create a collection cccc
 
