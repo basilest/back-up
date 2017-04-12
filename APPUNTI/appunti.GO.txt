@@ -46,9 +46,6 @@ go build -gcflags "-m -m"
 
                 2 install with a package manager, then follow 1.a
 
-                2 install with a package manager, then follow 1.a
-
-
                 compiling the code
                 you need
 
@@ -67,6 +64,8 @@ go build -gcflags "-m -m"
 2) download there the go1.4-bootstrap-20161024.tar.gz and untar  (it will create a 'root' dir ./go)
 3) optionally mv everything up one level (get rid of './go' dir)
 4) cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
+                                                                                                        (gofmt is the formatter: use it on the command line
+                                                                                                         as  > gofmt a.go)
 5) so now we have the go compiler: (the old written in C: version 1.4)
 6) clone the GO source code:
            6.a    mkdir ~/go.src
@@ -96,34 +95,230 @@ go build -gcflags "-m -m"
     will be compiled with cd ~/yyyyy/src && ~/.all.bash
     with the go compiler located in ~/xxxxx/bin   <--- this must be in $PATH
 
+___________________________________________________________________________ PACKAGES
 
-export GOROOT="$HOME/go.src"
-export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
-export GOROOT_FINAL="$HOME/go.final"
-export GOBIN="$HOME/go.bin"
+      package main   <--------- Every Go program is made up of packages.
+                                Programs start running in package main.
 
-~/go.src/src : ./all.bash:
-                                .....
-                                Installed Go for darwin/amd64 in /Users/sbasile/go.src
-                                The binaries expect /Users/sbasile/go.src to be copied or moved to /Users/sbasile/go.final
-
+      import (       <---  this is called 'factored' layout (the suggested one)
+        "fmt"              this is also possible  ------->    import "fmt"
+        "math/rand"                                           import "math/rand"
+      )
 
 
+___________________________________________________________________________ Exported names
 
-~/go.bin/    go gofmt
+    are visible outside (are exported)
+    only names starting with an UPPER case
+___________________________________________________________________________ GO declaration way
+
+  Even if coming from C,
+  GO decided to use a different style in TYPEs declarations
+
+      int x;            x int                                           x is an int
+      int *p;           p *int              the GO way is to match      p is a pointer to an int
+      int a[3];         a [3]int            the human sentence          a is an array of ints
+    ___ C _____       ____ GO_____
+
+___________________________________________________________________________ BASIC TYPE
+
+         int  int8  int16  int32  int64
+         uint uint8 uint16 uint32 uint64 uintptr
+
+         byte // alias for uint8
+
+         string
+
+         bool
+
+         rune // alias for int32
+              // represents a Unicode code point
+
+         float32 float64
+
+         complex64 complex128
+___________________________________________________________________________ VAR
+
+     var    a, b, c   int       <--- var allows to declare a (list) of vars
+                                     the type of all the list is at the end.
+
+     var    a, b, c   int  = 1,2,3   <--- n.b. the syntax to also initialise.
+
+
+     c := 3                    <--- :=  is called the short assign. statem.
+                                        it allows to skip the TYPE that is inferred from the right and value
+                                        :=   can be used only for local vars  (inside function)
+
+     var (                      <---  this grouping layout is also possible
+         ToBe   bool       = false
+         MaxInt uint64     = 1<<64 - 1
+         z      complex128 = cmplx.Sqrt(-5 + 12i)
+     )
+___________________________________________________________________________ FUNCTIONS
+
+     func add(x int, y int, z int)
+     func add(x, y, z int)       <--- if 2 or more args are of the same type
+                                      I can add the type  just after the last
+
+     func swap(x, y string) (string, string)     <--- a function can return any number of args (here only the TYPEs are specified)
+     func swap(x, y string) (string a, string b) <--- in this case the return TYPEs are 'named'  (name 'a' and 'b')
+
+                                                      When there are 'named' return args
+                                                      it's supposed there local vars with those names defined then in the function
+                                                      In this case I case use both of the following notations:
+
+                                                           return (a,b)    <--  explicit form
+                                                           return          <-- 'naked' form. local vars 'a' and 'b' are returned
 
 
 
-ERROR: Cannot find /Users/sbasile/go.bootstrap/go/bin/go.
-Set $GOROOT_BOOTSTRAP to a working Go tree >= Go 1.4.
+___________________________________________________________________________ ZERO VALUES
+
+    var not initialised have this ZERO values:
+
+             num types : 0
+             bool      : false
+             string    : ""
+___________________________________________________________________________  TYPE CONVERSION
+
+               xxxxx(a)           <----- var a is converted to type xxxxx
+
+               var i int = 42                          i := 42
+               var f float64 = float64(i)     --->     f := float64(i)
+               var u uint = uint(f)                    u := uint(f)
+
+              _____ LONG WAY __________              ____ SHORT______
+
+
+             UNLIKE C (where this is possible:  int i = 258; char c = i;)
+                      the type must be always indicated explicitly
 
 
 
 
+___________________________________________________________________________ CONSTANTS
 
-     1. export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
-     2. > cd $HOME/go.bootstrap/go/src  && ./all.bash --> this will create the 2 binaries (go / gofmt) in GOBIN: ~/go/
-     3. > type go :
-                  go is /Users/sbasile/go/go
+    just as expected:    const Pi = 3.14         (cannot be used ':=' )
+
+___________________________________________________________________________ FOR
+
+                                             'for' is the only loop construct
+    for i := 0; i < 10; i++ {          <---- the are no '('  ')'
+        sum += i                             while the  '{'  '}'  are required
+    }
 
 
+    sum := 1
+    for ; sum < 1000; {                <--- only the 2nd part (test-of-end-condition)
+        sum += sum                          can be usually specified
+    }
+
+
+    sum := 1
+    for {                <--- if omitting all, it becomes a forever loop
+          ...
+    }
+___________________________________________________________________________ IF
+
+       if x < 0 {                   <---- like 'for' : NO '(' ')'   YES '{' '}'
+
+
+       if v := 4; v < lim {       <--- like 'for' a pre-part to init (only 1 var) is possible
+
+
+___________________________________________________________________________ SWITCH
+
+
+     switch os := runtime.GOOS; os {                switch os := runtime.GOOS; os {
+        case "darwin":                                 case "darwin":
+             fmt.Println("OS X.")                           fmt.Println("OS X.")
+                                                            fallthrough                       <--- no 'break' are required
+        case "linux":                                  case "linux":                               a 'fallthrough' will go down to the next
+             fmt.Println("Linux.")                          fmt.Println("Linux.")
+        default:                                       default:
+             fmt.Printf("%s.", os)                          fmt.Printf("%s.", os)
+     }                                              }
+
+
+
+               n.b.  the 'cases' are tested in SEQUENCE
+                     (like a short circuit)  and can so be of strange types:
+
+                     switch i {
+                     case 0:
+                     case f():    <--- a function     (that anyhow is never executed if i=0)
+                     }
+
+               n.b.  Switch without a condition is the same as switch true.
+                     'switch {'
+
+___________________________________________________________________________ DEFER
+
+
+       'defer' keyword  tag something to be executed before return.
+
+       func main() {                                                                                   for i := 0; i < 10; i++ {       --->     done
+            defer fmt.Println("world")  <--- 'defer' are pushed on the stack, so called as LIFO            defer fmt.Println(i)                 9
+                                                                                                       }                                        8
+            fmt.Println("hello")                                                                       fmt.Println("done")                      7
+       }                                                                                                                                        6
+                                                                                                                                                5
+                                                                                                                                                4
+                                                                                                                                                3
+                                                                                                                                                2
+                                                                                                                                                1
+                                                                                                                                                0
+___________________________________________________________________________ POINTER
+
+       '*' and '&' like C:
+
+           i := 42
+           var p *int
+           p = &i
+
+       A N Y H O W   note that UNLIKE C
+                     there is NO-aritmetic for pointers
+
+
+___________________________________________________________________________ STRUCT
+
+     type Vertex struct {
+        X int                                v := Vertex{1, 2}
+        Y int                                v.X = 4
+     }
+
+
+    _____ POINTER TO STRUCT
+
+        p := &v               (*p).X = 4   <---- the formal way
+                                 p.X = 4   <---- syntactic sugar  (can skip the dereference)
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________

@@ -201,7 +201,7 @@ INSTALL                                                       another way is per
 
  perl -MData::Dumper -e 'print Dumper \@INC'      to see the INC value.
                                                   also a simple     perl -V
-                                                  or even           perl -E "say @INC"
+                                                  or even           perl -E "say foreach @INC"
 
                                                   to add a path in INC ex to use A::B
                                                   perl -I A  (<--- it's the dir)
@@ -223,7 +223,7 @@ START A SCRIPT
                |                              |
        #!/usr/bin/perl                  #!/usr/bin/perl
        print "Hello, world!\n";         use 5.010;     <-----------
-                                        say "Hello World!";   <------ say put '\n'
+                                        say "Hello World!";   <------ say puts '\n'
 
 
 --------------------------
@@ -422,7 +422,7 @@ BOOLEAN VARIABLES
                                 and or  not     from BASIC   -    "            ,
 
      Both works as short-circuit, which means the evaluation
-     is stopped as soon as possible. Any remaining right part is not conisdered.
+     is stopped as soon as possible. Any remaining right part is not considered.
      Besides the precedence the 2 families behave identically.
 
      //           // operator is exactly the same as ||,
