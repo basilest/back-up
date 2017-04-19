@@ -2,7 +2,7 @@
                        (as the Styles are cascaded from the different sources)
 
  SYNTAX                 selector   { property : value ; ... }  <---- remember the ';' (optional only in case
-                        ex:                                                            of 1 only property)
+                        ex:                           ^                            ^   of 1 only property)
                              h1 {color:blue; font-size:12px;}
 
  SELECTORS:

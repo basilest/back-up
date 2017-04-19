@@ -2103,6 +2103,27 @@ __  rsync
 
 
 
+--------------------------------------------------- mail
+
+---- send a mail when CPU usage > 75%
+
+    SUBJECT="WARNING CPU USAGE HIGH"
+    TO=yourteam@companiesemailcom
+    MESSAGE=/tmp/messages
+    echo "#######################" > $MESSAGE
+    echo "CPU statistics as follows.." >> $MESSAGE
+    mpstat >> $MESSAGE
+    echo "#######################" >> $MESSAGE
+    CPU_USAGE=$(top -b -n1 | awk '/^Cpu/ {print $2}' | cut -d. -f1)
+    [ $CPU_USAGE -gt 75 ] && mail -s "$SUBJECT" "$TO" < $MESSAGE
+
+
+
+    give execute permissions to that script and add to crontab.
+
+    0-59 * * * *  bash /pathtoscript.sh
+
+---- send a mail when CPU usage > 75%
 --------------------------------------------------- crontab
  crontab means cron table, that is where root or any user
  can add some rows (with the cron syntax) to specify periodic tasks
@@ -2172,27 +2193,19 @@ a way to copy to another server
          defined in profile or bashrc could not be defined when running the
          same script during a cron session. (ex. add full path of the exe)
 
---------------------------------------------------- snippets
+------- sending mail:
+                 cron can use the normal 'mail' prog
+                 to send mails:
 
----- send a mail when CPU usage > 75%
+                 ...... mail -s "subject.."  ...
+                 send an email in crontab in the crontab
+                 add a line 'MAILTO=username@domain.com' at the top of crontab file:
 
-    SUBJECT="WARNING CPU USAGE HIGH"
-    TO=yourteam@companiesemailcom
-    MESSAGE=/tmp/messages
-    echo "#######################" > $MESSAGE
-    echo "CPU statistics as follows.." >> $MESSAGE
-    mpstat >> $MESSAGE
-    echo "#######################" >> $MESSAGE
-    CPU_USAGE=$(top -b -n1 | awk '/^Cpu/ {print $2}' | cut -d. -f1)
-    [ $CPU_USAGE -gt 75 ] && mail -s "$SUBJECT" "$TO" < $MESSAGE
+                 MAILTO=username@domain.com
+                 1 0  1,2 * *  ....
 
 
 
-    give execute permissions to that script and add to crontab.
-
-    0-59 * * * *  bash /pathtoscript.sh
-
----- send a mail when CPU usage > 75%
 --------------------------------------------------- date
   date  +%s    ->     1445293970       num sec 01.01.1970
 
