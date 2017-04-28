@@ -25,10 +25,10 @@
 PERL SPECIAL VARs
      Most of the special vars have an english long name (ex, $! =  $OS_ERROR)
      Remember to add a line "use English;"
-
-_____________ SCALAR
-
-     LONG NAME
+                               |
+_____________ SCALAR           |
+                               |
+     LONG NAME <---------------'
 
 $_     $ARG                            The default
                                                   - input (the line read from a file)
@@ -347,7 +347,7 @@ SCALAR VARIABLES
     |   that means "aaa $var bbb"  is the same as "aaa".$var."bbb"
     |   where I can avoid to use explicit concatenatios with '.'
     |   INTERPOLATION woks only for $scalar and @array NOT %hash
-    |   for array means concatenate all el with a $" (usually a space)
+    |   for array it means to concatenate all el with a $" (usually a space)
     |   print "@a"  is like  $a = join( $", @ARGV ); print $a;
     |
     |   {} can be used to better separate a var ex "aaa${var}rrr"  without is a mess "aaa$varrrr"
@@ -471,13 +471,13 @@ ARRAY
             @days[4..6]        Array slice containing ($days[4], $days[5], $days[6])
 
     - print
-            it's interpolated into strings
+            it's interpolated into strings  (the elements are separated by var $"  (default a space)
             print "@array";        # "print A B"
 
 --------------------------
 HASH
 --------------------------
-            a list of scalars indexed by strings.
+            a list of >>>SCALARS<<< indexed by strings.
 
    keys:    are always STRING
    values:  are SCALAR (: string or numbers)
@@ -961,7 +961,7 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                                                                                1] --->  "t"
 
                      if not yet defined all is create now. So Perl creates 3 scalar-storage-locations,
-                     the first 2 of these 3 locations store refs to
+                     the first 2 of them store refs to
                                2 anonymous arrays
                                the last scalar stores "t"
                      But the point of autovivification is that we don’t have to worry about it.
@@ -1649,87 +1649,116 @@ REG EX
 --------------------------
 MODULEs / PACKAGEs
 --------------------------
-        MODULE:  a normal perl code file like .pl but .pm
-                 It's intended to be included in another file, thus as it's read from top to bottom
-                 it's required a return TRUE (so they end as "1;")
+        _____________________________________ MODULES
+        In C the #include
+        allows to include external .h
 
-              require  AAA::BBB      'require' it's the keyword to include a file AAA/BBB.pm
+        In Perl I can include code written in another file (xxxx.pl)
+        with the keyword 'require'
+                require xxxxx;     <---- without extension
 
-              PERL5LIB : perl uses this var to know the list of dir to search into.
-                         (usually so in .bashrc there is    export PERL5LIB=- : - : ...)
-                         'relative' to each of them perl searches a file ./AAA/BBB.pm
+        perl loads inline that file, so the convention is usually:               |
+             1. call those files _____.pm  (with extension .pm instead .pl)      |<------ WHAT A MODULE IS
+             2. end them with a "return true;"  that is usually a simple "1;"    |
 
-        THE PROBLEM: having now a way to include files inside others, there is a problem as any included file
-                     can have 1 or more other 'require', so when calling a function
-                                       WHERE is it?
-                     There could be even more with the same name, so
-                                       WHICH is it?
+        The xxxxx.pm files are found looking in the list of dirs in PERL5LIB.
 
-        PACKAGE: it's a namespace.
+              PERL5LIB : (usually set in .bashrc:   export PERL5LIB=- : - : ...)
 
-                 each line of code written belongs to 1 package. At the beginnig of execution the package starts
-                 in the 'main' pack. but each 'package' cmd changes it
+        ::    the '::' separator in module names, matches the filesystem structure
+              So AAAA::BBBB::xxxx means a file xxxx.pm located in the file system
+              into a sequence of 2 nested dirs AAAA/BBBB  (unix style)  or AAAA\BBBB (dos style)
+              where AAAA must be a child dir inside any ot the dirs' listed in PERL5LIB
 
-              package  AAA::BBB     switch to a namespace AAA::BBB. Unfortunately it's used the same
-                                    :: as separator, but here AAA::BBB must not be a file AAA/BBB somewhere!!!
-                                    It only says all the code from now on belong to namspace AAA::BBB.
-                                    So if a fun() is defined now, in any other place it will be called
-                                    as AAA::BBB::fun(). Perl will open the file (whichever was the name)
-                                    and executes fun().
+              >>>>> So for MODULES '::' is a DIRECTORY separator.
 
-        THE SOLUTION: to avoid possible mess, perl programmers use these 2 rules:
+
+        _____________________________________ PACKAGES
+
+        A package is a 'namespace', or a standalone 'symbol table'
+        that means that 2 variables (or subroutines) can then have the same name
+        if they belong to 2 different symbol tables.
+
+        To start a name space just write:
+
+                  package  xxxxxxx
+
+        that means that any var of subroutine if called alone  like 'v' or 'sub_1'
+        will be searched in the symbol table xxxxxxx
+        If I want to refer a 'v' 'sub_1' in another symbol table I specify the ful name
+                          yyyyyy::v
+                          yyyyyy::sub_1()
+
+        ::    the '::' separator in pacakges is used as separator between the symbol_table_name
+              and the symbol to access (var or subroutine)
+
+
+        The default package is 'main'.
+        So any vars/subroutine belongs to 'main' package till a
+        'package xxxxxx' directive is found. Since then (till a next package directive)
+        any var / subroutine:
+                   - "defined" (ex my $v) --->   is stored in package xxxxxx
+                   - "called" (without full namespace) (ex sub()) ----> is intended to access that symbol in package xxxxxx
+
+        _____________________________________ PACKAGES & MODULES
+
+        So Modules and packages are 2 completely different things
+        A module is a real file somewhere in the filesystem
+        A package is a namespace or tag-lable for symbols.
+
+        In theory
+        I can fill the code all around with many packages xxxxx  yyyyyy zzzzzz
+        and spread in any disorder I like. So the same package xxxxx in moany places in the same
+        file, and even in many different other files
+
+        In practice
+        to avoid possible mess, perl programmers use these 2 rules:
                       1. a 'package' cmd must never be in a .pl file
                       2. a  module.pm must always have 1 and only 1 'package' cmd with exactly its
-                         relative pathname
+                         relative pathname   (In this way I can see '::' inside a package name
+                                              that otherwsie would use probably only [a-zA-Z0-9_-]
 
----------------____________________
 
-PACKAGES and NAMESPACES:   wherever it is, every LINE of CODE is inside 1 certain PACKAGE
-                           called NAMESPACE. This way variables & functions can have the same name
-                           if they are in 2 different PACKAGES.
-
-'Package'                  The 'Package' directive starts a new Namespace, that will be considered
-                           the 'current' till it will not be changed by another 'Package' cmd.
-
-'main' Package             The default Namesace is 'main'.
-                           It's the root Namespace, changed as soon as the first 'Package' cmd is found.
-
-SYMBOL TABLE             - It's the set of (vars + functions) of 1 PACKAGE.
-                           So there is 1 SYMBOL TABLE for 1 PACKAGE
-                         - is a HASH table (where:
-                               - (vars + functions)-NAMES are the string-keys,
-                               - the value is the TYPE-globs associated( $xxxx, %xxxx, @xxxx )
-                           The  HASH table name is  PACKAGE-NAME + '::'
-                           '%main::'  can be written as only '%::'
-
-ACCESSING A VAR            So to refer to a var $xxxx defined in a certain LINE of CODE
-                           I must:
-                               - discover which is the PACKAGE of that LINE of CODE
-                               - access that HASH (%PACKAGE::) to have the xxxx-value
-                                 ($PACKAGE::{"xxxx"})
-
-                           ex:
-                                 foreach $x (sort keys %main::) {
-                                 local *i = $main::{$x};  <------------------------ using a TYPE-glob to match any type
-                                        print "\$$x is defined\n" if defined $i;
-                                        print "\@$x is nonnull\n" if @i;
-                                        print "\%$x is nonnull\n" if %i;
-                                 }
-
-SYMBOL TABLES relations    1 SYMBOL TABLE (so a HASH %xxxxx::) can 'include' another SYMBOL TABLE, that is
-                           implemented as a 'reference' to the other one.
-                           "%main::" contains references to all the others (included itself, so be carefull
-                           if programmatically parsing from %main::, as there is no end to
-                                %main::main::main:: ...
+                                 _____________________
+                                 |
+                                 |SYMBOL TABLE             - It's the set of (vars + functions) of 1 PACKAGE.
+                                 |                           So there is 1 SYMBOL TABLE for 1 PACKAGE
+                                 |                         - is a HASH table (where:
+                                 |                               - (vars + functions)-NAMES are the string-keys,
+                                 |                               - the value is the TYPE-globs associated( $xxxx, %xxxx, @xxxx )
+                                 |                           The  HASH table name is  PACKAGE-NAME + '::'
+                                 |                           '%main::'  can be written as only '%::'
+                                 |
+                                 |ACCESSING A VAR            So to refer to a var $xxxx defined in a certain LINE of CODE
+                                 |                           I must:
+                                 |                               - discover which is the PACKAGE of that LINE of CODE
+                                 |                               - access that HASH (%PACKAGE::) to have the xxxx-value
+                                 |                                 ($PACKAGE::{"xxxx"})
+                                 |
+                                 |                           ex:
+                                 |                                 foreach $x (sort keys %main::) {
+                                 |                                 local *i = $main::{$x};  <------------------------ using a TYPE-glob to match any type
+                                 |                                        print "\$$x is defined\n" if defined $i;
+                                 |                                        print "\@$x is nonnull\n" if @i;
+                                 |                                        print "\%$x is nonnull\n" if %i;
+                                 |                                 }
+                                 |
+                                 |SYMBOL TABLES relations    1 SYMBOL TABLE (so a HASH %xxxxx::) can 'include' another SYMBOL TABLE, that is
+                                 |                           implemented as a 'reference' to the other one.
+                                 |                           "%main::" contains references to all the others (included itself, so be carefull
+                                 |                           if programmatically parsing from %main::, as there is no end to
+                                 |                                %main::main::main:: ...
+                                 |
+                                 |
+                                 |____________________
 
 
 
 
-PACKAGES are independent of files:
-                  - You can have many packages in a single file,
-                  - or a single package that spans several files,
 
-MODULE:     1 module = 1 file .pm
+
+
+
 
 'use'       the way you use a module is with the 'use' command,
             it is a COMPILER DIRECTIVE that controls the import of

@@ -28,6 +28,26 @@
                |_______________________________________________________________________________|
 
 -----------------------------------
+db.getCollection('company_profile').find({}).forEach(function(doc) {
+var accounts = doc.data.accounts;
+print("aaaaa");
+})
+
+db.getCollection('company_profile').find({}).forEach(function(doc) {
+var accounts = doc.data.accounts;
+print("accounts");
+})
+
+
+db.getCollection('company_profile').find({"data.accounts": {$ne : null}})
+
+
+db.getCollection('company_profile').find({"data.accounts": {$ne : null}}).forEach(function(doc) {
+var comp_no = doc._id;
+db.getCollection('company_profile').update({"_id":comp_no},
+{"$set": {"data.accounts.next_accounts.period_end_on" : ISODate("2014-08-31T00:00:00.000Z")}}
+)})
+-----------------------------------
           _______________________
           | Actually internally the docuemnts are stored in BSON (a Binary JSON))
           | usually in  /data/db. There should be 2 files per collection there,
@@ -70,6 +90,9 @@
   |_________________
   |
   | mongodump --host envb.mongo.ch.gov.uk --port 16007           <---- this creates a dir ./dump/   with inside all the db collections
+  |_________________
+  |
+  | mongoexport -h envb.mongo.ch.gov.uk:16407 -d company_profile -c company_profile > statler.txt    <---- thix export a colection into a json TEXT file
   |_________________
   |
   | mongorestore                                                 <---- to be run from the dir containing ./dump

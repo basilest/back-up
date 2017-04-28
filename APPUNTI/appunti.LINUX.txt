@@ -1200,7 +1200,7 @@ LOGIN
         echo $SHELL
         ps $$
         ps T
-        ps $0    (only intercactive, otherwise, inside a script, it's the script name)
+        echo $0    (only intercactive, otherwise, inside a script, it's the script name)
 ---------------------------------------------------
                    ENV & SHELL vars
 -----------------------------------
@@ -1212,7 +1212,8 @@ LOGIN
                         $LANG      language (ex.  "en_US.UTF-8")
                         $DISPLAY
                         $CDPATH   <--- like PATH is a list of dir separated by ':'
-                                       Each time a 'cd' is written, with not relative path (ex ../../.)
+                                       The benefit of this var, is that
+                                       each time a 'cd' is written, with not relative path (ex ../../.)
                                        the search is done ONLY in this list. To have
                                        a real benefit the good convention is
                                          o)  set '.' (current dir) ALWAYS at first
@@ -1222,6 +1223,17 @@ LOGIN
                                            Otherwise goes in $HOME/bin
 
 
+                              +---------------+
+                              |    ENV v.     |
+                              |               |
+                              +--|------------+
+                                 |         |
+                         export  |         | export -n
+                                 |         |
+                              +------------|--+
+                              |    SHELL v.   |
+                              |               |
+                              +---------------+
         SHELL vars
                    If we assign a var that doesn't exist,  a=34
                    the shell will create a SHELL var.
@@ -1334,7 +1346,7 @@ LOGIN
                  - NO-  "   ":     "      "   ~/.bash_profile
 
              So:
-                 ~/.profile  : put here all the stuff that you want appies
+                 ~/.profile  : put here all the stuff that you want applies
                                to ALL THE SESSION (till you disconnect)
 
                  ~/.bashrc   : put here what applies to BASH only

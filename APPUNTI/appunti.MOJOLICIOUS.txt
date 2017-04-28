@@ -126,7 +126,7 @@
 
             morbo  xxxxx.pl              if execute not directly but with 'morbo'
                                          I can keep it running without stop & restart each time
-                                         when chanign the source code of xxxxx.pl
+                                         when chaning the source code of xxxxx.pl
 
 
 
@@ -140,7 +140,7 @@
              |                                                       ex. /foo                      sub { ....
              |                                                                                            $c              <---- '$c' is a Mojolicious::Controller object
              |                                                                                            $c->render      <---- 'render' identifies the response
-           can be 'get'  'put'  'any'
+           can be 'get'  'put'  'post'   'any'
 
 
      ___________________________________________________________ $c (Mojolicious::Controller objects)
