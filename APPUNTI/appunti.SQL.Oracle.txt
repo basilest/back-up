@@ -366,6 +366,26 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
       INNER-J   (sometimes called a "simple join")
                 is a normal J, where rows satisfy the WHERE condition.
 
+                     select * from T1, T2, T3, T4,                     SELECT *
+                     where                                               FROM T1 AS a
+                     T1.ItemID = T2.ItemID AND                           INNER
+                     T2.ItemID = T3.ItemID AND                             JOIN T2 AS b
+                     T3.ItemID = T4.ItemID;                                  ON b.ItemID = a.ItemID
+                                                                               INNER
+                             ^                                                   JOIN T3 AS c
+                             |                                                     ON c.ItemID = b.ItemID
+                             |                                                       INNER
+                             |                                                          JOIN T4 AS d
+                     they 2 the same  -------------------------------->                   ON d.ItemID = c.ItemID
+
+
+
+
+
+
+
+
+
       OUTER-J  T1 & T2 Rows of condition + rows of only T1 or T2
 
                 left  OUTER J : all T1     ANSI LEFT  [OUTER]  or use +_op on T2

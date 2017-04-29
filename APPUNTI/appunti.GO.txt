@@ -1,4 +1,9 @@
 
+go build -gcflags "-m -m"
+
+
+
+
 .   GO can be installed with a package manager (homebrew, apt-get, ..)
     and i.e. on a mac it goes in /usr/local/go/bin/go
 
@@ -41,9 +46,6 @@
 
                 2 install with a package manager, then follow 1.a
 
-                2 install with a package manager, then follow 1.a
-
-
                 compiling the code
                 you need
 
@@ -62,6 +64,8 @@
 2) download there the go1.4-bootstrap-20161024.tar.gz and untar  (it will create a 'root' dir ./go)
 3) optionally mv everything up one level (get rid of './go' dir)
 4) cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
+                                                                                                        (gofmt is the formatter: use it on the command line
+                                                                                                         as  > gofmt a.go)
 5) so now we have the go compiler: (the old written in C: version 1.4)
 6) clone the GO source code:
            6.a    mkdir ~/go.src
@@ -91,35 +95,801 @@
     will be compiled with cd ~/yyyyy/src && ~/.all.bash
     with the go compiler located in ~/xxxxx/bin   <--- this must be in $PATH
 
+___________________________________________________________________________ PACKAGES
 
-export GOROOT="$HOME/go.src"
-export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
-export GOROOT_FINAL="$HOME/go.final"
-export GOBIN="$HOME/go.bin"
+      package main   <--------- Every Go program is made up of packages.
+                                Programs start running in package main.
 
-~/go.src/src : ./all.bash:
-                                .....
-                                Installed Go for darwin/amd64 in /Users/sbasile/go.src
-                                The binaries expect /Users/sbasile/go.src to be copied or moved to /Users/sbasile/go.final
-
+      import (       <---  this is called 'factored' layout (the suggested one)
+        "fmt"              this is also possible  ------->    import "fmt"
+        "math/rand"                                           import "math/rand"
+      )
 
 
+___________________________________________________________________________ Exported names
 
-~/go.bin/    go gofmt
+    are visible outside (are exported)
+    only names starting with an UPPER case
+___________________________________________________________________________ GO declaration way
+
+  Even if coming from C,
+  GO decided to use a different style in TYPEs declarations
+
+      int x;            x int                                           x is an int
+      int *p;           p *int              the GO way is to match      p is a pointer to an int
+      int a[3];         a [3]int            the human sentence          a is an array of ints
+    ___ C _____       ____ GO_____
+
+___________________________________________________________________________ BASIC TYPE
+
+         int  int8  int16  int32  int64
+         uint uint8 uint16 uint32 uint64 uintptr
+
+         byte // alias for uint8
+
+         string
+
+         bool
+
+         rune // alias for int32 - represents a Unicode char
+
+         float32   float64
+         complex64 complex128
+___________________________________________________________________________ VAR
+
+     var    a, b, c   int       <--- var allows to declare a (list) of vars
+                                     the type of all the list is at the end.
+
+     var    a, b, c   int  = 1,2,3   <--- n.b. the syntax to also initialise.
+
+
+     c := 3                    <--- :=  is called the short assign. statem.
+                                        it allows to skip the TYPE that is inferred from the right and value
+                                        :=   can be used only for local vars  (inside function)
+
+     var (                      <---  this grouping layout is also possible
+         ToBe   bool       = false
+         MaxInt uint64     = 1<<64 - 1
+         z      complex128 = cmplx.Sqrt(-5 + 12i)
+     )
+___________________________________________________________________________ FUNCTIONS
+
+     func add(x int, y int, z int)
+     func add(x, y, z int)       <--- if 2 or more args are of the same type
+                                      I can add the type  just after the last
+
+     func swap(x, y string) (string, string)     <--- a function can return any number of args (here only the TYPEs are specified)
+     func swap(x, y string) (string a, string b) <--- in this case the return TYPEs are 'named'  (name 'a' and 'b')
+
+                                                      When there are 'named' return args
+                                                      it's supposed there local vars with those names defined then in the function
+                                                      In this case I case use both of the following notations:
+
+                                                           return (a,b)    <--  explicit form
+                                                           return          <-- 'naked' form. local vars 'a' and 'b' are returned
 
 
 
-ERROR: Cannot find /Users/sbasile/go.bootstrap/go/bin/go.
-Set $GOROOT_BOOTSTRAP to a working Go tree >= Go 1.4.
+     Functions are values. They can be passed around just like other values.
+
+                 compute(fn func(float64, float64) float64) float64 {
+                    return fn(3, 4)
+                 }
+
+
+     CLOSURES:  A closure is a function value that references var outside its body.
+
+                func adder() func(int) int {
+                     sum := 0
+                         return func(x int) int {
+                             sum += x
+                             return sum
+                         }
+                     }
+
+                func main() {
+                         pos, neg := adder(), adder()  <--- Each closure is bound to its own sum variable.
+                         for i := 0; i < 4; i++ {            0 0 0
+                             fmt.Println(                    1 1 -2
+                                 i.                          2 3 -6
+                                 pos(i),                     3 6 -12
+                                 neg(-2*i),
+                             )
+                         }
+                     }
+
+___________________________________________________________________________ ZERO VALUES
+
+    var not initialised have this ZERO values:
+
+             num types : 0
+             bool      : false
+             string    : ""
+___________________________________________________________________________  TYPE CONVERSION
+
+               xxxxx(a)           <----- var a is converted to type xxxxx
+
+               var i int = 42                          i := 42
+               var f float64 = float64(i)     --->     f := float64(i)
+               var u uint = uint(f)                    u := uint(f)
+
+              _____ LONG WAY __________              ____ SHORT______
+
+
+             UNLIKE C (where this is possible:  int i = 258; char c = i;)
+                      the type must be always indicated explicitly
+
+
+
+
+___________________________________________________________________________ CONSTANTS
+
+    just as expected:    const Pi = 3.14         (cannot be used ':=' )
+
+___________________________________________________________________________ FOR
+
+                                             'for' is the only loop construct
+    for i := 0; i < 10; i++ {          <---- the are no '('  ')'
+        sum += i                             while the  '{'  '}'  are required
+    }
+
+
+    sum := 1
+    for ; sum < 1000; {                <--- only the 2nd part (test-of-end-condition)
+        sum += sum                          can be usually specified
+    }
+
+
+    sum := 1
+    for {                <--- if omitting all, it becomes a forever loop
+          ...
+    }
+___________________________________________________________________________ IF
+
+       if x < 0 {                   <---- like 'for' : NO '(' ')'   YES '{' '}'
+
+
+       if v := 4; v < lim {       <--- like 'for' a pre-part to init (only 1 var) is possible
+
+
+___________________________________________________________________________ SWITCH
+
+
+     switch os := runtime.GOOS; os {                switch os := runtime.GOOS; os {
+        case "darwin":                                 case "darwin":
+             fmt.Println("OS X.")                           fmt.Println("OS X.")
+                                                            fallthrough                       <--- no 'break' are required
+        case "linux":                                  case "linux":                               a 'fallthrough' will go down to the next
+             fmt.Println("Linux.")                          fmt.Println("Linux.")
+        default:                                       default:
+             fmt.Printf("%s.", os)                          fmt.Printf("%s.", os)
+     }                                              }
+
+
+
+               n.b.  the 'cases' are tested in SEQUENCE
+                     (like a short circuit)  and can so be of strange types:
+
+                     switch i {
+                     case 0:
+                     case f():    <--- a function     (that anyhow is never executed if i=0)
+                     }
+
+               n.b.  Switch without a condition is the same as switch true.
+                     'switch {'
+
+___________________________________________________________________________ DEFER
+
+
+       'defer' keyword  tag something to be executed before return.
+
+       func main() {                                                                                   for i := 0; i < 10; i++ {       --->     done
+            defer fmt.Println("world")  <--- 'defer' are pushed on the stack, so called as LIFO            defer fmt.Println(i)                 9
+                                                                                                       }                                        8
+            fmt.Println("hello")                                                                       fmt.Println("done")                      7
+       }                                                                                                                                        6
+                                                                                                                                                5
+                                                                                                                                                4
+                                                                                                                                                3
+                                                                                                                                                2
+                                                                                                                                                1
+                                                                                                                                                0
+___________________________________________________________________________ POINTER
+
+       '*' and '&' like C:
+
+           i := 42
+           var p *int
+           p = &i
+
+       A N Y H O W   note that UNLIKE C
+                     there is NO-aritmetic for pointers
+
+
+___________________________________________________________________________ STRUCT
+
+     type Vertex struct {
+        X int                                v := Vertex{1, 2}
+        Y int                                v.X = 4
+     }
+
+
+    _____ POINTER TO STRUCT
+
+        p := &v               (*p).X = 4   <---- the formal way
+                                 p.X = 4   <---- syntactic sugar  (can skip the dereference)
+
+    _____ INIT A STRUCT
+                              as the above: v := Vertex{1, 2}
+                              I can specify the fields with the syntax 'f_name' : value
+                                            v :=  Vertex{Y: 6}  // X:0       is implicit
+                                            p := &Vertex{}      // X:0 & Y:0 is implicit
+
+
+___________________________________________________________________________ ARRAY
+
+
+       var a [10]int       // Arrays do not need to be initialized explicitly;
+                           // all its elem. are set to their 'zeroed' value
+
+                   0  1  2  3   4   5   <----- the indexes (from 0, as usual)
+       b := [6]int{2, 3, 5, 7, 11, 13}  <---- or syntactic sugar: [...]int{2, 3, 5, 7, 11, 13}
+                                              //use of '...' : the compilre counts for me
+
+       NOT A POINTER: An array var is the entire array; not a pointer to the first element
+                      (as in C). This means that when you assign or pass an array
+                      you will make a COPY.
+                      (To avoid the copy you could pass a pointer to the array,
+                      but then that's a pointer to an array, not an array.)
+       FIXED LENGTH:   - An array's length is part of its type, so arrays cannot be resized.
+       SLICES      :   - dynamically-sized flexible VIEWS into the elements of an array
+                           []T <--- slice of type T
+
+                           var s []int = b[1:4]     // 3,5,7
+                                  ^      ^   ^
+                                  |      |   index 4 is EXCLUDED
+                               s is a    of the array b
+                             slice of
+                                int
+
+                       .nb they are VIEWS:
+                                 - slices do not store any data,
+                                   it just describes a section of an underlying array.
+
+                                 - Changing the elements of a slice modifies the underlying array.
+                                 - Other slices that share the same underlying array will see those changes.
+                                   ex. s[0]=8  --> b[0]=8
+
+                                 - in [start:last]
+                                   implicit values are assumed (0 for start, len for last)
+                                    var a [10]int
+                                                     a[0:10]
+                                                     a[:10]    <----- are all the same
+                                                     a[0:]
+                                                     a[:]
+
+                                 -  note that I can have a slice on a slice
+                                    s := []int{2, 3, 5, 7, 11, 13}
+
+                                                                   s = s[1:4]   // [3 5 7]
+                                                                   s = s[:2]    // [3 5]
+                                                                   s = s[1:]    // [5]
+
+                                 -  slices cannot be re-sliced below zero to access earlier elements in the array.
+
+       LEN & CAPACITY OF SLICES :
+
+                        A slice has both
+                            capacity : the max number of elements in the underlying array it can address
+                                       (counting from the first element in the slice).
+                            length   : the actual number of elements it 'views'
+
+                            So (as one could expect) I cannot defined a slice exceding a certain 'capacity'
+                            'viewing' outside the array
+
+
+                        for a slice 's' they can be obtained as len(s) / cap(s)
+
+                                               0  1  2  3   4   5   <----- the indexes
+                                 -  s := []int{2, 3, 5, 7, 11, 13}  // len=6 cap=6 [2 3 5 7 11 13]
+
+                                                                                              0 1 2  3  4  <----- the indexes
+                                                   s = s[1:3] // len=2 cap=5 [3 5]        of [3 5 7 11 13]
+                                                   s = s[:4]  // len=4 cap=5 [3 5 7 11]   of [3 5 7 11 13]
+                                                   s = s[2:]  // len=2 cap=3 [7 11]       of [7 11 13]
+                                                                                              0  1  2  <----- the indexes
+       ZERO SLICE :       is nill & len(s)=cap(s)=0
+                                        var s []int
+                                                if s == nil {
+                                                   fmt.Println(len(s), cap(s)...  // 0 0
+
+       FUNCTION ON SLICES:
+       ___________________
+
+       'make' :           The make function allocates a '0' (zeroed) array and
+                          returns a slice
+                                        a := make([]int, 5)    // full view on a 5 zeroed array
+                                        a := make([]int, 2, 5) // view of 2 on a 5 zeroed array
+       ___________________
+       'copy' :           copies data from a source slice to a destination slice.
+                          It returns the number of elements copied.
+                          ex.
+                               copy(t, s)
+                          if t>s copies only s elem
+                          Like Excel if t&s are overlapping slices on the same array
+                          the copy can manage it.
+
+       ___________________
+       'append' :         c = append(a, 1, 2, 3)   appends the elements and grows the slice if more capacity is needed.
+
+       ___________________
+       'range' :          for i, v := range s {    used in a for loop. It returns 2 values:
+                                                       . the index of elem i-th
+                                                       . its value
+
+                          for i    := range s {    I can skip the value if I don't care of it
+                          for _, v := range s {    I can skip the index with '_' (if I wanted only the value)
+
+___________________________________________________________________________ MAPS
+
+       Maps are the Perl hashes (associative arrays) :
+
+          ex.   var m map[string]T    an array of T indexed by string keys
+
+       ZERO MAP :       is nill  (A nil map has no keys)
+
+       FUNCTION ON MAPS:
+       ___________________
+
+       'make' :           function that allocates a map
+                          m = make(map[string] T)
+       ___________________
+
+       'delete' :         delete(m, key)
+       ___________________
+
+       test elem is present : elem, ok =  m[key]       if present ok is true
+                              elem, ok := m[key]       (and 'elem' contains it)
+       ___________________
+
+___________________________________________________________________________ METHODS  (NO CLASSES)
+
+       . Go does not have classes.
+       . there are 'methods'
+         A method is a function with a special receiver argument.
+         The receiver appears (in its own argument list) between func and func_name.
+
+         func (v Vertex) Abs() float64 {
+                  ^      ^                       <----- inside the use is directly on v
+                  ^      ^                              so there is no need of 'this' keyword
+           receiver      func_name
+           argument.
+
+
+       . it can be called as expected:   v := Vertex{3, 4}
+                                         v.Abs()            <-------- v.xxxx
+
+       . methods must be in the same package (file)
+         where the type of that receiver is defined
+
+       . (v  Vertex) is a 'VALUE'-receiver  (the method works on a copy of it)
+         (v *Vertex) is a 'POINTER'-receiver (the method works on the same arg)
+
+         So normally we see 'POINTER'-receiver  (in both cases the call is   v.xxxx)
+
+
+       // suppose v := Vertex{3, 4}        p := &v
+
+       . FUNCTION WITH ARG POINTER:  func xxxx (v *Vertex) {    <---- MUST be called only as xxxx (&v)
+       . METHOD   WITH POINTER-rec:  func (v *Vertex) xxxx() {  <---- CAN be called as v.xxxx or (&v).xxxx
+                                                                                       ^
+                                                                                       ^
+                                                                                       syntactic sugar
+
+
+       . METHOD   WITH VALUE-rec:    func (v Vertex) xxxx() {  <---- CAN be called as v.xxxx or  (*p).xxxx  or p.xxxx
+                                                                                                               ^
+                                                                                                               ^
+                                                                                                               syntactic sugar
+
+       . There is one more aspect of naming to be mentioned: method lookup is always by name only, not by signature (type) of the method.
+         In other words, a single type can never have two methods with the same name. Given a method x.M, there's only ever one M associated with x.
+         Again, this makes it easy to identify which method is referred to given only the name. It also makes the implementation of method invocation simple.
+___________________________________________________________________________ INTERFACES
+
+       . type iiiii interface {    <---- iiiii is now a type (interface)  so a var can be defined of this type:  var x iiii
+                xxxx() float64
+         }
+
+         now 'x' can be init with different var types (t1 or t2)
+                         var f t1;  x = f
+                         var g t2;  x = g
+
+         only if both t1 and t2 have methods xxxx() float64
+
+                            func (v t1) xxxx() float64
+                            func (v t2) xxxx() float64
+
+       . THE EMPTY INTERFACE:
+                             with nothing inside: var i interface{}
+                             are used by code that handles values of unknown type.
+
+       . (xxxx,  type)        An interface under the covers, can be thought of as a pair of
+                                    'active' type
+                                    xxxx to call (for that active type)
+
+                              it's actually like a map or hash, so that it's easy to understand
+                              the same possible syntax
+                                       v := x.(t1)    assign the xxxx of t1 to v
+                                       v := x.(t2)    assign the xxxx of t2 to v
+
+                              if x is currently associated to t2  (ex var x = t2{...})
+                              the
+                                       v := x.(t1)
+                              triggers a panic exception
+                              so like for maps, there is the
+                                       v, ok := x.(t1)      where the ok would be now false
+
+       . switch i.(type)
+                                switch v := i.(type) {        <------- nb. 'type' is a GO keyword
+                                    case int:
+                                            fmt.Printf("Twice %v is %v\n", v, v*2)
+                                    case string:
+                                            fmt.Printf("%q is %v bytes long\n", v, len(v))
+                                    default:
+                                            fmt.Printf("I don't know about type %T!\n", v)
+                               }
+
+       . Stringer:             One of the most ubiquitous interfaces is Stringer defined by the fmt package.
+
+                               type Stringer interface {
+                                   String() string
+                                   }
+
+                               that instructs how to print a type into a string.
+                               The fmt package (and many others) look for this interface to print values.
+
+
+___________________________________________________________________________ error
+
+       . error  is a built-in interface similar to fmt.Stringer:
+
+           type error interface {
+               Error() string
+               }
+
+         so each time a call a function xxxx     v,y := xxxx ( ...)
+         the y is init with th error (string) value
+         and should be tested with the logic
+              = nil    --> ok
+             != nil    --> ERROR
+___________________________________________________________________________ READERS
+
+       . interface with a Read method:
+         func (T) Read(b []byte) (n int, err error)
+
+         ex. from File/stream/or even string:
+
+            /   r := strings.NewReader("Hello, Reader!")  <---- from a string
+            |
+            |   b := make([]byte, 8)
+            |   for {
+            |           n, err := r.Read(b)
+            |           if err == io.EOF {
+            |                     break
+            \           }
+___________________________________________________________________________ GOROUTINES
+
+       .  A goroutine is a lightweight thread managed by the Go runtime.
+
+             go f(x, y, z)  <---- starts a new goroutine running f(x, y, z)
+
+          Goroutines run in the same address space, so access to shared memory must be synchronized.
+          The sync package provides useful primitives,
+          although you won't need them much in Go as there are other primitives.
+
+___________________________________________________________________________ CHANNELS
+
+       .   goroutines synchronized to send & received data (with operator <-)
+       .   Like maps and slices, channels must be created before use:
+
+               ch := make(chan int)
+
+            func sum(s []int, c chan int) {
+                         sum := 0
+                         for _, v := range s {
+                             sum += v
+                         }
+                         c <- sum // send sum to c
+             }
+
+             func main() {
+                         s := []int{7, 2, 8, -9, 4, 0}
+
+                         c := make(chan int)
+                         go sum(s[:len(s)/2], c)
+                         go sum(s[len(s)/2:], c)
+                         x, y := <-c, <-c // receive from c
+
+                         fmt.Println(x, y, x+y)
+                     }
+
+       .   BUFFERED:
+           Channels can be buffered. (add a 2nd arg)
+
+            ch := make(chan int, 100)
+
+           Sends to a buffered channel block only when the buffer is full.
+           Receives block when the buffer is empty.
+
+       .   range & close:
+           A sender can close a channed: close(c)
+           The receiver can test if the channel is close, adding just another var:
+
+                        v, ok := <-ch
+
+           a 'range c' function allows to loop through a channel as it ends when c is closed
+
+                       for i := range c {
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+
+     - GO is
+              . compiled
+              . statically typed
+              . concurrent
+              . garbage-collected
+              . rigorous dependency management
+              . light syntax (25 keywords)  (while C99  37; C++ 84)
+
+
+              _________________________________________________________
+              . rigorous dependency management
+
+                C preprocessor style (to avoid include header files many times) :
+                [the same even worse applies to C++]
+
+                #ifndef _SYS_STAT_H_
+                #define _SYS_STAT_H_     <--- even if the rest of the files is discarded by
+                  ....                        subsequent includes still the files is open and read over and over
+                #endif                        (in 1984 the ps unix command  ps.c opened #include <sys/stat.h> 37 times
+                                              discarding 36.
+
+                                              Moreover testing if an header is no more required just removing it in a file
+                                              doesn't work because it could still be read in, trough other paths.
+
+                                              Designers of library Plan 9, adopted a non-ANIS approach forbidding
+                                              a header could have other #includes, but allowing includes only in .c
+                                              This allowed to fix the above problems
+                                              Moreover the possibility to remove the #ifndef speeded up the compilation time
+
+              . GO doens't compile if a package is not required  (avoiding having unused code on board)
+                So no warning but error!
+
+              . GO compile each imported package into an object.
+                So any import X is the import of an X-object not X-source code
+                The dependencies tree/graph is clean and with no cycles
+
+                Moreover the data exported in each package are not an external file (like in some other languages)
+                but are the FIRST section of the X-object format.
+
+                So the compiler can stop reading when that section is over.
+                      _________________________________________________________
+
+                       Go can be parsed without type information or a symbol table;
+                      _________________________________________________________
+
+              . import { PPPPP / .... /  XXXXX }
+                          ^^^^^^^^^^     ^^^^
+                            full path    package name
+
+                the vars exported from package X are then addressed as XXXXX.var  (so not the full path but only "package_name . var_name" )
+
+              . GO decided to not worry about collisions so if there are 2 different X packages  ( path1/X  path2/X)
+                to import in the same file, one must be renamed.
+
+              . The path can be a URL  (ex. import "github.com/4ad/doozer")
+
+              . GO can download remote packages just with "go get" (like a git clone)
+                ex.
+                    go get github.com/4ad/doozer
+
+                Moreover the "go get" downloads dependencies recursively,
+                that's possible only because the dependencies are explicit.
+
+              _________________________________________________________
+              . concurrent
+
+              Go is not purely memory safe in the presence of concurrency.
+
+              Go does not take a write-once approach.
+              The reason is largely about familiarity and suitability for the problem domain.
+              Go's concurrent features work well in a context familiar to most programmers.
+              Go enables simple, safe concurrent programming but does not forbid bad programming.
+              The motto is, "Don't communicate by sharing memory, share memory by communicating."
+              _________________________________________________________
+              Orthogonality is the property which guarantees that modifying a component
+              doesn't propagate side effects to other components.
+              Orthogonality reduces testing because it is easier to verify no side effects.
+
+              An instruction set is said to be orthogonal if it lacks redundancy
+              (i.e., there is only a single instruction that can be used to accomplish a given task)
+              _________________________________________________________
+
+              gofix:  tool to update old libraries and keep only 1 (the last) updated
+              godoc:   document extractor, a program to verify that the API compatibility contract is maintained as the library is updated
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
+              _________________________________________________________
 
 
 
 
 
-     1. export GOROOT_BOOTSTRAP="$HOME/go.bootstrap/go"
-     2. > cd $HOME/go.bootstrap/go/src  && ./all.bash --> this will create the 2 binaries (go / gofmt) in GOBIN: ~/go/
-     3. > type go :
-                  go is /Users/sbasile/go/go
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

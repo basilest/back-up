@@ -38,12 +38,16 @@ ____________________________________________________________
 ____________________________________________________________
 
 
+
 Brackets
 
-     1) if [ CONDITION ]             Test construct  (spaces near [ ] ARE required)  (uses -a -o  for and/or)
+     1) if [ CONDITION ]             [ is like an external command (test) even if 'builtin'.
+                                     that is why a space after [ is required
+                                     as it is a command by its own, it manages parameters with its own syntax  (uses -a -o  for and or)
                                      ( ) can be used to group with -a or -o but
                                      must be escaped [ \( .... \) -a ...
-     2) if [[ CONDITION ]]           Extended test construct                         (uses && ||  and regex =~)
+     2) if [[ CONDITION ]]           is a shell 'keyword' to test (uses && ||  and also regex =~)
+                                     so should be always the preferred way.
      3) Array[1]=element1            Array initialization
      4) [a-z]                        Range of characters within a Regular Expression
      5) $[ expression ]              A non-standard & obsolete version of $(( expression ))

@@ -28,6 +28,33 @@
                |_______________________________________________________________________________|
 
 -----------------------------------
+db.getCollection('company_profile').find({}).forEach(function(doc) {
+var accounts = doc.data.accounts;
+print("aaaaa");
+})
+
+db.getCollection('company_profile').find({}).forEach(function(doc) {
+var accounts = doc.data.accounts;
+print("accounts");
+})
+
+
+db.getCollection('company_profile').find({"data.accounts": {$ne : null}})
+
+
+db.getCollection('company_profile').find({"data.accounts": {$ne : null}}).forEach(function(doc) {
+var comp_no = doc._id;
+db.getCollection('company_profile').update({"_id":comp_no},
+{"$set": {"data.accounts.next_accounts.period_end_on" : ISODate("2014-08-31T00:00:00.000Z")}}
+)})
+-----------------------------------
+          _______________________
+          | Actually internally the docuemnts are stored in BSON (a Binary JSON))
+          | usually in  /data/db. There should be 2 files per collection there,
+          |              collection.0       stores the data (and that integer is then incremented as needs be)
+          |              collection.ns      stores the namespacing metadata for the collection.
+          |______________________
+-----------------------------------
 1. run the daemon in a shell:
 
            mongod                             # with no params
@@ -60,6 +87,16 @@
   _________________
   |
   | mongo --host mongodb://envb.mongo.ch.gov.uk --port 15307     <---- it I want to connect to a remote host
+  |_________________
+  |
+  | mongodump --host envb.mongo.ch.gov.uk --port 16007           <---- this creates a dir ./dump/   with inside all the db collections
+  |_________________
+  |
+  | mongoexport -h envb.mongo.ch.gov.uk:16407 -d company_profile -c company_profile > statler.txt    <---- thix export a colection into a json TEXT file
+  |_________________
+  |
+  | mongorestore                                                 <---- to be run from the dir containing ./dump
+  |                                                                    It populates (restores) a db from ./dump
   |_________________
 
   to save interactive command output into a file:
@@ -98,6 +135,10 @@
 
            use stef                        # To create a new db named "stef" if not present
                                              otherwise, just to select that as the current DB to work on
+
+           db.dropDatabase()               # To remove a database stef:
+                                                           1/2   use stef
+                                                           2/2   db.dropDatabase().
 
            db.createCollection("cccc")     # to create a collection cccc
 
@@ -177,6 +218,22 @@
                                              $gt    >
                                              $gte   >=
                                              $ne    !=
+                                             $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '*'
+                                                                so it is ex           db.users.find({"name": /.*m.*/}
+                                                                 or even shorter :    db.users.find({"name": /m/})
+                                                                 or longer            db.users.find({"name": {$regex : /m/}}
+                                                                 or with option       db.users.find({"name": {$regex: /acme.*corp/, $options: "si" } }
+
+                                                                 options are i,s,x,m and only i & m can be also
+                                                                 in the shorter form /  /i
+                                                                                     /  /m
+
+                                                                         . i       case insensitive
+                                                                         . s       the '.' includes \n
+                                                                         . x       (ignores ALL white spaces) and UNIX-like comments: # ...
+                                                                         . m       to match in a multiline the start ^ and end $
+                                                                                   ex in "First line\nSecond line"   a /^S/
+                                                                                       will not match while /^S/m will do
 
                                         Still in the form:
 
@@ -198,6 +255,8 @@
 
                                         The AND can be omitted as a simple list of values
                                         separated by commas is managed as an implicit AND
+                                        ex.
+                                        db.getCollection('queue').find({$and : [{"created" : {$gt : ISODate("2017-03-23")}}, {"created" : {$lt : ISODate("2017-03-24")}}]})
 
 
            db.cccc.find().limit(5)     # like bash head -5. It outputs not more than those docs
@@ -327,38 +386,6 @@
 
 
 
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
------------------------------------
-           .
 -----------------------------------
            .
 -----------------------------------

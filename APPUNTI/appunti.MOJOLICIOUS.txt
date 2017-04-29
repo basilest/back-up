@@ -1,0 +1,497 @@
+
+     1. sudo cpan Mojolicious         <----- install exe mojo (and morbo ....see after for morbo)
+     2. I have a command: $ mojo
+     ___________________________________________________________
+
+                                Usage: APPLICATION COMMAND [OPTIONS]
+
+                                  mojo version
+            ------------------->  mojo generate lite_app
+                                  ./myapp.pl daemon -m production -l http://*:8080
+                                  ./myapp.pl get /foo
+                                  ./myapp.pl routes -v
+
+                                Tip: CGI and PSGI environments can be automatically detected very often and
+                                     work without commands.
+
+                                Options (for all commands):
+                                  -h, --help          Get more information on a specific command
+                                      --home <path>   Path to home directory of your application, defaults to
+                                                      the value of MOJO_HOME or auto-detection
+                                  -m, --mode <name>   Operating mode for your application, defaults to the
+                                                      value of MOJO_MODE/PLACK_ENV or "development"
+
+                                Commands:
+                                 cgi       Start application with CGI
+                                 cpanify   Upload distribution to CPAN
+                                 daemon    Start application with HTTP and WebSocket server
+                                 eval      Run code against application
+                                 generate  Generate files and directories from templates
+                                 get       Perform HTTP request
+                                 inflate   Inflate embedded files to real files
+                                 prefork   Start application with pre-forking HTTP and WebSocket server
+                                 psgi      Start application with PSGI
+                                 routes    Show available routes
+                                 test      Run tests
+                                 version   Show versions of available modules
+
+                                See 'APPLICATION help COMMAND' for more information on a specific command.
+
+     ___________________________________________________________
+
+            mojo generate lite_app    xxxxx.pl       <----- create from scratch for me  a xxxxx.pl   file  (in current dir)
+                                                            my first mojo application
+     ___________________________________________________________
+
+
+                   _____________________________________________________________________________________________________________
+                   |                                                                       |
+                   |                    xxxxx.pl                                           |     hello_world.pl
+                   |_______________________________________________________________________|____________________________________
+                   |      #!/usr/bin/env perl                                              |  #!/usr/bin/env perl
+                   |      use Mojolicious::Lite;                                           |  use Mojolicious::Lite;
+                   |                                                                       |
+                   |      # Documentation browser under "/perldoc"                         |  get '/' => sub {               # nb. everything here is just 'Mojolicious' syntax
+                   |      plugin 'PODRenderer';                                            |        my $c = shift;
+                   |                                                                       |        $c->render(text => 'Hello World!');   # so this is a 'Mojolicious' route
+                   |      get '/' => sub {                                                 |  };
+                   |        my $c = shift;                                                 |                          ^
+                   |        $c->render(template => 'index');                               |  app->start;             |      # and this 'app' is a 'Mojolicious'  var that comes
+                   |      }ñMa|@;                                                          |                          |        already defined at this point
+                   |                                                                       |_________________________ | ________________________
+                   |      app->start;                                                      |                          |
+                   |      __DATA__                                                         |                   This is instead
+                   |                                                                       |                   the simple 'Hello World'
+                   |      @@ index.html.ep                                                 |                   example that I can write by hand
+                   |      % layout 'default';                                              |
+                   |      % title 'Welcome';                                               |
+                   |      <h1>Welcome to the Mojolicious real-time web framework!</h1>     |
+                   |      To learn more, you can browse through the documentation          |
+                   |      <%= link_to 'here' => '/perldoc' %>.                             |
+                   |                                                                       |
+                   |      @@ layouts/default.html.ep                                       |
+                   |      <!DOCTYPE html>                                                  |
+                   |      <html>                                                           |
+                   |        <head><title><%= title %></title></head>                       |
+                   |        <body><%= content %></body>                                    |
+                   |      </html>                                                          |
+
+
+
+
+
+     ___________________________________________________________
+
+            xxxxx.pl daemon     <----- just executing this I receive:
+                                                                           [Wed Apr 19 10:07:26 2017] [info] Listening at "http://*:3000"
+                                                                           Server available at http://127.0.0.1:3000
+
+            So if I go in the browser to that address I see the page  (i.e  Hello World for 'hello_world.pl')
+
+            xxxxx.pl daemon  -l http://*:8666        <---- does the same but I can specify my own port
+
+     ___________________________________________________________
+
+
+
+     Mojolicious uses a modern subset of Perl exclusively, and therefore all documentation assumes
+
+         use strict;
+         use warnings;
+         use utf8;
+         use feature ':5.10';
+
+
+     ___________________________________________________________  app->start
+
+          1.  the    app->start;    should be the last expression of the application.
+                                    (also because the return value could be significant)
+
+                                    It can be         app->start;     <---- use @ARGV   ex  "-l http://*:8666'
+                                    or                app->start('daemon', '-l', 'http://*:8666');
+
+
+
+     ___________________________________________________________ more ways to execute
+
+            xxxxx.pl daemon       is not the only way xxxxx.pl can be executed
+                                  try also to see:
+                                                    xxxxx.pl  cgi
+                                                    xxxxx.pl  get /
+                                                    xxxxx.pl
+
+
+
+     ___________________________________________________________ morbo
+
+            morbo  xxxxx.pl              if execute not directly but with 'morbo'
+                                         I can keep it running without stop & restart each time
+                                         when chaning the source code of xxxxx.pl
+
+
+
+     ___________________________________________________________ ROUTES  and  $c
+
+            get '/foo' => sub {                              <--- this is the general syntax of my Mojolicious  app
+             |    my $c = shift;                                  what is that ?
+             |    $c->render(text => 'Hello World!');             They are 'route' and they link
+             |                                                     a <path>     <----  to  ---->  <the code that returns the text to  display>
+             |                                                         |                                  |
+             |                                                       ex. /foo                      sub { ....
+             |                                                                                            $c              <---- '$c' is a Mojolicious::Controller object
+             |                                                                                            $c->render      <---- 'render' identifies the response
+           can be 'get'  'put'  'post'   'any'
+
+
+     ___________________________________________________________ $c (Mojolicious::Controller objects)
+
+            $c   is always the first arg passed to all the <code> for any route.
+
+                 It contains all the important data, ex:
+                     $c->param    the URL params        (ex. my $user = $c->param('user');)
+                     $c->stash    is used to pass args to a template (ex. after the __DATA__ label in the file)
+
+                                  get '/foo' => sub {
+                                    my $c = shift;
+                                      $c->stash(one => 23);
+                                      $c->render(template => 'magic', two => 24);
+                                  };
+
+                                  app->start;
+                                  __DATA__
+
+                                  @@ magic.html.ep
+                                  The magic numbers are <%= $one %> and <%= $two %>.
+
+
+
+                     $c->req      this pair allows to access all HTTP features (host, user_agent, header, body ...)
+                     $c->res
+                             ->json    $c->(req|res)->json     this var stores the message in json format.
+
+
+
+                     $c->render
+     ___________________________________________________________ ROUTE NAMES
+            # Render the template "index.html.ep"
+            get '/' => sub {
+              my $c = shift;
+                $c->render;
+                } => 'index';           <-----   route can have names
+
+                # Render the template "hello.html.ep"
+                get '/hello';           <-----   routes with no name, receive the name of route itself without non-word char (--> 'hello')
+
+                app->start;
+                __DATA__
+
+                @@ index.html.ep        <-----  template 1
+                <%= link_to Hello  => 'hello' %>.
+                <%= link_to Reload => 'index' %>.
+
+                @@ hello.html.ep        <-----  template 2
+                Hello World!
+     ___________________________________________________________ PERL CODE IN TEMPLATES
+            __DATA__                                                       perl code can be used even in the template section
+                                                                           with the    '%' 'begin' 'end'  keywords
+            @@ block.html.ep
+            % my $link = begin
+              % my ($url, $name) = @_;
+                Try <%= link_to $url => begin %><%= $name %><% end %>.
+              % end
+            ...
+
+
+
+     ___________________________________________________________  helper
+            'helper'   keyword   allows to define functions  to extend the
+                       methods of $c
+
+
+            helper whois => sub {                   <------ 1.2    define an helper
+                my $c     = shift;
+                my $agent = $c->req->headers->user_agent || 'Anonymous';
+                my $ip    = $c->tx->remote_address;
+                return "$agent ($ip)";
+            };
+
+            get '/secret' => sub {
+                my $c    = shift;
+                my $user = $c->whois;               <------ 2.2    use it
+
+
+
+
+     ___________________________________________________________ PLACEHOLDER
+
+            placeholder are like in perl the $1, $2 of a normal m/(..) ...(..)/ {  $1 ..  $2 }
+            They can catch a part of the path in the rule,
+            If not limited then till the first '.' or '/' (like the regex [^/.]+)
+            The syntax is :xxxx   or   (:xxxx)  or (xxxx)
+            the value then is identified not by $1  or $2  but
+            in one of the preferred ways:
+                     $c->stash ('xxxx')    <----  so in a template it can bu used directly as $xxxx
+                     $c->param ('xxxx')    <----
+
+           get '/(:bar)something/foo' => sub {    # ex /testsomething/foo -->(bar:test) /test123something/foo -->(bar:test123)
+               my $c   = shift;
+               my $bar = $c->param('bar');
+               $c->render(text => "Our :bar placeholder matched $bar");
+           };
+
+
+     ____________________________ RELAXED  PLACEHOLDER   #     like regex ([^/]+)
+            The syntax is #xxxx       <---- matches till the /
+
+            ex. '/hello/#you'
+
+
+     ____________________________ WILDCARD PLAC.         *   (like regex (.+)
+            The syntax is *xxxx       <---- matches till the end ( / and . included)
+
+            ex. '/hello/#you'
+
+     ____________________________ OPTIONAL PLAC.
+            get '/hello/:name' => {name => 'Sebastian', day => 'Monday'} => sub {
+
+            assigning default values, I can manage (optional) args
+
+
+     ____________________________ RESTRICTIVE PLAC
+            any '/:foo' => [foo => ['test', '123']] => sub {  <--- restrict to /test or /123
+            any '/:bar' => [bar => qr/\d+/] => sub {          <--- use regex: restrict to /1 ... /123 ...
+
+     ___________________________________________________________ HTTP METHODS
+
+            the method seen so far was
+                get ...
+             but there are even
+                     put:      ex.   put '/hello'  => sub { ....
+                     any:      ex.   any ['GET', 'POST', 'PATCH']  => sub { ....
+                                              .... with any the method can be retrieved as:
+                                                   $c->req->method;
+
+
+
+     ___________________________________________________________ UNDER
+
+     ____________________________ 1.3  under (with a function) before routes
+
+            under sub { ....    <-- the 'under' keyword specifies that this function
+                                    will be executed before,
+                                    for any following routes  (till the end of routes or till another 'under' function)
+
+                                    The following ruotes will be only evaluated if this function returns a true value.
+
+            get ....    <---  route 1
+            get ....    <---  route 2
+
+
+                                         ex.:
+                                               under sub {
+                                                 my $c = shift;
+
+                                                 # Authenticated
+                                                     my $name = $c->param('name') || '';
+                                                     return 1 if $name eq 'Bender';
+
+                                                 # Not authenticated
+                                                     $c->render(template => 'denied');
+                                                     return undef;
+                                               };
+
+                                               # Only evaluated when authenticated
+                                               get '/' => 'index'
+
+
+     ____________________________ 2.3  under (without a function) before routes
+
+            directly on the route, 'under' has
+            the effect to add just a prefix on all the following ruote
+
+
+            under '/foo';    # /foo
+                get '/bar' => {text => 'foo bar'};  # /foo/bar
+                get '/baz' => {text => 'foo baz'};  # /foo/baz
+
+            under '/' => {msg => 'whatever'};       # /
+                get '/bar' => {inline => '<%= $msg %> works'};   # /bar
+
+
+     ____________________________ 3.3   group {
+
+            'group {'  allows nesting of routes
+
+                                 # Global logic shared by all routes
+                                 under sub {
+                                   my $c = shift;
+                                   return 1 if $c->req->headers->header('X-Bender');
+                                   $c->render(text => "You're not Bender.");
+                                   return undef;
+                                 };
+
+                                 # Admin section
+                           ___   group {
+                           |
+                           |       # Local logic shared only by routes in this group
+                           |       under '/admin' => sub {
+                           |         my $c = shift;
+                           |         return 1 if $c->req->headers->header('X-Awesome');
+                           |         $c->render(text => "You're not awesome enough.");
+                           |         return undef;
+                           |       };
+                           |
+                           |       # GET /admin/dashboard
+                           |       get '/dashboard' => {text => 'Nothing to see here yet.'};
+                           |__   };
+
+                                 # GET /welcome
+                                 get '/welcome' => {text => 'Hi Bender.'};
+
+
+     ___________________________________________________________ FORMAT
+            a path with an extension ex
+                  /xxxxxx.html
+                  /xxxxxx.txt
+                  /xxxxxx.json
+
+            is automatically redirected in its proper template:
+
+                             |   get '/xxxxx' => sub {                       |  xxxxx.html   |  xxxxx.txt
+                             |     my $c = shift;                            |     |         |     |
+                             |     $c->render(template => 'xxxxx');          |     |         |     |
+                             |   };                                          |     |         |     |
+                             |                                               |     |         |     |
+                             |   app->start;                                 |     |         |     |
+                             |   __DATA__                                    |     |         |     |
+                             |                                               |     |         |     |
+                             |   @@ xxxxx.html.ep                            |    _|_        |     |
+                             |   <!DOCTYPE html>                             |               |     |
+                             |   <html>                                      |  redirected   |     |
+                             |     <head><title>Detected</title></head>      |    here       |     |
+                             |     <body>HTML was detected.</body>           |               |     |
+                             |   </html>                                     |               |     |
+                             |                                               |               |    _|_
+                             |   @@ xxxxx.txt.ep                             |               |   redirected
+                             |   TXT was detected.                           |               |   here
+
+
+            The extension is the builtin 'format' arg, so I can add rules checking that:
+
+                               get '/hello' => [format => ['json', 'txt']] => sub {  <----
+                                 my $c = shift;
+                                 return $c->render(json => {hello => 'world'})
+                                   if $c->stash('format') eq 'json';
+                                 $c->render(text => 'hello world');
+                               };
+
+     ___________________________________________________________ CONTENT NEGOTIATION     'respond_to'
+            Automatically select best possible representation for resource from
+              . Accept request header     ex. /hello (Accept: application/json)  <---- Since browsers often don't really know what they actually want,
+              . stash value               ex. /hello.txt                               unspecific Accept request headers with more than one MIME type will be ignored,
+              . format GET/POST parameter ex. /hello?format=xml                        unless the X-Requested-With header is set to the value XMLHttpRequest
+                                                                                       MIME type mappings can be extended or changed easily with "types"
+              ex.                                                                             app->types->type(rdf => 'application/rdf+xml');
+                        get '/hello' => sub {
+                          my $c = shift;
+                          $c->respond_to(
+                            json => {json => {hello => 'world'}},
+                            xml  => {text => '<hello>world</hello>'},
+                            any  => {data => '', status => 204}
+                        );
+     ___________________________________________________________ STATIC FILES
+            Are sent if they are external files in a directory called with the reserved word 'public'
+                            ./public
+            but the content can also be put inline
+
+                    use Mojolicious::Lite;
+
+                    app->start;
+                    __DATA__
+
+                    @@ something.js
+                    alert('hello!');
+
+                    @@ test.txt (base64)
+                    dGVzdCAxMjMKbGFsYWxh
+
+
+     ___________________________________________________________ EXTERNAL TEMPLATES
+
+            External templates are files in the 'templates' (reserved word) dir
+            and have higher precendence with respect to the inline ones (after __DATA__)
+
+
+
+     ___________________________________________________________ CONDITIONS
+            there are builtin conditions (ex. 'agent' or 'host') that can be used
+
+            get '/foo' => (agent => qr/Firefox/)       => sub { ....
+            get '/foo' => (host  => 'mojolicious.org') => sub { ....
+
+
+
+     ___________________________________________________________ SESSIONS
+            # Access session data in action and template
+            get '/counter' => sub {
+              my $c = shift;
+              $c->session->{counter}++;
+            };
+
+            app->start;
+            __DATA__
+
+            @@ counter.html.ep
+            Counter: <%= session 'counter' %>
+
+
+
+     ___________________________________________________________ FILE UPLOADS
+            .
+     ___________________________________________________________ USER AGENT
+            .
+     ___________________________________________________________ WEB SOCKETS
+            .
+     ___________________________________________________________ MODE
+            .
+     ___________________________________________________________ TESTING
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+            .
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
+     ___________________________________________________________
