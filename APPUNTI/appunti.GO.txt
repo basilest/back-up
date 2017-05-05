@@ -893,3 +893,81 @@ ___________________________________________________________________________
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_________________________
+created at Google in 2007 by 
+        Robert Griesemer, 
+        Rob Pike, 
+        Ken Thompson  <---- the same of UNIX & B-lang (father of C)
+
+
+
+
+
+_________________________FEATURES
+
+      . compiled           :  there are 2 main compilers:
+                                 . gc  :  Google's Go compiler. 
+                                                 open source 
+                                                 targets various platforms 
+                                                       Linux, 
+                                                       OS X, 
+                                                       Windows, 
+                                                       various BSD and Unix 
+                                                       mobile devices/ smartphones
+
+                                 . gccgo : a GCC frontend.
+
+
+      . statically typed
+      . garbage collector
+      . memory safety
+      . concurrent programming
+      . structural type  (in contrast with 
+                               nominative systems
+                               duck typing
+                         )
+
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+_________________________
+
+
+
+
+

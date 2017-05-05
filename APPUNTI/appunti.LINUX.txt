@@ -1630,9 +1630,9 @@ __  chmod
                        2: group ID
                        1: sticky bit
 
-                       a: all (u/g/o)  chmod a+wx  give w & x  to all 3 u,g,o
-                                       chmod a=u   give to all 3 the same value of u
-
+    to remember        a: all (u/g/o)  chmod a+wx  give w & x  to all 3 u,g,o
+    italian                            chmod a=u   give to all 3 the same value of u
+    ugola ----\
             [ugoa...][+-=][perms]
                              |________ r
                                        w
@@ -1640,8 +1640,20 @@ __  chmod
                                        X  execute only if is a dir or there is already an x on some of u,g,o
                                        s
                                        t
+     _____________________________________________________________________________
+     N.B. I can have more at the same time:    chmod uo+rw  <------------ N.B.
+                                                     ^  ^
+     _____________________________________________________________________________
+
+
  SUID / SGID    's' can be present instead of 'x' in u (called SUID) or g (called SGID)
-                It means that the file/folder can be executed with root priviledges.
+                SUID: 
+                    It means that the file/folder is always executed (by whoever user runs it)
+                    with the priviledges of his owner. (In case of root, with root priviledges)
+                SGID: 
+                   - on a file: that file has rights like that group
+                   - on a dir : any file or subdir created inside has rights like that group
+
 
                 (set SUID):  chmod u+s   or  chmod 4...  (ex 4755)      rws ... ...
                 (set SGID):  chmod g+s   or  chmod 2...  (ex 2755)      ... rws ...
@@ -1651,9 +1663,6 @@ __  chmod
                 as the root priviledge is set but there is no x rights,
                 so add them and the S becomes s:  chmod u+x a.sh    --> rws r-x r--
                 (The same applies on SGID)
-                SGID: instead of 'root' as in SUID, when SGID is set for a
-                   - file: that file has rights like that group
-                   - dir : any file or subdir created inside has rights like that group
 
  Sticky bit     't' can replace the 'x' of o, meaning that each user can DELETE
                 only its own files. Even if it can be set on a file, usually has
