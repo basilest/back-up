@@ -97,6 +97,8 @@ db.getCollection('company_profile').update({"_id":comp_no},
   |
   | mongorestore                                                 <---- to be run from the dir containing ./dump
   |                                                                    It populates (restores) a db from ./dump
+  |
+  |  ex. mongorestore -h envb.mongo.ch.gov.uk --port 27018 -d account -c company_auth_codes dump/account/company_auth_codes.bson
   |_________________
 
   to save interactive command output into a file:

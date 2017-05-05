@@ -1821,7 +1821,7 @@ USE
                   so it works only if module and package respects the rule
 
             import: is not a built-in fun. It's a method that must be defined by the user
-                    which any args and doing whatever.
+                    with any args and doing whatever.
                     The most common way to define an import() method is to inherit it from Exporter.pm
                     Exporter is a Perl core module.
 
@@ -1850,7 +1850,7 @@ different 'sigil': so var of type $, @, %, &, go in separate area
 lexical scopes: store 'local' vars.
                 That is, vars inside blocks { }, of type
                 my, our, state.
-symbol tables:  called also 'package' var, store 'global vars.
+symbol tables:  called also 'package' var, store 'global' vars.
 
 qualified name: is the long name of a var that allows to distinguish from others
 

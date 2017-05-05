@@ -144,7 +144,7 @@ ___________________________________________________________________________ VAR
 
 
      c := 3                    <--- :=  is called the short assign. statem.
-                                        it allows to skip the TYPE that is inferred from the right and value
+                                        it allows to skip the TYPE that is inferred from the right hand value
                                         :=   can be used only for local vars  (inside function)
 
      var (                      <---  this grouping layout is also possible
@@ -162,8 +162,8 @@ ___________________________________________________________________________ FUNC
      func swap(x, y string) (string a, string b) <--- in this case the return TYPEs are 'named'  (name 'a' and 'b')
 
                                                       When there are 'named' return args
-                                                      it's supposed there local vars with those names defined then in the function
-                                                      In this case I case use both of the following notations:
+                                                      it's supposed there are local vars with those names defined then in the function
+                                                      In this case I can use both of the following notations:
 
                                                            return (a,b)    <--  explicit form
                                                            return          <-- 'naked' form. local vars 'a' and 'b' are returned
@@ -275,8 +275,9 @@ ___________________________________________________________________________ SWIT
                      case f():    <--- a function     (that anyhow is never executed if i=0)
                      }
 
-               n.b.  Switch without a condition is the same as switch true.
+               n.b.  Switch without a condition:
                      'switch {'
+                     is the same as 'switch true {'.
 
 ___________________________________________________________________________ DEFER
 
@@ -334,7 +335,7 @@ ___________________________________________________________________________ ARRA
 
                    0  1  2  3   4   5   <----- the indexes (from 0, as usual)
        b := [6]int{2, 3, 5, 7, 11, 13}  <---- or syntactic sugar: [...]int{2, 3, 5, 7, 11, 13}
-                                              //use of '...' : the compilre counts for me
+                                              //use of '...' : the compiler counts for me
 
        NOT A POINTER: An array var is the entire array; not a pointer to the first element
                       (as in C). This means that when you assign or pass an array
@@ -354,7 +355,7 @@ ___________________________________________________________________________ ARRA
 
                        .nb they are VIEWS:
                                  - slices do not store any data,
-                                   it just describes a section of an underlying array.
+                                   they just describe a section of an underlying array.
 
                                  - Changing the elements of a slice modifies the underlying array.
                                  - Other slices that share the same underlying array will see those changes.
