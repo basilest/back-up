@@ -254,6 +254,84 @@ PRECEDENCE:
 
 
 --------------------------
+SYMBOL TABLEs / LEXICAL SCOPEs
+--------------------------
+varibale-names  are stored in memory in 2 different places, both called
+"name-spaces", and then one space called "symbol tables" and the other
+"lexical-scopes". Each space then allocates different sub-area for the
+different 'sigil': so var of type $, @, %, &, go in separate area
+(that's the reason why $a @a %a &a do not conflict each other)
+
+lexical scopes: store 'local' vars.
+                That is, vars inside blocks { }, of type
+                my, our, state.
+symbol tables:  called also 'package' var, store 'global vars.
+
+qualified name: is the long name of a var that allows to distinguish from others
+
+                ex. $Santa::Helper::Reindeer::Rudolph::nose  <---- 1 name = {many 'term'}
+                      ^       ^         ^       ^       ^
+                     term    term      term    term    term
+
+Name Lookups:   is the process that Perl uses to find from the simple term (ex. $a)
+                the qualified name. It is:
+
+                        1. starts searching in the lexical scope of that block
+                        2. goes on upper blocks
+                        3. goes to the largest possible lexical scope (compilation unit)
+                           that is:
+                              - the file (normally)
+                              - the STRING passed to an 'eval': in this case
+                                is still is not found in the runtime STRING, Perl
+                                restart from point 2, considering the lexical scope
+                                of the block where the 'eval' is written.
+
+                        4. pass to search for global vars, searching again from point 1 to 3
+                           but for the nearest 'package' instruction which will be
+                           prepended to the front of the variable.
+                        5. If there is no package declaration in any surrounding lexical scope,
+                           Perl looks for the variable name in the unnamed top-level package,
+                           (called 'main')
+--------------------------
+GRAMMARS - TERMS & OPERATORS
+--------------------------
+term     HIGHEST precedence!!!
+         they are:
+                 . vars
+                 . quoted ops (any kind)  <--- A fun is nothing but an operator with args inside (): f (...)
+                 . braces     (any kind)                                                              \___ 'operator'
+
+operators:
+      01 - Terms and List Operators (Leftward)
+      02 - The Arrow Operator                          : on the right there are not [] {} or ()
+      03 - Autoincrement and Autodecrement             : ++ only (not --) has some magic on strings
+                                                         incrementing the char
+                                                         $a = "a9";   ++$a;  "b0"
+                                                         $a = "Az";   ++$a;  "Ba"
+                                                         $a = "zz";   ++$a;  "aaa"
+      04 - Exponentiation                              : binds even more tightly than unary minus, so –2**4 is –(2**4)
+      05 - Unary Operators                             : ! + - ~
+      06 - Binding Operators
+      07 - Multiplicative Operators
+      08 - Additive Operators
+      09 - Shift Operators
+      10 - Named Unary and File Test Operators
+      11 - Relational Operators
+      12 - Equality Operators
+      13 - Smartmatch Operator
+      14 - Smartmatching of Objects
+      15 - Bitwise Operators
+      16 - C-Style Logical (Short-Circuit) Operators
+      17 - Range Operators
+      18 - Conditional Operator
+      19 - Assignment Operators
+      20 - Comma Operators
+      21 - List Operators (Rightward)
+      22 - Logical and, or, not, and xor
+      23 - C Operators Missing from Perl
+
+
+--------------------------
 SCALAR VARIABLES
 --------------------------
             can contain
@@ -530,7 +608,7 @@ undef:   accessing a key that doesn't exist or accessing outside
             %lines = map { $_ => 1 } @lines;
             the lines are the keys and the values (useless) are all 1.
             This can be usefull for fast search/test:
-                 if (exists $lines {$k}) {
+                 if (exist $lines {$k}) {
 
 
 ----------- HASH FUNCTIONS
@@ -862,7 +940,7 @@ REFERENT        is 'what' a reference is pointing to.
                        Perl.
                        Devel::Peek contains functions which allows raw Perl datatypes to be manipulated
                        from a Perl script. This is used by those who do XS programming to check that the data
-                       they are sending from C to Perl looks as they think it should look.
+                       they are sending from C to Perl looks as they think it should.
 
 SYMBOL TABLES   variable name lives in some kind of symbol table,
                 that hold 1 HARD referenCE to its underlying (otherwise nameless) referenT.
@@ -1538,7 +1616,7 @@ FILE
         -w                            if writeable
         -x                            if exec
         -T                            if text file
-        -C -A -M                      return in $^T ( $BASETIME ) th time of last Change, Access, Modif.
+        -C -A -M                      return in $^T ( $BASETIME ) the time of last Change, Access, Modif.
                                       number is a float, so use function int, if required
                                       Moreover if the file changed after the script started, it returns < 0
                                           next unless –M $file > .5;            # files are older than 12 hours
@@ -1629,12 +1707,12 @@ REG EX
                                my ($hour, $min, $sec, $ampm) = /(\d+):(\d+):(\d+) *(\w+)/;
                                my @hmsa = /(\d+):(\d+):(\d+) *(\w+)/;
 
-        use re 'strict'        to be warned, as this find things that, while legal,
+        use re 'strict'        to be warned, as this finds things that, while legal,
                                may not be what you intended.
         ()                     parentheses besides used to then refer the matched string with $1,$2, ..
                                they can also be used to apply a quantifier to more than one char:
                                /bam{2}/ bamm (ok) bambam (not) --> /(bam){2}/
-        \1 \2                  similar to vi. I can refer to the mathed substring () while still in the regex
+        \1 \2                  similar to vi. I can refer to the matched substring () while still in the regex
                                "<B>Bold</B>"  --> /<(.*?)>.*?<\/\1>/
                                                                 ^
         Named Backreferences.  From v5.10 besides \1 and $1 (called Numbered Group) there are (named Group)
@@ -1658,7 +1736,7 @@ MODULEs / PACKAGEs
                 require xxxxx;     <---- without extension
 
         perl loads inline that file, so the convention is usually:               |
-             1. call those files _____.pm  (with extension .pm instead .pl)      |<------ WHAT A MODULE IS
+             1. call those files _____.pm  (with extension .pm instead of .pl)   |<------ WHAT A MODULE IS
              2. end them with a "return true;"  that is usually a simple "1;"    |
 
         The xxxxx.pm files are found looking in the list of dirs in PERL5LIB.
@@ -1683,10 +1761,10 @@ MODULEs / PACKAGEs
 
                   package  xxxxxxx
 
-        that means that any var of subroutine if called alone  like 'v' or 'sub_1'
+        that means that any var or subroutine if called alone  like 'v' or 'sub_1'
         will be searched in the symbol table xxxxxxx
         If I want to refer a 'v' 'sub_1' in another symbol table I specify the ful name
-                          yyyyyy::v
+                          yyyyyy::$v
                           yyyyyy::sub_1()
 
         ::    the '::' separator in pacakges is used as separator between the symbol_table_name
@@ -1698,7 +1776,7 @@ MODULEs / PACKAGEs
         'package xxxxxx' directive is found. Since then (till a next package directive)
         any var / subroutine:
                    - "defined" (ex my $v) --->   is stored in package xxxxxx
-                   - "called" (without full namespace) (ex sub()) ----> is intended to access that symbol in package xxxxxx
+                   - "called" (without full namespace) (ex sub()) ----> is searched in package xxxxxx
 
         _____________________________________ PACKAGES & MODULES
 
@@ -1708,15 +1786,19 @@ MODULEs / PACKAGEs
 
         In theory
         I can fill the code all around with many packages xxxxx  yyyyyy zzzzzz
-        and spread in any disorder I like. So the same package xxxxx in moany places in the same
+        and spread in any disorder I like. So the same package xxxxx in many places in the same
         file, and even in many different other files
 
         In practice
         to avoid possible mess, perl programmers use these 2 rules:
-                      1. a 'package' cmd must never be in a .pl file
+                      1. a 'package' must never be in a .pl file
                       2. a  module.pm must always have 1 and only 1 'package' cmd with exactly its
                          relative pathname   (In this way I can see '::' inside a package name
                                               that otherwsie would use probably only [a-zA-Z0-9_-]
+                                              so instead of yyyyyy   yy::zz::jj
+                                              ant to access its var v
+                                                                   yyyyyy::$v
+                                                                   yy::zz::jj::$v
 
 
                                  _____________________
@@ -1768,8 +1850,7 @@ MODULEs / PACKAGEs
 --------------------------
 OO
 --------------------------
-                  "Perl is not a great language for OO programming.
-                   Perl's OO capabilities were grafted on after the fact, and this shows."
+        A Perl OO is just a reference to a Package-symbol-Table (so accessing ALL the symbols there).
 
         object: is a reference. To use it as a refence to a class "CLASSNAME" use 'bless'
                 bless $o "CLASSNAME";  (it's like a cast in C)
@@ -1790,7 +1871,7 @@ OO
 
                  ex.  $o = new Package::Name -> new();
 
-        INHERITANCE:   use parent ("Animal"); <---------- to add in the son file (ex Koala.pm)
+        INHERITANCE:   use parent ("Animal"); <---------- to add in the child file (ex Koala.pm)
                        nb.  use parent accepts a list of parent class names, so Perl supports multiple inheritance,
                        (with all the benefits and horrors this entails).
 
@@ -1816,12 +1897,12 @@ USE
          ----------------------------------------|----------------------------|-------------------
 
             nb. require Caterpillar      : loads a 'module' (a file named Caterpillar.pm)
-                Carterpillar-> imnport() : calls a class-method ('package' Caterpillar)
+                Carterpillar-> import()  : calls a class-method ('package' Caterpillar)
 
                   so it works only if module and package respects the rule
 
             import: is not a built-in fun. It's a method that must be defined by the user
-                    which any args and doing whatever.
+                    with any args and doing whatever.
                     The most common way to define an import() method is to inherit it from Exporter.pm
                     Exporter is a Perl core module.
 
@@ -1831,126 +1912,94 @@ EXPORTER
         import() In Exporter's implementation of import(), the list of arguments
                  is interpreted as a list of subroutine names
                  Those subs besides their original pack, become available also in the current pack
-                 this means I can call them shortly as subx() instead the "longhand" AAA::BBB::subx()
+                 this means I can call them shortly as subx() instead of  AAA::BBB::subx()
 
         @EXPORT  it's a var in Exporter that can also contain a list of sub names
                                  our @EXPORT = ("crawl", "eat", "pup");
                  they are exported if import is called with no args:    import()
 
 
+
+________________________________________________
+  Install from source
+
+
+                       I can Install any version of perl in any place xxxxx  and then run it from xxxxx/bin:
+                 
+                       wget http://www.cpan.org/src/5.0/perl-5.16.2.tar.gz
+                       tar -xzf perl-5.16.2.tar.gz
+                       cd perl-5.16.2
+                       ./Configure -des -Dprefix=$HOME/localperl      <-----the binary will be this at the end:  $HOME/localperl/bin/perl*   
+                       make                                                                                           |
+                       make test                                                                                      |
+                       make install  -->------->------------>------------->----------->----------->---------->--------'
+                 
+________________________________________________
+   downstream distributions
+
+                       The raw source code of Perl is released roughly once a year (plus other minor fixes release intra year)
+                       (with the perldoc)
+                 
+                       downstream distributions (ex. Strawberry Perl, Active Perl, Citrus Perl) are vendors
+                       that repackage core code with extra modules from Cpan, or even stripping out perldoc
+
+________________________________________________
+   locating modules
+   (@INC)
+                       A Perl project is made of more modules ex:
+                              XXXX::YYYY::AAA   
+                       
+                       that means:
+                              1. there is a file AAA.pm  in a dir XXXX/YYYY/
+                              2. where it is included (ex in anothe module....BBB.pm) 
+                                 there is a line like:   use  XXXX::YYYY::AAA
+                 
+                       That is true for each CCC.pm module I download from CPAN and that I want to try. 
+                       I put it in a local dir TTTT and I want Perl can find it.
+
+                       To compile BBB.pm, and so to find the path XXXX/YYYY/ and inside the file AAA.pm
+                       Perl has these ways:
+
+                          1. look in the list of dirs of the array @INC
+                             @INC is defined when perl is compiled and it is embedded in the binary code. 
+                             I cannot change that, unless I recompile perl !!!!
+
+
+                          2. look in the dirs listed in any of this vars
+                                   export PERLLIB
+                                   export PERL5LIB  <--- to prefer as it's more readable to remind it's for Perl 5
+
+                             NB. if defined these vars COME FIRST of @INC
+                                 as they are added in front of @INC
+
+
+                          3. inside the script, before the line 'use XXXX::YYYY:AAA'
+                             add a line 'use lib ......'    
+                                     use lib '/home/foobar/code';   <--- this will add to END of @INC 
+                                     use My::Module;
+
+                          4. -I    on the command line  (ex: "perl -I /home/foobar/code script.pl")
+                             this will add to BEGINNING of @INC (but just for this execution)
+
+      
 --------------------------
-SYMBOL TABLEs / LEXICAL SCOPEs
---------------------------
-varibale-names  are stored in memory in 2 different places, both called
-"name-spaces", and then one space called "symbol tables" and the other
-"lexical-scopes". Each space then allocates different sub-area for the
-different 'sigil': so var of type $, @, %, &, go in separate area
-(that's the reason why $a @a %a &a do not conflict each other)
-
-lexical scopes: store 'local' vars.
-                That is, vars inside blocks { }, of type
-                my, our, state.
-symbol tables:  called also 'package' var, store 'global vars.
-
-qualified name: is the long name of a var that allows to distinguish from others
-
-                ex. $Santa::Helper::Reindeer::Rudolph::nose  <---- 1 name = {many 'term'}
-                      ^       ^         ^       ^       ^
-                     term    term      term    term    term
-
-Name Lookups:   is the process that Perl uses to find from the simple term (ex. $a)
-                the qualified name. It is:
-
-                        1. starts searching in the lexical scope of that block
-                        2. goes on upper blocks
-                        3. goes to the largest possible lexical scope (compilation unit)
-                           that is:
-                              - the file (normally)
-                              - the STRING passed to an 'eval': in this case
-                                is still is not found in the runtime STRING, Perl
-                                restart from point 2, considering the lexical scope
-                                of the block where the 'eval' is written.
-
-                        4. pass to search for global vars, searching again from point 1 to 3
-                           but for the nearest 'package' instruction which will be
-                           prepended to the front of the variable.
-                        5. If there is no package declaration in any surrounding lexical scope,
-                           Perl looks for the variable name in the unnamed top-level package,
-                           (called 'main')
---------------------------
-GRAMMARS - TERMS & OPERATORS
---------------------------
-term     HIGHEST precedence!!!
-         they are:
-                 . vars
-                 . quoted ops (any kind)  <--- A fun is nothing but an operator with args inside (): f (...)
-                 . braces     (any kind)                                                              \___ 'operator'
-
-operators:
-      01 - Terms and List Operators (Leftward)
-      02 - The Arrow Operator                          : on the right there are not [] {} or ()
-      03 - Autoincrement and Autodecrement             : ++ only (not --) has some magic on strings
-                                                         incrementing the char
-                                                         $a = "a9";   ++$a;  "b0"
-                                                         $a = "Az";   ++$a;  "Ba"
-                                                         $a = "zz";   ++$a;  "aaa"
-      04 - Exponentiation                              : binds even more tightly than unary minus, so –2**4 is –(2**4)
-      05 - Unary Operators                             : ! + - ~
-      06 - Binding Operators
-      07 - Multiplicative Operators
-      08 - Additive Operators
-      09 - Shift Operators
-      10 - Named Unary and File Test Operators
-      11 - Relational Operators
-      12 - Equality Operators
-      13 - Smartmatch Operator
-      14 - Smartmatching of Objects
-      15 - Bitwise Operators
-      16 - C-Style Logical (Short-Circuit) Operators
-      17 - Range Operators
-      18 - Conditional Operator
-      19 - Assignment Operators
-      20 - Comma Operators
-      21 - List Operators (Rightward)
-      22 - Logical and, or, not, and xor
-      23 - C Operators Missing from Perl
-
-
-
---------------------------
-USEFUL MODULES
+cpan
 --------------------------
 CPAN: Comprehensive Perl Archive Network
 
-                       The CGI.pm module comes with Perl, so you should be able to read its documentation:
-                                $ perldoc CGI
+bundle:    A file that some CPAN clients can use to reinstall everything you already have installed,
+           either on the same machine or a different machine
 
-ExtUtils::MakeMake:      comes with Perl. It handles a module instalation by:
-                     $ perl Makefile.PL
-                 $ make install
-
-                 $ perl Makefile.PL INSTALL_BASE=/Users/fred/lib        # option INSTALL_BASE for another dir
-
-Module::Build:      another way to install a module:
-                 $ perl Build.PL
-                 $ ./Build install
-
-                 $ perl Build.PL --install_base=/Users/fred/lib
-
-CPAN.pm:            come with Perl to manage when modules depends on others.
+CPAN.pm:   come with Perl to manage when modules depends on others.
                      $ perl -MCPAN -e shell
 
-                    It can be a little complicated, so a while ago was written a little script 'cpan'
-
+           It can be a little complicated, so a while ago was written a little script 'cpan'
 
 cpan:      The cpan command that comes with Perl can create an autobundle, (a list of everything you
            have installed, along with the version numbers:
                                                              $ cpan -a
 
                                                $ cpan Module::CoreList LWP CGI::Prototype
-
-bundle :   A file that some CPAN clients can use to reinstall everything you already have installed,
-           either on the same machine or a different machine
 
 cpanm:     it doesn’t come with Perl  (download from http://xrl.us/cpanm)
            Once you have cpanm, you simply tell it which module to install:
@@ -1980,6 +2029,24 @@ local::lib:  to keep additional Perl modules in their own directories (having no
       use local::lib;            # to write inside your Perl program so that it finds local modules.
                                  # During compilation, Perl sees that line and loads the module
 
+--------------------------
+USEFUL MODULES
+--------------------------
+
+
+ExtUtils::MakeMake:      comes with Perl. It handles a module instalation by:
+                     $ perl Makefile.PL
+                 $ make install
+
+                 $ perl Makefile.PL INSTALL_BASE=/Users/fred/lib        # option INSTALL_BASE for another dir
+
+Module::Build:      another way to install a module:
+                 $ perl Build.PL
+                 $ ./Build install
+
+                 $ perl Build.PL --install_base=/Users/fred/lib
+
+
 perldoc:   perldoc File::Basename       # to see information on what the module does.
 use ....:
            use File::Basename                 # import and load some functions
@@ -1997,6 +2064,9 @@ File::Spec
             my $new_name = File::Spec->catfile($dirname, $basename); # use od -> as it's a CLASS
 
 CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what it's tested and debugged)
+
+                       The CGI.pm module comes with Perl, so you should be able to read its documentation:
+                                $ perldoc CGI
 
             use CGI qw(:all);                             <------ load all functions from CGI module
             print header(),
