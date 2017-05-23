@@ -532,7 +532,6 @@ undef:   accessing a key that doesn't exist or accessing outside
             This can be usefull for fast search/test:
                  if (exists $lines {$k}) {
 
-
 ----------- HASH FUNCTIONS
 keys / values: they return 2 ARRAYs
              my @k = keys   %hash;        N.B. order not assured:  k[0] could be any and so on
@@ -768,6 +767,16 @@ REFERENCES
             print $atomicWeights{"Helium"}; # direct hash access
             print ${ $hashRef }{"Helium"};  or only print $hashRef->{"Helium"};
 
+
+        ANYHOW, regardless symbolic or hard reference
+                the key logic to code with references is to
+                think of them as:
+                   ${xxxxx} (or simply $xxxxx) = the "name" of a variable
+                so that
+                    @scalar_name  --> becomes $${ref}    (or simply  $$ref)
+                    @array_name   --> becomes @${ref}    (or simply  @$ref)
+                    %hash_name    --> becomes %${ref}    (or simply  %$ref)
+
         ___________________________________________
         | ANONYMOUS ARRAY and HASH  (and function)
         |
@@ -827,6 +836,26 @@ REFERENCES
           "opened" => "2000-01-01",
           "owners" => $ownersRef,
       );
+
+
+
+
+      ====================================================================================================================
+      ||  B E   A W A R E    of  the fact that copied references                                                         ||
+      ||                     change of course even the origin.                                                           ||
+      ||                     ex                                                                                          ||
+      ||                                                                                                                 ||
+      ||                              my %hashA = ( k1 => {                                                              ||
+      ||                                                    k2 => 18                                                     ||
+      ||                                                  });                                                            ||
+      ||                                                                                                                 ||
+      ||                              my %hashB = %hashA;                                                                ||
+      ||                              $hashB{k1}->{k2} = 39; <----- this will change even %hashA !!!!!!                  ||
+      ||                                                            as the anonymous internal reference   -> { k2 ...}   ||
+      ||                                                            is the same copied address in both A & B             ||
+      =====================================================================================================================
+
+
 --------------------------
 REFERENCES
 --------------------------
@@ -971,7 +1000,10 @@ ANONYMOUS DATA  - in the following cases we create a reference to a zone of memo
                      As a (lvalue), everything is first created, and the (rvalue) "January" is assigned.
 
                      If the same instruction is an (rvalue):
-                           print $array[3]–>{"English"}–>[0]
+                           print $array[3]–>{"English"}–>[0]      or   $v = $array[3]–>{"English"}–>[0]
+                                    |          |          |                    |           |         |
+                                    |          |          |                    |           |         |
+                                  lvalue    lvalue      rvalue               lvalue      lvalue     rvalue
                      the auto-creation occurs till $array[3]–>{"English"} then stops (
                      the final element is not an lvalue). (The fact that it defines the first two at all in
                      a rvalue context could be considered a bug. We may fix that someday.)
@@ -1685,8 +1717,8 @@ MODULEs / PACKAGEs
 
         that means that any var of subroutine if called alone  like 'v' or 'sub_1'
         will be searched in the symbol table xxxxxxx
-        If I want to refer a 'v' 'sub_1' in another symbol table I specify the ful name
-                          yyyyyy::v
+        If I want to refer a '$v' 'sub_1' in another symbol table I specify the ful name
+                          $yyyyyy::v
                           yyyyyy::sub_1()
 
         ::    the '::' separator in pacakges is used as separator between the symbol_table_name
@@ -1845,7 +1877,7 @@ varibale-names  are stored in memory in 2 different places, both called
 "name-spaces", and then one space called "symbol tables" and the other
 "lexical-scopes". Each space then allocates different sub-area for the
 different 'sigil': so var of type $, @, %, &, go in separate area
-(that's the reason why $a @a %a &a do not conflict each other)
+(that's the reason why $a @a %a &a do not conflict)
 
 lexical scopes: store 'local' vars.
                 That is, vars inside blocks { }, of type
@@ -1867,7 +1899,7 @@ Name Lookups:   is the process that Perl uses to find from the simple term (ex. 
                            that is:
                               - the file (normally)
                               - the STRING passed to an 'eval': in this case
-                                is still is not found in the runtime STRING, Perl
+                                if still it is not found in the runtime STRING, Perl
                                 restart from point 2, considering the lexical scope
                                 of the block where the 'eval' is written.
 
@@ -2311,7 +2343,7 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
            $x = $y + 1
             ^   ^^^^^^
-         lvaluw      a temporary value built by 2 rvalues
+         lvalue      a temporary value built by 2 rvalues
                      and put on a 'stack'
                      The pushes and pops all balance out
                      by the time the expression is done

@@ -17,15 +17,15 @@
 
 
                 ________________________________________________________________________________
-               |NB. always use 'findOne()' when setting a var and not 'find()'                 |
-               |                                                                               |
-               |           var o=db.company_profile.findOne({"_id":"LP006400"}) <---- OK       |
-               |           var o=db.company_profile.find   ({"_id":"LP006400"}) <---- NOT OK   |
-               |                                                                               |
-               |    findOne: returns a doc, so the var can be used over and over               |
-               |    find   : returns a cursor, so it can be for 1 statement, the the var seems |
-               |             vanished (as the cursor has been used one and should be reloaded) |
-               |_______________________________________________________________________________|
+               |NB. always use 'findOne()' when setting a var and not 'find()'                  |
+               |                                                                                |
+               |           var o=db.company_profile.findOne({"_id":"LP006400"}) <---- OK        |
+               |           var o=db.company_profile.find   ({"_id":"LP006400"}) <---- NOT OK    |
+               |                                                                                |
+               |    findOne: returns a doc, so the var can be used over and over                |
+               |    find   : returns a cursor, so it can be for 1 statement, then the var seems |
+               |             vanished (as the cursor has been used one and should be reloaded)  |
+               |________________________________________________________________________________|
 
 -----------------------------------
 db.getCollection('company_profile').find({}).forEach(function(doc) {
@@ -47,6 +47,11 @@ var comp_no = doc._id;
 db.getCollection('company_profile').update({"_id":comp_no},
 {"$set": {"data.accounts.next_accounts.period_end_on" : ISODate("2014-08-31T00:00:00.000Z")}}
 )})
+
+
+       creates                "next_accounts" : {
+           this --->                          "period_end_on" : ISODate("2017-05-23T00:00:00.000Z")
+                               },
 -----------------------------------
           _______________________
           | Actually internally the docuemnts are stored in BSON (a Binary JSON))
@@ -65,7 +70,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
 
            mongod --fork --logpath /var/log/mongodb.log
 
-                          the --logpath specify the log file the write on
+                          the --logpath specify the log file
 
    the daemon is so running (foreground or background)
    listening to its standard port 27017:
@@ -145,8 +150,8 @@ db.getCollection('company_profile').update({"_id":comp_no},
            db.createCollection("cccc")     # to create a collection cccc
 
            db.createCollection("cccc",     # to create cccc with the 4 Optional params
-                                { capped : true,       if 'true', cccc is size limited (oldest entries are overwritten)
-                                  autoIndexID : true,  if 'true', cccc has an index auto-created (on _id fiel)
+                                { capped : true,       if 'true', cccc is size_limited (oldest entries are overwritten)
+                                  autoIndexID : true,  if 'true', cccc has an index auto-created (on _id field)
                                   size : 6142800,      max size (in bytes)       for 'capped'
                                   max  : 10000 } )     max size (in num of docs) for 'capped'
 
