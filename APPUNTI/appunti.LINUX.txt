@@ -1883,6 +1883,136 @@ __  sort
 
 
 ____________________
+__  inodes
+
+    UNIX filesystem splits disk into 2 areas
+         - a list of -inodes   (to store info about the file)
+         - a list of data blocks  (to store the content of the file)
+
+    When any of these 2 lists should be over, the filesystem is FULL
+    and no more data can be stored.
+
+          df     : gives info on the used data-block  space
+          df -i  : gives info on the used inode-block space
+
+          ______________________
+          df:
+
+               Filesystem     1K-blocks     Used Available Use% Mounted on
+               udev             4024948        0   4024948   0% /dev
+               tmpfs             809036     9724    799312   2% /run
+               /dev/sda9       43262136 10545708  30495732  26% /
+               tmpfs            4045168    10644   4034524   1% /dev/shm
+               tmpfs               5120        4      5116   1% /run/lock
+               tmpfs            4045168        0   4045168   0% /sys/fs/cgroup
+               /dev/sda8       49071920 11623936  34932332  25% /home
+               /dev/sda2         303104    54784    248320  19% /boot/efi
+               cgmfs                100        0       100   0% /run/cgmanager/fs
+               tmpfs             809036       72    808964   1% /run/user/1000
+          ______________________
+          df -i :
+
+               Filesystem      Inodes  IUsed   IFree IUse% Mounted on
+               udev           1006237    560 1005677    1% /dev
+               tmpfs          1011292    878 1010414    1% /run
+               /dev/sda9      2760704 564411 2196293   21% /
+               tmpfs          1011292     30 1011262    1% /dev/shm
+               tmpfs          1011292      7 1011285    1% /run/lock
+               tmpfs          1011292     18 1011274    1% /sys/fs/cgroup
+               /dev/sda8      3117120  97022 3020098    4% /home
+               /dev/sda2            0      0       0     - /boot/efi
+               cgmfs          1011292     14 1011278    1% /run/cgmanager/fs
+               tmpfs          1011292     34 1011258    1% /run/user/1000
+          ______________________
+
+           
+          ______________________ INODE
+          An inode is the C-struct that can be seen with a   "man 2 stat"    (stat(2))
+          
+
+           struct stat {
+               dev_t     st_dev;         /* ID of device containing file */
+               ino_t     st_ino;         /* inode number */
+               mode_t    st_mode;        /* protection */
+               nlink_t   st_nlink;       /* number of hard links */  <----------------------.
+               uid_t     st_uid;         /* user ID of owner */                             |
+               gid_t     st_gid;         /* group ID of owner */                            |
+               dev_t     st_rdev;        /* device ID (if special file) */                  |
+               off_t     st_size;        /* total size, in bytes */                         |
+               blksize_t st_blksize;     /* blocksize for filesystem I/O */                 |
+               blkcnt_t  st_blocks;      /* number of 512B blocks allocated */              |
+                                                                                            |
+               /* Since Linux 2.6, the kernel supports nanosecond                           |
+                  precision for the following timestamp fields.                             |
+                  For the details before Linux 2.6, see NOTES. */                           |
+                                                                                            |
+               struct timespec st_atim;  /* time of last access */                          |
+               struct timespec st_mtim;  /* time of last modification */                    |
+               struct timespec st_ctim;  /* time of last status change */                   |
+                                                                                            |
+           #define st_atime st_atim.tv_sec      /* Backward compatibility */                |
+           #define st_mtime st_mtim.tv_sec                                                  |
+           #define st_ctime st_ctim.tv_sec                                                  |
+           };                                                                               |
+                                                                                            |
+          ______________________ DIR   (and HARD-LINKs)                                     |
+                                                                                            |
+          a dir is a file, whose content (in the data-block) stores a 2 columns table:      |
+                                                                                            |
+              | inode-num-A  |     "file_name-A"    |                                       |
+              | inode-num-B  |     "file_name-B"    |                                       |
+                                                                                            |
+          This way, the same file-A can be present in 2 or + dirs, with                     |
+          the same or different names, just because what matters is its inode-num           |
+          A same file present in 2 or more dirs it's said to have HARD-LINKS to it          |
+          The total number of HARD-LINKS to a file is store in its inode -------------------'
+                                                                                            
+          ______________________ ls -i   / find -inum
+
+              ls -i          allows to see inode num
+              find -inum     allows to search based on inodes
+                             ex to delete a file with file a strange name:
+                             
+                                   find -inum 328356  -delete
+
+              debugfs        command that enters a private "shell" of commands
+                             (that can be seen with "help") to operate on the filesystem
+                             [included dumping the inode info with a normal cat]
+                             As an admin I can even recover deleted files (if not yet overwritten)
+                                  mount |  grep home ---> /dev/sda8
+                                  sudo debugfs /dev/sda8
+
+                                  logdump -i <328356>         if I now the inode of the deleted file 
+                                                              (n.b.  also the '<'  '>' required)
+                                  logdump  lsdel              if I don't know the inode
+
+                                  it dumps many info I found the number of the line "Blocks:  (0+1): " ex:
+                                     Blocks:  (0+1): 7559168
+
+
+                             With that number I can use dd:
+                             dd if=/dev/sda8 of=file_name bs=4096 count=1 skip=7559168
+
+
+
+          ______________________ "."     ".."
+                                     
+                                                          
+              | inode-num-.  |     "."              | 
+              | inode-num-.. |     ".."             |
+
+              note that any dir stores 2 entries  to have inodes of itslef and its parent.
+              That means that as any dir "xxxxx" is usually a child of a parent (pppp/xxxxx), its inode is listed
+              twice:
+              ________________________________                _____________________________
+              | inode-num-x  |     "xxxxx"    |               | inode-num-x  |     "."     | 
+              ________________________________                _____________________________
+                  in the parent                                      in itself     
+             
+             So:
+                 (HARD-LINK number of a dir)  >=  2
+                                                                                             
+____________________
 __  find
 
 
