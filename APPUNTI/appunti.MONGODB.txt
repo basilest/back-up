@@ -274,7 +274,8 @@ db.getCollection('company_profile').update({"_id":comp_no},
            db.cccc.remove(...)         # delete from cccc the docs specified by any clause (...)
                                        ex. db.cccc.remove({'price': 5})
                                        with no args it deleted ALL the docs
-                                       db.cccc.remove()
+                                       db.cccc.remove()  or
+                                       db.cccc.remove({})  <--- empty query
 
            db.cccc.ensureIndex({k:1})  # to create an index on field "k"  (ex. {"price":1})
                                          :1 ascending  :-1 descending

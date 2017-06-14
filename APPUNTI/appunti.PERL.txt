@@ -1,3 +1,11 @@
+_____________________________________________________________________________
+   PERL = Practical Extraction and Report Language
+
+   - WEB SITE: perl.org
+   - CPAN    : cpan.org   (both ftp / HTTP)
+   - Perl Folks: perlmonks.org.
+_____________________________________________________________________________
+
                           PERL CORE is context (ctx) SCALAR or LIST
 
          _____________________________________________________________________________
@@ -167,6 +175,29 @@ $+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern.
                           For example: /Version: (.*)|Revision: (.*)/ && ($rev = $+);
 
 
+_____________ DOCUMENTATION
+
+   - there is a "perldoc"  cmd besides the normal "perl"
+                    try "perldoc perl"
+
+            1  perl         What perl manpages are available        Perlfaq1     General questions about Perl
+            2  perldata     Data types                              Perlfaq2     Obtaining and learning about Perl
+            3  perlsyn      Syntax                                  Perlfaq3     Programming tools
+            4  perlop       Operators and precedence                Perlfaq4     Data manipulation
+            5  perlre       Regular expressions                     Perlfaq5     Files and formats
+            6  perlvar      Predefined variables                    Perlfaq6     Regular expressions
+            7  perlsub      Subroutines                             Perlfaq7     General Perl language issues
+            8  perlfunc     Built-in functions                      Perlfaq8     System interaction
+            9  perlmod      How perl modules work                   Perlfaq9     Networking
+           10  perlref      References
+           11  perlobj      Objects
+           12  perlipc      Interprocess communication
+           13  perlrun      How to run Perl commands, plus switches
+           14  perldebug    Debugging
+           15  perldiag     Diagnostic messages
+
+           “ perl –V:man.dir ”   To see the value to set in MANPATH in the UNIX man doesn't go properly.
+
 
 --------------------------
 PERL DISTRIBUTIONs     (http://perldoc.perl.org/perlpolicy.html)
@@ -180,13 +211,14 @@ pragma: special Modules (ex. use strict)
                              use v5.10    <--- version of Perl: includes many features
                                                ex. say wrt print (which adds a \n for me)
 
----------
-INSTALL                                                       another way is perlenv
----------                         |                              /
- > tar zxf latest.tar.gz          | install from  CPAN App::perlbrew <----- allows to have more PERL versions
- > cd perl–5.22.2                 |                                         and switch between them
- > sh Configure –des              | ~/perl5/perlbrew/bin/perlbrew install perl–5.22.2
- > make test && make install      |
+________________________________________________
+        downstream distributions
+
+                       The raw source code of Perl is released roughly once a year (plus other minor fixes release intra year)
+                       (with the perldoc)
+
+                       downstream distributions (ex. Strawberry Perl, Active Perl, Citrus Perl) are vendors
+                       that repackage core code with extra modules from Cpan, or even stripping out perldoc
 
        enhanced distributions wrt standard one:
           - ActivePerl  free Win/Mac/Linux   $ Unix (Solaris..)
@@ -194,6 +226,151 @@ INSTALL                                                       another way is per
           - Citrus      free  Win/Mac/Linux  bundles wxPer to distribute app with GUI
 
 
+---------
+INSTALL
+---------
+
+________________________________________________
+  Install from source     (could require sudo privil.)
+
+
+                       I can Install any version of perl in any place xxxxx  and then run it from xxxxx/bin:
+
+                       wget http://www.cpan.org/src/5.0/perl-5.16.2.tar.gz
+                       tar -xzf perl-5.16.2.tar.gz
+                       cd perl-5.16.2
+                       ./Configure -des -Dprefix=$HOME/localperl      <-----the binary will be this at the end:  $HOME/localperl/bin/perl*
+                       make                                                                                           |
+                       make test                                                                                      |
+                       make install  -->------->------------>------------->----------->----------->---------->--------'
+
+________________________________________________
+  Install with perlbrew / perlenv     (to not require sudo privil.)
+                ________________________________________________ perlbrew
+
+                                               another way is perlenv
+               |                              /
+               | install from  CPAN App::perlbrew <----- allows to have more PERL versions
+               |                                         and switch between them
+               | ~/perl5/perlbrew/bin/perlbrew install perl–5.22.2
+               |
+           --------------------------
+           MORE PERL versions on the same PC
+           --------------------------
+           The already installed PERL version (RedHat, Ubuntu, ...) arrived customized
+           and it's better not to mess it up. The vendor's system perl scripts are tested agaist that.
+           To install a different version download the perl.gz distribution and run its 'Configure'
+           with the required -Dprefix=... (ex -Dprefix=${HOME}/perl_vers/5.10.1/)
+
+           PERL5LIB :      this env variable must be set when I need to add additional dirs besides @INC.
+                           Perl does not require that the PERL5LIB variable be set.
+                           Typically, the variable will not be set to any value.
+                           Anyhow I can set PERL5LIB so that Perl looks for modules in a private directory.
+
+                  % export PERL5LIB=~/my_debug_lib
+                  % mkdir -p ~/my_debug_lib/Net/
+                  % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
+                  % vi ~/my_debug_lib/Net/SMTP.pm
+
+           local::lib     this module can be downloaded and compiled with its option --bootstrap=
+                              $ perl Makefile.PL --bootstrap=~/.perl  <---- set here the dir you want
+                              $ make test && make install
+                          and allows to have an archive of CPAN Modules in the specified dir.
+                          It's behavoìiour is to print the required variables (e.g. PERL5LIB)
+                          and the command is usually:
+
+                              perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl
+
+                          which prints:
+                              export MODULEBUILDRC="/home/you/.perl/lib/perl5/.modulebuildrc" <---- vars used by Module::Build and
+                              export PERL_MM_OPT="INSTALL_BASE=/home/you/.perl/lib/perl5"      <--- ExtUtils::MakeMaker when they need to target
+                              export PERL5LIB="/home/you/.perl/lib/perl5/lib/perl5:$PERL5LIB"       a tree on a MODULE installation
+                              export PATH="/home/you/.perl/lib/perl5/bin:$PATH"
+
+                         you can add those lines in ~/.bashrc as
+                         echo 'eval $(perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl)' >> ~/.bashrc
+
+           perlbrew      to manage multiple Perl installations in your $HOME directory.
+                         They are completely isolated perl universes.
+
+                         Install as   sudo apt-get install perlbrew                 <----- works but as root then
+                         or           \curl -L http://install.perlbrew.pl | bash    <----- works for user
+                                                                                           is installed as
+                                                                                           ~/perl5/perlbrew/bin/perlbrew
+
+
+                         then install a Perl distribution as  perlbrew install perl-5.16.0
+
+                         perlbrew list        to see the installed versions
+
+                         to switch to a Perl version:
+                         perlbrew switch perl-5.16.0  (works for ANY shells: PERMANENT, till a new switch or use)
+                         perlbrew use    perl-5.16.0  (works   temporarily  on current shell only)
+
+
+                   perlbrew <command> [options] [arguments]
+                                |
+                                |
+                               init           Initialize perlbrew environment.
+                               info           Show useful information about the perlbrew installation
+
+                               install        Install perl
+                               uninstall      Uninstall the given installation
+                     ------->  available      List perls available to install
+                               lib            Manage local::lib directories.
+                               alias          Give perl installations a new name
+                               upgrade-perl   Upgrade the current perl
+
+                               list           List perl installations
+                     ------->  list-modules   get the list of modules in the current perl installation
+                               use            Use the specified perl in current shell
+                     ------->  off            Turn off perlbrew in current shell
+                               switch         Permanently use the specified perl as default
+                     ------->  switch-off     Permanently turn off perlbrew (revert to system perl)
+                               exec           exec programs with specified perl enviroments.     <---- ex: perlbrew list-modules | perlbrew exec --with perl-5.16.2@foo-project cpanm
+                                                                                                           To Reinstall all modules of an installation to another one.
+                                                                                                           run   "perlbrew help exec"
+
+                               self-install       Install perlbrew itself under PERLBREW_ROOT/bin
+                     ------->  self-upgrade       Upgrade perlbrew itself.
+
+                               install-patchperl  Install patchperl
+                               install-cpanm      Install cpanm, a friendly companion.
+                               install-multiple   Install multiple versions and flavors of perl
+
+                               download       Download the specified perl distribution tarball.
+                               clean          Purge tarballs and build directories
+                               version        Display version
+                               help           Read more detailed instructions
+
+
+
+
+                ________________________________________________ plenv
+                    1. install plenv
+                               git clone https://github.com/tokuhirom/plenv.git ~/.plenv
+                               put it in $PATH:                                            echo 'export PATH="$HOME/.plenv/bin:$PATH"' >> ~/.bash_profile
+                               add `penv init` in bash_profile                             echo 'eval "$(plenv init -)"' >> ~/.bash_profile
+                               install pre-build                                           git clone https://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
+                               plenv rehash
+
+                    2. install 5.18.2
+                               plenv install 5.18.2 -Dusethreads                           (the  -Dusethreads is required so that then a perl --V will show a x86_64-linux-thread-multi)
+
+                    3. set it as the default one
+                               plenv local 5.18.2
+
+                    4. install cpanm
+                               plenv install-cpanm
+
+                    3. with cpanm install ubic
+                               cpanm Ubic                     (if it fails:  cpanm Ubic --force)
+
+                    3. with ubic see which services are off
+                               ubic status
+
+
+________________________________________________
 
 
 
@@ -1667,7 +1844,7 @@ FILE
         chomp     removes any sequence of end-record-markes (usually \n) to the end
                   and return the number removed. It's common this: chomp($l = <STDIN>);
 --------------------------
-REG EX
+REGEX
 --------------------------
         <STRING>  =~   <PATTERN>       the =~ operator returns
                                          'true'  if <PATTERN> mathes <STRING>
@@ -1728,10 +1905,43 @@ REG EX
                                                           [ ]   # single literal space, stored inside a character class
                                                           world # literal "world"
                                                          /x;
-        //a                    to keep your program from being needlessly exposed to full Unicode
-                               input text can be only considered ASCII
-        //aa                   even more restrictions
-        //s                    even more restrictions
+
+        \d      matches a Unicode digit, not just [0-9] but also other Unicode math digits (ARABIC INDIC symbols)
+        \D      is a negated \d; [^\d]
+        \s      matches a whitespace character, the set [\ \t\r\n\f] and others
+        \S      is a negated \s; [^\s]
+        \w      matches a word character (alphanumeric or _), not just [0-9a-zA-Z_] but also other Unicode digits
+        \W      is a negated \w; [^\w]
+        .       matches any character but "\n"
+        \N      like '.' but it does so regardless of whether the modifier //s is in effect.
+        \b      word anchor, matches a boundary between a word char and a non-word char  /cat\b/;  # matches cat in 'housecat'
+        \b{wb}  light form of \b for natural language (ex. apostrophes are included in words, like in "don't")
+
+
+
+
+        //a              input text can be only considered ASCII (to match inside the ASCII subset of Unicode).
+                         Ex \d in ASCII is only [0-9] while in Uniocde
+                         matches other matemathical digits (ex. ARABIC INDIC)
+                         so use /\d/a
+        //aa             When using ignorecase //i, Perl must consider UPPERCASE Uniocode val
+                         and lowercase Uniocde val. If one val (UPPER or lower) is in ASCII range and
+                         the other is not, when testing with //ia as one macthes, the result is true.
+                         To restrict on these cases use //iaa
+        //s   //m        stand for single-line multi-line and they determine whether a string
+                         is to be treated as one continuous string, or as a set of lines.
+                         They affect 1) how the '.' is defined, 2) where ^ and $ are able to match.
+
+                              .                ^                                   $
+                 //      any != \n        only 1st char of ALL STR    only last char of ALL STR
+                 //s     any (also \n)    only 1st char of ALL STR    only last char of ALL STR
+                 //m     any != \n        any STR start               any STR end or before \n
+                 //sm    any (also \n)    any STR start               any STR end or before \n
+
+                 regardless of all the cases with
+                      \A is always  "only 1st  char of ALL STR"
+                      \Z is always  "only last char of ALL STR (with or without \n)"
+                      \z is always  "only last char of ALL STR (different from  \n)"
 
 
         <PATTER>  in LIST context  : it pulls out all the backreferences as a list
@@ -1756,6 +1966,11 @@ REG EX
                                In regular Perl code   $1                $+{NAME}
 
                                ex. s/(?<alpha>\S+)\s+(?<beta>\S+)/$+{beta} $+{alpha}/
+
+
+
+
+
 --------------------------
 MODULEs / PACKAGEs
 --------------------------
@@ -1940,6 +2155,16 @@ USE
                     The most common way to define an import() method is to inherit it from Exporter.pm
                     Exporter is a Perl core module.
 
+use ....:
+           use File::Basename                 # import and load some functions
+                                                use 'perldoc File::Basename' to see which.
+           use File::Basename qw/ /;          # import without loading ....
+           use File::Basename ();             # ... ALL the functions
+
+           use File::Basename qw/ basename /; # import and load only 1 function (here 'basename'
+
+           my $dirname = File::Basename::dirname $name; # call here a fucntion ('dirname') with full name.
+
 --------------------------
 EXPORTER
 --------------------------
@@ -1953,29 +2178,6 @@ EXPORTER
                  they are exported if import is called with no args:    import()
 
 
-
-________________________________________________
-  Install from source
-
-
-                       I can Install any version of perl in any place xxxxx  and then run it from xxxxx/bin:
-
-                       wget http://www.cpan.org/src/5.0/perl-5.16.2.tar.gz
-                       tar -xzf perl-5.16.2.tar.gz
-                       cd perl-5.16.2
-                       ./Configure -des -Dprefix=$HOME/localperl      <-----the binary will be this at the end:  $HOME/localperl/bin/perl*
-                       make                                                                                           |
-                       make test                                                                                      |
-                       make install  -->------->------------>------------->----------->----------->---------->--------'
-
-________________________________________________
-   downstream distributions
-
-                       The raw source code of Perl is released roughly once a year (plus other minor fixes release intra year)
-                       (with the perldoc)
-
-                       downstream distributions (ex. Strawberry Perl, Active Perl, Citrus Perl) are vendors
-                       that repackage core code with extra modules from Cpan, or even stripping out perldoc
 
 ________________________________________________
    locating modules
@@ -2003,7 +2205,7 @@ ________________________________________________
                                    export PERLLIB
                                    export PERL5LIB  <--- to prefer as it's more readable to remind it's for Perl 5
 
-                             NB. if defined these vars COME FIRST of @INC
+                             NB. if defined, these vars COME FIRST than @INC
                                  as they are added in front of @INC
 
 
@@ -2017,43 +2219,85 @@ ________________________________________________
 
 
 --------------------------
-cpan
+INSTALL MODULES
 --------------------------
-CPAN: Comprehensive Perl Archive Network
+'distributions'                 is the name how 'packages' are called in CPAN
+                                they are a tar.gz file containing 1 or more .pm
+                                in a dir-tree structure
 
-                       The CGI.pm module comes with Perl, so you should be able to read its documentation:
-                                $ perldoc CGI
+'intstall by hand'              download the tar.gz, unpack and run
 
-ExtUtils::MakeMake:      comes with Perl. It handles a module instalation by:
-                     $ perl Makefile.PL
-                 $ make install
+                                               ,-----------------------------------------------Module::Build
+                                          BUILD.PL         or if there is Makefile.PL     <--- ExtUtils::MakeMake: comes with Perl. It handles a module instalation by
 
-                 $ perl Makefile.PL INSTALL_BASE=/Users/fred/lib        # option INSTALL_BASE for another dir
+                                       1. perl Build.PL             1. perl Makefile.PL
+                                       2. ./Build                   2. make
+                                       3. ./Build test              3. make test
+                                       4. ./Build install           4. make install
 
-Module::Build:      another way to install a module:
-                 $ perl Build.PL
-                 $ ./Build install
+                                at step 2. the compilation create the .pm files in a dir .blib
+                                at step 4 (the .pm files are copied into a dir of @INC) that can
+                                be specified as --installdirs option at step 1)
 
-                 $ perl Build.PL --install_base=/Users/fred/lib
+                                    perl Build.PL --install_base=/Users/fred/lib
+                                    perl Makefile.PL PREFIX=/home/me/perl INSTALLDIRS=perl
+                                    perl Makefile.PL INSTALL_BASE=/Users/fred/lib        # option INSTALL_BASE for another dir
+
+
+install in a specific dir:      ex. you are not root and cannot write in system dir
+                                       perl Makefile.PL PREFIX=~/lib LIB=~/lib
+                                change ~/lib to a preferred value
+
+bundle :   A file that some CPAN clients can use to reinstall everything you already have installed,
+           either on the same machine or a different machine
+
+'dependencies'                  the module M, needs module A, which needs B, ....
+                                to avoid installing all by hand, use CPAN client like cpan or newer cpanm
 
 CPAN.pm:            come with Perl to manage when modules depends on others.
                      $ perl -MCPAN -e shell
 
                     It can be a little complicated, so a while ago was written a little script 'cpan'
 
+'cpan'    (Comprehensive Perl Archive Network)
+                                is already available in core perl distribution.
+                                Anyhow you can update as >cpan CPAN
 
-cpan:      The cpan command that comes with Perl can create an autobundle, (a list of everything you
+           The cpan command that comes with Perl can create an autobundle, (a list of everything you
            have installed, along with the version numbers:
                                                              $ cpan -a
 
                                                $ cpan Module::CoreList LWP CGI::Prototype
 
-bundle :   A file that some CPAN clients can use to reinstall everything you already have installed,
-           either on the same machine or a different machine
-
 cpanm:     it doesn’t come with Perl  (download from http://xrl.us/cpanm)
            Once you have cpanm, you simply tell it which module to install:
               $ cpanm DBI WWW::Mechanize\
+
+~/.cpan ~/.cpanm                are the default dir used by cpan and cpanm
+                                to created a repository.
+                                The configuration file is usually stored in
+                                    ~/.cpan/CPAN/MyConfig.pm
+                                and it's something like:
+                                    $CPAN::Config = {
+                                         '...' =>  q[...]   ex 'http_proxy' => q[],
+                                         '...' =>  q[...]      'prefer_installer' => q[MB],
+                                    };
+                                    1;
+prefer_installer                MB means that if there are both a Makefile.PL and a Build.PL
+                                the command 'make' must act as a simple wrapper around the Build.PL
+                                (so actually running always Build.PL)
+
+cpan[1]>                        Once run the command 'cpan', I'm inside the cpan shell
+                                and that is the prompt.
+     -o conf                    command to edit the MyConfig.pm through the cpan shell.
+     -o conf commit             to save the changes
+     -h                         for the help
+     -o conf init               to see all the values (and the meaning!!) of each param.
+                                nb. I see the 'current' value not the 'factory' default.
+                                To see the original value, rename MyConfig.pm,
+                                and run -o conf init like it was the first time.
+
+--------------------------
 
 local::lib:  to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
              (download from CPAN as doesn’t come with Perl)
@@ -2079,17 +2323,11 @@ local::lib:  to keep additional Perl modules in their own directories (having no
       use local::lib;            # to write inside your Perl program so that it finds local modules.
                                  # During compilation, Perl sees that line and loads the module
 
-perldoc:   perldoc File::Basename       # to see information on what the module does.
-use ....:
-           use File::Basename                 # import and load some functions
-                                                use 'perldoc File::Basename' to see which.
-           use File::Basename qw/ /;          # import without loading ....
-           use File::Basename ();             # ... ALL the functions
 
-           use File::Basename qw/ basename /; # import and load only 1 function (here 'basename'
 
-           my $dirname = File::Basename::dirname $name; # call here a fucntion ('dirname') with full name.
 
+
+-------------------------- SOME USEFULL MODULES
 File::Spec
             use File::Spec;
 
@@ -2107,6 +2345,10 @@ CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what 
             }
             print ul( $list_items );
             print end_html();
+
+            The CGI.pm module comes with Perl, so you should be able to read its documentation:
+                                $ perldoc CGI
+
 
 DBI.pm      Once you install DBI , you also have to install a DBD (Database Driver, from the long
             list on CPAN [the version ok for your server]).
@@ -2142,152 +2384,6 @@ Dates and Times
 
             my @units = $duration->in_units( qw(year month day) );
             printf '%d years, %d months, and %d days', @units;       # 23 years, 4 months, and 14 days
-
---------------------------
-INSTALL MODULES
---------------------------
-'distributions'                 is the name how 'packages' are called in CPAN
-                                they are a tar.gz file containing 1 or more .pm
-                                in a dir-tree structure
-
-'intstall by hand'              download the tar.gz, unpack and run
-
-                                          BUILD.PL         or if there is Makefile.PL
-
-                                       1. perl Build.PL             1. perl Makefile.PL
-                                       2. ./Build                   2. make
-                                       3. ./Build test              3. make test
-                                       4. ./Build install           4. make install
-
-                                at step 2. the compilation create the .pm files in a dir .blib
-                                at step 4 (the .pm files are copied into a dir of @INC) that can
-                                be specified as --installdirs option at step 1)
-                                perl Makefile.PL PREFIX=/home/me/perl INSTALLDIRS=perl
-
-
-install in a specific dir:      ex. you are not root and cannot write in system dir
-                                       perl Makefile.PL PREFIX=~/lib LIB=~/lib
-                                change ~/lib to a preferred value
-
-'dependencies'                  the module M, needs module A, which needs B, ....
-                                to avoid installing all by hand, use CPAN client like cpan or newer cpanm
-
-'cpan'                          is already available in core perl distribution.
-                                Anyhow you can update as >cpan CPAN
-
-~/.cpan ~/.cpanm                are the default dir used by cpan and cpanm
-                                to created a repository.
-                                The configuration file is usually stored in
-                                    ~/.cpan/CPAN/MyConfig.pm
-                                and it's something like:
-                                    $CPAN::Config = {
-                                         '...' =>  q[...]   ex 'http_proxy' => q[],
-                                         '...' =>  q[...]      'prefer_installer' => q[MB],
-                                    };
-                                    1;
-prefer_installer                MB means that if there are both a Makefile.PL and a Build.PL
-                                the command 'make' must act as a simple wrapper around the Build.PL
-                                (so actually running always Build.PL)
-
-cpan[1]>                        Once run the command 'cpan', I'm inside the cpan shell
-                                and that is the prompt.
-     -o conf                    command to edit the MyConfig.pm through the cpan shell.
-     -o conf commit             to save the changes
-     -h                         for the help
-     -o conf init               to see all the values (and the meaning!!) of each param.
-                                nb. I see the 'current' value not the 'factory' default.
-                                To see the original value, rename MyConfig.pm,
-                                and run -o conf init like it was the first time.
-
---------------------------
-MORE PERL versions on the same PC
---------------------------
-The already installed PERL version (RedHat, Ubuntu, ...) arrived customized
-and it's better not to mess it up. The vendor's system perl scripts are tested agaist that.
-To install a different version download the perl.gz distribution and run its 'Configure'
-with the required -Dprefix=... (ex -Dprefix=${HOME}/perl_vers/5.10.1/)
-
-PERL5LIB :      this env variable must be set when I need to add additional dirs besides @INC.
-                Perl does not require that the PERL5LIB variable be set.
-                Typically, the variable will not be set to any value.
-                Anyhow I can set PERL5LIB so that Perl looks for modules in a private directory.
-
-       % export PERL5LIB=~/my_debug_lib
-       % mkdir -p ~/my_debug_lib/Net/
-       % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
-       % vi ~/my_debug_lib/Net/SMTP.pm
-
-local::lib     this module can be downloaded and compiled with its option --bootstrap=
-                   $ perl Makefile.PL --bootstrap=~/.perl  <---- set here the dir you want
-                   $ make test && make install
-               and allows to have an archive of CPAN Modules in the specified dir.
-               It's behavoìiour is to print the required variables (e.g. PERL5LIB)
-               and the command is usually:
-
-                   perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl
-
-               which prints:
-                   export MODULEBUILDRC="/home/you/.perl/lib/perl5/.modulebuildrc" <---- vars used by Module::Build and
-                   export PERL_MM_OPT="INSTALL_BASE=/home/you/.perl/lib/perl5"      <--- ExtUtils::MakeMaker when they need to target
-                   export PERL5LIB="/home/you/.perl/lib/perl5/lib/perl5:$PERL5LIB"       a tree on a MODULE installation
-                   export PATH="/home/you/.perl/lib/perl5/bin:$PATH"
-
-              you can add those lines in ~/.bashrc as
-              echo 'eval $(perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl)' >> ~/.bashrc
-
-perlbrew      to manage multiple Perl installations in your $HOME directory.
-              They are completely isolated perl universes.
-
-              Install as   sudo apt-get install perlbrew                 <----- works but as root then
-              or           \curl -L http://install.perlbrew.pl | bash    <----- works for user
-                                                                                is installed as
-                                                                                ~/perl5/perlbrew/bin/perlbrew
-
-
-              then install a Perl distribution as  perlbrew install perl-5.16.0
-
-              perlbrew list        to see the installed versions
-
-              to switch to a Perl version:
-              perlbrew switch perl-5.16.0  (works for ANY shells: PERMANENT, till a new switch or use)
-              perlbrew use    perl-5.16.0  (works   temporarily  on current shell only)
-
-
-        perlbrew <command> [options] [arguments]
-                     |
-                     |
-                    init           Initialize perlbrew environment.
-                    info           Show useful information about the perlbrew installation
-
-                    install        Install perl
-                    uninstall      Uninstall the given installation
-          ------->  available      List perls available to install
-                    lib            Manage local::lib directories.
-                    alias          Give perl installations a new name
-                    upgrade-perl   Upgrade the current perl
-
-                    list           List perl installations
-          ------->  list-modules   get the list of modules in the current perl installation
-                    use            Use the specified perl in current shell
-          ------->  off            Turn off perlbrew in current shell
-                    switch         Permanently use the specified perl as default
-          ------->  switch-off     Permanently turn off perlbrew (revert to system perl)
-                    exec           exec programs with specified perl enviroments.     <---- ex: perlbrew list-modules | perlbrew exec --with perl-5.16.2@foo-project cpanm
-                                                                                                To Reinstall all modules of an installation to another one.
-                                                                                                run   "perlbrew help exec"
-
-                    self-install       Install perlbrew itself under PERLBREW_ROOT/bin
-          ------->  self-upgrade       Upgrade perlbrew itself.
-
-                    install-patchperl  Install patchperl
-                    install-cpanm      Install cpanm, a friendly companion.
-                    install-multiple   Install multiple versions and flavors of perl
-
-                    download       Download the specified perl distribution tarball.
-                    clean          Purge tarballs and build directories
-                    version        Display version
-                    help           Read more detailed instructions
-
 
 
 --------------------------
@@ -2341,62 +2437,18 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 
 
 
+
+------------ redirect debugger output (to a file)
+once in the debugger (at the prompt), set a 'pager':
+ o pager=">my_file"
+ or ">>" to append
+ then execute the command to save with a pipe ahead
+ |c
+ |x %big_var
+
+
+
 ---------- Perl 4ed Oreilly [2012] - PREFACE
-
-   name:  PERL = Practical Extraction and Report Language
-
-   CAMEL:  a camel is a horse designed by a committee
-
-   key features
-        - PORTABLE: more than C / C++ / JAVA / ...
-                    on Windows and Unix
-
-   - WEB SITE: perl.org
-   - CPAN    : cpan.org   (lot of more FAST mirrors: cpan.org/SITES.html)
-                          (both ftp / HTTP                              )
-   - Perl Folks: perlmonks.org.
-
-   - SUPPORTED RELEASES: 2  (the current and the previous)
-               they are even num.
-               ex. If last is 5.18 --> [5.18 + 5.16]
-                                        5.14 is the 1' UN-supported
-
-   - DOWNLOAD + INSTALL
-               Besides a already installed Perl version, others version can
-               be installed and compiled with different options (and where
-               store libs)
-               1. wget http://www.cpan.org/src/5.0/maint.tar.gz
-               2. tar zxf
-               3. sh Configure -des     (assumes DEFAULT answers)
-               4. make test && make install  (requires sudo privil.)
-      to test other vers. without sudo privil.
-      install from CPAN App::perlbrew
-               1. curl –L http://xrl.us/perlbrewinstall | bash      (download + install)
-               2. ~/perl5/perlbrew/bin/perlbrew install perl–5.14.2
-                                         ^        ^         ^
-                                       exec.    inst.    of perl v.5.14
-
-   - DOCUMENTATION  there is a "perldoc"  cmd besides the normal "perl"
-                    try "perldoc perl"
-
-            1  perl         What perl manpages are available        Perlfaq1     General questions about Perl
-            2  perldata     Data types                              Perlfaq2     Obtaining and learning about Perl
-            3  perlsyn      Syntax                                  Perlfaq3     Programming tools
-            4  perlop       Operators and precedence                Perlfaq4     Data manipulation
-            5  perlre       Regular expressions                     Perlfaq5     Files and formats
-            6  perlvar      Predefined variables                    Perlfaq6     Regular expressions
-            7  perlsub      Subroutines                             Perlfaq7     General Perl language issues
-            8  perlfunc     Built-in functions                      Perlfaq8     System interaction
-            9  perlmod      How perl modules work                   Perlfaq9     Networking
-           10  perlref      References
-           11  perlobj      Objects
-           12  perlipc      Interprocess communication
-           13  perlrun      How to run Perl commands, plus switches
-           14  perldebug    Debugging
-           15  perldiag     Diagnostic messages
-
-           “ perl –V:man.dir ”   To see the value to set in MANPATH in the UNIX man doesn't go properly.
-
 ---------- Perl 4ed Oreilly Ch1
            =            <---- a line started with a '='
            =cut               start a pod section up to a '=cut'
@@ -2510,94 +2562,10 @@ IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Ecli
 ---------- Perl 4ed Oreilly Ch22
 ---------- Perl 4ed Oreilly Ch23
 ---------- Perl 4ed Oreilly Ch24
-
-\d      matches a Unicode digit, not just [0-9] but also other Unicode math digits (ARABIC INDIC symbols)
-\D      is a negated \d; [^\d]
-\s      matches a whitespace character, the set [\ \t\r\n\f] and others
-\S      is a negated \s; [^\s]
-\w      matches a word character (alphanumeric or _), not just [0-9a-zA-Z_] but also other Unicode digits
-\W      is a negated \w; [^\w]
-.       matches any character but "\n"
-\N      like '.' but it does so regardless of whether the modifier //s is in effect.
-\b      word anchor, matches a boundary between a word char and a non-word char  /cat\b/;  # matches cat in 'housecat'
-\b{wb}  light form of \b for natural language (ex. apostrophes are included in words, like in "don't")
-
-
 ---------- Perl 4ed Oreilly Ch25
 ---------- Perl 4ed Oreilly Ch26
 ---------- Perl 4ed Oreilly Ch27
 ---------- Perl 4ed Oreilly Ch28
 ---------- Perl 4ed Oreilly Ch29
-
-
-
-//a              to match inside the ASCII subset of Unicode.
-                 Ex \d in ASCII is only [0-9] while in Uniocde
-                 matches other matemathical digits (ex. ARABIC INDIC)
-                 so use /\d/a
-//aa             When using ignorecase //i, Perl must consider UPPERCASE Uniocode val
-                 and lowercase Uniocde val. If one val (UPPER or lower) is in ASCII range and
-                 the other is not, when testing with //ia as one macthes, the result is true.
-                 To restrict on these cases use //iaa
-//s   //m        stand for single-line multi-line and they determine whether a string
-                 is to be treated as one continuous string, or as a set of lines.
-                 They affect 1) how the '.' is defined, 2) where ^ and $ are able to match.
-
-                              .                ^                                   $
-                 //      any != \n        only 1st char of ALL STR    only last char of ALL STR
-                 //s     any (also \n)    only 1st char of ALL STR    only last char of ALL STR
-                 //m     any != \n        any STR start               any STR end or before \n
-                 //sm    any (also \n)    any STR start               any STR end or before \n
-
-                 regardless of all the cases with
-                      \A is always  "only 1st  char of ALL STR"
-                      \Z is always  "only last char of ALL STR (with or without \n)"
-                      \z is always  "only last char of ALL STR (different from  \n)"
-
-
-
-
-                 the ASCII val, it matches
-                 (so matching also
-
-
-
-                 to match inside the ASCII subset of Unicode.
-
-
----------- plenv
-1. install plenv
-           git clone https://github.com/tokuhirom/plenv.git ~/.plenv
-           put it in $PATH:                                            echo 'export PATH="$HOME/.plenv/bin:$PATH"' >> ~/.bash_profile
-           add `penv init` in bash_profile                             echo 'eval "$(plenv init -)"' >> ~/.bash_profile
-           install pre-build                                           git clone https://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
-           plenv rehash
-
-2. install 5.18.2
-           plenv install 5.18.2 -Dusethreads                           (the  -Dusethreads is required so that then a perl --V will show a x86_64-linux-thread-multi)
-
-3. set it as the default one
-           plenv local 5.18.2
-
-4. install cpanm
-           plenv install-cpanm
-
-3. with cpanm install ubic
-           cpanm Ubic                     (if it fails:  cpanm Ubic --force)
-
-3. with ubic see which services are off
-           ubic status
-
-
-
-
-
------------- redirect debugger output (to a file)
-once in the debugger (at the prompt), set a 'pager':
- o pager=">my_file"
- or ">>" to append
- then execute the command to save with a pipe ahead
- |c
- |x %big_var
 
 
