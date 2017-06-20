@@ -276,7 +276,7 @@ ________________________________________________
                               $ perl Makefile.PL --bootstrap=~/.perl  <---- set here the dir you want
                               $ make test && make install
                           and allows to have an archive of CPAN Modules in the specified dir.
-                          It's behavoìiour is to print the required variables (e.g. PERL5LIB)
+                          It's behaviour is to print the required variables (e.g. PERL5LIB)
                           and the command is usually:
 
                               perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl
@@ -2296,7 +2296,138 @@ cpan[1]>                        Once run the command 'cpan', I'm inside the cpan
                                 nb. I see the 'current' value not the 'factory' default.
                                 To see the original value, rename MyConfig.pm,
                                 and run -o conf init like it was the first time.
+--------------------------
 
+CPAN :
+                                                                     recommend
+                                                                     |
+                                                                     |
+                                                         CPAN     (MetaCPAN / searchCPAN)
+                                                      ______________
+                 cpan      (clients)   <--------------|            |   https://metacpan.org/
+                 cpan minus                           | ftp server |   http://search.cpan.org/
+                                                      |____________|
+                   |                                        |
+                   |                                        . ex.  .....tar.gz
+                   |
+                   | (client side)
+                   |
+
+               > cpan  Path::Tiny
+               > cpanm Path::Tiny        <--- cpan minus    (curl -L http://cpanmin.us | perl - App::cpanminus)
+               > ppm install Pathh::Tiny <--- Active Perl
+               > apt-get, brew, yum ...  <--- use package manager to install the module in the 'system' perl
+                                              (requires root)
+                                              ex for Path::Tiny it could be:
+                                                   sudo apt-get install libpath-tiny-perl
+                                                   sudo yum install perl-Path-Tiny
+                                                   yum install 'perl(Path::Tiny)'".
+
+                                              NB. the package man. solution install pre-packaged modules
+                                                    - cons: they are older of the state of art of the module
+                                                    - pros: I don't install modules on the system perl
+                                                            by-passing the package man. and making it unaware of what is there
+                                                            so having an unstable  `system` perl
+
+
+
+
+
+            CPAN-server : - just an ftp server
+                          - the storage files-structure is usefull to authors more than users
+
+                          - modules are released as 'DISTRIBUTION' (tar.gz or .zip)
+
+                          - authors:
+                                  - authors must create an account on 'PAUSE' [Perl Authors Upload Server] (http://pause.perl.org/)
+
+                                  - authors can discuss their modules on prepan  http://prepan.org/
+                                    to find if there are already similar modules, and
+                                    to receive a code review.
+
+                                  - usually they store their code in a Version Control System (like gitHub)
+                                    to allow people to see the changes, and to integrate easily contributions.
+                                    The link to this VCS is then provided.
+                                    If it's properly provided in the META file, MetaCPAN can retrieve a lot
+                                    of information in automatic way.
+                                    (the syntax of all the fields is defined in CPAN::Meta::Spec)
+
+                          - users:
+                                  - users are interested to the 1 or more .pm inside the distribution
+
+
+
+                          - local::lib
+                                  - installing this module
+                                    ex. cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+                                    It allows perl to find modules in private dirs
+
+                          - cpanm
+                                  - cpanm --force   AA::bb        install running the tests but don't care of their possible errors
+                                  - cpanm --notest  AA::bb        install without running the tests.
+
+
+                          - create your own package
+                                 1. write the code (ex. DDD:Mmm.pm)
+                                 2. create a file tree like this
+                                                                  dir-xxx/
+                                                                    lib/DDD/Mmm.pm
+                                                                    Makefile.PL
+                                                                    MANIFEST  <---- the list of files packaged.
+                                                                                    cat MANIFEST:
+                                                                                                     MANIFEST
+                                                                                                     Makefile.PL
+                                                                                                     lib/DDD/Mmm.pm
+                                                                                                     META.yml      <-- automatically created
+                                                                                                     META.json     <-- automatically created
+
+
+                                                                    Makefile.PL
+                                                                                    use strict;
+                                                                                    use warnings;
+
+                                                                                    use 5.008;
+
+                                                                                    use ExtUtils::MakeMaker;
+                                                                                    WriteMakefile
+                                                                                    (
+                                                                                      NAME         => 'dir-xxx',    <---- the name I want to the end as dir-xxx.tar.gz
+                                                                                      VERSION_FROM => 'lib/DDD/Mmm.pm', <-- it is got from the var $VERSION that so
+                                                                                    );                                      must be present in DDD/Mmm.pm:
+
+                                                                                                                            package DDD::Mmm;
+                                                                                                                            use strict;
+                                                                                                                            use warnings;
+
+                                                                                                                            our $VERSION = '0.01';
+
+                                 3. cd dir-xxx/  &&   make   &&   make dist
+                                 4. if my module 'use' others ex. 'use XXX:aaa;' these become PREREQUISITES
+                                                                                      ...
+                                                                                      VERSION_FROM => 'lib/DDD/Mmm.pm',
+                                                                                      PREREQ_PM    => {
+                                                                                            'XXX:aaa' => '2.00',
+                                                                                      },        |             |__ min version
+                                                                                    );        mod name
+
+                                 5. optionally add unit tests (people expect they are there)
+                                    5.1  dir-xxx/
+                                              ...
+                                              t/01_basic.t       <--- this usually uses Test::More (ex .use Test::More tests => 2;)
+                                    5.2  update the MANIFEST to list the new dir/file
+                                    5.3. update the Makefile.PL to specify the dependency (Test::More is required before running the tests)
+                                                                                      ...
+                                                                                      VERSION_FROM => 'lib/DDD/Mmm.pm',
+                                                                                      PREREQ_PM    => {
+                                                                                            'XXX:aaa' => '2.00',
+                                                                                      },
+                                                                                      BUILD_REQUIRES => {  <---------- only recent version of ExtUtils::MakeMaker; allows this
+                                                                                            'Test::More' => '0.47'     so an alternative is put all in PREREQ_PM
+                                                                                      },
+                                                                                    );
+
+                                    5.3. cd dir-xxx/  &&   make   &&   make test   &  make dist
+                                                                          ^
 --------------------------
 
 local::lib:  to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
@@ -2393,58 +2524,62 @@ DEBUGGERS
             perl5db.pl
 
 
-strict / warnings:    use use use  use them:                % perl -Mstrict -Mwarnings program
+    -first basic debugging starts with
 
-print:
-       print "The value of var before is [$var]\n"     # use braces to limit values of a var (to see also spaces)
+            use warnings;
+            use strict;
+            use diagnostics;
 
-       warn "The value of var after is [$var]";        # use var to have also line no
-                                                       # The value of var before is [...] at program.pl line 123
+            % perl -Mstrict -Mwarnings program
 
-       Carp                                            # alternative warn and die for modules
+    -print:
+            print "The value of var before is [$var]\n"     # use braces to limit values of a var (to see also spaces)
 
-       use Data::Dumper qw(Dumper);                    # use Data::Dumper to print Objects and limit with < .. >
-       warn "The value of the hash is <\n" . Dumper( \%hash ) . "\n>";
+            warn "The value of var after is [$var]";        # use var to have also line no
+                                                            # The value of var before is [...] at program.pl line 123
 
-Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to inspect args and ret val.
+            Carp                                            # alternative warn and die for modules
 
-       use Hook::LexWrap qw(wrap);
-       my $n = shift @ARGV;
-       my $m = $ARGV[0];
-       wrap add,
-           pre  => sub { print "I got the arguments: [@_]\n" },
-           post => sub { print "The return value is going to be $_[-1]\n"
-       ;
-       print "The sum of $n and $m is " . add( $n, $n ) . "\n";    # <----- this is the error ( passing 2 n)
-       sub add {
-                  my( $n, $m ) = @_;
-                  my $sum = $n + $m;
-                  return $sum;
-       }
+            use Data::Dumper qw(Dumper);                    # use Data::Dumper to print Objects and limit with < .. >
+            warn "The value of the hash is <\n" . Dumper( \%hash ) . "\n>";
 
-perl -d :    normal perl debugger (% perl -d add_numbers.pl 5 6)
+    -Hook::LexWrap::wrap :    Encapsulates a function in a wrapper and allows to inspect args and ret val.
 
+            use Hook::LexWrap qw(wrap);
+            my $n = shift @ARGV;
+            my $m = $ARGV[0];
+            wrap add,
+                pre  => sub { print "I got the arguments: [@_]\n" },
+                post => sub { print "The return value is going to be $_[-1]\n"
+            ;
+            print "The sum of $n and $m is " . add( $n, $n ) . "\n";    # <----- this is the error ( passing 2 n)
+            sub add {
+                       my( $n, $m ) = @_;
+                       my $sum = $n + $m;
+                       return $sum;
+            }
 
-Alternative Debuggers :    Are all under Devel::
-                        - Devel::Trace                % perl -d:Trace program.pl
-                        - Devel::ptkdb  <--- GREAT    % perl -d:ptkdb program.pl
-                        - Devel::ebug                 % perl -d:ebug  program.pl
-                        - Devel::hdb    mini web server (its web interface, lets me debug on a remote server)
-
-IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Eclipse.
-           -  Komodo     (started on Microsoft. Now available on Solaris, Linux, and Mac)
-                          handles Perl as well as other languages, (Tcl, Ruby, PHP, Python)
+    -perl -d :    normal perl debugger (% perl -d add_numbers.pl 5 6)
 
 
+    -Alternative Debuggers :    Are all under Devel::
+                             - Devel::Trace                % perl -d:Trace program.pl
+                             - Devel::ptkdb  <--- GREAT    % perl -d:ptkdb program.pl
+                             - Devel::ebug                 % perl -d:ebug  program.pl
+                             - Devel::hdb    mini web server (its web interface, lets me debug on a remote server)
+
+     IDE        -  EPIC       (Eclipse Perl Integration) is the Perl plug-in for Eclipse.
+                -  Komodo     (started on Microsoft. Now available on Solaris, Linux, and Mac)
+                               handles Perl as well as other languages, (Tcl, Ruby, PHP, Python)
 
 
------------- redirect debugger output (to a file)
-once in the debugger (at the prompt), set a 'pager':
- o pager=">my_file"
- or ">>" to append
- then execute the command to save with a pipe ahead
- |c
- |x %big_var
+    ------------ redirect debugger output (to a file)
+    once in the debugger (at the prompt), set a 'pager':
+     o pager=">my_file"
+     or ">>" to append
+     then execute the command to save with a pipe ahead
+     |c
+     |x %big_var
 
 
 
