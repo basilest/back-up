@@ -14,14 +14,16 @@ write my own built-in and keep into the running shell
                  more exactly  "$*" is the IFS expansion of all positional parameters, $1 $2 $3 ....
  $@              same as $* but each arg is quoted
                  more exactly it's an array-like construct of all positional parameters, {$1, $2, $3 ...}
- $_              last cmd name or if it had options last option
+
+ $?              EXIT STATUS of most recent foreground pipeline
 
  $$              PID of the current shell (not subshell).
- $_              most recent parameter
-                 (or at startup, the abs path of the command to start the current shell immediately after startup).
- $?              EXIT STATUS of most recent foreground pipeline
  $!              PID of the most recent background command.
- $-              current options set for the shell.  (ex of output--> himBH)
+
+ $_              last cmd name or if it had options last option  (ex du >/dev/null   $_:du    ls -al  $_:-al)
+                 (or at startup, the abs path of the command to start the current shell immediately after startup).
+ $-              Flags passed to script (ex in a shell the flags passed ex --> himBH)
+                 but actually doesn't work well in bash (it comes from ksh)
 
 
 $a               better to use ${a}
@@ -1003,6 +1005,60 @@ ____________________________________________________________
                 -type f  : regular file
                 -print0  : print filename ending with 'null char' instaed of '\n'
                            this can so be processed with the -0 opt f xargs
+____________________________________________________________
+read    /   readarray
+____________________________________________________________
+
+read  . a builtin.
+      . it reads from <stdio>
+  -u  . it reads from that file descriptor
+      . it reads 1 line  at a time (so 2 read in a row, reads 2 lines, 3 reads 3 lines ....)
+
+      . The line is loaded into any var specified ex    while read -r line;
+        If more vars are specified in each of them are loaded the 'words' (token separated by the IFS)
+        of the line (last var takes all the remaining)
+               ex.1   while read -r w1 w2 w3;
+
+               ex.2   OLD_IFS=$IFS
+                      IFS=":" read -r col1 col2 col3 <<< "hello::world"          # col1=hello col2=  col3=world
+                      IFS=$OLD_IFS
+
+
+      . If no var is specified the line is loaded into the var $REPLY
+        ex. while read -r; do line="$REPLY"; cd $line ...
+
+
+  -a  . If a single var 'array' is passed (option -a)   ex. while read -r -a var;
+        then all the 'words' are loaded as elements of the array
+        while read -r -a var ;do echo ${var[1]} ${var[2]} ${var[0]}; done < cc.txt      # n.b ${var[1]} and not $var[1]
+
+
+
+  -r  . -r raw input (disables the \ (so it is considered a normal char, not meant to escape next char or for line-continuation))
+        IT MUST BE ALWAYS USED
+
+  -d  . specify a line-delimiter different from \n to read 'lines'
+
+  -n  . it reads max n chars (maybe less if delimiter (\n or -d) is found first)    read -n 209 var<cc.txt; echo "[$var]";
+  -N  . it reads n chars (regardless if found delimiters)                           read -N 209 var<cc.txt; echo "[$var]";
+
+  -p  . prompt (print a string before reading)  ex. read -p "give me a number: " -r num; echo $num;
+
+  -t  . add a timer on waiting                  ex. read -t 5 -p "give me a number: " -r num; echo $num;
+
+
+readarray   . it loads all the lines of a file into an array
+              cat input.txt
+                  1 2 3
+                  4 5 6
+                  7 8 9
+              readarray var < input.txt
+                 echo $var       # 1 2 3
+                 echo ${var[0]}  # 1 2 3
+                 echo ${var[1]}  # 4 5 6
+                 echo "${var[@]}"  1 2 3
+                                   4 5 6
+                                   7 8 9
 ____________________________________________________________
 VARIABLES
 ____________________________________________________________
