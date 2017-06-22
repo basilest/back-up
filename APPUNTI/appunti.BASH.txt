@@ -43,11 +43,19 @@ ____________________________________________________________
 
 Brackets
 
-     1) if [ CONDITION ]             [ is like an external command (test) even if 'builtin'.
-                                     that is why a space after [ is required
-                                     as it is a command by its own, it manages parameters with its own syntax  (uses -a -o  for and or)
-                                     ( ) can be used to group with -a or -o but
-                                     must be escaped [ \( .... \) -a ...
+     1) if [ CONDITION ]             '> test' is a Unix command-line prog to evaluate conditional expressions.
+                                     It was turned into a shell builtin in 1981 with UNIX System III and at the same time
+                                     made available with alias [
+                                     as it is like a command by its own so:
+
+                                       . that is why a space after [ is required (if an 'optional ']' is put, it also requires a space before)
+
+                                       . it manages parameters with its own syntax  (uses -a -o  for and or)
+                                         ( ) can be used to group with -a or -o but must be escaped [ \( .... \) -a ...
+
+                                       . as it is a command (not like [[ that is a keyword) file-name substit. takes place
+
+
      2) if [[ CONDITION ]]           is a shell 'keyword' to test (uses && ||  and also regex =~)
                                      so should be always the preferred way.
      3) Array[1]=element1            Array initialization
@@ -1411,19 +1419,146 @@ ____________________________________________________________
 
 
  _______________________
- _______ test and [ ]
+ _______ test   or [      or   [ ]
 
-         said that if ONLY CHECKs EXIT STATUSES, a syntax improvement
-         is done by 'test' builtin:
+         said that 'if' ONLY CHECKs EXIT STATUSES, a syntax improvement
+         is done by ithe 'test' builtin:
 
-              test xxx                  (or alias [ xxx ]  <-- spaces required)
-              test string1 = string2    (or alias [ string1 = string2 ])
+              test xxx                  (or [ xxx ]  <-- spaces required)
+              test string1 = string2    (or [ string1 = string2 ])
 
-         they just transform the included BOOLEAN xxx CONDITION into an EXIT STATUS
+         Exit status:
+                 . 0   the expression is true
+                 . 1   the expression is false
+                 > 1   error
+
+
+         So test transforms the included CONDITION into an EXIT STATUS
          ex.
              > [ "" ]       echo $?   -->  1
              > [ " " ]      echo $?   -->  0
 
+
+      _______________________________________________________________________
+        [     [[ ]]
+      _______________________________________________________________________
+
+                             _______ [[ ]]
+
+                                     The [[ ]] construct is the more versatile Bash version of [ ].
+                                     This is the extended test command, adopted from ksh88.
+                                     No filename expansion or word splitting takes place between [[ ]],
+                                     but there is parameter expansion and command substitution.
+                                     Using [[ ]] rather than [ ] can prevent many logic errors.
+                                     For example, && || < and > work in [[ ]] despite giving error in [ ]
+                                     Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]]
+
+                        _________________________________
+                        \_________________ test on FILES
+
+        Y      Y        -e FileName       - exists
+        Y      Y        -f FileName       - regular file
+        Y      Y        -d FileName       - directory
+        Y      Y        -s FileName       - size greater than 0
+        ~      Y        -S                - socket
+
+        Y      Y        -b Filename       - block special file
+        Y      Y        -c FileName       - character special file
+        Y      Y        -t FileDescriptor - FileDescriptor is open and associated with a terminal
+        Y      Y                               This test option may be used to check whether the stdin [ -t 0 ]
+        Y      Y                               or stdout [ -t 1 ] in a given script is a terminal.
+
+        Y      Y        -g FileName       - set-group-id (sgid)is set
+        Y      Y                               If a dir, then a file created within that dir
+        Y      Y                               belongs to the group that owns the dir,
+        Y      Y                               not necessarily to the group of the user who created the file.
+        Y      Y        -u FileName       - set-user-id (suid) is set (an s in its permissions)
+        Y      Y        -k FileName       - sticky bit is set
+
+        Y      Y        -h FileName       - symbolic link
+        Y      Y        -L FileName       - symbolic link
+
+        Y      Y        -p FileName       - named pipe (FIFO)
+
+                        ___________________ permissions (by the current process/ the user running the test):
+        Y      Y        -r FileName       - readable
+        Y      Y        -w FileName       - writable. However, the FileName will not be writable on a read-only file system even if test indicates true
+        Y      Y        -x FileName       - executable. (If a dir can cd into the dir).
+
+                        ___________________ extensions
+        Y      Y        -nt                f1 -nt f2     file f1 is newer than f2
+        Y      Y        -ot                f1 -ot f2     file f1 is older than f2
+        Y      Y        -ef                f1 -ef f2     files f1 and f2 are hard links to the same file
+
+        ~      Y        -O            you are owner of file
+        ~      Y        -G            group-id of file same as yours
+        ~      Y        -N            file modified since it was last read
+
+                        _________________________________
+                        \_________________ test on STRINGS
+
+                                                            Using an unquoted string normally works, however, this is an unsafe practice.
+                                                            Always quote a string.
+        Y      Y        -z                 string is null, (zero length)     String='' if [ -z "$String" ] then     #   is true
+        Y      Y        -n                 string is not null.
+        Y      Y        =                  if [ "$a" = "$b" ] Note the whitespace    if [ "$a"="$b" ] is not equivalent
+        Y      Y        ==                 The == behaves differently within [[]] []
+                                                  [[ $a == z* ]]    # True if $a starts with a "z" (pattern matching).
+                                                  [  $a == z* ]     # File globbing and word splitting take place.
+
+                                                  [[ $a == "z*" ]]  # True if $a is equal to z*    (literal matching).
+                                                  [ "$a" == "z*" ]  # True if $a is equal to z*    (literal matching).
+
+        Y      Y        !=                 if [ "$a" != "$b" ]  uses pattern matching within a [[ ... ]]
+        Y      Y        <  >               less than / greater than (in ASCII alphabetical order)
+                                                  if [[ "$a" < "$b" ]]
+                                                  if [ "$a" \< "$b" ]     Note that the "<" needs to be escaped within a [ ]
+
+                        _________________________________
+                        \_________________ test on INTEGERS
+
+        Y      Y        -eq                equal to                        if [ "$a" -eq "$b" ]
+        Y      Y        -ne                not equal to                    if [ "$a" -ne "$b" ]
+        Y      Y        -gt                greater than                    if [ "$a" -gt "$b" ]
+        Y      Y        -ge                greater than or equal to        if [ "$a" -ge "$b" ]
+        Y      Y        -lt                less than                       if [ "$a" -lt "$b" ]
+        Y      Y        -le                less than or equal to           if [ "$a" -le "$b" ]
+        ~      ~         <                 less than                (within double parentheses)       (("$a" < "$b"))
+        ~      ~         <=                less than or equal to    (within double parentheses)       (("$a" <= "$b"))
+        ~      ~         >                 greater than             (within double parentheses)       (("$a" > "$b"))
+        ~      ~         >=                greater than or equal to (within double parentheses)       (("$a" >= "$b"))
+
+
+                        _________________________________
+                        \_________________ not / and / or
+
+        Y      ~         -a                exp1 -a exp2 returns true if both  are true
+        Y      ~         -o                exp1 -o exp2 returns true if either is true
+        Y      Y         &&                returns 0 (success) only if both conditions are true.
+                                                 a=$(( 0 && 1 )) ; echo $a     # 0
+                                                 (( 0 && 1 )) ;    echo $?     # 1
+        Y      Y         ||                returns 0 (success) only if either  is true.
+        Y      Y         !                 not
+        Y      Y         (  )              parentheses ( ) can be used to group
+                                                 but they muust be escaped with [  ]       \( \) -a \( \)
+
+                        _________________________________
+                        \_________________ short circuit
+                                     Caution	:
+                                     # Apparently && and || "short-circuit" while -a and -o do not.
+
+
+                                     [ 1 -eq 1 ] && [ -n "`echo true 1>&2`" ]   # true
+                                     [ 1 -eq 2 ] && [ -n "`echo true 1>&2`" ]   # (no output) # 1st condition is false so the second is not looked at
+                                     [ 1 -eq 2   -a   -n "`echo true 1>&2`" ]   # true        # 1st condition is false still the second  is looked at
+
+
+
+
+         Remeber once again that Bash uses for each test condition EXIT STATUSes
+
+ _______________________
+ _______ IF SYNTAX
 
          if test condition1       # using a form with the 'test' keyword
          if [ condition1 ]        # usign a form with [ alias for test keyword
@@ -1451,203 +1586,22 @@ ____________________________________________________________
 
          Following an if, neither the test nor the brackets [ ]  [[ ]] are strictly necessary.
 
-         if [ 0 ]
-         then         # 0 is true.
-         ......
-         if [ 1 ]
-         then          # 1 is true.
-         ......
-         if [ -1 ]
-         then          # -1 is true.
-         ......
-         if [ ]        # NULL (empty condition)
-         then
-         else          # NULL is false.
-         ......
-         xyz=          # Initialized, but set to null value.
-         if [ -n "$xyz" ]
-         then
-         else          # Null variable is false
-         ......
-         if [ xyz ]    # string
-         then          # Random string is true.
-         ......
-         if [ $xyz ]   # $xyz an uninitialized variable.
-         then
-         else          # Uninitialized variable is false.
-         ......
-         if cmp a b &> /dev/null
-         then echo "Files a and b are identical."
-         ......
-         if grep -q Bash file
-           then echo "File contains at least one occurrence of Bash."
+         if [ 0 ]   then        # 0  is true.
+         if [ 1 ]   then        # 1  is true.
+         if [ -1 ]  then        # -1 is true.
+         if [ xyz ] then        # Random string is true.
+         if [ ]     then else   # NULL (empty condition)  is false.
+                                  ex:
+                                      xyz=          # Initialized, but set to null value.
+
+                                      if [ -n "$xyz" ]    if [ $xyz ]
+                                      then                then
+                                      else                else          # Null variable is false
+
+         if cmp a b &> /dev/null  then echo "Files a and b are identical."
+         if grep -q Bash file     then echo "File contains at least one occurrence of Bash."
          ____________________________________________________________
 
-         ____________________________________________________________
-         TEST ON INTEGER
-         ____________________________________________________________
-
-         -eq     is equal to                        if [ "$a" -eq "$b" ]
-         -ne     is not equal to                    if [ "$a" -ne "$b" ]
-         -gt     is greater than                    if [ "$a" -gt "$b" ]
-         -ge     is greater than or equal to        if [ "$a" -ge "$b" ]
-         -lt     is less than                       if [ "$a" -lt "$b" ]
-         -le     is less than or equal to           if [ "$a" -le "$b" ]
-         <       is less than                (within double parentheses)       (("$a" < "$b"))
-         <=      is less than or equal to    (within double parentheses)       (("$a" <= "$b"))
-         >       is greater than             (within double parentheses)       (("$a" > "$b"))
-         >=      is greater than or equal to (within double parentheses)       (("$a" >= "$b"))
-
-         ____________________________________________________________
-         TEST ON STRING
-         ____________________________________________________________
-
-         Using an unquoted string normally works, however, this is an unsafe practice.
-         Always quote a string.
-
-         =       is equal to       if [ "$a" = "$b" ]
-                                   Note the whitespace    if [ "$a"="$b" ] is not equivalent
-         ==      is equal to       if [ "$a" == "$b" ]   This is a synonym for =.
-                                   The == behaves differently within [[]] []
-
-                                       [[ $a == z* ]]   # True if $a starts with a "z" (pattern matching).
-                                       [[ $a == "z*" ]] # True if $a is equal to z*    (literal matching).
-
-                                       [ $a == z* ]     # File globbing and word splitting take place.
-                                       [ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
-
-         !=      is not equal to   if [ "$a" != "$b" ]
-                 This operator uses pattern matching within a [[ ... ]] construct.
-         <       is less than, in ASCII alphabetical order
-                  if [[ "$a" < "$b" ]]
-                  if [ "$a" \< "$b" ]            Note that the "<" needs to be escaped within a [ ]
-         >       is greater than, in ASCII alphabetical order
-                  if [[ "$a" > "$b" ]]
-                  if [ "$a" \> "$b" ]
-         -z      string is null, (zero length)
-
-                       String=''   # Zero-length ("null") string variable.
-
-                       if [ -z "$String" ]
-                       then
-                         echo "\$String is null."
-                       else
-                         echo "\$String is NOT null."
-                       fi     # $String is null.
-
-         -n      string is not null.
-
-         ____________________________________________________________
-         TEST ON FILES
-         ____________________________________________________________
-
-         file=/etc/passwd
-
-         if [[ -e $file ]]
-         then
-           echo "Password file exists."
-         fi
-
-         -e            file exists
-         -a            file exists (like -e. "deprecated" and its use discouraged).
-         -f            file is a regular file (not a directory or device file)
-         -s            file is not zero size
-         -d            file is a directory
-         -b            file is a block device
-         -c            file is a character device
-         -p            file is a pipe
-         -h            file is a symbolic link
-         -L            file is a symbolic link
-         -S            file is a socket
-         -t            file (descriptor) is associated with a terminal device
-                       This test option may be used to check whether the stdin [ -t 0 ]
-                       or stdout [ -t 1 ] in a given script is a terminal.
-         -r            file has read permission    (for the user running the test)
-         -w            file has write permission   (for the user running the test)
-         -x            file has execute permission (for the user running the test)
-         -g            set-group-id (sgid) flag set on file or directory
-                       If a directory has the sgid flag set, then a file created within that directory
-                       belongs to the group that owns the directory,
-                       not necessarily to the group of the user who created the file.
-         -u            set-user-id (suid) flag set on file    (an s in its permissions)
-                       An executable owned by root with set-user-id flag set runs with
-                       root privileges, even when an ordinary user invokes it.
-                       This is useful for executables (such as pppd and cdrecord)
-                       that need to access system hardware.
-                       Lacking the suid flag, these binaries could not be invoked by a non-root user.
-         	           -rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
-
-         -k            sticky bit set  (a t in its permissions)
-                       the save-text-mode flag permission.
-                          If set on a file: that file will be kept in cache memory, for quicker access.
-                          If set on a directory: restricts write permission.
-                          Olny the owner of a file can alter or delete files in that directory.
-         	           drwxrwxrwt    7 root         1024 May 19 21:26 tmp/
-                       On Linux systems, the sticky bit is no longer used for files, only on directories.
-         -O            you are owner of file
-         -G            group-id of file same as yours
-         -N            file modified since it was last read
-
-         f1 -nt f2     file f1 is newer than f2
-         f1 -ot f2     file f1 is older than f2
-         f1 -ef f2     files f1 and f2 are hard links to the same file
-
-
-         _______ [[ ]]
-
-                 The [[ ]] construct is the more versatile Bash version of [ ].
-                 This is the extended test command, adopted from ksh88.
-                 No filename expansion or word splitting takes place between [[ ]],
-                 but there is parameter expansion and command substitution.
-                 Using [[ ]] rather than [ ] can prevent many logic errors.
-                 For example, && || < and > work in [[ ]] despite giving error in [ ]
-                 Arithmetic evaluation of octal / hexadecimal constants takes place automatically in [[  ]]
-
-         ____________________________________________________________
-         TEST WITH   AND  OR   -a  -o    &&  ||
-         ____________________________________________________________
-
-         Tests conditions can be chained with boolena opertors NOT (!)   AND   OR
-         Remeber once again that what Bash uses for each test condition is its EXIT STATUS
-
-
-         -a      logical and          exp1 -a exp2 returns true if both  are true.
-         -o      logical or           exp1 -o exp2 returns true if either is true.
-
-         The -o and -a work with test command or within []
-
-         It can also be used the form &&   ||
-         && and || work also within [[ ]]       [[ condition1 && condition2 ]]
-
-         if [ "$expr1" -a "$expr2" ]
-         then
-           echo "Both expr1 and expr2 are true."
-         else
-           echo "Either expr1 or expr2 is false."
-         fi
-
-              &&   (AND logical operator).
-                    returns 0 (success) only if both conditions are true.
-
-              a=$(( 0 && 1 )) ; echo $a     # 0
-              (( 0 && 1 )) ;    echo $?     # 1
-
-
-         Caution	:
-
-         [ 1 -eq 1 ] && [ -n "`echo true 1>&2`" ]   # true
-         [ 1 -eq 2 ] && [ -n "`echo true 1>&2`" ]   # (no output)
-         # ^^^^^^^ False condition. So far, everything as expected.
-
-         # However ...
-         [ 1 -eq 2 -a -n "`echo true 1>&2`" ]       # true
-         # ^^^^^^^ False condition. So, why "true" output?
-
-         # Is it because both condition clauses within brackets evaluate?
-         [[ 1 -eq 2 && -n "`echo true 1>&2`" ]]     # (no output)
-         # No, that's not it.
-
-         # Apparently && and || "short-circuit" while -a and -o do not.
 
  _______________________
  _______ FOR
