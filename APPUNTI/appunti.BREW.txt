@@ -1,7 +1,40 @@
 brew ls                      see all packages
 brew ls --versions           see also the versions (nb. for a same package more versions can be installed, in the same time
-                             ex          ansible 1.9.3 2.2.0.0_1 2.3.1.0
-                                                 ^     ^         ^
+                             ex          ansible  1.9.3  2.2.0.0_1  2.3.1.0
+                                                  ^      ^          ^
+brew ls zsh                  see info of a specific package. ex:
+
+                                 /usr/local/Cellar/zsh/5.3.1_1/bin/zsh
+                                 /usr/local/Cellar/zsh/5.3.1_1/bin/zsh-5.3.1
+                                 /usr/local/Cellar/zsh/5.3.1_1/lib/zsh/ (36 files)
+                                 /usr/local/Cellar/zsh/5.3.1_1/share/info/ (7 files)
+                                 /usr/local/Cellar/zsh/5.3.1_1/share/man/ (17 files)
+                                 /usr/local/Cellar/zsh/5.3.1_1/share/zsh/ (1134 files)
+
+brew info zsh                see more info of a specific package. ex:
+                                $  brew info zsh
+                                   zsh: stable 5.3.1 (bottled), HEAD
+                                   UNIX shell (command interpreter)
+                                   https://www.zsh.org/
+                                   /usr/local/Cellar/zsh/5.3.1_1 (1,202 files, 8.6MB) *
+                                     Poured from bottle on 2017-06-22 at 17:46:40
+                                   From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/zsh.rb
+                                   ==> Dependencies
+                                   Build: texi2html ✘
+                                   Required: gdbm ✔, pcre ✔
+                                   Optional: texi2html ✘
+                                   ==> Options
+                                   --with-texi2html
+                                           Build HTML documentation
+                                   --with-unicode9
+                                           Build with Unicode 9 character width support
+                                   --without-etcdir
+                                           Disable the reading of Zsh rc files in /etc
+                                   --HEAD
+                                           Install HEAD version
+
+
+
 brew cleanup                 to remove old packahes versions
                               ex             Removing: /usr/local/Cellar/ansible/1.9.3... (4,939 files, 48.7MB)
                                              Removing: /usr/local/Cellar/ansible/2.2.0.0_1... (10,877 files, 109.8MB)

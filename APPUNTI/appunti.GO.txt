@@ -97,7 +97,7 @@ go build -gcflags "-m -m"
 
 ___________________________________________________________________________ PACKAGES
 
-      package main   <--------- Every Go program is made up of packages.
+      package main   <--------- Every Go program is made of packages.
                                 Programs start running in package main.
 
       import (       <---  this is called 'factored' layout (the suggested one)
@@ -429,7 +429,7 @@ ___________________________________________________________________________ ARRA
                                                        . its value
 
                           for i    := range s {    I can skip the value if I don't care of it
-                          for _, v := range s {    I can skip the index with '_' (if I wanted only the value)
+                          for _, v := range s {    I can skip the index with '_' (if I only wanted the value)
 
 ___________________________________________________________________________ MAPS
 
@@ -473,7 +473,7 @@ ___________________________________________________________________________ METH
        . methods must be in the same package (file)
          where the type of that receiver is defined
 
-       . (v  Vertex) is a 'VALUE'-receiver  (the method works on a copy of it)
+       . (v  Vertex) is a 'VALUE'-receiver   (the method works on a copy of it)
          (v *Vertex) is a 'POINTER'-receiver (the method works on the same arg)
 
          So normally we see 'POINTER'-receiver  (in both cases the call is   v.xxxx)
@@ -515,11 +515,11 @@ ___________________________________________________________________________ INTE
                              with nothing inside: var i interface{}
                              are used by code that handles values of unknown type.
 
-       . (xxxx,  type)        An interface under the covers, can be thought of as a pair of
+       . (xxxx,  type)        An interface under the cover, can be thought as a pair of
                                     'active' type
                                     xxxx to call (for that active type)
 
-                              it's actually like a map or hash, so that it's easy to understand
+                              it is actually like a map or hash, so that it's easy to understand
                               the same possible syntax
                                        v := x.(t1)    assign the xxxx of t1 to v
                                        v := x.(t2)    assign the xxxx of t2 to v
@@ -529,7 +529,7 @@ ___________________________________________________________________________ INTE
                                        v := x.(t1)
                               triggers a panic exception
                               so like for maps, there is the
-                                       v, ok := x.(t1)      where the ok would be now false
+                                       v, ok := x.(t1)      where the ok would be false
 
        . switch i.(type)
                                 switch v := i.(type) {        <------- nb. 'type' is a GO keyword
@@ -559,8 +559,8 @@ ___________________________________________________________________________ erro
                Error() string
                }
 
-         so each time a call a function xxxx     v,y := xxxx ( ...)
-         the y is init with th error (string) value
+         so each time I call a function xxxx     v,y := xxxx ( ...)
+         the y is init with the error (string) value
          and should be tested with the logic
               = nil    --> ok
              != nil    --> ERROR
@@ -914,9 +914,9 @@ ___________________________________________________________________________
 
 
 _________________________
-created at Google in 2007 by 
-        Robert Griesemer, 
-        Rob Pike, 
+created at Google in 2007 by
+        Robert Griesemer,
+        Rob Pike,
         Ken Thompson  <---- the same of UNIX & B-lang (father of C)
 
 
@@ -926,13 +926,13 @@ created at Google in 2007 by
 _________________________FEATURES
 
       . compiled           :  there are 2 main compilers:
-                                 . gc  :  Google's Go compiler. 
-                                                 open source 
-                                                 targets various platforms 
-                                                       Linux, 
-                                                       OS X, 
-                                                       Windows, 
-                                                       various BSD and Unix 
+                                 . gc  :  Google's Go compiler.
+                                                 open source
+                                                 targets various platforms
+                                                       Linux,
+                                                       OS X,
+                                                       Windows,
+                                                       various BSD and Unix
                                                        mobile devices/ smartphones
 
                                  . gccgo : a GCC frontend.
@@ -942,7 +942,7 @@ _________________________FEATURES
       . garbage collector
       . memory safety
       . concurrent programming
-      . structural type  (in contrast with 
+      . structural type  (in contrast with
                                nominative systems
                                duck typing
                          )

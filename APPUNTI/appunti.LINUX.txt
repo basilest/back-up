@@ -1647,10 +1647,10 @@ __  chmod
 
 
  SUID / SGID    's' can be present instead of 'x' in u (called SUID) or g (called SGID)
-                SUID: 
+                SUID:
                     It means that the file/folder is always executed (by whoever user runs it)
                     with the priviledges of his owner. (In case of root, with root priviledges)
-                SGID: 
+                SGID:
                    - on a file: that file has rights like that group
                    - on a dir : any file or subdir created inside has rights like that group
 
@@ -1672,6 +1672,8 @@ __  chmod
                 chmod o+t   or  chmod 1...  (ex 1755)      ... ... r-t
 
                 a T means the 'x' was not set, so fix it with (chmod o+x)
+
+                Once If set on a file: that file will be kept in cache memory, for quicker access.
 
 
 umask           the umask command (ex in .bashrc: umask 022) set a value that
@@ -1925,10 +1927,10 @@ __  inodes
                tmpfs          1011292     34 1011258    1% /run/user/1000
           ______________________
 
-           
+
           ______________________ INODE
           An inode is the C-struct that can be seen with a   "man 2 stat"    (stat(2))
-          
+
 
            struct stat {
                dev_t     st_dev;         /* ID of device containing file */
@@ -1966,13 +1968,13 @@ __  inodes
           the same or different names, just because what matters is its inode-num           |
           A same file present in 2 or more dirs it's said to have HARD-LINKS to it          |
           The total number of HARD-LINKS to a file is store in its inode -------------------'
-                                                                                            
+
           ______________________ ls -i   / find -inum
 
               ls -i          allows to see inode num
               find -inum     allows to search based on inodes
                              ex to delete a file with file a strange name:
-                             
+
                                    find -inum 328356  -delete
 
               debugfs        command that enters a private "shell" of commands
@@ -1982,7 +1984,7 @@ __  inodes
                                   mount |  grep home ---> /dev/sda8
                                   sudo debugfs /dev/sda8
 
-                                  logdump -i <328356>         if I now the inode of the deleted file 
+                                  logdump -i <328356>         if I now the inode of the deleted file
                                                               (n.b.  also the '<'  '>' required)
                                   logdump  lsdel              if I don't know the inode
 
@@ -1996,22 +1998,22 @@ __  inodes
 
 
           ______________________ "."     ".."
-                                     
-                                                          
-              | inode-num-.  |     "."              | 
+
+
+              | inode-num-.  |     "."              |
               | inode-num-.. |     ".."             |
 
               note that any dir stores 2 entries  to have inodes of itslef and its parent.
               That means that as any dir "xxxxx" is usually a child of a parent (pppp/xxxxx), its inode is listed
               twice:
               ________________________________                _____________________________
-              | inode-num-x  |     "xxxxx"    |               | inode-num-x  |     "."     | 
+              | inode-num-x  |     "xxxxx"    |               | inode-num-x  |     "."     |
               ________________________________                _____________________________
-                  in the parent                                      in itself     
-             
+                  in the parent                                      in itself
+
              So:
                  (HARD-LINK number of a dir)  >=  2
-                                                                                             
+
 ____________________
 __  find
 

@@ -1073,7 +1073,7 @@ ____________________________________________________________
      a=some_value   # SET var a to some_value     ($a is DEFINED and NOT NULL)
      a=             # SET var a but leave it NULL ($a is DEFINED but NULL)
      unset a        # delete a var                ($a is NOT DEFINED)
-     $a        #the value. A better use is ${a}
+     $a        #the value. better to use  "${a}" (with the quotes)
      ${a}      to be used when var & strings must be concatenated:
                   my_id=${USER}-on-${HOSTNAME}   #stiv-on-stiv-GP60-2PE
                   PATH=${PATH}:/opt/bin
@@ -1094,6 +1094,18 @@ ____________________________________________________________
 
    Bash does not understand floating point arithmetic. It treats numbers containing
    a decimal point as strings.
+
+   NB. the spaces inside the var values:
+       Do not think as var as string like in perl or other languages.
+       A="a b" -->   $A is not 1 string but 2 !!
+       This can generate confusion in scripts like
+
+             FLAGS='--date=short --pretty="%h %s"'  <--- many spaces
+             CMD="git log ${FLAGS}"
+             $CMD                                   <--- not work    eval $CMD  <--- WORK!
+
+
+
 
 
      -------------- declare / readonly

@@ -39,8 +39,44 @@
 
      ___________________________________________________________
 
-            mojo generate lite_app    xxxxx.pl       <----- create from scratch for me  a xxxxx.pl   file  (in current dir)
-                                                            my first mojo application
+            $ mojo generate lite_app    xxxxx.pl       <----- create from scratch for me  a xxxxx.pl   file  (in current dir)
+                                                            my first mojo (lite) application
+     ___________________________________________________________
+            $ mojo generate --help
+                                    Usage: APPLICATION generate GENERATOR [OPTIONS]
+
+                                      mojo generate app
+                                      mojo generate lite_app
+
+                                    Generators:
+                                     app       Generate Mojolicious application directory structure
+                                     lite_app  Generate Mojolicious::Lite application
+                                     makefile  Generate "Makefile.PL"
+                                     plugin    Generate Mojolicious plugin directory structure
+
+                                    See 'APPLICATION generate help GENERATOR' for more information on a specific
+                                    generator.
+     ___________________________________________________________
+            $  mojo generate app Basil2         <------------- create from scratch for me  a full file-tree:
+                                                               my first mojo (full Mojolicious) application
+                                             [mkdir] basil2/script
+                                             [write] basil2/script/basil2
+                                             [chmod] basil2/script/basil2 744
+                                             [mkdir] basil2/lib
+                                             [write] basil2/lib/Basil2.pm
+                                             [exist] basil2
+                                             [write] basil2/basil2.conf
+                                             [mkdir] basil2/lib/Basil2/Controller
+                                             [write] basil2/lib/Basil2/Controller/Example.pm
+                                             [mkdir] basil2/t
+                                             [write] basil2/t/basic.t
+                                             [mkdir] basil2/public
+                                             [write] basil2/public/index.html
+                                             [mkdir] basil2/templates/layouts
+                                             [write] basil2/templates/layouts/default.html.ep
+                                             [mkdir] basil2/templates/example
+                                             [write] basil2/templates/example/welcome.html.ep
+
      ___________________________________________________________
 
 
@@ -86,7 +122,7 @@
                                                                            [Wed Apr 19 10:07:26 2017] [info] Listening at "http://*:3000"
                                                                            Server available at http://127.0.0.1:3000
 
-            So if I go in the browser to that address I see the page  (i.e  Hello World for 'hello_world.pl')
+            So if I go in the browser to http://127.0.0.1:3000 I see the page  (i.e  Hello World for 'hello_world.pl')
 
             xxxxx.pl daemon  -l http://*:8666        <---- does the same but I can specify my own port
 
