@@ -197,6 +197,12 @@ db.getCollection('company_profile').update({"_id":comp_no},
            db.cccc.update(doc)         # like 'save()' but while the save() substitutes in full the doc
                                          the update() changes only the fields provided
 
+                                         Since version 2.2. there is also the 'multi-update'
+                                         that is the update with a 4th arg boolean flag ('true' multi update)
+                                         If multi is set to true, the update() updates all docs that match the <query>
+                                         ex. db.cccc.update({}, {$set: {lastLookedAt: Date.now() / 1000}}, { multi: true })
+
+
            db.cccc.drop()              # To delete cccc
 
            db.ccc111.aggregate([ { $match: {} }, { $out: "ccc222" } ])      # to copy a collection ccc111 into ccc222
