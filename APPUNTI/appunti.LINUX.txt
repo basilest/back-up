@@ -1,3 +1,21 @@
+--------------------------------------------------- USER INFO
+user info (like name, password, default shell ....)
+     can be changed with the commands:
+             chpass    <---- but the 'passwd' is more powerful (chpass utility cannot change the user's password on Open Directory systems)
+             chfn
+             chsh
+--------------------------------------------------- SHELLS
+cat /etc/shells       <---- to see all the shells available
+                    ex:
+                        /bin/bash
+                        /bin/csh
+                        /bin/ksh       <--- ex to change to this as default: chsh -s /bin/ksh
+                        /bin/sh                                               ^
+                        /bin/tcsh
+                        /bin/zsh
+
+to change default shell (in user info)  chsh
+
 --------------------------------------------------- known files & places
 
 
