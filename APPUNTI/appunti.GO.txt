@@ -4,96 +4,127 @@ go build -gcflags "-m -m"
 
 
 
+_________________ INSTALL WITH PKG MANAGER
+
 .   GO can be installed with a package manager (homebrew, apt-get, ..)
     and i.e. on a mac it goes in /usr/local/go/bin/go
 
-    or as it is open source:  git@github.com:golang/go.git
-    it can also be compiled from source:
+.   a package manager has always stable but older things, so once you have
+    the (old) GO binary, I can even compile the latest GO version 
+
+    because GO is open source (and written in GO itself):  git@github.com:golang/go.git
+    I can compile from source:
 
                       . clone the repo in ~
                         that will create dir: ~/go
 
-            .   anyhow the source code is nowadays written in GO itself
-                so to compile it, there are different options:
-
-
-                1 option is to download the last stable old version of GO
-                  still written in C and compile it (with gcc)
+_________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
 
                   https://storage.googleapis.com/golang/go1.4-bootstrap-20161024.tar.gz
 
-                      mkdir ~/go.bin/
-                      cd ~/go.bin/ && wget ......tar.gz && tar xzvf ....
+     1.  mkdir ~/go.bin/
+     2.  cd ~/go.bin/ && wget ......tar.gz && tar xzvf ....
 
-                  in this way you have the GO (old) compiler: ~/go.bin/bin/go
+         in this way you have the GO (old) compiler: ~/go.bin/bin/go
 
 
-                  1.a. compile the source in ~/go/src (with $GOROOT_BOOTSTRAP=~/go.bin
-                       no other env vars are required now, when complete it is usefull to set
-                       GOPATH (while GOROOT since some version of GO is nomore to be set
-                       but builtin into GO (type: "go env" to see it)) and update PATH to find them )
+     3.  compile the source in ~/go/src (with $GOROOT_BOOTSTRAP=~/go.bin
+
+         no other env vars are required now, once completed, it is usefull to set
+                       GOPATH 
+          (while GOROOT since some version of GO is nomore to be set
+           but builtin into GO (
+                                type: "go env" to see it
+                                type: "go env GOPATH"  to see the value of $GOPATH
+
+           )
+     4. cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir 
+                                   ./bin where it will create 2 binaries (go / gofmt)
+                                   (gofmt is the formatter: use it on the command line as  > gofmt a.go)
+ 
+     5. update PATH to find them (~/.bash_profile):
+
+                               export GOPATH="$HOME/go"
+                               export PATH="$PATH:$GOPATH/bin"
+                               export PATH=$PATH:$(go env GOPATH)/bin
+
+     6. recompile (with the new)
                        having the executable of the new compiler (compiled with the old)
                        that is located in ~/go/bin
                            now $GOROOT_BOOTSTRAP is no more  needed
-                           while in ~/.bash_profile add:
-                               export GOPATH="$HOME/go"
-                               export PATH="$PATH:$GOPATH/bin"
-
-
-                       recompile again (having the executable compiled with the new code)
+                       
                        nb. it's maybe  better to save the previous go (mv ~/go/bin/go ~/go/bin/go.prev)
                            as at each rebuilt it's overwritten
 
-                2 install with a package manager, then follow 1.a
-
-                compiling the code
-                you need
 
 
-                     2. install a binary version of GO
+___________________________________________________________________________ GOROOT
+___________________________________________________________________________ GOPATH (the 'Workspace')
+
+    "GOPATH" is the path where ALL the go repos (both my code, and remote repo) are put 
+             (It's not the path where GO binary is installed)
+
+    the GOPATH dir, has 3 subdir
+            
+               bin/
+               pkg/
+               src/  <----- here I put my code and any "go get github.com/...."
+                            is downloaded into here
+
+    $ go build    <--- this command only checks the compilation but not create the binary in bin
+    $ go install  <--- this command creates the proper subdirs in bin/ and pkg/
+
+
+
+    ex:
+          src/github.com/user/hello/main.go
+              ^^^^^^^^^^^^^^^^^^^^^   ^
+                                |     the code
+                                |
+                                identify the name of the excutable ('hello')
+                                ex.
+                                     go install github.com/user/hello      <--- I can run from everywhere
+                                                                                because $GOPATH is defined
+
+                                     go install                            <--- even just this after a
+                                                                                cd src/github.com/user/hello
+
+                   the 'install' will create in bin/
+                   the binary:       bin/hello*
+
+                   If GOPATH is in $PATH, from everywhere I can run
+                             > hello
+
+
+
+
+___________________________________________________________________________ 1 GO PROG OF 1 ONLY FILE
+
+             Any prog written in go, starts (like in C) from the 'main'
+
+             1 prog (executable xxxx*) will so have 1 of the possible structures below
+
+                 src/........./xxxx/main.go   <---- the source code starts with  "package main"
+                 src/........./xxxx/xxxx.go   <----      "       "    "     "        "     "
 
 
 
 
 
+___________________________________________________________________________ 1 GO PROG OF 2+ FILES
 
+             If a prog (xxxx*) is made by 2 or more files there will be the main like above
+             so any of this (but package "main")
 
+                 src/........./xxxx/main.go   
+                 src/........./xxxx/xxxx.go   
+             
+             while any other source file will be something like
 
+                 src/........./yyyy/yyyy.go   <---- the source code starts with  "package yyyy"
+                                                    and in the main I can include yyyy like
+                                                    import "...../yyyy"
 
-1) create a dir ~/go.bootstrap
-2) download there the go1.4-bootstrap-20161024.tar.gz and untar  (it will create a 'root' dir ./go)
-3) optionally mv everything up one level (get rid of './go' dir)
-4) cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
-                                                                                                        (gofmt is the formatter: use it on the command line
-                                                                                                         as  > gofmt a.go)
-5) so now we have the go compiler: (the old written in C: version 1.4)
-6) clone the GO source code:
-           6.a    mkdir ~/go.src
-           6.b    cd ~/go.src  && git clone git@github.com:golang/go.git
-           6.c    optionally get rid of the 'root' './go' dir created and move all up one level.
-7) to compile the new GO source with the GO1.4 compiler is only required to define 1 env var:
-   export GOROOT_BOOTSTRAP="$HOME/go.bootstrap"    (it must point to the 'tree' (so up 1 level the ./bin/go executable)
-8) add the path to find the executable: export PATH=$PATH:$GOROOT_BOOTSTRAP/bin
-9) now we can compile:
-           9.a    cd ~/go.src/src && ./all.bash  (it will compile with the go1.4, it will create the dir ./bin where it will create 2 binaries (go / gofmt)
-
-10) both GOROOT_BOOTSTRAP and PATH have been set at the command line.
-    (even the full ~/go.bootstrap dir is no more required)
-    The setting to write in bash_profile is PATH:$PATH:~/go.src/bin   (<-- this will find our last version of go)
-
-
-    The problem to compile GO with a go compiler, is that the go compiler must be
-    identified as a
-         FULL-tree located by the var GOROOT_BOOTSTRAP
-    this means that if GOROOT_BOOTSTRAP = xxxxx than there will be
-                     xxxxx / bin / <---- with the executables
-                     xxxxx / src    with the code
-                     xxxxx / pkg    with the related import
-
-    The new GO tree with the new code (ex in the dir ~/yyyyy
-    ~/yyyyy/src   ~/yyyyy/pkg)
-    will be compiled with cd ~/yyyyy/src && ~/.all.bash
-    with the go compiler located in ~/xxxxx/bin   <--- this must be in $PATH
 
 ___________________________________________________________________________ PACKAGES
 
@@ -632,7 +663,49 @@ ___________________________________________________________________________ CHAN
            a 'range c' function allows to loop through a channel as it ends when c is closed
 
                        for i := range c {
-___________________________________________________________________________
+___________________________________________________________________________ TEST
+
+ Go has a lightweight "test" framework 
+
+			import "testing"
+
+a test file is a file ending _test.go 
+
+function names are    TestXXX 
+function arg   are  (t *testing.T). 
+The code inside those functions must be any, but to be usefull somewhere
+there must be a call to 
+                        t.Error
+                        t.Fail
+
+The framework runs each such function; 
+If any t.Error or t.Fail, is executed the test is considered to have failed.
+
+                      package stringutil
+                      
+                      import "testing"
+                      
+                      func TestReverse(t *testing.T) {
+                      	cases := []struct {
+                      		in, want string     <--- anonymous type for these
+                      	}{                                              /
+                      		{"Hello, world", "dlrow ,olleH"},     <----'
+                      		{"Hello, 世界", "界世 ,olleH"},
+                      		{"", ""},
+                      	}
+                      	for _, c := range cases {
+                      		got := Reverse(c.in)
+                      		if got != c.want {
+                      			t.Errorf("Reverse(%q) == %q, want %q", c.in, got, c.want)
+                      		}
+                      	}
+                      }
+
+run as:
+
+$ go test github.com/user/stringutil
+ok  	github.com/user/stringutil 0.165s
+
 ___________________________________________________________________________
 ___________________________________________________________________________
 ___________________________________________________________________________

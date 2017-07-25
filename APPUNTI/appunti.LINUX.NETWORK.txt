@@ -334,6 +334,20 @@ ip addr show wlan0      to see link speed
               valid_lft forever preferred_lft forever
            inet6 fe80::323a:64ff:fed4:c137/64 scope link
               valid_lft forever preferred_lft forever
+
+
+
+
+
+
+old commands:
+                arp
+                ifconfig
+                route
+
+
+
+
 -------------------------------
      nslookup
 -------------------------------
