@@ -11,7 +11,7 @@
 
 ...       ends a doc   (3 dots) // this is OPTIONAL
 
-  #       comment
+  #       <--- a comment
   SAME INDENTETION:    the fields of my 'sctuture' are identified just because they are indented with the same
                        num of spaces ((<Tab> NEVER allowed))
 
@@ -35,6 +35,7 @@
                         foo: "somebody said I should put a colon here: so I did"
                                                                      ^
           compact forms:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line among '{' '}' separated by ','
+                                         ^                     ^                 ^
 
   |  >              to wrap long lines  (the > NOT include \n)
 
@@ -49,7 +50,6 @@
                                 despite appearances
 
 
-                                 ^                     ^                 ^
 
   ?                A question mark indicate a complex-mapping-KEY.
 
@@ -122,7 +122,7 @@
                                         <<: *defaults                               | I reuse it here
                                         mail:                                       | but since field 'mail' is down 1 level
                                           sender_name: sender_dev                   | it will not work the merge on that
-                                      production:            ________________________ and the final result is sender_name: sender_dev (only 1 entry, I miss the defaults' 4)
+                                      production:            ________________________ and the final result is sender_name: sender_dev (only 1 entry, I miss the others 3)
                                         <<: *defaults                               |
                                         output_location: prod_location              |
                                         mail:                                       |

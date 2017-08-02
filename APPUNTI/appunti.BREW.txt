@@ -35,6 +35,40 @@ brew info zsh                see more info of a specific package. ex:
 
 
 
-brew cleanup                 to remove old packahes versions
+brew outdated                to see info of outdated files
+                             ex        automake
+                                       byobu
+                                       faac
+                                       ghostscript
+                                       groovy
+                                       libpng
+                                       libtiff
+                                       mongodb
+                                       parallel
+                                       pcre
+                                       python
+                                       sqlite
+
+
+brew cleanup                 to remove old packages versions
                               ex             Removing: /usr/local/Cellar/ansible/1.9.3... (4,939 files, 48.7MB)
                                              Removing: /usr/local/Cellar/ansible/2.2.0.0_1... (10,877 files, 109.8MB)
+
+
+
+
+brew update                  to update Homebrew itself  (and all its internal dictionaries (formulae))
+                             This happens via git
+
+
+brew upgrade                 to upgrade old packages
+
+
+
+
+
+
+
+
+
+

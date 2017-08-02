@@ -265,7 +265,7 @@ to change default shell (in user info)  chsh
 
                       passphrase : when generating a key, if no passphrase is specified the key (ex. id_rsa file)
                                    is in clear text. With a passphrase it is encripted, so even if an hacker can access my id_rsa
-                                   it's not yet usable.
+                                   it's not usable.
 
     - 'ssh-agent':     it can be started to run in background,
 
