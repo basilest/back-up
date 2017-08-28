@@ -40,7 +40,7 @@ to change default shell (in user info)  chsh
                     -q      msg-queues
                     -s      semaphores-array
 
-            ex:
+            ex: ipcs -s
 
             ------ Semaphore Arrays --------
             key        semid      owner      perms      nsems
@@ -56,6 +56,11 @@ to change default shell (in user info)  chsh
 
                 there is the version UPPERCASE (-M -Q -S)
                 where I can submit the 'key' instead of the 'id'
+
+     ex. to remove all:
+                for whatever in `ipcs -s | awk '{print $2}'`; do ipcrm -s $whatever;
+                done
+
 
 --------------------------------------------------- / OpenSSL
        library (written in C) containing the implementation of the protocols

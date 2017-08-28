@@ -82,8 +82,8 @@ linux command to dump the arp cache: arp
 -------------------------------
 NB. There are more than 1.
     commands are:
-       netstat -rn 
-       route -n     only displays information in the main routing tabl
+       netstat -rn
+       route -n     only displays information in the main routing table
        ip route     to access ALL routing feature of the Kernel
 
 
@@ -349,7 +349,7 @@ old commands:
 
 
 -------------------------------
-     nslookup
+     nslookup                 (it uses /etc/resolv.conf)
 -------------------------------
 
 nslookup google.com
@@ -401,6 +401,77 @@ nslookup google.com
                Address: 62.253.72.157
                Name:    www.google.com
                Address: 62.253.72.163
+
+nslookup gives information from a hostname
+
+    nslookup [-option] [host_to_search | -] [dns_server_name]
+
+
+    with no parameters or with 1st param '-' it enters
+    into INTERACTIVE mode, whose commands are:
+
+       set k[=val]
+                    all    dumps the names for 'k' ---------------------------------.
+                           ___________________________________________________      |
+                            > set all                                               |
+                            Default server: 172.16.7.7                              |
+                            Address: 172.16.7.7#53                                  |
+                            Default server: 172.16.7.17                             |
+                            Address: 172.16.7.17#53                                 |
+                                                                                    |
+                            Set options:                                            |
+                              novc                  nodebug         nod2            |
+                              search                recurse                    <----'
+                              timeout = 0           retry = 3       port = 53
+                              querytype = A         class = IN
+                              srchlist = internal.ch
+                           ___________________________________________________
+
+
+    class=value         (Default = IN; abbreviation = cl)
+                        Changes the query class (values:
+
+                                                  IN      the Internet class
+                                                  CH      the Chaos class
+                                                  HS      the Hesiod class
+                                                  ANY     wildcard)
+
+    [no]debug           (Default = nodebug; abbreviation = [no]deb)
+                        on/off the display of the full response packet (and
+                        any intermediate response packets)
+
+
+    [no]d2              (Default = nod2)
+                        Turns debugging mode on or off.
+                        This displays more about what nslookup is doing.
+
+
+    [no]search          (Default = search)
+                        If the lookup request contains at least one period but doesn't end with a trailing period,
+                        append the domain names in the domain search list to the request until an answer is received.
+
+
+    port=value          (Default = 53; abbreviation = po)
+                        Change default port
+
+
+    querytype=value     (Default = A; abbreviations = q, ty)
+    type=value          Change the type of query.
+
+
+
+    [no]recurse         (Default = recurse; abbreviation = [no]rec)
+                        query other servers
+
+
+    retry=number        number of retries
+    timeout=number      Change the initial timeout interval for waiting for a reply to number seconds.
+    [no]vc              (Default = novc)   Always use a virtual circuit when sending requests to the server.
+
+
+    [no]fail            (Default = nofail)
+                        Try the next nameserver if response = SERVFAIL
+
 
 -------------------------------
      ethtool

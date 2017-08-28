@@ -23,8 +23,8 @@
                |           var o=db.company_profile.find   ({"_id":"LP006400"}) <---- NOT OK    |
                |                                                                                |
                |    findOne: returns a doc, so the var can be used over and over                |
-               |    find   : returns a cursor, so it can be for 1 statement, then the var seems |
-               |             vanished (as the cursor has been used one and should be reloaded)  |
+               |    find   : returns a cursor, so it's ok for 1 statement, then the var seems   |
+               |             to vanish (as the cursor has been used once and should be reloaded)|
                |________________________________________________________________________________|
 
 -----------------------------------
