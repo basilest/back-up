@@ -29,7 +29,7 @@ __________________________________
 __________________________________
  2. BUG Tracking
     - Bugzilla                : mainly for BUGS,
-                               but is feature rich to do other SW devel. phases
+                               but it's feature rich to do other SW devel. phases
                                even IT ticketing system
     - JIRA       - (Altassian): for BUGS / Story
     - Confluence - (Altassian); for collaborative documentation
@@ -97,12 +97,6 @@ __________________________________
                                  Not contains crawling and HTML parsing functionality
 
                             - extends 'Lucene' for crawling and HTML parsing functionality
-
-                            https://github.com/companieshouse/chl-database/pull/60
-                            https://github.com/companieshouse/chl-database/pull/59
-
-
-
 
 
 

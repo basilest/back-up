@@ -40,7 +40,7 @@ to change default shell (in user info)  chsh
                     -q      msg-queues
                     -s      semaphores-array
 
-            ex:
+            ex: ipcs -s
 
             ------ Semaphore Arrays --------
             key        semid      owner      perms      nsems
@@ -56,6 +56,11 @@ to change default shell (in user info)  chsh
 
                 there is the version UPPERCASE (-M -Q -S)
                 where I can submit the 'key' instead of the 'id'
+
+     ex. to remove all:
+                for whatever in `ipcs -s | awk '{print $2}'`; do ipcrm -s $whatever;
+                done
+
 
 --------------------------------------------------- / OpenSSL
        library (written in C) containing the implementation of the protocols
@@ -265,7 +270,7 @@ to change default shell (in user info)  chsh
 
                       passphrase : when generating a key, if no passphrase is specified the key (ex. id_rsa file)
                                    is in clear text. With a passphrase it is encripted, so even if an hacker can access my id_rsa
-                                   it's not yet usable.
+                                   it's not usable.
 
     - 'ssh-agent':     it can be started to run in background,
 

@@ -63,6 +63,82 @@
   | gc.pruneExpire
   | git push -u origin master
   |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  | git cherry-pick 62ecb3            'cherry-pick' allows to pick up 1 commit (from everywhere / any branch) and insert
+  |                                   the change after the HEAD of the branch checked-out.
+  |                                   A commit usually is a diff + other info (ex. references to ancestor). cherry-pick removes
+  |                                   the 'admin' info and keeping only the 'diff' section applies that to my HEAD.
+  |
+  |                                   If there are no conflicts, everything is done automatically
+  |                                   If there are conflits:
+  |                                                         usual way: change the files + git add
+  |                                                       + git cherry-pick --continue
+  |                                   If there are conflits and I want to exit: git cherry-pick --abort
+  |
+  | git rebase --onto master 111AAA^  'rebase' is a way to cherry-pick a range of commit in a branch from 111AAA^ ---> ...
+  |
+  |                                   git rebase -i C       interactive way to change commit C (maybe remove it completely)
+  |                                                         'interactive' because it opens the ditor where the 'rebase commands' (p,r,e,s,f,x)
+  |                                                         can be submitted (as soon as the editor is saved & closed)
+  |
+  |                                                         ex. g rebase -i d9465bb
+  |
+  |                                                                               1 pick d9465bb second C
+  |                                                                               2 pick 62c11d1 third C
+  |                                                                               3 pick 862a23c fourth C
+  |                                                                               4 pick a0459b6 5th C
+  |                                                                               5 pick 87148f2 6th C
+  |                                                                               6
+  |                                                                               7 # Rebase 11389fd..87148f2 onto 11389fd
+  |                                                                               8 #
+  |                                                                               9 # Commands:
+  |                                                                              10 #  p, pick = use commit
+  |                                                                              11 #  r, reword = use commit, but edit the commit message
+  |                                                                              12 #  e, edit = use commit, but stop for amending
+  |                                                                              13 #  s, squash = use commit, but meld into previous commit
+  |                                                                              14 #  f, fixup = like "squash", but discard this commit's log message
+  |                                                                              15 #  x, exec = run command (the rest of the line) using shell
+  |                                                                              16 #
+  |                                                                              17 # These lines can be re-ordered; they are executed from top to bottom.
+  |                                                                              18 #
+  |                                                                              19 # If you remove a line here THAT COMMIT WILL BE LOST.
+  |                                                                              20 #
+  |                                                                              21 # However, if you remove everything, the rebase will be aborted.
+  |                                                                              22 #
+  |                                                                              23 # Note that empty commits are commented out
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
+  |
   |________________________________________________________________________________________________________________________________________
 
 1. Getting Started                          | git --version
@@ -891,7 +967,7 @@
                                             | git log --author                            edited by
                                             | git log --committer                         committed by
                                             | git log --grep                              only commits where grep find somethig !!!!! very useful (ex --grep="added*"
-                                            | git log --grep   -i                         ignore case
+                                            | git log --grep   -i                         ignore case   (ex --grep 'psc' -i)
                                             | git log --grep   --grep   --grep            if more --grep are specified then:
                                             |                                             default output is any Commit with at least 1 --grep matching
                                             | git log --grep   --grep   --all-match       adding --all-match flag only Commits matching ALL greps
@@ -1195,7 +1271,7 @@
                                             | git checkout .                     do the same for all files of current dir
                                             | git checkout dirx                  do the same for all files of  dirx
                                             |
-                                            | git checkout -m dev       to undo a merge
+                                            | git checkout -m dev       to undo a merge     (or to exit a running merge:   git merge --abort)
                                             | git fetch + git checkout xxxxxx a.txt   to get a specific file from the remote repo
                                             |
                                             |

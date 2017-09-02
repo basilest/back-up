@@ -223,7 +223,7 @@ ________________________________________________
        enhanced distributions wrt standard one:
           - ActivePerl  free Win/Mac/Linux   $ Unix (Solaris..)
           - Strawberry       Win only
-          - Citrus      free  Win/Mac/Linux  bundles wxPer to distribute app with GUI
+          - Citrus      free Win/Mac/Linux  bundles wxPer to distribute app with GUI
 
 
 ---------
@@ -370,6 +370,11 @@ ________________________________________________
                                ubic status
 
 
+________________________________________________ perldoc
+
+         -l               displays the file for the Module
+                          ex. perldoc -l Carp      --> /System/Library/Perl/5.18/Carp.pm
+                              perldoc -l Net::SMTP --> /System/Library/Perl/5.18/Net/SMTP.pm
 ________________________________________________
 
 

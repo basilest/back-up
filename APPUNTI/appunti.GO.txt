@@ -10,7 +10,7 @@ _________________ INSTALL WITH PKG MANAGER
     and i.e. on a mac it goes in /usr/local/go/bin/go
 
 .   a package manager has always stable but older things, so once you have
-    the (old) GO binary, I can even compile the latest GO version 
+    the (old) GO binary, I can even compile the latest GO version
 
     because GO is open source (and written in GO itself):  git@github.com:golang/go.git
     I can compile from source:
@@ -31,17 +31,17 @@ _________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
      3.  compile the source in ~/go/src (with $GOROOT_BOOTSTRAP=~/go.bin
 
          no other env vars are required now, once completed, it is usefull to set
-                       GOPATH 
+                       GOPATH
           (while GOROOT since some version of GO is nomore to be set
            but builtin into GO (
                                 type: "go env" to see it
                                 type: "go env GOPATH"  to see the value of $GOPATH
 
            )
-     4. cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir 
+     4. cd ./src && ./all.bash    (it will compile with the gcc, it will create the dir
                                    ./bin where it will create 2 binaries (go / gofmt)
                                    (gofmt is the formatter: use it on the command line as  > gofmt a.go)
- 
+
      5. update PATH to find them (~/.bash_profile):
 
                                export GOPATH="$HOME/go"
@@ -52,7 +52,7 @@ _________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
                        having the executable of the new compiler (compiled with the old)
                        that is located in ~/go/bin
                            now $GOROOT_BOOTSTRAP is no more  needed
-                       
+
                        nb. it's maybe  better to save the previous go (mv ~/go/bin/go ~/go/bin/go.prev)
                            as at each rebuilt it's overwritten
 
@@ -61,11 +61,11 @@ _________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
 ___________________________________________________________________________ GOROOT
 ___________________________________________________________________________ GOPATH (the 'Workspace')
 
-    "GOPATH" is the path where ALL the go repos (both my code, and remote repo) are put 
+    "GOPATH" is the path where ALL the go repos (both my code, and remote repo) are put
              (It's not the path where GO binary is installed)
 
     the GOPATH dir, has 3 subdir
-            
+
                bin/
                pkg/
                src/  <----- here I put my code and any "go get github.com/...."
@@ -116,9 +116,9 @@ ___________________________________________________________________________ 1 GO
              If a prog (xxxx*) is made by 2 or more files there will be the main like above
              so any of this (but package "main")
 
-                 src/........./xxxx/main.go   
-                 src/........./xxxx/xxxx.go   
-             
+                 src/........./xxxx/main.go
+                 src/........./xxxx/xxxx.go
+
              while any other source file will be something like
 
                  src/........./yyyy/yyyy.go   <---- the source code starts with  "package yyyy"
@@ -627,10 +627,18 @@ ___________________________________________________________________________ GORO
           The sync package provides useful primitives,
           although you won't need them much in Go as there are other primitives.
 
+       .  goroutines communicate via channels
 ___________________________________________________________________________ CHANNELS
 
+       .   channels are TYPED  (--> it means on that channel passes 1 TYPE  (ex, int, string ...))
        .   goroutines synchronized to send & received data (with operator <-)
-       .   Like maps and slices, channels must be created before use:
+           n.b. The data flows in the direction of the arrow.
+                 ch <- v         // Send v to channel
+                 v := <-ch       // Receive from ch, and init v.
+                 v, ok := <-ch   // assign to v and also test if ok  (maybe channel was closed)
+                                 // This is used often to test if a channel is closed
+
+       .   Like maps and slices, channels must be created before usage:
 
                ch := make(chan int)
 
@@ -653,45 +661,106 @@ ___________________________________________________________________________ CHAN
                          fmt.Println(x, y, x+y)
                      }
 
-       .   BUFFERED:
-           Channels can be buffered. (add a 2nd arg)
+       .   There are 2 types of channels:
+
+              . BUFFERED   which block if the buffer is full.
+              . UNBUFFERED which block if there's no "rendezvous", i.e. there must be
+                           someone who puts (c <-) to and someone who takes (<- c) from the channel.
+
+       .   BUFFERED: (add a 2nd arg)
 
             ch := make(chan int, 100)
 
-           Sends to a buffered channel block only when the buffer is full.
-           Receives block when the buffer is empty.
+            ___________________________________________________________________________________________________
+                func main() {                      func main() {                 func main() {
+                	ch := make(chan int, 2)        	ch := make(chan int, 2)      	ch := make(chan int, 2)
+                	ch <- 1                        	ch <- 1                      	ch <- 1
+                	ch <- 2                        	ch <- 2                      	fmt.Println(<-ch)
+                	fmt.Println(<-ch)              	ch <- 3                      	ch <- 2
+                	fmt.Println(<-ch)              	fmt.Println(<-ch)            	ch <- 3
+                }                                  	fmt.Println(<-ch)            	fmt.Println(<-ch)
+                        |                          }      |                      	fmt.Println(<-ch)
+                        |                                 |                      }     |
+            ____________V_________________________________V____________________________V_______________________
+                    1                    fatal error:                                1
+                    2                   all goroutines are asleep - deadlock!        2
+                                                                                     3
+            ___________________________________________________________________________________________________
 
-       .   range & close:
-           A sender can close a channed: close(c)
-           The receiver can test if the channel is close, adding just another var:
 
-                        v, ok := <-ch
 
-           a 'range c' function allows to loop through a channel as it ends when c is closed
+
+
+
+       .   UNBUFFERED: as channels are intended to send/receive, if there is no rendezvous,
+                       Go triggers a deadlock.
+                       This means that a simple change in the above example gives a deadlock
+
+            ___________________________________________________________________________________________________
+                func main() {
+                	ch := make(chan int)  <--- changed to UNBUFFERED
+                	ch <- 1               <--- I'm sending, but no-one will ever pick it up ---> no rendezvous
+                	fmt.Println("done")        fatal error: all goroutines are asleep - deadlock!
+                }
+            ___________________________________________________________________________________________________
+
+
+
+
+
+       .   close:      The sender can close: close(c)
+                       The receiver can test if it is close     v, ok := <-ch
+
+                       Channels aren’t like files; you don’t usually need to close them.
+                       They are closed to notify no more values to the Receiver   (that can stop its loop)
+
+       .   range:      a 'range c' allows to loop through a channel because it ends when c is closed
 
                        for i := range c {
+
+
+       .   select:     a goroutine can listen on more channels.
+
+                            func g1 (ch1, ch2 chan int) {           func g1 (ch1, ch2 chan int) {
+                                x, y := 0, 1                            ..
+                                for {                                   for {
+                                    select {                                select {
+                                    case ch1 <- x:                          case ..
+                                        x, y = y, x+y                           ..
+                                    case <-ch2:                             case ..
+                                        fmt.Println("quit")                     ..
+                                        return                             default:             <---- a default is allowed
+                                    }                                         fmt.Println("    .")
+                                }                                             time.Sleep(50 * time.Millisecond)
+                            }
+
+                       A select blocks until one of its cases can run, then it executes that case.
+                       It chooses one at random if multiple are ready.
+
+
+
 ___________________________________________________________________________ TEST
 
- Go has a lightweight "test" framework 
+ Go has a lightweight "test" framework
 
 			import "testing"
 
-a test file is a file ending _test.go 
+a test file is a file ending _test.go
 
-function names are    TestXXX 
-function arg   are  (t *testing.T). 
+function names are    TestXXX
+function arg   are  (t *testing.T).
 The code inside those functions must be any, but to be usefull somewhere
-there must be a call to 
+there must be a call to
                         t.Error
                         t.Fail
 
-The framework runs each such function; 
+The framework runs each such function;
 If any t.Error or t.Fail, is executed the test is considered to have failed.
 
                       package stringutil
-                      
+
                       import "testing"
-                      
+
                       func TestReverse(t *testing.T) {
                       	cases := []struct {
                       		in, want string     <--- anonymous type for these

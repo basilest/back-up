@@ -1,0 +1,110 @@
+-------------------------------
+     DNS
+-------------------------------
+
+      DNS :   Domain Name System
+
+
+      DOMAIN NAME: ___________________________
+                                              \
+                                               \
+          ex:                               |----------------------|
+          wiki.mediatemple.net                xxxxx . yyyyy . zzzzz
+                                                            ^_________________ the dot '.' is the domani labels SEPARATOR
+                                                                ^_____________ the rightmost is the TOP-level domain (TLD) (here zzzzz)
+                                                        ^_____________________ each is a SUB-DOMAIN of the previous
+                                                                               (xxxxx SUB-D of yyyyy
+                                                                                yyyyy SUB-D of zzzzz)
+                                              __3___  __2__   __1__            max num of domains is 127
+                                              ______  _____   _____            each domain-label-LEN <  63  chars
+                                            >_____________________<            anyhow total LEN      < 255  chars
+
+                                              __3___  __2__   __1__            Each domain has 1 or +  authoritative DNS servers
+
+                                                                               An authoritative DNS servers publishes info
+                                                                               about that domain
+
+                                                                               Root nameservers: the authoritative servers
+                                                                               to query when looking up (resolving) a
+                                                                               TOP-level domain name (TLD)
+
+
+      HOST NAME  = [DOMAIN NAME] with 1 or more associated [IP addresses]
+
+
+
+      DNS PROPAGATION           refers to the time for any DNS changes to transmit across the Internet.
+                                1 DNS changes can take up to 24-48 hours to fully propagate.
+
+
+      RECORDS :
+
+
+       A Record                "Address record":
+                               gives the IP address of a domain.
+                               It maps a hostname to a 32-bit IPv4 address.
+                               users that try to go to www.example.com will get the right IP address.
+                               maps a hostname to a 32-bit IPv4 address.
+                               It takes this format (example):
+
+                                        Name             TTL     TYPE    DATA
+                                        ftp.domain.com   43200   A       IP Address
+                               or:
+
+                                        Name             TTL     TYPE    DATA
+                                        *.domain.com     43200   A       10.0.2.2
+
+                               The '*' allows to match multiple domain names to have the same IP
+                               This way, if someone mistakenly types subdomains of domain.com
+                               he will still domain.com
+
+
+
+      MX Record:               "Mail Exchange Record":
+                                       maps      [Domain name] <-- --> to a list of mail exchange servers.
+                               A zone can have 1 or + (MX) records.
+                               These records point to hosts that accept mail messages on behalf of the host.
+                               A host can be an 'MX' for itself.
+                               MX records need not point to a host in the same zone.
+                               An 'MX' record takes this format:
+
+                                         host.domain.name       IN     MX      10 otherhost.domain.name.
+                                                                IN     MX      20 otherhost2.domain.name.
+
+                              'MX' : preference numbers (0 - 65535) to assign who is selected first
+                              (lower numbers: higher priority)
+
+
+
+
+      PTR Record:             "Pointer Record":
+                                       maps      [IPv4 addr.] <-- --> to the canonical name for that host
+                              It implements reverse DNS lookup for that address.
+                              For example, www.icann.net has the IP address 192.0.34.164,
+                              but a PTR record maps 164.34.0.192.in-addr.arpa to its canonical name.
+
+
+
+      NS Record               "Name Server Record"
+                                       maps      [Domain name.] <-- --> to a list of DNS servers authoritative for that domain
+
+                                       ex:
+                                          ns1.mediatemple.net
+                                          ns2.mediatemple.net
+
+
+
+      SOA Record              "Start of Authority Record"
+                              Specifies the DNS server providing information about
+                                         an Internet domain,
+                                         the email of the domain administrator,
+                                         the domain serial number,
+                                         several timers relating to refreshing the zone.
+
+
+
+      TXT Record              TXT Record allows an admin to insert arbitrary text
+                              into a DNS record.
+                              ex:
+                              "this record is used to implement the Sender Policy Framework and DomainKeys specifications."
+

@@ -45,7 +45,7 @@ _______________________________________ ANSIBLE
 
          . is "agentless" - no central agent(s) is running.
 
-         . the output we get from Ansible commands is JSON
+         . the output from Ansible commands is JSON
 
          . The blocks are:
                . Inventory:  a file with the list of servers to work on
