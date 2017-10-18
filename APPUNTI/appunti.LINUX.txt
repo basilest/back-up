@@ -1996,7 +1996,7 @@ __  inodes
 
               ls -i          allows to see inode num
               find -inum     allows to search based on inodes
-                             ex to delete a file with file a strange name:
+                             ex to delete a file with a strange name:
 
                                    find -inum 328356  -delete
 
@@ -2007,7 +2007,7 @@ __  inodes
                                   mount |  grep home ---> /dev/sda8
                                   sudo debugfs /dev/sda8
 
-                                  logdump -i <328356>         if I now the inode of the deleted file
+                                  logdump -i <328356>         if I know the inode of the deleted file
                                                               (n.b.  also the '<'  '>' required)
                                   logdump  lsdel              if I don't know the inode
 
@@ -2026,7 +2026,7 @@ __  inodes
               | inode-num-.  |     "."              |
               | inode-num-.. |     ".."             |
 
-              note that any dir stores 2 entries  to have inodes of itslef and its parent.
+              note that any dir stores 2 entries  to have inodes of itself and its parent.
               That means that as any dir "xxxxx" is usually a child of a parent (pppp/xxxxx), its inode is listed
               twice:
               ________________________________                _____________________________
@@ -2070,7 +2070,7 @@ __  find
         -depth    2      to limit at exact level 2 (neither lower nor upper)
 
         -d               find normally 'descends' : 1st dir / 2nd its files / 3rd recursive on any subdirs
-                         -d   is use to go in the opposite way, from the bottom up to the specifed  dir.
+                         -d   is use to go in the opposite way, from the bottom up to the specified  dir.
 
         -s               To alter the normal searching order going alphabetically
 
