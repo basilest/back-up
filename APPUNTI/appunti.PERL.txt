@@ -442,7 +442,24 @@ varibale-names  are stored in memory in 2 different places, both called
 "name-spaces", and then one space called "symbol tables" and the other
 "lexical-scopes". Each space then allocates different sub-area for the
 different 'sigil': so var of type $, @, %, &, go in separate area
-(that's the reason why $a @a %a &a do not conflict each other)
+(that's the reason why $a @a %a &a do not conflict)
+
+                                    name spaces
+                _________________________________________________________
+                |    symbol tables           |    lexical-scopes        |
+                |      (GLOBAL)              |        (LOCAL)           |
+                |                            |                          |
+                |  _______________           |   _______________        |
+                |    $ ...                   |     $ ...                |
+                |  _______________           |   _______________        |
+                |    @ ...                   |     @ ...                |
+                |  _______________           |   _______________        |
+                |    % ...                   |     % ...                |
+                |  _______________           |   _______________        |
+                |    & ...                   |     & ...                |
+                |  _______________           |   _______________        |
+                |____________________________|__________________________|
+
 
 lexical scopes: store 'local' vars.
                 That is, vars inside blocks { }, of type

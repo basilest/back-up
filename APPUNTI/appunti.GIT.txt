@@ -116,19 +116,17 @@
   |                                                                              23 # Note that empty commits are commented out
   |
   |
+  |                   cut a release:
   |
+  |                    1. git co develop && g pull
+  |                    2. git branch -a | rg -i release    -----> ex: remotes/origin/release/1.45.0
+  |                    3. git co -b release/1.46.0
+  |                    4. g tag -a -m 'cut for release/1.46.0' v1.46.0-rc1
   |
+  |                    5. git push --set-upstream origin release/1.46.0
+  |                    6. git push --follow-tags origin release/1.46.0
   |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
+  |                    7. available on gitHub at https://github.com/companieshouse/chl-perl/releases/tag/v1.46.0-rc1
   |
   |
   |

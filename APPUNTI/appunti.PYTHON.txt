@@ -101,7 +101,7 @@ len(a)                  5
 for x in a:             to iterate on the sequence
 
 
-a.append(45)            ...., 45]     n.b.  is b is another list  a.append(b)
+a.append(45)            ...., 45]     n.b.  if b is another list  a.append(b)
                                             [...., [ - ]]    a list in a list
                                             a.extend(b)      insert insted b values
                                                              [...., -, -, -]
@@ -306,7 +306,7 @@ functions are objects in Python, just like everything else.
 This means that I can pass a function as 'argument' to another function,
 or in the return statement.
 
-                     >>> def apply(func, x, y):   <--- I the can call as applay(add, 2, 1)
+                     >>> def apply(func, x, y):   <--- I then can call as applay(add, 2, 1)
                      ...     return func(x, y)         where i.e. def add(x,y):
                                                                       return x+y
                     _______________________________
@@ -370,7 +370,7 @@ write              obj = open("ircnicks.txt", 'w')    last open mode is 'a':appe
 
 seek(offset [,pos])     offset:num bytes from pos
                         pos:    0 (default) start of file
-                                1 current position (that I reached somehoe)
+                                1 current position (that I reached somehow)
                                 2 end of file
 
                         fobj.seek(5)     # Goto 5th byte
@@ -406,7 +406,7 @@ except TypeError:         if empty      except:    it catches ANY excp.
 finally:
    ...
 
-raise                     to throws an excp.  I can even catch it myself in the except block:
+raise                     to throw an excp.  I can even catch it myself in the except block:
                           try:
                           ...     raise ValueError("A value error happened.")
                           except ValueError:
@@ -473,7 +473,7 @@ help()        enter from python shell the interactive help
               instead of 1+2 I can directly do  help(xxx)   ex help(str) I've ALL the
               list of functions on strings
 
-pip:       modules (external) are usuall managed by 'pip' which recursively means (pip install python)
+pip:       modules (external) are usually managed by 'pip' which recursively means (pip install python)
            sudo apt-get install python-pip
 
            once pip is installed, you can install modules:
@@ -539,7 +539,7 @@ ________________________________________ Test
 import unittest                  unittest is the python module for testing
 
 class MyTestClass (unittest.TestCase):    define a test class (derived from unittest.TestCase)
-                                          where call the functions I wan to test.
+                                          where call the functions I want to test.
                                           Each method of 'MyTestClass' named like
 
                                                           test_xxxxx()
