@@ -1,5 +1,23 @@
 man zsh               <--- short (~   280 lines, because the manual has been split in many different)
 man zshall            <--- LONG  (~ 23000 lines, it contains all)
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zsh.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshall.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshbuiltins.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshcalsys.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshcompctl.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshcompsys.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshcompwid.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshcontrib.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshexpn.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshmisc.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshmodules.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshoptions.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshparam.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshroadmap.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshtcpsys.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshzftpsys.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zshzle.1
+                                                                  /usr/local/Cellar/zsh/5.4.2_1/share/zsh/functions/_a2ps
 
  Table of Contents                                                 |
                                                                    |
@@ -16,7 +34,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |           use zsh --version  or echo $ZSH_VERSION
                                                                    |
                                                                    | completion:  in 3.xx use the old  `compctl' command,
-                                                                   |              since 4.xx use the old  `compctl' command,
+                                                                   |              since 4.xx use new way
                                                                    |
  Chapter 2: What to put in your startup files                      |
                                                                    |
@@ -38,11 +56,16 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                    I can start other login shell (that think they are the first ever)
                                                                    |                    with option -l:  zsh -l
                                                                    |                    The main differentces are:
-                                                                   |                                - a login shell reads some start-up file, instead of others
+                                                                   |                                - a login shell reads some start-up files, instead of others
                                                                    |                                - any shell is terminated with 'exit'
                                                                    |                                - login shell can also be terminated with 'logout'
                                                                    |                                  that is actually an exit that returns  `not login shell'
                                                                    |                                  when executed in a not-login shell
+                                                                   |
+                                                                   |  $SHLVL           is 1 for first login shell, and is incremented each time I create another child zsh
+                                                                   |                   (it gives me an idea of how much is nested my current shell)
+                                                                   |
+                                                                   |
  2.1.1: What is a login shell? Simple tests                        |
                                                                    |     if [[ -o login ]]; then      <--- [[ -o ... ]]  tests shell options (here option 'login')
                                                                    |        print yes
@@ -85,7 +108,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |          zsh  -f      runs only  1    (so /etc/zshenv should be left as small as possible, to have a way lo load nothing)
                                                                    |                                        or otherwise wrap some  code in /etc/zshenv inside something like:
                                                                    |                                                                 if [[ ! -o norcs ]]; then
-                                                                   |                                        so that the wrapped code can be sckipped running a zsh with the option NO_RCS=  (empty)
+                                                                   |                                        so that the wrapped code can be skipped running a zsh with the option NO_RCS=  (empty)
                                                                    |
                                                                    |
                                                                    |         so when starting a zsh the journey of the script to run is:
@@ -114,8 +137,9 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    | . 1/0          : they all have boolean values only (set / not set)
                                                                    | . U u _        : uppercase/lowercase/underscore can be mixed in any way, but
                                                                    |                  the option is always the same: NO_RCS  = norcs = __N_o_R_c_s__
-                                                                   | . no           : for any option xxxx there is th option noxxxx
+                                                                   | . no           : for any option xxxx there is the option noxxxx
                                                                    |                  so I can write if [[ ! -o noxxx]]     or if [[ -o xxx ]]
+                                                                   |                              (or even ! -o _N_o_x_Xx ....)
                                                                    |
                                                                    | . set / unset :  setopt   or   set -o     is the same way to set an option   (ex   setopt NO_RCS     set -o NO_RCS)
                                                                    |                  unsetopt                 is the only way to unset an option (ex unsetopt NO_RCS)
@@ -171,10 +195,10 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
  2.5.1: Compatibility options: SH_WORD_SPLIT and others            |
                                                                    |________________________________________
-                                                                   |     ZSH usually does not expand values of variables before their usage (whil bash usually does)
+                                                                   |     ZSH usually does not expand values of variables before their usage (while bash usually does)
                                          KSK OPTIONS -----         |________________________________________
-                                                                   |  SH_WORD_SPLIT allows to have a behavious similar to the bash (to manage spaces in var's values)
-                                                                   |  zsh by default manage the value as 1, while bash splits into many:
+                                                                   |  SH_WORD_SPLIT allows to have a behaviour similar to the bash (to manage spaces in var's values)
+                                                                   |  zsh by default manages the value as 1, while bash splits into many:
                                                                    |
                                                                    |   ex. cat a.sh -----> echo [$1][$2][$3]
                                                                    |       a='aaa bbb ccc'
@@ -218,7 +242,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
                                                                    |________________________________________
                                                                    |
-                                                                   |  KSH_AUTOLOAD             instead of writing many functions is a startup file (like all in bash_profile)
+                                                                   |  KSH_AUTOLOAD             instead of writing many functions in a startup file (like all in bash_profile)
                                                                    |  $fpath                   any function can be written in a file xxxx
                                                                    |                           ____________________________________________________________________________________
                                                                    |                                      zsh                                       ksh
@@ -230,7 +254,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                      here just the body                      here a function called like the file (xxxx) + the body
                                                                    |
                                                                    |                           the functions (the files xxxx) are searched for, looking to the array $fpath
-                                                                   |                           thta is a usual list of dirs
+                                                                   |                           that is a usual list of dirs
                                                                    |                           In the startup file there is just 1 line to load the function:
                                                                    |                                               autoload xxxx         <--- zsh will look for xxxx and load it only the first time
                                                                    |                                                                          xxxx is entered at the command line (saving time/memory)
@@ -291,9 +315,112 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
  2.5.2: Options for csh junkies                                    |
  2.5.3: The history mechanism: types of history                    |
+                                                                   |  'events'               is the name used to mean a previous command in the history
+                                                                   |
+                                                                   |  1. Editing the history directly     with the arrows I move on the line and the I edit
+                                                                   |                                      The editor used is retrieved in order by the 2 vars $VISUAL then $EDITOR
+                                                                   |                                      (ex. set them to be both 'vi' or 'vim')
+                                                                   |
+                                                                   |  2. BANG '!'                         The usual (ex !!:1 last  command 1st arg .... !!:3-$   last command args from 3rd to the end)
+                                                                   |                                        .NO_BANG_HIST   option to disable
+                                                                   |                                        .HIST_VERIFY    option to print first what will be the command and the run with an ENTER
+                                                                   |
+                                                                   |            !..... :t                 tail modifier  -   like basename, returns the last part of a pathname  (ex. !-5:$:t)
+                                                                   |            !..... :h                 head  "        -   like dirname,  returns the previous part
+                                                                   |
+                                                                   |                                      nb: they work even on vars or directly:
+                                                                   |                                                   foo=/usr/bin/cat
+                                                                   |                                                   print ${foo:h}          # /usr/bin
+                                                                   |                                                   print $foo:h            # works even without {}
+                                                                   |
+                                                                   |                                                   print /usr/bin/cat(:t)  # works directly inline
+                                                                   |
+                                                                   |            !..... :r                 remove extension     file.c --> file
+                                                                   |            !..... :l                 lowercase
+                                                                   |            !..... :u                 UPPERCASE
+                                                                   |            !..... :s/old/new/        subst 1st         note shortcut:    !!:s/old/new/  =  ^old^new^    or even ^old^new  if nothing must follow last ^
+                                                                   |            !..... :gs/old/new/       subst globally
+                                                                   |            !..... :&                 redo last s///
+                                                                   |            !..... :g&                redo globally last s///
+                                                                   |
+                                                                   |            concatenation ok          I can concatenate many.
+                                                                   |                                      ex: :t:r    dir/file.c   --> file
+                                                                   |                                      ex: :h:h    /Users/sbasile/CHL/chl-perl/websystems/MODULES --> /Users/sbasile/CHL/chl-perl
+                                                                   |
+                                                                   |  3. fc                               it's the usual builtin
+                                                                   |
  2.5.4: Setting up history                                         |
+                                                                   |   $HISTFILE                          file where to save (ex. ~/.history')
+                                                                   |   $HISTSIZE                          how many lines to READ  at the session start
+                                                                   |   $SAVEHIST                          how many lines to WRITE at the session end
+                                                                   |
+                                                                   |
+                                                                   |                                       |       ______
+                                                                   |                           .... |      |      | .... |
+                                                                   |                  $HISTSIZE.... |      |<<<<<<| .... |                    ex HISTSIZE=1000
+                                                                   |                           .... |      |      | .... |                       SAVEHIST=1000
+                                                                   |                                       |      | .... |                       HISTFILE=~/.history
+                                                                   |                  $SAVEHIST.... |      |>>>>>>|______|
+                                                                   |                           .... |      |      $HISTFILE
+                                                                   |                                       |
+                                                                   |                                       |                         fc -R      reads  hist
+                                                                   |                                    SESSION                      fc -W      writes  $SAVEHIST-lines     (overwrites)
+                                                                   |                                       |                         fc -A      appends $SAVEHIST-lines
+                                                                   |                                       |                         fc -WI     writes        num-lines   num: since the last time history was written.
+                                                                   |                                                                 fc -AI     apppend       num-lines
+                                                                   |
+                                                                   |      SESSION: consider that runtime zsh uses a SESSION history (like a cache) so the $HISTFILE
+                                                                   |      is only accessed through explicit writes/reades to it.
+                                                                   |      Actually if the HISTFILE is not even set there is only the SESSION cache (that vanishes at the logout)
  2.5.5: History options                                            |
+                                                                   |  .NO_BANG_HIST                   disable BANG
+                                                                   |  .HIST_VERIFY                    see before execute
+                                                                   |
+                                                                   |  .APPEND_HISTORY                 zsh appends to $HISTFILE instead of overwriting (and also pays attention to not write any command already present)
+                                                                   |  .INC_APPEND_HISTORY             commands are appended on the fly as they are executed (usefull when having more zsh)
+                                                                   |  .SHARE_HISTORY                  commands are also read (so I see history of the other zsh) nb. SESSION-history is updated from shared history file
+                                                                   |                                  ONLY via explicit reads (ex. 'history' / 'fc' commands) so a !! will always execute my last SESSION cmd, not others.
+                                                                   |
+                                                                   |  .EXTENDED_HISTORY               allows (consuming bit of disk space) to have timestamp for every command
+                                                                   |                                  (so that, I can list also that:
+                                                                   |                                                                     history       only the commands
+                                                                   |                                                                     history -d    time + cmd
+                                                                   |                                                                     history -f    date + cmd
+                                                                   |                                                                     history -D    elapsed time + cmd
+                                                                   |                                                                     history -E    date European  d.m.yy
+                                                                   |                                                                     history -i    date Internat. yy-m-d
+                                                                   |
+                                                                   |  .HIST_IGNORE_DUPS               store 1 single cmd of a repeated series
+                                                                   |  .HIST_IGNORE_ALL_DUPS           store 1 single cmd i(even if repeated somewhere else not the previous only)
+                                                                   |  .HIST_EXPIRE_DUPS_FIRST         do .HIST_IGNORE_ALL_DUPS but only if the history becomes full
+                                                                   |
+                                                                   |  .HIST_SAVE_NO_DUPS              regardless any other option: NEVER store duplicate cmd
+                                                                   |  .HIST_FIND_NO_DUPS              regardless how many time a cmd is present, history will show it once only
+                                                                   |
+                                                                   |  .HIST_REDUCE_BLANKS             remove (useless) spaces when storing
+                                                                   |  .HIST_IGNORE_SPACE              do not store cmd starting with a space
+                                                                   |
+                                                                   |  .HIST_NO_STORE                  do not store cmd 'history' or 'fc'
+                                                                   |
  2.5.6: Prompts                                                    |
+                                                                   |  print -P                        all prompt strings can be first tested    (ex. print -P '%~')
+                                                                   |  $PS1   $PROMPT  $prompt
+                                                                   |  $RPS1
+                                                                   |
+                                                                   |  $PS2                            the prompt of a 2nd line where I go when I enter a long command on more lines
+                                                                   |  $PS3                            the prompt of the 'select' when user must give input of a choice
+                                                                   |  $PS4                            the input for debugging, that works after:
+                                                                   |                                                               set -o xtrace           (turns on debugging everywhere)
+                                                                   |                                                               typeset -ft funcname    (turns on debugging only while executing code of funcname)
+                                                                   |                                                               typeset +ft funcname    (turns it off)
+                                                                   |    %h     history num
+                                                                   |    %m     host name
+                                                                   |    %n     user name
+                                                                   |
+                                                                   |
+                                                                   |
+                                                                   |
+                                                                   |
  2.5.7: Named directories                                          |
  2.5.8: `Go faster' options for power users                        |
  2.5.9: aliases                                                    |
