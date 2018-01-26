@@ -481,8 +481,8 @@ Name Lookups:   is the process that Perl uses to find from the simple term (ex. 
                            that is:
                               - the file (normally)
                               - the STRING passed to an 'eval': in this case
-                                is still is not found in the runtime STRING, Perl
-                                restart from point 2, considering the lexical scope
+                                if still it's not found in the runtime STRING, Perl
+                                restarts from point 2, considering the lexical scope
                                 of the block where the 'eval' is written.
 
                         4. pass to search for global vars, searching again from point 1 to 3
@@ -508,7 +508,7 @@ operators:
                                                          $a = "a9";   ++$a;  "b0"
                                                          $a = "Az";   ++$a;  "Ba"
                                                          $a = "zz";   ++$a;  "aaa"
-      04 - Exponentiation                              : binds even more tightly than unary minus, so –2**4 is –(2**4)
+      04 - Exponentiation .............................: binds even more tightly than unary minus, so –2**4 is –(2**4)
       05 - Unary Operators                             : ! + - ~
       06 - Binding Operators
       07 - Multiplicative Operators
@@ -1002,9 +1002,10 @@ CONTEXT
 --------------------------
 REFERENCES
 --------------------------
+            A ref is a scalar.
+
             Perl uses references to allow building complex data struct.
             (nesting scalar array and hash in whatever order)
-            A ref is a scalar.
 
         CREATE a ref:  use '\' before the var you want to refer
 
@@ -1050,7 +1051,7 @@ REFERENCES
                 think of them as:
                    ${xxxxx} (or simply $xxxxx) = the "name" of a variable
                 so that
-                    @scalar_name  --> becomes $${ref}    (or simply  $$ref)
+                    $scalar_name  --> becomes $${ref}    (or simply  $$ref)
                     @array_name   --> becomes @${ref}    (or simply  @$ref)
                     %hash_name    --> becomes %${ref}    (or simply  %$ref)
 
@@ -1171,7 +1172,7 @@ REFERENT        is 'what' a reference is pointing to.
                        they are sending from C to Perl looks as they think it should.
 
 SYMBOL TABLES   variable name lives in some kind of symbol table,
-                that hold 1 HARD referenCE to its underlying (otherwise nameless) referenT.
+                that holds 1 HARD referenCE to its underlying (otherwise nameless) referenT.
 
 CREATE          - the operator \ (like the & in C) it gives the memory address.
   1               So the 1st way to create a scalar-var of TYPE 'reference' is:
@@ -2051,7 +2052,7 @@ MODULEs / PACKAGEs
 
         So Modules and packages are 2 completely different things
         A module is a real file somewhere in the filesystem
-        A package is a namespace or tag-lable for symbols.
+        A package is a namespace or tag-label for symbols.
 
         In theory
         I can fill the code all around with many packages xxxxx  yyyyyy zzzzzz
@@ -2065,7 +2066,7 @@ MODULEs / PACKAGEs
                          relative pathname   (In this way I can see '::' inside a package name
                                               that otherwsie would use probably only [a-zA-Z0-9_-]
                                               so instead of yyyyyy   yy::zz::jj
-                                              ant to access its var v
+                                              and to access its var v
                                                                    yyyyyy::$v
                                                                    yy::zz::jj::$v
 
@@ -2073,7 +2074,7 @@ MODULEs / PACKAGEs
                                  _____________________
                                  |
                                  |SYMBOL TABLE             - It's the set of (vars + functions) of 1 PACKAGE.
-                                 |                           So there is 1 SYMBOL TABLE for 1 PACKAGE
+                                 |                           So there is 1 SYMBOL TABLE per 1 PACKAGE
                                  |                         - is a HASH table (where:
                                  |                               - (vars + functions)-NAMES are the string-keys,
                                  |                               - the value is the TYPE-globs associated( $xxxx, %xxxx, @xxxx )
@@ -2233,11 +2234,11 @@ ________________________________________________
 
                           3. inside the script, before the line 'use XXXX::YYYY:AAA'
                              add a line 'use lib ......'
-                                     use lib '/home/foobar/code';   <--- this will add to END of @INC
+                                     use lib '/home/foobar/code';   <--- this will be added to the END of @INC
                                      use My::Module;
 
                           4. -I    on the command line  (ex: "perl -I /home/foobar/code script.pl")
-                             this will add to BEGINNING of @INC (but just for this execution)
+                             this will be added to the START of @INC (but just for this execution)
 
 
 --------------------------
@@ -2247,7 +2248,7 @@ INSTALL MODULES
                                 they are a tar.gz file containing 1 or more .pm
                                 in a dir-tree structure
 
-'intstall by hand'              download the tar.gz, unpack and run
+'install by hand'               download the tar.gz, unpack and run
 
                                                ,-----------------------------------------------Module::Build
                                           BUILD.PL         or if there is Makefile.PL     <--- ExtUtils::MakeMake: comes with Perl. It handles a module instalation by
@@ -2257,7 +2258,7 @@ INSTALL MODULES
                                        3. ./Build test              3. make test
                                        4. ./Build install           4. make install
 
-                                at step 2. the compilation create the .pm files in a dir .blib
+                                at step 2. the compilation creates the .pm files in a dir .blib
                                 at step 4 (the .pm files are copied into a dir of @INC) that can
                                 be specified as --installdirs option at step 1)
 
@@ -2276,7 +2277,7 @@ bundle :   A file that some CPAN clients can use to reinstall everything you alr
 'dependencies'                  the module M, needs module A, which needs B, ....
                                 to avoid installing all by hand, use CPAN client like cpan or newer cpanm
 
-CPAN.pm:            come with Perl to manage when modules depends on others.
+CPAN.pm:            comes with Perl to manage when modules depends on others.
                      $ perl -MCPAN -e shell
 
                     It can be a little complicated, so a while ago was written a little script 'cpan'
@@ -2296,7 +2297,7 @@ cpanm:     it doesn’t come with Perl  (download from http://xrl.us/cpanm)
               $ cpanm DBI WWW::Mechanize\
 
 ~/.cpan ~/.cpanm                are the default dir used by cpan and cpanm
-                                to created a repository.
+                                to create a repository.
                                 The configuration file is usually stored in
                                     ~/.cpan/CPAN/MyConfig.pm
                                 and it's something like:
