@@ -59,6 +59,11 @@ brew cleanup                 to remove old packages versions
 
 brew update                  to update Homebrew itself  (and all its internal dictionaries (formulae))
                              This happens via git
+                             - git & github can bypass the password need to access the public API
+                               defining an access token:
+                               Ex.  3acedbb7f73b335c354727f204be9d14aad2c0db
+
+                               (from https://github.com/settings/tokens/new?scopes=gist,public_repo&description=Homebrew)
 
 
 brew upgrade                 to upgrade old packages

@@ -322,11 +322,11 @@ ____________________________________________________________
         vi !cp:2    "                  "           2nd  arg     "     starting with cp
         vi !cp:$    "                  "           last arg     "     starting with cp
    15. fc   (stays for fix command) is the builtin command to recall the history opening into editor mode
-       the editor opened is defined by the var $FCEDIT  (ex FCEDIT=/usr/bin/vim)
+       the editor opened is defined by the vars $FCEDIT  (ex FCEDIT=/usr/bin/vim) or then $EDITOR
        Once the editor is closed that command is executed.
        fc -l     list last 15 cmd
-       fc -l 2023   edit cmd num 2025
-       fc -l  vi    edit cmd starting with vi
+       fc -l 2023   edit cmd num 2023
+       fc -l  gcc   edit cmd starting with gcc
        fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb
 
 ____________________________________________________________

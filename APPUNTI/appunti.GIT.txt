@@ -116,19 +116,17 @@
   |                                                                              23 # Note that empty commits are commented out
   |
   |
+  |                   cut a release:
   |
+  |                    1. git co develop && g pull
+  |                    2. git branch -a | rg -i release    -----> ex: remotes/origin/release/1.45.0
+  |                    3. git co -b release/1.46.0
+  |                    4. g tag -a -m 'cut for release/1.46.0' v1.46.0-rc1
   |
+  |                    5. git push --set-upstream origin release/1.46.0
+  |                    6. git push --follow-tags origin release/1.46.0
   |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
-  |
+  |                    7. available on gitHub at https://github.com/companieshouse/chl-perl/releases/tag/v1.46.0-rc1
   |
   |
   |
@@ -1738,6 +1736,37 @@
     7.2 Interactive Staging                 |
                                             |
     7.3 Stashing and Cleaning               |
+                                            |   git stash                   save changes in a hidden space  (see below: "hidden space")
+                                            |   git stash save "..."        to associated a mnemonic message (usueful when working with many stashes)
+                                            |                               N.B.  only tracked files are saved
+                                            |   git stash -u                (or --include-untracked ) to stash also untracked files
+                                            |   git stash -a                (or --all ) to stash also ignored files
+                                            |   git stash -p                (or --patch ) to interactively select which files to stash
+                                            |                                             ?   help
+                                            |                                             y   select
+                                            |                                             n   skip
+                                            |                                             s   split
+                                            |                                             /   regex
+                                            |                                              .....
+                                            |
+                                            |   git stash pop               remove from the hidden space and applies
+                                            |   git stash apply             restore but don't remove from stash (so I can reapply on different branches)
+                                            |   git stash branch bbbb       creates a new branch bbbb and applies the changes
+                                            |                               git stash branch bbbb stash@{2}       <-- to select a specific entry
+                                            |
+                                            |   git stash list              to see the stack   (the tag  "WIP" – means work in progress)
+                                            |   git stash pop stash@{2}     to apply stash num 2 from top
+                                            |
+                                            |   git stash show              to see what files are in that stash
+                                            |   git stash show -p           (--patch) to see the full list of changes
+                                            |   git stash show stash@{2}
+                                            |
+                                            |   git stash drop stash@{2}    to remove that entrye in that stash
+                                            |   git stash clear             to remove all
+                                            |
+                                            |   .git/refs/stash             the "hidden space"
+                                            |                               - stashing creates normal commits there (so I can even operate as usual
+                                            |                                 ex. git log --oneline --graph stash@{0}
                                             |
     7.4 Signing Your Work                   |
                                             |
