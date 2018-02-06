@@ -34,6 +34,15 @@ brew info zsh                see more info of a specific package. ex:
                                            Install HEAD version
 
 
+                    --json=v1      brew info --json=v1 tmux | jq -CS           the option --json=v1    allows to print output as json text
+                                                                               (jq is the processor filter for json files.   -C add color,  -S  sort)
+                                                                                brew install jq
+
+                    --all          brew info --all                             to see ALL formulae (slow and very long)
+
+                    --installed    brew info --installed                       to see only INSTALLED formulae
+
+
 
 brew outdated                to see info of outdated files
                              ex        automake
@@ -67,6 +76,17 @@ brew update                  to update Homebrew itself  (and all its internal di
 
 
 brew upgrade                 to upgrade old packages
+
+
+
+
+
+__________________________  FORMULAE
+
+keg-only                    the (NOT recommended) way a formulae is linked to the system shared dirs (ie. bin, lib. etc)
+                            Installation of any package can force its formulae to be linked.
+                            To see these formulae:
+                             brew info --json=v1 --installed | jq "map(select(.keg_only == true and .linked_keg != null) | .name)"
 
 
 

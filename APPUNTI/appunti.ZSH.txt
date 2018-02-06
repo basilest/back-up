@@ -254,7 +254,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                      here just the body                      here a function called like the file (xxxx) + the body
                                                                    |
                                                                    |                           the functions (the files xxxx) are searched for, looking to the array $fpath
-                                                                   |                           that is a usual list of dirs
+                                                                   |                           that is a usual list of dirs (ex. echo $FPATH  --> /usr/local/share/zsh/site-functions:/usr/local/Cellar/zsh/5.4.2_3/share/zsh/functions)
                                                                    |                           In the startup file there is just 1 line to load the function:
                                                                    |                                               autoload xxxx         <--- zsh will look for xxxx and load it only the first time
                                                                    |                                                                          xxxx is entered at the command line (saving time/memory)
@@ -314,6 +314,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
                                                                    |
  2.5.2: Options for csh junkies                                    |
+                                                                   |
  2.5.3: The history mechanism: types of history                    |
                                                                    |  'events'               is the name used to mean a previous command in the history
                                                                    |
@@ -373,7 +374,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |      is only accessed through explicit writes/reades to it.
                                                                    |      Actually if the HISTFILE is not even set there is only the SESSION cache (that vanishes at the logout)
  2.5.5: History options                                            |
-                                                                   |  .NO_BANG_HIST                   disable BANG
+                                                                   |  .NO_BANG_HIST                   disable BANG commands (!)
                                                                    |  .HIST_VERIFY                    see before execute
                                                                    |
                                                                    |  .APPEND_HISTORY                 zsh appends to $HISTFILE instead of overwriting (and also pays attention to not write any command already present)
@@ -403,9 +404,18 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |  .HIST_NO_STORE                  do not store cmd 'history' or 'fc'
                                                                    |
  2.5.6: Prompts                                                    |
+                                                                   |_________________________
+                                                                   |  To customize the prompt we have seen that 2 options must be first set:
+                                                                   |       PROMPT_PERCENT             to allow the usage of the various %
+                                                                   |       PROMPT_SUBST               to allow to put a command (like git) ex: PS1='${PWD}% '
+                                                                   |_________________________
+                                                                   |  '  not "                        PS1='... ' note the usage of ' and not " when assigning to PS1,2,...
+                                                                   |                                  That way the assignment will occur runtime and not at the time of the assignment.
+                                                                   |_________________________
                                                                    |  print -P                        all prompt strings can be first tested    (ex. print -P '%~')
-                                                                   |  $PS1   $PROMPT  $prompt
-                                                                   |  $RPS1
+                                                                   |_________________________
+                                                                   |  $PS1   $PROMPT  $prompt         both possible names to set the first level prompt
+                                                                   |  $RPS1                           prints a prompt at the right of the screen.
                                                                    |
                                                                    |  $PS2                            the prompt of a 2nd line where I go when I enter a long command on more lines
                                                                    |  $PS3                            the prompt of the 'select' when user must give input of a choice
@@ -413,14 +423,50 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                                               set -o xtrace           (turns on debugging everywhere)
                                                                    |                                                               typeset -ft funcname    (turns on debugging only while executing code of funcname)
                                                                    |                                                               typeset +ft funcname    (turns it off)
-                                                                   |    %h     history num
-                                                                   |    %m     host name
-                                                                   |    %n     user name
+                                                                   |    ____________ to see all the possible '%': man zshmisc
+                                                                   |    %h                 history num
+                                                                   |    %m                 host name
+                                                                   |    %n                 user name
                                                                    |
+                                                                   |    %~                 curr dir (relative to ~)
+                                                                   |    %/                 curr dir (absolute)
+                                                                   |    %2~                a number between ~ or / prints only the last parts of the path:
+                                                                   |                                    /Users/sbasile/CHL/chl-perl/websystems/MODULES -->(%2/ %2~) --> websystems/MODULES
+                                                                   |    %10<...<%~         truncates, giving a max number of chars (included the fixed string between <  <
+                                                                   |                       so here a fixed 3 dots '...' and other 7 chars
                                                                    |
+                                                                   |    %?                 shows the previous-command-return-value (at the shell level the usual $? (or in zsh even $status))
+                                                                   |                       The syntax   %(?..  %)  that is    '%(?  .  AAA     . BBB   %)'
+                                                                   |                                                            ^   ^   ^      ^  ^    ^
+                                                                   |                                                    to open    dot  |     dot |    to close
+                                                                   |                                                                    |         |
+                                                                   |                                                                 print     print on errors
+                                                                   |                                                               when $?=0
+                                                                   |                                                               (success)
+                                                                   |_________________________
                                                                    |
+                                                                   |  colours            there is a 'colors' function.
+                                                                   |                     calling it, causes to have 2 array $fg $bg for foregoroung/background colors
+                                                                   |                     (ex. ${fg[red]}  ${bg[white]})
                                                                    |
+                                                                   |                     $fg_bold         (same for $bg)
+                                                                   |                     $fg_no_bold
                                                                    |
+                                                                   |                     default cyan, white, yellow, magenta, black, blue, red, grey, green.
+                                                                   |                       ^
+                                                                   |                       |
+                                                                   |                     to reset to how it was
+                                                                   |
+                                                                   |                     a call to 'colors` should then be written in the .zshrc
+                                                                   |                     anyhow the sequence is usually:
+                                                                   |
+                                                                   |                                   set -o kshautoload    enables the function autoload
+                                                                   |                                   autoload -Uz colors   loads the colors function
+                                                                   |                                   colors
+                                                                   |
+                                                                   |                     The functions are in set of dirs of $FPATH
+                                                                   |                     ex. /usr/local/Cellar/zsh/5.4.2_3/share/zsh/functions/colors <-----
+                                                                   |_________________________
  2.5.7: Named directories                                          |
  2.5.8: `Go faster' options for power users                        |
  2.5.9: aliases                                                    |
