@@ -1,0 +1,208 @@
+ruby -v  
+ruby --version 
+
+
+RUN A PROG
+                                  . 1/4  ruby <file_name>
+                                  . 2/4  ruby -e '..'       <-- like perl
+                                  . 3/4  #!/usr/bin/ruby    <-- as usual 1st line in a file xxx, give it exec rights and run it as ./xxx
+                                  . 4/4  irb                <-- opens a shell (like LISP) (intercative ruby)
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT                 
+                                  . # Everything, including a literal, is an object, so this works:
+                                          -199.abs                                                 # => 199
+                                          'ice is nice'.length                                     # => 11
+                                          'ruby is cool.'.index('u')                               # => 1
+                                          "Nice Day Isn't It?".downcase.split('').uniq.sort.join   # => " '?acdeinsty"
+
+                                  .
+                                  . self       as always refers to the current object
+                                               so self.bla_bla_bla
+                                               but also alone, 'self' return the NAME of the object I'm in
+                                               (in the global scope return 'main').
+                                  .
+                                  .
+                                  .
+
+FUNCTIONS                               
+                                  . def      def nnnnnn          def nnnn (arg = "World")  <--- arg with a default value
+                                  .               .....
+                                  .          end
+                                  .
+                                  .
+                                  .
+
+CLASSES
+                                  . class    class cccc              class cccc
+                                  .                                        def nnnn (arg)
+                                  .                                          @var = arg     <--- sigil @ addresses a class var
+                                  .          end                           end
+                                  .                                        def mmmm
+                                  .                                           .... @var
+                                  .                                   end
+                                  .
+                                  . obj = cccc.new(...)        <-- create a class
+                                  .
+                                  . cccc.instance_methods      .instance_methods  returns ALL the methods'names 
+                                  .                                               (included system-ruby builtins 
+                                  .                                                or parent classes)
+                                  . cccc.instance_methods(false)      adding a false arg, excludes parent classes            
+                                  .
+                                  .
+                                  . cccc.respond_to?("xxx")           returns "true"/"false" if xxx is a public method/var
+                                  .                                   ex the builtin method "each" is used to iterate on arrays
+                                  .                                   and the syntax is:
+                                  .                                              if @names.respond_to?("each")
+                                  .                                   NB this allows to write code that tests if it's possible to call
+                                  .                                      a function for any received object (of any unknown type)
+                                  .                                      If that object has that method, I'm ok, as I can call it
+                                  .                                      (that object has defined,overloaded that method)
+                                  .
+                                  . attr_accessor :iii               class cccc                                                
+                                  .                                        attr_accessor :iii   <--- makes PUBLIC var iii 
+                                  .                                        def nnnn (arg)            defining some sort of setter/getter
+                                  .                                          ....                    Actually the getter is just using the var
+                                  .                                        end                       (it's read, ... ex iii only)
+                                  .                                           ....                   The setter it just assigning it iii=...
+                                  .                                   end
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+each                                    
+                                  . @names.each do |name|                each is a method that accepts a block of code               
+                                  .       puts "Hello #{name}!"          (like an anonymous function or lambda)
+                                  . end                                  then runs that block of code for every element in a list, 
+                                                                         The variable between pipes is the parameter for this block.
+                                  
+                                  
+                                  
+comments                                
+                                  .   #        single line
+                                  .
+                                  . =begin     multi line
+                                  . ....
+                                  . =end
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+
+EVERYTHING IS AN OBJECT                 
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
