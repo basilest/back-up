@@ -94,12 +94,45 @@ comments
                                   . =end
                                   .
                                   .
-                                  .
+CONSTANTS
+                                  .    KKK = value        (can be changed afterwards KKK = value2  but the interpreter triggers a WARNING)
                                   .
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
+VARIABLES
+                                  .   like perl, vars hasn't a strict type and can be changed int/string/...
+                                  .   
+                                  .   a = 2
+                                  .   a, b, c, d = 10, 20, 30, 40      parallel assignment
+                                  .
+                                  .   .kind_of?           returns true/false if var is of a specified type
+                                  .                       ex.
+                                  .                            y.kind_of? Integer      => true
+                                  .
+                                  .
+                                  .   .class              returns the string with the class Name.
+                                  .                       ex.
+                                  .                            y.class      => "Fixnum"
+                                  .
+                                  .   conversion functions:
+                                  .             
+                                  .              .to_s      converts to string   y=25  y.to_s    => "25"
+                                  .              .to_s(n)   converts to string base n  y.to_s(2) => "11001"
+                                  .              .to_f      converts to float          y.to_f    => 25.0
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
                                   .
                                   .
                                   .
