@@ -1,5 +1,5 @@
-ruby -v  
-ruby --version 
+ruby -v
+ruby --version
 
 
 RUN A PROG
@@ -8,85 +8,29 @@ RUN A PROG
                                   . 3/4  #!/usr/bin/ruby    <-- as usual 1st line in a file xxx, give it exec rights and run it as ./xxx
                                   . 4/4  irb                <-- opens a shell (like LISP) (intercative ruby)
                                   .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
                                   . # Everything, including a literal, is an object, so this works:
-                                          -199.abs                                                 # => 199
-                                          'ice is nice'.length                                     # => 11
-                                          'ruby is cool.'.index('u')                               # => 1
-                                          "Nice Day Isn't It?".downcase.split('').uniq.sort.join   # => " '?acdeinsty"
-
+                                  .       -199.abs                                                 # => 199   <-- even numbers are Objects
+                                  .       'ice is nice'.length                                     # => 11
+                                  .       'ruby is cool.'.index('u')                               # => 1
+                                  .       "Nice Day Isn't It?".downcase.split('').uniq.sort.join   # => " '?acdeinsty"
+                                  .
                                   .
                                   . self       as always refers to the current object
-                                               so self.bla_bla_bla
-                                               but also alone, 'self' return the NAME of the object I'm in
-                                               (in the global scope return 'main').
-                                  .
-                                  .
+                                  .            so self.bla_bla_bla
+                                  .            but also alone, 'self' return the NAME of the object I'm in
+                                  .            (in the global scope return 'main').
                                   .
 
-FUNCTIONS                               
-                                  . def      def nnnnnn          def nnnn (arg = "World")  <--- arg with a default value
-                                  .               .....
-                                  .          end
-                                  .
-                                  .
-                                  .
-
-CLASSES
-                                  . class    class cccc              class cccc
-                                  .                                        def nnnn (arg)
-                                  .                                          @var = arg     <--- sigil @ addresses a class var
-                                  .          end                           end
-                                  .                                        def mmmm
-                                  .                                           .... @var
-                                  .                                   end
-                                  .
-                                  . obj = cccc.new(...)        <-- create a class
-                                  .
-                                  . cccc.instance_methods      .instance_methods  returns ALL the methods'names 
-                                  .                                               (included system-ruby builtins 
-                                  .                                                or parent classes)
-                                  . cccc.instance_methods(false)      adding a false arg, excludes parent classes            
-                                  .
-                                  .
-                                  . cccc.respond_to?("xxx")           returns "true"/"false" if xxx is a public method/var
-                                  .                                   ex the builtin method "each" is used to iterate on arrays
-                                  .                                   and the syntax is:
-                                  .                                              if @names.respond_to?("each")
-                                  .                                   NB this allows to write code that tests if it's possible to call
-                                  .                                      a function for any received object (of any unknown type)
-                                  .                                      If that object has that method, I'm ok, as I can call it
-                                  .                                      (that object has defined,overloaded that method)
-                                  .
-                                  . attr_accessor :iii               class cccc                                                
-                                  .                                        attr_accessor :iii   <--- makes PUBLIC var iii 
-                                  .                                        def nnnn (arg)            defining some sort of setter/getter
-                                  .                                          ....                    Actually the getter is just using the var
-                                  .                                        end                       (it's read, ... ex iii only)
-                                  .                                           ....                   The setter it just assigning it iii=...
-                                  .                                   end
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-each                                    
-                                  . @names.each do |name|                each is a method that accepts a block of code               
+each
+                                  . @names.each do |name|                each is a method that accepts a block of code
                                   .       puts "Hello #{name}!"          (like an anonymous function or lambda)
-                                  . end                                  then runs that block of code for every element in a list, 
+                                  . end                                  then runs that block of code for every element in a list,
                                                                          The variable between pipes is the parameter for this block.
-                                  
-                                  
-                                  
-comments                                
+
+
+
+comments
                                   .   #        single line
                                   .
                                   . =begin     multi line
@@ -97,14 +41,12 @@ comments
 CONSTANTS
                                   .    KKK = value        (can be changed afterwards KKK = value2  but the interpreter triggers a WARNING)
                                   .
-                                  .
-                                  .
 
 VARIABLES
                                   .   like perl, vars hasn't a strict type and can be changed int/string/...
-                                  .   
+                                  .
                                   .   a = 2
-                                  .   a, b, c, d = 10, 20, 30, 40      parallel assignment
+                                  .   a, b, c, d = 10, 20, 30, 40      parallel assignment (useful also to swap vars: ex  a,b=b,a   a,b,c=b,a,a)
                                   .
                                   .   .kind_of?           returns true/false if var is of a specified type
                                   .                       ex.
@@ -116,17 +58,402 @@ VARIABLES
                                   .                            y.class      => "Fixnum"
                                   .
                                   .   conversion functions:
-                                  .             
+                                  .
                                   .              .to_s      converts to string   y=25  y.to_s    => "25"
                                   .              .to_s(n)   converts to string base n  y.to_s(2) => "11001"
                                   .              .to_f      converts to float          y.to_f    => 25.0
                                   .
                                   .
                                   .
+VARIABLE SCOPES
+                                  .   $             A global variable       ex. $welcome = "Hello"
+                                  .   @             An instance variable    ex. @a = 1     (it's the usual private propriety of an obejct)
+                                  .   [a-z] or _    A local variable        ex   a = 1     (var of functions)
+                                  .   [A-Z]         A constant
+                                  .   @@            A class variable        ex @@tot = 0  (Class variables must be initialized at creation time.)
+                                  .                                                       a cahnge of a class var, is seen in ALL the live objects of that class
+                                  .
+                                  .   nil
+                                  .   self
+                                  .
+                                  .  .defined?          returns the string of the var scope (ex "local-variable"  "global-variable")
+                                  .
+                                  .
+SYSTEM GLOBAL VAR
+                                  .
+                                  .   $0      The name of the script
+                                  .   $*      The command line arguments used to invoke the script
+                                  .
+                                  .   $/      The input record separator
+                                  .   $\      The output record separator
+                                  .   $_      The string last read by gets
+                                  .
+                                  .   $?      The exit status of last executed child process
+                                  .   $$      The Ruby interpreter's process ID
+                                  .
+                                  .   $.      The line number last read by interpreter
+                                  .   $@      The location of latest error
+                                  .
+                                  .   $&      The string last matched by regexp
+                                  .   $~      The last regexp match, as an array of subexpressions
+                                  .   $n      The nth subexpression in the last match (same as $~[n])
+                                  .
+                                  .   $=      The case-insensitivity flag
+                                  .
+                                  .
+
+NUMBERS
+                                  .   Numbers (we have seen) are Objects too
+                                  .
+                                  .   Fixnum       is the class for normal Integer
+                                  .   Bignum       is the class where a Fixnum is automatically converted into, when appropriate.
+                                  .   Float        real num
+                                  .   Rational     so they can be expressed as p/q and so they have a numerator (p) and a denominator (q)
+                                  .
+                                  .   conversion functions:
+                                  .                            Integer (10.898)     =>    10          Float  --> Int
+                                  .                            Integer ("65")       =>    65          String --> Int
+                                  .                            Integer ("0xA4F5D")  =>    675677      Exa    --> Int
+                                  .                            Integer (01231)      =>    665         Oct    --> Int
+                                  .                            Integer (0b01110101) =>    117         Bin    --> Int
+                                  .
+                                  .                            Float (10)           =>    10.0        Int    --> Float
+                                  .                            Float ("65.0")       =>    65.0        String --> Float
+                                  .                            Float ("0xA4F5D")    =>    675677.0    Exa    --> Float
+                                  .                            Float (01231)        =>    665.0       Oct    --> Float
+                                  .                            Float (0b01110101)   =>    117.0       Bin    --> Float
+                                  .
+                                  .                            "e".getbyte(0)       =>    101         ASCII  --> Int
+                                  .                            "e".getbyte(0)       =>    101.0       ASCII  --> Float
                                   .
                                   .
                                   .
+FUNCTIONS
+                                  .  def      def nnnn            def nnnn( arg1, arg2, arg3, ... )          def nnnn (arg = "World")  <--- arg with a default value
+                                  .                .....               .....                                      .....
+                                  .           end                 end                                        end
                                   .
+                                  .
+                                  .
+                                  .  def displaystrings( *args )             <--- * args is the syntax for allowing variable len of args
+                                  .      args.each {|string| puts string}    <--- .each  is the way to iterate
+                                  .  end
+
+                                  .
+                                  .  alias  new_n  old_n         allows to give an alias to functions. So I can call fun old_n even as new_n
+                                  .
+                                  .
+RANGES
+                                  .   Here it is how the concept of range is defined and used in Ruby:
+                                  .
+                                  .   sequences:                    1..10    # 10 included: range from 1 to 10
+                                  .                                 1...10   # 10 excluded: range from 1 to 9
+                                  .
+                                  .                                 they can be char     ('a'..'l')      from 'a' to 'l'
+                                  .                                             strings  ('cab'..'car')  cab, cac, ... car
+                                  .                                             objects  (if defined:
+                                  .                                                                   .succ functions
+                                  .                                                                   <=>   diff operator
+                                  .
+                                  .                                 .to_a       transforms a sequence into an array
+                                  .                                             (1..10).to_a => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                                  .
+                                  .                                 .min        gives lowest value    words = 'cab'..'car'    words.min => 'cab'
+                                  .
+                                  .                                 .max        gives highest    words.max = 'car'
+                                  .
+                                  .                                 .include?   check if a val is in   words.include?('can')   => true
+                                  .
+                                  .                                 .reject     give upper vals, (rejecting lower ones)
+                                  .                                             words.reject {|subrange| subrange < 'cal'}  =>  ["cal", "cam", "can", "cao", "cap", "caq", "car"]
+                                  .
+                                  .                                 .each       iterates and perform a task
+                                  .                                             words.each {|word| puts "Hello " + word}
+                                  .
+                                  .   conditions:                   a range used in an if
+                                  .                                 the syntax is:     if AAA .. BBB  and the loop iterates till BBB is false
+                                  .                                 ex
+                                  .                                            while input = gets
+                                  .                                               puts input + " triggered" if input =~ /start/ .. input =~ /end/
+                                  .                                            end
+                                  .
+                                  .   intervals:                    the === operator on a range
+                                  .                                                    a=15 (1..20) === a   ==> true
+                                  .
+                                  .   case:                         xx = 69
+                                  .                                 yy = case xx
+                                  .                                           when 0..40:    "Fail"
+                                  .                                           when 41..60:   "Pass"
+                                  .                                           when 61..70:   "Pass with Merit"
+                                  .                                           when 71..100:  "Pass with Distinction"
+                                  .                                           else           "Invalid Score"
+                                  .                                 end
+                                  .                                 puts yy
+                                  .
+                                  .
+
+ARRAYS
+                                  .   create / init
+                                  .            Array.new               new of class Array to create an empty one (ex. days_of_week = Array.new)
+                                  .            Array.new(7)            creates an aray of 7 (nil) elements
+                                  .            Array.new(7, "xx")      creates an aray of 7 elements, all  init. to "xx"
+                                  .            Array.[]                method '[]' of classa Array to init (ex. days_of_week = Array[ "Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun" ])
+                                  .            []                      shorten of the above                (ex. days_of_week =      [ "Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun" ]
+                                  .
+                                  .
+                                  .   accessing   (read/write) ... as usual
+                                  .
+                                  .            days_of_week[0]       => "Mon"                  read  usual way
+                                  .            days_of_week[0]= "aaa"                          write usual way
+                                  .            days_of_week.at(0)    => "Mon"                  method '.at'
+                                  .            days_of_week.first    => "Mon"                  accesses the first
+                                  .            days_of_week.last     => "Sun"                  accesses to the last
+                                  .            days_of_week[-1]      => "Sun"                  accesses to the last
+                                  .            days_of_week[1..2] = "Martedi", "Mercoledi"     write many, using range
+                                  .
+                                  .
+                                  .   extracting sub-arraies
+                                  .
+                                  .            days_of_week[1, 3]          I must specify (starting (here 1) and how many entries here 3) ex  ["Tues", "Wed", "Thu"]
+                                  .            days_of_week[1..3]          same of the above, using Ranges
+                                  .            days_of_week slice(1..3)    same of the above, using 'slice'
+                                  .
+                                  .   .empty?                 tests if an array is empty     days_of_week.empty?   => false
+                                  .   .size                   returns the num of elem.       days_of_week.size     => 7
+                                  .
+                                  .   .index                  returns the 1st  index  (ex. days_of_week.index("Wed") => 2)
+                                  .   .rindex                 returns the last index  (ex. days_of_week.index("Wed") => 2)
+                                  .
+                                  .   .push                   appends           (ex colors.push "indigo")
+                                  .   .pop                    removes last elem (ex colors.pop => "indigo")
+                                  .   .insert                 insert elem (shifting the others)    colors.insert( 1, "orange" )    (what was at 1, goes at 2)
+                                  .   .delete_at(n)           removes elem at index n
+                                  .   .delete("indigo")       removes elem basing on its value
+                                  .
+                                  .   .uniq                   returns an array removing duplicates elem (keeps unchanged the original)
+                                  .   .uniq!                  same of uniq but changes the original array too
+                                  .
+                                  .   .sort                   returns a sorted array (keeps unchanged the original)
+                                  .   .sort!                  changes the original array too
+                                  .
+                                  .   .reverse                reverses (last becomes first)
+                                  .
+                                  .   .[0].class              a way to get the class of elem. in the array  (ex. days_of_week[0].class  => String)
+                                  .
+                                  .   ==                      => true if  a1 = a2 for contents (types can be different ex Int / Float)
+                                  .   .eql?                   => true if  a1 = a2 also with same types
+                                  .   <=>                     0 same, -1 if a1 has less elem a2, +1 if a1 > a2
+                                  .
+                                  .   adding elements:
+                                  .
+                                  .            +              adds 2 arrays    (ex  days1 = ["Mon", "Tue", "Wed"]    days2 = ["Thu", "Fri", "Sat", "Sun"]    days= days1 + days2)
+                                  .            .concat        same as +        (ex  days= days1.concat(days2)
+                                  .            <<             append operator  (ex  days1 = ["Mon", "Tue", "Wed"]    days1 << "Thu" << "Fri" << "Sat" << "Sun" ) nb. days1 is changed
+                                  .
+                                  .
+                                  .
+                                  .   set operations:
+                                  .
+                                  .            -              Difference (removes from a1 elem present in a2)
+                                  .            &              Intersect  (keeps only elem present in both a1 and a2)
+                                  .            |              Union      (concatenates a1, a2)
+                                  .
+                                  .                           a1 = ["Fedora", "SuSE", "RHEL", "Windows", "MacOS"]
+                                  .                           a2 = ["RHEL", "SuSE", "PCLinuxOS", "Ubuntu", "Fedora"]
+                                  .
+                                  .                           a1 - a2 => ["Windows", "MacOS"]
+                                  .                           a1 & a2 => ["Fedora", "SuSE", "RHEL"]
+                                  .                           a1 | a2 => ["Fedora", "SuSE", "RHEL", "Windows", "MacOS", "PCLinuxOS", "Ubuntu"]
+                                  .
+
+OPERATORS
+                                  .  usual operators.
+                                  .  both '==' or '.eql?' can be used to test equality
+                                  .
+OP. PRECEDENCE                           _________________________ This are 'methods' and as such can be overridden
+                                  .     /
+                                  .    Yes   [ ] [ ]=                 Element reference, element set
+                                  .    Yes   **                       Exponentiation (raise to the power)
+                                  .    Yes   ! ~ + -                  Not, complement, unary plus and minus (method names for the last two are +@ and -@)
+                                  .    Yes   * / %                    Multiply, divide, and modulo
+                                  .    Yes   + -                      Addition and subtraction
+                                  .    Yes   >> <<                    Right and left bitwise shift
+                                  .    Yes   &                        Bitwise `AND'
+                                  .    Yes   ^ |                      Bitwise exclusive `OR' and regular `OR'
+                                  .    Yes   <= < > >=                Comparison operators
+                                  .    Yes   <=> == === != =~ !~      Equality and pattern match operators (!= and !~ may not be defined as methods)
+                                  .          &&                       Logical `AND'
+                                  .          ||                       Logical `AND'
+                                  .          .. ...                   Range (inclusive and exclusive)
+                                  .          ? :                      Ternary if-then-else
+                                  .          = %= { /= -= += |= &=
+                                  .          >>= <<= *= &&= ||= **=   Assignment
+                                  .          defined?                 Check if specified symbol defined
+                                  .          not                      Logical negation
+                                  .          or and                   Logical composition
+                                  .          if unless while until    Expression modifiers
+                                  .          begin/end                Block expression
+                                  .
+
+MATH
+                                  .  Math     is the class that provides all needed.
+                                  .
+                                  .  most used:   Math.sqrt(9)   => 3
+                                  .
+                                  .
+                                  .
+
+LOGICAL OPERATORS
+                                  .  usual (note that both sets of (&& || !)   (and or not)  are avilable with  the usual different priority
+                                  .
+                                  .
+OBJECT ORIENTED
+                                  .  class cccc              class cccc
+                                  .                                def nnnn (arg)
+                                  .                                  @var = arg     <--- sigil @ addresses a class var
+                                  .  end                           end
+                                  .                                def mmmm
+                                  .                                   .... @var
+                                  .                           end
+                                  .
+                                  . obj = cccc.new(...)               creates a class
+                                  .
+                                  . cccc.instance_methods             returns ALL the methods'names
+                                  .                                               (included system-ruby builtins
+                                  .                                                or parent classes)
+                                  . cccc.instance_methods(false)      adding a false arg, excludes parent classes
+                                  .
+                                  .
+                                  . cccc.respond_to?("xxx")           returns "true"/"false" if xxx is a public method/var
+                                  .                                   ex the builtin method "each" is used to iterate on arrays
+                                  .                                   and the syntax is:
+                                  .                                              if @names.respond_to?("each")
+                                  .                                   NB this allows to write code that tests if it's possible to call
+                                  .                                      a function for any received object (of any unknown type)
+                                  .                                      If that object has that method, I'm ok, as I can call it
+                                  .                                      (that object has defined,overloaded that method)
+                                  .
+                                  . attr_accessor :iii               class cccc
+                                  .                                        attr_accessor :iii   <--- makes PUBLIC the var iii
+                                  .                                        def nnnn (arg)            defining some sort of setter/getter
+                                  .                                          ....                    Actually the getter is just using the var
+                                  .                                        end                       (it's read, ... ex iii only)
+                                  .                                           ....                   The setter it just assigning it iii=...
+                                  .                                   end
+                                  .
+                                  .
+                                  .  <  (inheritance)                 Ruby supports single inheritance. Syntax:     class child < parent
+                                  .
+                                  .  require 'xxx'                    "parent" class is a file "parent.rb" that must be imported in child as
+                                  .                                                  require 'parent'
+
+IF / ELSE
+                                  .  if  .. then                            unless i >= 10
+UNLESS / ELSE                     .                                                 puts "Student failed"
+                                  .  [else elsif]                           else
+                                  .  end                                            puts "Student passed"
+                                  .                                         end
+                                  .
+                                  .
+                                  . ternary op:    test ? a : b
+                                  .
+                                  .
+
+CASE STATEMENT
+                                  .    yy = case xx                                          manufacturer = case car
+                                  .         when val1  then ..                                  when "Focus"      then "Ford"
+                                  .         when val2  then ..                                  when "Navigator"  then "Lincoln"
+                                  .         when val3  then ..                                  when "Camry"      then "Toyota"
+                                  .         else result7                                        when "Civic"      then "Honda"
+                                  .   end                                                       else "Unknown"
+                                  .                                                          end
+                                  .
+                                  .
+WHILE / UNTIL
+                                  .                   ______ do is optional
+                                  .                  /
+                                  .     while i < 5 do         until i == 5         until also 1-liner:  puts i += 1 until i == 5
+                                  .           puts i                 puts i
+                                  .           i += 1                 i += 1
+                                  .     end                    end
+                                  .
+                                  .
+
+FOR
+                                  .                       ______ do is optional   (it's required in 1-liner: for i in 1..8 do puts i end)
+                                  .                     /
+                                  .     for i in 1..8 do
+                                  .          puts i
+                                  .     end
+                                  .
+
+TIMES  /  UPTO  / DOWNTO
+                                  .  syntactic sugar to shorten a  for
+                                  .
+                                  .   a=5      a.times { |i| puts i }            1.upto(5) { |i| puts i }            15.downto(10) {|i| puts i }
+                                  .                                              ^      ^
+                                  .                                              |    ending value
+                                  .                                             starting value
+                                  .
+                                  .
+                                  .
+
+BREAK  /  NEXT
+                                  .   the usual 'break' / 'continue'
+                                  .
+                                  .
+                                  .
+STRINGS
+                                  .   a = "Hello"
+                                  .   a = String.new("Hello")
+                                  .
+                                  .   usual meaning for " (interpolation) and ' (static raw)
+                                  .
+                                  .  %c  ...    c         allows to define any char 'c' as delimiter  (preceding the first with a %)
+                                  .                       ex  myString = %& This is "my" String &
+                                  .
+                                  .  %Q  same as "                     ex %Q! ..... !
+                                  .  %q  same as '
+                                  .  %x  same as ` (back-quote)
+                                  .
+                                  .  .length      both used to have the len
+                                  .  .size
+                                  .
+                                  .  .empty?      true if empty
+                                  .
+                                  .
+                                  .  a = << XXX  |
+                                  .     .....    |_____  usual way to delimit a block of text inside XXX ... XXX
+                                  .     .....    |
+                                  .  XXX         |
+                                  .
+                                  .
+                                  . a + b + c                  to concat   (nb. it can be even omitted: "aaa" "bbb" "ccc" works too)
+                                  .
+                                  . a << b << c                same, to concat
+                                  .
+                                  . a.concat(b).concat(c)
+                                  .
+                                  .
+                                  .
+                                  .  .freeze                  set the string to constant (it cannot be changed since then)
+                                  .
+                                  .
+                                  .   a = "Welcome to Ruby!"
+                                  .                         a ["Ruby"]      => "Ruby"         returns the serahed string if found
+                                  .                         a ["Perl"]      => nil            otherwise nil
+                                  .                         a [3].chr       => "c"            I cann access as an array
+                                  .                         a [11, 4]       => "Ruby"         I can extract part of array
+                                  .                         a [0..6]        => "Welcome"      I can extract using the range syntax
+                                  .                         a.index("Ruby") => 11             I can have the index of the substring
+                                  .
+                                  .
+                                  .
+                                  .   ==  or .eql?         can be both used to check if  a == b
+                                  .
+                                  .   <=>                  can be used as normal for alphabetical rank/comparison (-1,0,+1)  (nb. case sensitive)
+                                  .
+                                  .   casecmp              same of <=> but CASE INSENSITIVE
                                   .
                                   .
                                   .
@@ -140,14 +467,7 @@ VARIABLES
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
@@ -155,7 +475,14 @@ EVERYTHING IS AN OBJECT
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
@@ -163,14 +490,7 @@ EVERYTHING IS AN OBJECT
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
@@ -178,7 +498,14 @@ EVERYTHING IS AN OBJECT
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
@@ -186,14 +513,7 @@ EVERYTHING IS AN OBJECT
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
@@ -201,38 +521,7 @@ EVERYTHING IS AN OBJECT
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT                 
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT                 
+EVERYTHING IS AN OBJECT
                                   .
                                   .
                                   .
