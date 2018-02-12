@@ -105,7 +105,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                that is usually set to null (and home dir ~ is then considered)
                                                                    |
                                                                    |
-                                                                   |          zsh  -f      runs only  1    (so /etc/zshenv should be left as small as possible, to have a way lo load nothing)
+                                                                   |          zsh  -f      runs only n.1   (so /etc/zshenv should be left as small as possible, to have a way lo load nothing)
                                                                    |                                        or otherwise wrap some  code in /etc/zshenv inside something like:
                                                                    |                                                                 if [[ ! -o norcs ]]; then
                                                                    |                                        so that the wrapped code can be skipped running a zsh with the option NO_RCS=  (empty)
@@ -178,7 +178,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |             var='value with spaces / even newlines! inside single quotes'
                                                                    |             $var    <--- the usage of the var  ($ performs the 'parameter expansion' or 'parameter substitution')
                                                                    |
-                                                                   |             " ... $var "   allows the param expnsion/substitution
+                                                                   |             " ... $var "   allows the param expansion/substitution
                                                                    |             ' ... $var '   inhibits
  2.4.1: Arrays                                                     |
                                                                    |  a=(first second third fourth)      $a[1]  $a[2]  $a[3]  $a[4]    like bash {} can be optionally used to disambiguate the var name ${a[1]}
@@ -225,7 +225,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
                                                                    |________________________________________
                                                                    |
-                                                                   |  NO_BG_NICE               backgroung process (ex. cmd_xxx &) do not receive a low priority (reniced to big values)
+                                                                   |  NO_BG_NICE               background process (ex. cmd_xxx &) do not receive a low priority (reniced to big values)
                                                                    |  NOTIFY
                                                                    |                           % sleep 3 &
                                                                    |                           [1] 40366
@@ -315,14 +315,33 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
  2.5.2: Options for csh junkies                                    |
                                                                    |
+                                                                   |
  2.5.3: The history mechanism: types of history                    |
-                                                                   |  'events'               is the name used to mean a previous command in the history
+                                                                   |   events                  for some reason, any single entry in the history is called 'event'
                                                                    |
                                                                    |  1. Editing the history directly     with the arrows I move on the line and the I edit
-                                                                   |                                      The editor used is retrieved in order by the 2 vars $VISUAL then $EDITOR
-                                                                   |                                      (ex. set them to be both 'vi' or 'vim')
+                                                                   |                                      The editor used is retrieved by the 2 vars:
+                                                                   |        $VISUAL or $EDITOR      in that order.  (ex. set them to be both 'vi' or 'vim')
                                                                    |
-                                                                   |  2. BANG '!'                         The usual (ex !!:1 last  command 1st arg .... !!:3-$   last command args from 3rd to the end)
+                                                                   |                           historically
+                                                                   |                                        $VISUAL  full-screen editor
+                                                                   |                                        $EDITOR  line editor (ex. ed)
+                                                                   |                           now
+                                                                   |                                        If either =vi ---> LINE editor will start in vi mode
+                                                                   |                                        else emacs mode.
+                                                                   |
+                                                                   |                                        or
+                                                                   |                                           ~/.zshrc:   `bindkey -v' (set vi)
+                                                                   |                                                       `bindkey -e' (set emacs)
+                                                                   |
+                                                                   |                           remember vi starts in insert, so `ESC' to enter vi commands.
+                                                                   |
+                                                                   |
+                                                                   |  2. BANG '!'              The usual (ex !!:1 .... !!:3-$   )
+                                                                   |                           !!
+                                                                   |                           !!:1       last  command 1st arg
+                                                                   |                           !!:1-3     last command args from 3rd to the end
+                                                                   |                           !!:1-$     (...still range, $ is possible)
                                                                    |                                        .NO_BANG_HIST   option to disable
                                                                    |                                        .HIST_VERIFY    option to print first what will be the command and the run with an ENTER
                                                                    |
@@ -348,7 +367,7 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                      ex: :t:r    dir/file.c   --> file
                                                                    |                                      ex: :h:h    /Users/sbasile/CHL/chl-perl/websystems/MODULES --> /Users/sbasile/CHL/chl-perl
                                                                    |
-                                                                   |  3. fc                               it's the usual builtin
+                                                                   |  3. fc                    it's the usual bultin. It's the history itself. It opens an editor.
                                                                    |
  2.5.4: Setting up history                                         |
                                                                    |   $HISTFILE                          file where to save (ex. ~/.history')
@@ -468,243 +487,424 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                     ex. /usr/local/Cellar/zsh/5.4.2_3/share/zsh/functions/colors <-----
                                                                    |_________________________
  2.5.7: Named directories                                          |
+                                                                   |   A
  2.5.8: `Go faster' options for power users                        |
+                                                                   |   A
  2.5.9: aliases                                                    |
+                                                                   |   A
  2.5.10: Environment variables                                     |
+                                                                   |   A
  2.5.11: Path                                                      |
+                                                                   |   A
  2.5.12: Mail                                                      |
+                                                                   |   A
  2.5.13: Other path-like things                                    |
+                                                                   |   A
  2.5.14: Version-specific things                                   |
+                                                                   |   A
  2.5.15: Everything else                                           |
+                                                                   |   A
                                                                    |
  Chapter 3: Dealing with basic shell syntax                        |
+                                                                   |   A
                                                                    |
  3.1: External commands                                            |
+                                                                   |   A
  3.2: Builtin commands                                             |
+                                                                   |   A
                                                                    |
  3.2.1: Builtins for printing                                      |
+                                                                   |   A
  3.2.2: Other builtins just for speed                              |
+                                                                   |   A
  3.2.3: Builtins which change the shell's state                    |
+                                                                   |   A
  3.2.4: cd and friends                                             |
+                                                                   |   A
  3.2.5: Command control and information commands                   |
+                                                                   |   A
  3.2.6: Parameter control                                          |
+                                                                   |   A
  3.2.7: History control commands                                   |
+                                                                   |   A
  3.2.8: Job control and process control                            |
+                                                                   |   A
  3.2.9: Terminals, users, etc.                                     |
+                                                                   |   A
  3.2.10: Syntactic oddments                                        |
+                                                                   |   A
  3.2.11: More precommand modifiers: exec, noglob                   |
+                                                                   |   A
  3.2.12: Testing things                                            |
+                                                                   |   A
  3.2.13: Handling options to functions and scripts                 |
+                                                                   |   A
  3.2.14: Random file control things                                |
+                                                                   |   A
  3.2.15: Don't watch this space, watch some other                  |
+                                                                   |   A
  3.2.16: And also                                                  |
+                                                                   |   A
                                                                    |
  3.3: Functions                                                    |
+                                                                   |   A
                                                                    |
  3.3.1: Loading functions                                          |
+                                                                   |   A
  3.3.2: Function parameters                                        |
+                                                                   |   A
  3.3.3: Compiling functions                                        |
+                                                                   |   A
                                                                    |
  3.4: Aliases                                                      |
+                                                                   |   A
  3.5: Command summary                                              |
+                                                                   |   A
  3.6: Expansions and quotes                                        |
+                                                                   |   A
                                                                    |
  3.6.1: History expansion                                          |
+                                                                   |   A
  3.6.2: Alias expansion                                            |
+                                                                   |   A
  3.6.3: Process, parameter, command, arithmetic and brace expansion|
+                                                                   |   A
  3.6.4: Filename Expansion                                         |
+                                                                   |   A
  3.6.5: Filename Generation                                        |
+                                                                   |   A
                                                                    |
  3.7: Redirection: greater-thans and less-thans                    |
+                                                                   |   A
                                                                    |
  3.7.1: Clobber                                                    |
+                                                                   |   A
  3.7.2: File descriptors                                           |
+                                                                   |   A
  3.7.3: Appending, here documents, here strings, read write        |
+                                                                   |   A
  3.7.4: Clever tricks: exec and other file descriptors             |
+                                                                   |   A
  3.7.5: Multios                                                    |
+                                                                   |   A
                                                                    |
  3.8: Shell syntax: loops, (sub)shells and so on                   |
+                                                                   |   A
                                                                    |
  3.8.1: Logical command connectors                                 |
+                                                                   |   A
  3.8.2: Structures                                                 |
+                                                                   |   A
  3.8.3: Subshells and current shell constructs                     |
+                                                                   |   A
  3.8.4: Subshells and current shells                               |
+                                                                   |   A
                                                                    |
  3.9: Emulation and portability                                    |
+                                                                   |   A
                                                                    |
  3.9.1: Differences in detail                                      |
+                                                                   |   A
  3.9.2: Making your own scripts and functions portable             |
+                                                                   |   A
                                                                    |
  3.10: Running scripts                                             |
+                                                                   |   A
                                                                    |
  Chapter 4: The Z-Shell Line Editor                                |
+                                                                   |   A
                                                                    |
  4.1: Introducing zle                                              |
+                                                                   |   A
                                                                    |
  4.1.1: The simple facts                                           |
+                                                                   |   A
  4.1.2: Vi mode                                                    |
+                                                                   |   A
                                                                    |
  4.2: Basic editing                                                |
+                                                                   |   A
                                                                    |
  4.2.1: Moving                                                     |
+                                                                   |   A
  4.2.2: Deleting                                                   |
+                                                                   |   A
  4.2.3: More deletion                                              |
+                                                                   |   A
                                                                    |
  4.3: Fancier editing                                              |
+                                                                   |   A
                                                                    |
  4.3.1: Options controlling zle                                    |
+                                                                   |   A
  4.3.2: The minibuffer and extended commands                       |
+                                                                   |   A
  4.3.3: Prefix (digit) arguments                                   |
+                                                                   |   A
  4.3.4: Words, regions and marks                                   |
+                                                                   |   A
  4.3.5: Regions and marks                                          |
+                                                                   |   A
                                                                    |
  4.4: History and searching                                        |
+                                                                   |   A
                                                                    |
  4.4.1: Moving through the history                                 |
- 4.4.2: Searching through the history                                       |
- 4.4.3: Extracting words from the history                                   |
-                                                                            |
- 4.5: Binding keys and handling keymaps                                     |
-                                                                            |
- 4.5.1: Simple key bindings                                                 |
- 4.5.2: Removing key bindings                                               |
- 4.5.3: Function keys and so on                                             |
- 4.5.4: Binding strings instead of commands                                 |
- 4.5.5: Keymaps                                                             |
-                                                                            |
- 4.6: Advanced editing                                                      |
-                                                                            |
- 4.6.1: Multi-line editing                                                  |
- 4.6.2: The builtin vared and the function zed                              |
- 4.6.3: The buffer stack                                                    |
-                                                                            |
- 4.7: Extending zle                                                         |
-                                                                            |
- 4.7.1: Widgets                                                             |
- 4.7.2: Executing other widgets                                             |
- 4.7.3: Some special builtin widgets and their uses                         |
- 4.7.4: Special parameters: normal text                                     |
- 4.7.5: Other special parameters                                            |
- 4.7.6: Reading keys and using the minibuffer                               |
- 4.7.7: Examples                                                            |
-                                                                            |
- Chapter 5: Substitutions                                                   |
-                                                                            |
- 5.1: Quoting                                                               |
-                                                                            |
- 5.1.1: Backslashes                                                         |
- 5.1.2: Single quotes                                                       |
- 5.1.3: POSIX quotes                                                        |
- 5.1.4: Double quotes                                                       |
- 5.1.5: Backquotes                                                          |
-                                                                            |
- 5.2: Modifiers and what they modify                                        |
- 5.3: Process Substitution                                                  |
- 5.4: Parameter substitution                                                |
-                                                                            |
- 5.4.1: Using arrays                                                        |
- 5.4.2: Using associative arrays                                            |
- 5.4.3: Substituted substitutions, top- and tailing, etc.                   |
- 5.4.4: Flags for options: splitting and joining                            |
- 5.4.5: Flags for options: GLOB_SUBST and RC_EXPAND_PARAM                   |
- 5.4.6: Yet more parameter flags                                            |
- 5.4.7: A couple of parameter substitution tricks                           |
- 5.4.8: Nested parameter substitutions                                      |
-                                                                            |
- 5.5: That substitution again                                               |
- 5.6: Arithmetic Expansion                                                  |
-                                                                            |
- 5.6.1: Entering and outputting bases                                       |
- 5.6.2: Parameter typing                                                    |
-                                                                            |
- 5.7: Brace Expansion and Arrays                                            |
- 5.8: Filename Expansion                                                    |
- 5.9: Filename Generation and Pattern Matching                              |
-                                                                            |
- 5.9.1: Comparing patterns and regular expressions                          |
- 5.9.2: Standard features                                                   |
- 5.9.3: Extensions usually available                                        |
- 5.9.4: Extensions requiring EXTENDED_GLOB                                  |
- 5.9.5: Recursive globbing                                                  |
- 5.9.6: Glob qualifiers                                                     |
- 5.9.7: Globbing flags: alter the behaviour of matches                      |
- 5.9.8: The function zmv                                                    |
-                                                                            |
- Chapter 6: Completion, old and new                                         |
-                                                                            |
- 6.1: Completion and expansion                                              |
- 6.2: Configuring completion using shell options                            |
-                                                                            |
- 6.2.1: Ambiguous completions                                               |
- 6.2.2: ALWAYS_LAST_PROMPT                                                  |
- 6.2.3: Menu completion and menu selection                                  |
- 6.2.4: Other ways of changing completion behaviour                         |
- 6.2.5: Changing the way completions are displayed                          |
-                                                                            |
- 6.3: Getting started with new completion                                   |
- 6.4: How the shell finds the right completions                             |
-                                                                            |
- 6.4.1: Contexts                                                            |
- 6.4.2: Tags                                                                |
-                                                                            |
- 6.5: Configuring completion using styles                                   |
-                                                                            |
- 6.5.1: Specifying completers and their options                             |
- 6.5.2: Changing the format of listings: groups etc.                        |
- 6.5.3: Styles affecting particular completions                             |
-                                                                            |
- 6.6: Command widgets                                                       |
-                                                                            |
- 6.6.1: _complete_help                                                      |
- 6.6.2: _correct_word, _correct_filename, _expand_word                      |
- 6.6.3: _history_complete_word                                              |
- 6.6.4: _most_recent_file                                                   |
- 6.6.5: _next_tags                                                          |
- 6.6.6: _bash_completions                                                   |
- 6.6.7: _read_comp                                                          |
- 6.6.8: _generic                                                            |
- 6.6.9: predict-on, incremental-complete-word                               |
-                                                                            |
- 6.7: Matching control and controlling where things are inserted            |
-                                                                            |
- 6.7.1: Case-insensitive matching                                           |
- 6.7.2: Matching option names                                               |
- 6.7.3: Partial word completion                                             |
- 6.7.4: Substring completion                                                |
- 6.7.5: Partial words with capitals                                         |
- 6.7.6: Final notes                                                         |
-                                                                            |
- 6.8: Tutorial                                                              |
-                                                                            |
- 6.8.1: The dispatcher                                                      |
- 6.8.2: Subcommand completion: _arguments                                   |
- 6.8.3: Completing particular argument types                                |
- 6.8.4: The rest                                                            |
-                                                                            |
- 6.9: Writing new completion functions and widgets                          |
-                                                                            |
- 6.9.1: Loading completion functions: compdef                               |
- 6.9.2: Adding a set of completions: compadd                                |
- 6.9.3: Functions for generating filenames, etc.                            |
- 6.9.4: The zsh/parameter module                                            |
- 6.9.5: Special completion parameters and compset                           |
- 6.9.6: Fancier completion: using the tags and styles mechanism             |
- 6.9.7: Getting the work done for you: handling arguments etc.              |
- 6.9.8: More completion utility functions                                   |
-                                                                            |
- 6.10: Finally                                                              |
-                                                                            |
- Chapter 7: Modules and other bits and pieces Not written                   |
-                                                                            |
- 7.1: Control over modules: zmodload                                        |
-                                                                            |
- 7.1.1: Modules defining parameters                                         |
- 7.1.2: Low-level system interaction                                        |
- 7.1.3: ZFTP                                                                |
-                                                                            |
- 7.2: Contributed bits                                                      |
-                                                                            |
- 7.2.1: Prompt themes                                                       |
-                                                                            |
- 7.3: What's new in 4.1                                                     |
+                                                                   |   A
+ 4.4.2: Searching through the history                              |
+                                                                   |   A
+ 4.4.3: Extracting words from the history                          |
+                                                                   |   A
+                                                                   |
+ 4.5: Binding keys and handling keymaps                            |
+                                                                   |   A
+                                                                   |
+ 4.5.1: Simple key bindings                                        |
+                                                                   |   A
+ 4.5.2: Removing key bindings                                      |
+                                                                   |   A
+ 4.5.3: Function keys and so on                                    |
+                                                                   |   A
+ 4.5.4: Binding strings instead of commands                        |
+                                                                   |   A
+ 4.5.5: Keymaps                                                    |
+                                                                   |   A
+                                                                   |
+ 4.6: Advanced editing                                             |
+                                                                   |   A
+                                                                   |
+ 4.6.1: Multi-line editing                                         |
+                                                                   |   A
+ 4.6.2: The builtin vared and the function zed                     |
+                                                                   |   A
+ 4.6.3: The buffer stack                                           |
+                                                                   |   A
+                                                                   |
+ 4.7: Extending zle                                                |
+                                                                   |   A
+                                                                   |
+ 4.7.1: Widgets                                                    |
+                                                                   |   A
+ 4.7.2: Executing other widgets                                    |
+                                                                   |   A
+ 4.7.3: Some special builtin widgets and their uses                |
+                                                                   |   A
+ 4.7.4: Special parameters: normal text                            |
+                                                                   |   A
+ 4.7.5: Other special parameters                                   |
+                                                                   |   A
+ 4.7.6: Reading keys and using the minibuffer                      |
+                                                                   |   A
+ 4.7.7: Examples                                                   |
+                                                                   |   A
+                                                                   |
+ Chapter 5: Substitutions                                          |
+                                                                   |   A
+                                                                   |
+ 5.1: Quoting                                                      |
+                                                                   |   A
+                                                                   |
+ 5.1.1: Backslashes                                                |
+                                                                   |   A
+ 5.1.2: Single quotes                                              |
+                                                                   |   A
+ 5.1.3: POSIX quotes                                               |
+                                                                   |   A
+ 5.1.4: Double quotes                                              |
+                                                                   |   A
+ 5.1.5: Backquotes                                                 |
+                                                                   |   A
+                                                                   |
+ 5.2: Modifiers and what they modify                               |
+                                                                   |   A
+ 5.3: Process Substitution                                         |
+                                                                   |   A
+ 5.4: Parameter substitution                                       |
+                                                                   |   A
+                                                                   |
+ 5.4.1: Using arrays                                               |
+                                                                   |   A
+ 5.4.2: Using associative arrays                                   |
+                                                                   |   A
+ 5.4.3: Substituted substitutions, top- and tailing, etc.          |
+                                                                   |   A
+ 5.4.4: Flags for options: splitting and joining                   |
+                                                                   |   A
+ 5.4.5: Flags for options: GLOB_SUBST and RC_EXPAND_PARAM          |
+                                                                   |   A
+ 5.4.6: Yet more parameter flags                                   |
+                                                                   |   A
+ 5.4.7: A couple of parameter substitution tricks                  |
+                                                                   |   A
+ 5.4.8: Nested parameter substitutions                             |
+                                                                   |   A
+                                                                   |
+ 5.5: That substitution again                                      |
+                                                                   |   A
+ 5.6: Arithmetic Expansion                                         |
+                                                                   |   A
+                                                                   |
+ 5.6.1: Entering and outputting bases                              |
+                                                                   |   A
+ 5.6.2: Parameter typing                                           |
+                                                                   |   A
+                                                                   |
+ 5.7: Brace Expansion and Arrays                                   |
+                                                                   |   A
+ 5.8: Filename Expansion                                           |
+                                                                   |   A
+ 5.9: Filename Generation and Pattern Matching                     |
+                                                                   |   A
+                                                                   |
+ 5.9.1: Comparing patterns and regular expressions                 |
+                                                                   |   A
+ 5.9.2: Standard features                                          |
+                                                                   |   A
+ 5.9.3: Extensions usually available                               |
+                                                                   |   A
+ 5.9.4: Extensions requiring EXTENDED_GLOB                         |
+                                                                   |   A
+ 5.9.5: Recursive globbing                                         |
+                                                                   |   A
+ 5.9.6: Glob qualifiers                                            |
+                                                                   |   A
+ 5.9.7: Globbing flags: alter the behaviour of matches             |
+                                                                   |   A
+ 5.9.8: The function zmv                                           |
+                                                                   |   A
+                                                                   |
+ Chapter 6: Completion, old and new                                |
+                                                                   |   A
+                                                                   |
+ 6.1: Completion and expansion                                     |
+                                                                   |   A
+ 6.2: Configuring completion using shell options                   |
+                                                                   |   A
+                                                                   |
+ 6.2.1: Ambiguous completions                                      |
+                                                                   |   A
+ 6.2.2: ALWAYS_LAST_PROMPT                                         |
+                                                                   |   A
+ 6.2.3: Menu completion and menu selection                         |
+                                                                   |   A
+ 6.2.4: Other ways of changing completion behaviour                |
+                                                                   |   A
+ 6.2.5: Changing the way completions are displayed                 |
+                                                                   |   A
+                                                                   |
+ 6.3: Getting started with new completion                          |
+                                                                   |   A
+ 6.4: How the shell finds the right completions                    |
+                                                                   |   A
+                                                                   |
+ 6.4.1: Contexts                                                   |
+                                                                   |   A
+ 6.4.2: Tags                                                       |
+                                                                   |   A
+                                                                   |
+ 6.5: Configuring completion using styles                          |
+                                                                   |   A
+                                                                   |
+ 6.5.1: Specifying completers and their options                    |
+                                                                   |   A
+ 6.5.2: Changing the format of listings: groups etc.               |
+                                                                   |   A
+ 6.5.3: Styles affecting particular completions                    |
+                                                                   |   A
+                                                                   |
+ 6.6: Command widgets                                              |
+                                                                   |   A
+                                                                   |
+                                                                   |   A
+ 6.6.1: _complete_help                                             |
+                                                                   |   A
+ 6.6.2: _correct_word, _correct_filename, _expand_word             |
+                                                                   |   A
+ 6.6.3: _history_complete_word                                     |
+                                                                   |   A
+ 6.6.4: _most_recent_file                                          |
+                                                                   |   A
+ 6.6.5: _next_tags                                                 |
+                                                                   |   A
+ 6.6.6: _bash_completions                                          |
+                                                                   |   A
+ 6.6.7: _read_comp                                                 |
+                                                                   |   A
+ 6.6.8: _generic                                                   |
+                                                                   |   A
+ 6.6.9: predict-on, incremental-complete-word                      |
+                                                                   |   A
+                                                                   |
+ 6.7: Matching control and controlling where things are inserted   |
+                                                                   |   A
+                                                                   |
+ 6.7.1: Case-insensitive matching                                  |
+                                                                   |   A
+ 6.7.2: Matching option names                                      |
+                                                                   |   A
+ 6.7.3: Partial word completion                                    |
+                                                                   |   A
+ 6.7.4: Substring completion                                       |
+                                                                   |   A
+ 6.7.5: Partial words with capitals                                |
+                                                                   |   A
+ 6.7.6: Final notes                                                |
+                                                                   |   A
+                                                                   |
+ 6.8: Tutorial                                                     |
+                                                                   |   A
+                                                                   |
+ 6.8.1: The dispatcher                                             |
+                                                                   |   A
+ 6.8.2: Subcommand completion: _arguments                          |
+                                                                   |   A
+ 6.8.3: Completing particular argument types                       |
+                                                                   |   A
+ 6.8.4: The rest                                                   |
+                                                                   |   A
+                                                                   |
+ 6.9: Writing new completion functions and widgets                 |
+                                                                   |   A
+                                                                   |
+ 6.9.1: Loading completion functions: compdef                      |
+                                                                   |   A
+ 6.9.2: Adding a set of completions: compadd                       |
+                                                                   |   A
+ 6.9.3: Functions for generating filenames, etc.                   |
+                                                                   |   A
+ 6.9.4: The zsh/parameter module                                   |
+                                                                   |   A
+ 6.9.5: Special completion parameters and compset                  |
+                                                                   |   A
+ 6.9.6: Fancier completion: using the tags and styles mechanism    |
+                                                                   |   A
+ 6.9.7: Getting the work done for you: handling arguments etc.     |
+                                                                   |   A
+ 6.9.8: More completion utility functions                          |
+                                                                   |   A
+                                                                   |
+ 6.10: Finally                                                     |
+                                                                   |   A
+                                                                   |
+ Chapter 7: Modules and other bits and pieces Not written          |
+                                                                   |   A
+                                                                   |
+ 7.1: Control over modules: zmodload                               |
+                                                                   |   A
+                                                                   |
+ 7.1.1: Modules defining parameters                                |
+                                                                   |   A
+ 7.1.2: Low-level system interaction                               |
+                                                                   |   A
+ 7.1.3: ZFTP                                                       |
+                                                                   |   A
+                                                                   |
+ 7.2: Contributed bits                                             |
+                                                                   |   A
+                                                                   |
+ 7.2.1: Prompt themes                                              |
+                                                                   |   A
+                                                                   |
+ 7.3: What's new in 4.1                                            |
+                                                                   |   A
 

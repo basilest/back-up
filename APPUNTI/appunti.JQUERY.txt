@@ -1,10 +1,17 @@
 
+    support to extensions (easy to writ plugins and attach to jquery)
+
+______________________________________
+
 
 
  jQuery:   JAVASCRIPT library (is 1 single .js file ex. jquery-1.12.4.min.js) to have:
 
                       - fast & short Javascript code ready
-                      - no more cross-browser issue (support back to IE 6)
+                      - no more cross-browser issue (support back to IE 6, jQueri < 2.0
+                                                     while jQuery >= 2.0 has dropped old browsers support)
+                      - http://api.jquery.com  <--- official documentation
+                      - open source with MIT license
 
  INSTALL jQUERY       . download from jQuery.com  and then put it in the same dir
                         of the file where it must be used and where you write this:
@@ -12,6 +19,9 @@
                            <head>
                            <script src="jquery-1.12.4.min.js"></script>
                            </head>
+
+                        The advantage of this solution is that, as a developer,
+                        I can run my code even while offline.
 
                       - Otherwise link directly to an external CDN (Content Delivery Network)
                         like Google or Microsoft:
@@ -59,6 +69,11 @@
                            $(".test").hide()     hides all elements with class="test".
                            $("#test").hide()     hides the element with id="test".
 
+                           $("#" + var).hide()   
+                                 ^^^^^
+                                 I build the value (javascript concat '+') if it's not known
+
+
 
 
  RULE ON START        . whatever is the jQuery code, put it inside the .ready event
@@ -91,7 +106,7 @@
                           $("p:first")              Selects first <p>
                           $("ul li:first")          Selects first <li> of the first <ul>
                           $("ul li:first-child")    Selects first <li> of every <ul>
-                          $("[href]")               Selects all el with an href ATTRIBUTE
+                          $("[href]")               Selects all el with a href ATTRIBUTE
                           $("a[target='_blank']")   Selects all <a>  with a target attribute value equal to "_blank"
                           $("a[target!='_blank']")  Selects all <a>  with a target attribute value NOT equal to "_blank"
                           $(":button")              Selects all <button>  and <input> of type="button"
@@ -232,6 +247,8 @@
 
  CHAINING             . A short syntax allows to CHIAN (with a '.') more actions on the same elem
                         avoding to select it again (it also allows to go onto a new line)
+                        (this works, because any jquery funcitions return always the object itself
+                         so that chaining more functions, they all work on the same object)
                         ex:
                              $("#p1").css("color", "red").slideUp(2000).slideDown(2000);
                         or:

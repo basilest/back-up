@@ -151,7 +151,7 @@ ___________________________________________________________________________ GO d
       int a[3];         a [3]int            the human sentence          a is an array of ints
     ___ C _____       ____ GO_____
 
-___________________________________________________________________________ BASIC TYPE
+___________________________________________________________________________ BASIC TYPEs
 
          int  int8  int16  int32  int64
          uint uint8 uint16 uint32 uint64 uintptr
@@ -409,7 +409,14 @@ ___________________________________________________________________________ ARRA
 
                                  -  slices cannot be re-sliced below zero to access earlier elements in the array.
 
-       LEN & CAPACITY OF SLICES :
+       LEN & CAPACITY OF SLICES :            0   1   2   3   4   5   6   7   8    <--- indexes
+                                           ____________________________________
+                                           | a | b | c | d | e | f | g | h | i |
+                                           |___|___|___|___|___|___|___|___|___|   <---- array
+                                                   /__________________________/........................CAPACITY:7
+                                                    ____________________
+                                                    | 1 | 2 | 3 | 4 | 5 |          <---- slice:  LEN:5  CAP:7
+                                                    |___|___|___|___|___|
 
                         A slice has both
                             capacity : the max number of elements in the underlying array it can address
@@ -492,7 +499,7 @@ ___________________________________________________________________________ METH
          The receiver appears (in its own argument list) between func and func_name.
 
          func (v Vertex) Abs() float64 {
-                  ^      ^                       <----- inside the use is directly on v
+                  ^      ^                       <----- inside the function, the use is directly on v
                   ^      ^                              so there is no need of 'this' keyword
            receiver      func_name
            argument.
@@ -825,7 +832,7 @@ ___________________________________________________________________________
                                               This allowed to fix the above problems
                                               Moreover the possibility to remove the #ifndef speeded up the compilation time
 
-              . GO doens't compile if a package is not required  (avoiding having unused code on board)
+              . GO doesn't compile if a package is not required  (avoiding having unused code on board)
                 So no warning but error!
 
               . GO compile each imported package into an object.

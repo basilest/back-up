@@ -2487,6 +2487,14 @@ File::Spec
 
             my $new_name = File::Spec->catfile($dirname, $basename); # use od -> as it's a CLASS
 
+Deparse
+            perl -MO=Deparse -e 'sub number() { 42 }; my $n = number'      will create
+                                                                                sub number () {
+                                                                                    42;
+                                                                                }
+                                                                                my $n = 42;
+                                                                                -e syntax OK
+
 CGI.pm      To make all the CGI stuff easy (do not reinvent the wheel. Use what it's tested and debugged)
 
             use CGI qw(:all);                             <------ load all functions from CGI module
