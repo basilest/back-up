@@ -197,8 +197,8 @@ ARRAYS
                                   .            Array.new               new of class Array to create an empty one (ex. days_of_week = Array.new)
                                   .            Array.new(7)            creates an aray of 7 (nil) elements
                                   .            Array.new(7, "xx")      creates an aray of 7 elements, all  init. to "xx"
-                                  .            Array.[]                method '[]' of classa Array to init (ex. days_of_week = Array[ "Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun" ])
-                                  .            []                      shorten of the above                (ex. days_of_week =      [ "Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun" ]
+                                  .            Array.[]                method '[]' of class Array to init (ex. days_of_week = Array[ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ])
+                                  .            []                      shorten of the above               (ex. days_of_week =      [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ]
                                   .
                                   .
                                   .   accessing   (read/write) ... as usual
@@ -212,9 +212,9 @@ ARRAYS
                                   .            days_of_week[1..2] = "Martedi", "Mercoledi"     write many, using range
                                   .
                                   .
-                                  .   extracting sub-arraies
+                                  .   extracting sub-array
                                   .
-                                  .            days_of_week[1, 3]          I must specify (starting (here 1) and how many entries here 3) ex  ["Tues", "Wed", "Thu"]
+                                  .            days_of_week[1, 3]          I must specify (starting (here 1) and how many entries( here 3) ex  ["Tue", "Wed", "Thu"]
                                   .            days_of_week[1..3]          same of the above, using Ranges
                                   .            days_of_week slice(1..3)    same of the above, using 'slice'
                                   .
@@ -457,9 +457,60 @@ STRINGS
                                   .
                                   .
                                   .
+                                  .            |   []                    this operator on strings, allows to quickly REPLACE the (1st occurrence) of the highlighted part
+                                  .            |                         ex. on a="Welcome to JavaScript!"
+                                  .    R       |
+                                  .            |                               .highlighted as STRING:      a["JavaScript"]= "Ruby"  --> "Welcome to Ruby!"
+                                  .    E       |                               .highlighted as INDEX:       a[10]= "Ruby"            --> "Welcome toRubyJavaScript!"
+                                  .            |                               .highlighted as RANGE:       a[8..20]= "Ruby"         --> "Welcome Ruby!"
+                                  .    P       |
+                                  .            |
+                                  .    L       | .gsub / .gsub!        the search & REPLACE functionality
+                                  .            |                       ex. on a="Welcome to PHP Essentials!"
+                                  .    A       |                            a.gsub("PHP", "Ruby")    --> "Welcome to Ruby Essentials!"
+                                  .            |
+                                  .    C       |                       .gsub  returns the modified string, keeping unchanged the original.
+                                  .            |                       .gsub! changes the original.
+                                  .    E       |
+                                  .            |
+                                  .            | .replace              REPLACES fully
+                                  .            |                       ex. on a="aaaaaa"
+                                  .            |                            a.replace "bbbbb"
+                                  .            |
+                                  .            |
+                                  .            | * 3                   * n, REPLACES the string n times
+                                  .            |                       ex. on a="a-"
+                                  .            |                            a * 3   --> "a-a-a-"
+                                  .            |
+                                  .            | .chop / .chop!        removes trailing char (whatever it is) (chop! changes the original)
+                                  .            | .chomp / .chomp!      removes the trailing char only it is the record separator $/ (default \n)
+                                  .            |
+                                  .            |
+                                  .            | .reverse              a="Paris in the Spring"     a.reverse   --> "gnirpS eht ni siraP"
+                                  .            |
+                                  .
+                                  .
+                                  .    I       |
+                                  .    N       |
+                                  .    S       |
+                                  .    E       | .insert              ex. on a="Paris in Spring"
+                                  .    R       |                           a.insert 8, " the"    -->  "Paris in the Spring"
+                                  .    T       |
                                   .
                                   .
                                   .
+
+STRING CONVERSION
+                                  .  .split        ARRAY  <-- STRING     I can specify a regex:    "Red, Green, Blue, Indigo, Violet".split(/, /)
+                                  .  .to_i         INT    <-- STRING     "10".to_i     10
+                                  .  .to_f         FLOAT  <-- STRING     "10.0".to_f   10.0
+                                  .  .to_sym       SYMBOL <-- STRING     "aaa".to_sym  :aaa
+                                  .
+                                  .  .capitalize / .capitalize!         converts Uppercase 1st letter
+                                  .
+                                  .  .upcase
+                                  .  .downcase
+                                  .  .swapcase
                                   .
                                   .
                                   .
@@ -467,64 +518,52 @@ STRINGS
                                   .
                                   .
 
-EVERYTHING IS AN OBJECT
+FILE SYSTEM
+                                  .  DIR           Dir.pwd               current dir
+                                  .                Dir.chdir             cd
+                                  .                Dir.mkdir
+                                  .                Dir.entries(".")      ls   (any pathname is ok)
+                                  .                Dir.foreach(".")      Dir.foreach(".") { |file| puts file }
+                                  .                                      it's like a language sugar, as I could do in 2 steps
+                                  .                                      Dir.entries(".").each { |file| puts file }
+                                  .
+                                  .  FILE          File.new              File.new("f.txt", "w")     'r''w'(start of file)  'a'(end of file)  r+,w+,a+ (all same: read + write)
+                                  .                File.open             File.open("f.txt")     File.open("f.txt", "r")
+                                  .                File.rename           File.rename("old.txt", "new.txt")
+                                  .                File.delete           File.delete("old.txt")
+                                  .                File.exists?          File.exists?("a.txt")
+                                  .                File.file?            File.file?("a.txt")   true if not a fir
+                                  .                File.directory?       File.file?("a.txt")   true if a fir
+                                  .                File.ftype?           File.file?("a.txt")   (ranges can be "file" "directory" or "blockSpecial")
+                                  .                File.readable?
+                                  .                File.writebale?
+                                  .                File.executable?
+                                  .                File.size?
+                                  .                File.zero?            empty
+                                  .                File.ctime?
+                                  .                File.atime?
+                                  .                File.mtime?
+                                  .
+                                  .                x.close               closes the file
+                                  .                x.closed?             tests if it's open
                                   .
                                   .
+                                  .                x.getc.chr            reads char by char
+                                  .                x.putc.chr            writes char by char
+                                  .                x.readline            reads 1 line from file
+                                  .                x.puts                writes 1 string
+                                  .                x.rewind              moves pointer to start
+                                  .                x.each {|l| print l}  loops through all the lines
                                   .
+DATES  &  TIMES
+                                  .   require 'date'      must be included the library as first thing
                                   .
+                                  .  d = Date.new(2008, 12, 22)
+                                  .      d.day   --> 22
+                                  .      d.month
+                                  .      d.year
                                   .
-                                  .
-
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-
-EVERYTHING IS AN OBJECT
-                                  .
-                                  .
-                                  .
-                                  .
+                                  .  d = DateTime.now
+                                  .  d = DateTime.new(2008, 12, 22, 14, 30)
                                   .
                                   .
