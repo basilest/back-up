@@ -532,8 +532,8 @@ FILE SYSTEM
                                   .                File.rename           File.rename("old.txt", "new.txt")
                                   .                File.delete           File.delete("old.txt")
                                   .                File.exists?          File.exists?("a.txt")
-                                  .                File.file?            File.file?("a.txt")   true if not a fir
-                                  .                File.directory?       File.file?("a.txt")   true if a fir
+                                  .                File.file?            File.file?("a.txt")   true if not a dir
+                                  .                File.directory?       File.file?("a.txt")   true if a dir
                                   .                File.ftype?           File.file?("a.txt")   (ranges can be "file" "directory" or "blockSpecial")
                                   .                File.readable?
                                   .                File.writebale?

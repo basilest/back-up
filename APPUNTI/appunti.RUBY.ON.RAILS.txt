@@ -1,0 +1,654 @@
+INSTALLATION                      .   using RubyGems, included with Ruby.
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+JAVASCRIPT LIBRARIES              .  extensive use of JavaScript libraries: jQuery and Script.aculo.us, for scripting Ajax actions.
+                                  .
+                                  .  CoffeeScript was introduced in Rails 3.1 as the default JavaScript language.
+                                  .
+HTML / XML                        .  both HTML and XML are supported as standard output formats. XML is the facility for RESTful web services.
+                                  .
+                                  .
+CSS  / SASS                       .  SASS is the standard for CSS templating
+                                  .
+                                  .
+                                  .
+
+RUN A PROG
+                                  .
+                                  .   $0      The name of the script
+                                  .   $*      The command line arguments used to invoke the script
+                                  .
+                                  .   $/      The input record separator
+                                  .   $\      The output record separator
+                                  .   $_      The string last read by gets
+                                  .
+                                  .   $?      The exit status of last executed child process
+                                  .   $$      The Ruby interpreter's process ID
+                                  .
+                                  .   $.      The line number last read by interpreter
+                                  .   $@      The location of latest error
+                                  .
+                                  .   $&      The string last matched by regexp
+                                  .   $~      The last regexp match, as an array of subexpressions
+                                  .   $n      The nth subexpression in the last match (same as $~[n])
+                                  .
+                                  .   $=      The case-insensitivity flag
+                                  .
+                                  .
+                                             DN Table                    Ruby file
+                                             __________                 __________                    __________                 __________
+                                            |__________|               |          |                  |          |               |          |
+                                            |__       _|    model      |          |                  |          |               |          |
+                                            |_ users __|  <-------->   | user.rb  |                  |          |               |          |
+                                            |__________|               |          |                  |          |               |          |
+                                            |__________|               |          |                  |          |               |          |
+                                            |__________|               |__________|                  |__________|               |__________|
+
+                                                       model: maps
+                                                              1 Ruby file to
+                                                              1 DB Table
+
+
+
+                                                       controller: Back-End component
+                                                                   to render a Ruby file.
+                                                                       scaffold :model_name   <--- line added in the controller
+                                                                                                   Rails will generate run time all the appropriate
+                                                                                                   DB interface (so no way to customize)
+
+                                                                       rails generate scaffold model_name   <--- external command to generate/save
+                                                                                                                 the Ruby code (so I can customize
+                                                                                                                 but I lose the run-time flexibility)
+
+
+                                                       view: HTML template files (usually erb files)
+                                                              1 Ruby file to
+                                                              1 DB Table
+
+
+                                                       model: maps
+                                                              1 Ruby file to
+                                                              1 DB Table
+
+
+ WEBrick                          .  a simple Ruby web server
+                                  .
+                                  .
+
+routes.rb                         .  config file to map incoming requests / routes  <---> controllers
+                                  .
+                                  .
+                                  .
+
+Rake                              .  A build tool, distributed as a gem
+                                  .
+                                  .
+
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+NUMBERS
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
+                                  .
