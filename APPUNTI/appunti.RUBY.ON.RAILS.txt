@@ -1,5 +1,7 @@
 INSTALLATION                      .   using RubyGems, included with Ruby.
-                                  .
+                                  .   This will provide a command line exe:  > rails
+                                  .   with many subcommands (ex.
+                                  .                             rails server    <--- runs a development WEB server)
                                   .
                                   .
                                   .
@@ -12,7 +14,7 @@ HTML / XML                        .  both HTML and XML are supported as standard
                                   .
                                   .
 CSS  / SASS                       .  SASS is the standard for CSS templating
-                                  .
+                                  .  (Syntactically Awesome Style Sheets) is a CSS extension with things like variables, nested rules, inline imports and more.
                                   .
                                   .
 
@@ -38,41 +40,89 @@ RUN A PROG
                                   .   $=      The case-insensitivity flag
                                   .
                                   .
-                                             DN Table                    Ruby file
-                                             __________                 __________                    __________                 __________
-                                            |__________|               |          |                  |          |               |          |
-                                            |__       _|    model      |          |                  |          |               |          |
-                                            |_ users __|  <-------->   | user.rb  |                  |          |               |          |
-                                            |__________|               |          |                  |          |               |          |
-                                            |__________|               |          |                  |          |               |          |
-                                            |__________|               |__________|                  |__________|               |__________|
+                                  .           DB Table                    Ruby file
+                                  .           __________                 __________                    __________                 __________
+                                  .          |__________|               |          |                  |          |               |          |
+                                  .          |__       _|    model      |          |                  |          |               |          |
+                                  .          |_ users __|  <-------->   | user.rb  |                  |          |               |          |
+                                  .          |__________|               |          |                  |          |               |          |
+                                  .          |__________|               |          |                  |          |               |          |
+                                  .          |__________|               |__________|                  |__________|               |__________|
+                                  .
+                                  .                     model: maps
+                                  .                            1 Ruby file to
+                                  .                            1 DB Table
+                                  .
+                                  .                     view: HTML template files (usually erb files)
+                                  .
+                                  .
+                                  .                     controller: Back-End component
+                                  .                                 to render a Ruby file.
+                                  .                                     scaffold :model_name   <--- line added in the controller
+                                  .                                                                 Rails will generate run time all the appropriate
+                                  .                                                                 DB interface (so no way to customize)
+                                  .
+                                  .                                     rails generate scaffold model_name   <--- external command to generate/save
+                                  .                                                                               the Ruby code (so I can customize
+                                  .                                                                               but I lose the run-time flexibility)
+                                  .
+                                  .
+                                  .                             ex. of a controller (in dir my_app/controllers/ )
+                                  .                                 file called cccccc_controller.rb
 
-                                                       model: maps
-                                                              1 Ruby file to
-                                                              1 DB Table
+                                  .                             my_app/controllers/stef1_controller.rb
 
+                                  .                                 class ApplicationController < ActionController::Base
+                                  .                                     protect_from_forgery with: :exception
+                                  .                                     def hello
+                                  .                                         render html: "hello, world!"
+                                  .                                     end
+                                  .                                 end
+                                  .
+                                  .
+                                  .                     router: it's like the Apache config to specify how to redirect
+                                  .                             the URL onto a BE controller
+                                  .                             and return the requested page
+                                  .
+                                  .                     (my_app/config/routes.rb)
+                                  .
+                                  .                             root 'controller_name#action_name'
+                                  .                                         ^              ^git push --set-upstream origin feature/scrs/incorporation_cic_validation
+                                  .                                   controller        function name
+                                  .                                  (file name)   (inside controller class)
+                                  .
+                                  .                     usually inside a 'loop' ....do:
+                                  .
+                                  .                         Rails.stef1.routes.draw do
+                                  .                                root 'stef1#hello'
+                                  .                         end
 
+ gem                              .  gem list <gem name>    command line to know the versions of every gem
+                                  .
+                                  .
+ BUNDLER                          .  After creating a new Rails application,
+                                  .  the next step is to use Bundler to install and include the gems needed by the app.
+                                  .
+                                  .       bundle install        (ex:   cd my_app/   &&  bundle install)
+                                  .
+                                  .  bundle update     (to update bundle itself)
+                                  .
+                                  .  Bundler checks in the Gemfile the gem & versions to pack
+                                  .  (with no version --> BuURL http://localhost:3000ndler will automatically install the latest version of the gem)
+                                  .
+                                  .  ex of Gemfile:
+                                  .                      gem 'sqlite3'                         will install LATEST
+                                  .                      gem 'uglifier', '>= 1.3.0'            will install LATEST if it's >=
+                                  .                      gem 'coffee-rails', '~> 4.0.0'        will install LATEST if > 4.0.0 && < 4.1
+                                  .                                                            ~> ONLY accepts increments of the LAST number 4.0.0
+                                  .                                                                                                              ^
+                                  .                             ...
+                                  .
 
-                                                       controller: Back-End component
-                                                                   to render a Ruby file.
-                                                                       scaffold :model_name   <--- line added in the controller
-                                                                                                   Rails will generate run time all the appropriate
-                                                                                                   DB interface (so no way to customize)
-
-                                                                       rails generate scaffold model_name   <--- external command to generate/save
-                                                                                                                 the Ruby code (so I can customize
-                                                                                                                 but I lose the run-time flexibility)
-
-
-                                                       view: HTML template files (usually erb files)
-                                                              1 Ruby file to
-                                                              1 DB Table
-
-
-                                                       model: maps
-                                                              1 Ruby file to
-                                                              1 DB Table
-
+ rails server                     .  runs my application       (ex cd my_app && rails server)
+                                  .                         note 1.  run in a separate shell, as it doesn't return
+                                  .                         note 2.  see my_app in the browser: http://localhost:3000
+                                  .
 
  WEBrick                          .  a simple Ruby web server
                                   .
@@ -87,9 +137,90 @@ Rake                              .  A build tool, distributed as a gem
                                   .
                                   .
 
+mintest                           .  the default Rails testing framework
                                   .
                                   .
+
+
+Heroku                            .  It's a cmd line utility that (like Jenkins) deploys the app.
                                   .
+                                  .                  heroku --version
+                                  .
+                                  .  Heroku uses the PostgreSQL database     <-- so we need 'pg' gem
+                                  .  The Gemfile read by Bundler will have this section:
+                                  .
+                                  .         group :production do
+                                  .            gem 'pg', '0.20.0'
+                                  .         end
+                                  .
+                                  .  Heroku doesn't support instead SQLite (which is usually used during development)
+                                  .  The Gemfile will have this section:
+                                  .
+                                  .         group :development, :test do
+                                  .            gem 'sqlite3', '1.3.13'
+                                  .            gem 'byebug', '9.0.6', platform: :mri
+                                  .         end
+                                  .
+                                  .  When Building (bundle install)
+                                  .  to avoid to deploy 1 section (ex. in developmeny I don't want production)
+                                  .  so I run:
+                                  .             bundle install --without production
+
+                                  .
+                                  .
+
+SCAFFOLDING                       .
+                                  .  1.    new:      rails new stef1.app
+                                  .
+                                  .                  this command creates a dir ./stef1.app
+                                  .                  with a full BIG subtree of files (nb. it requires the network
+                                  .                  connection to download some required componenets)
+                                  .                  important dir or files are:
+                                  .                     ./stef1.app/Gemfile      file with the versions of Gems required
+                                  .                     ./   "     /Rakefile     Makefile
+                                  .                     ./   "     /assets/      dir  root for CSS / Javascript/....
+                                  .                     ./   "     /bin/         dir for the binary
+                                  .                     ./   "     /library/     dir for libraries
+                                  .                     ./   "     /db/          dir for DB files
+                                  .                     ./   "     /config/      dir for configuration
+                                  .                     ./   "     /test/        dir for test
+                                  .                     ./   "     /....
+                                  .                 >   ./   "     /models
+                                  .                 >   ./   "     /views
+                                  .                 >   ./   "     /controllers
+                                  .
+                                  .  2.    [bundle update]
+                                  .                  Optional command
+                                  .
+                                  .  3.    bundle install
+                                  .                  create the binary
+                                  .
+                                  .  4.    Gemfile: edit the ./stef1.app/Gemfile
+                                  .
+                                  .                  ex:
+                                  .                      gem 'rails', '5.1.4'
+                                  .                      gem 'puma',
+                                  .                      gem 'sass-rails',
+                                  .                      gem 'uglifier',
+                                  .                      gem 'coffee-rails',
+                                  .                      group :development, :test do
+                                  .                            gem 'sqlite3', '1.3.13'
+                                  .                            gem 'byebug', '9.0.6', platform: :mri
+                                  .                      end
+                                  .                      group :development do gem 'web-console',
+                                  .                            '3.9.1'
+                                  .                            '5.0.6' '3.2.0'
+                                  .                            '3.5.1' '3.1.5'
+                                  .                            gem 'listen',
+                                  .                            gem 'spring',
+                                  .                            gem 'spring-watcher-listen', '2.0.1'
+                                  .                      end
+                                  .                      group :production do gem 'pg', '0.20.0'
+                                  .                      end
+                                  .
+                                  .  5.    cd ./stef1.app && rails server        <-- runs the WEB server
+                                  .
+                                  .                  ex:
                                   .
                                   .
                                   .

@@ -116,7 +116,9 @@
   |                                                                              23 # Note that empty commits are commented out
   |
   |
+  |                   _________________________________________
   |                   cut a release:
+  |                   _________________________________________
   |
   |                    1. git co develop && g pull
   |                    2. git branch -a | rg -i release    -----> ex: remotes/origin/release/1.45.0
@@ -128,6 +130,19 @@
   |
   |                    7. available on gitHub at https://github.com/companieshouse/chl-perl/releases/tag/v1.46.0-rc1
   |
+  |                   _________________________________________
+  |                   HOT FIX ON A RELEASE:
+  |                   _________________________________________
+  |                              1. git checkout release/1.52.0      <--- the release you want to patch
+  |                              2. git pull
+  |                              3. git checkout -b release/1.52.1   <--- create a branch from here (the name is not important)
+  |                              4. add all fixing commits then push to gitHub
+  |                              5. create a PR on the perl channel to have the fixing branch merged into release/1.52.0
+  |                              6. merge and delete the branch 1.51.1 (that's why the name was not important)
+  |                              7. git checkout release/1.52.0 && git pull
+  |                              8. g tag -a -m 'Fix:.......' v1.52.0-rc2   <---- rc2 is the incremental number with respect to
+  |                                                                               the last available on https://github.com/companieshouse/chl-perl/releases)
+  |                              9. git push --follow-tags
   |
   |
   |
@@ -1320,6 +1335,11 @@
                                             | git push origin :feature/april_17/ci_pflp_indicator   <----- this syntax will remove the REMOTE branch
                                             |                 ^                                            keeping the LOCAL. The magic is the ':'
                                             |
+                                            | git branch -m xxxxxxxx      to rename the branch I'm on. .... So to renamed <old> to <new>
+                                            |                 ^                                                  1. git checkout <old>
+                                            |                 ^                                                  2. git branch -m <new>
+                                            |                 ^                                                  3. remove the remore <old> & push <new>
+                                            |
     3.2 Basic Branching and Merging         |
                                             |                    Before merging,  tidy up wd + index.
                                             |
@@ -1382,6 +1402,7 @@
                                             |
                                             | git reset --hard HEAD         # if 'git commit' not done yet
                                             | git reset --hard ORIG_HEAD    # if 'git commit' already done
+                                            | git reset --hard @~5          removes the last 5 commits
                                             | git checkout -m               # from Git ver. 1.6.1
                                             |
                                             | merge modifications from branch B into master:
