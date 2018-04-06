@@ -1,3 +1,254 @@
+ GENERAL NODES
+                           TAG --->     (C)    COMMIT (author, message, 1 TREE-SHA1)
+                                         |
+                                        /T\    TREE   (filename, 1/+ BLOB-SHA1 and/or 1/+ TREE-SHA1-s)
+                                       -----
+                                         |
+                                       [ B ]   BLOB   (flat bytes content)
+
+
+                ex. of 1 TREE:  (git cat-file -p 454b0ec96eed4260bcd4ef9a00d6a8a1b8cb226f)
+
+                       100644 blob 543f5231095e941f10cd8d40687a350fa43442cb	.gitignore
+                       040000 tree 69f0ce57831bdb70cad42a47c271498b90057015	CHD
+                       100644 blob 39589801c625e730c5f2ad9fdab8510af16fcabd	Makefile
+                       100644 blob dae7deaf1248d2775fc51dfbfacb820c7e9cbd1e	README.md
+                       040000 tree b8058a43a33c64fa194755a4ff3d4a2ad6447f97	feature-notes
+                       040000 tree 8bf9cd921034befc59127d4342bb7a532b9a4637	rdist
+                       040000 tree a0c22543e4943c8ffa48f18fe3185113c578f515	services
+                       040000 tree 5afdb45a5a8c0abd735820e52b15d1c4bb82121d	tools
+                       040000 tree d32706103d89d0e557320bbe0426589af2d777de	websystems
+
+
+
+                ex. of 1 COMMIT:  (git cat-file -p 8fb1db6a)
+
+                       tree 8190f3311019df5756b1e341ec3d4a35f8e21743
+                       parent 3d3f47406efd7b52e2d3f5da9d3a1820251a73eb
+                       author sbasile-ch <sbasile@companieshouse.gov.uk> 1523006712 +0100
+                       committer sbasile-ch <sbasile@companieshouse.gov.uk> 1523006712 +0100
+
+                       [SCRS-3511] - tidied up
+
+
+
+
+
+   git --version
+
+
+
+HELP:
+
+   git help -a
+   git help --all                     # long form
+   git help -g                        # the guide form
+
+   git   help commit
+   git --help commit
+   git commit --help
+
+
+
+
+REPO:
+   git init    # create an empty repo ( the dir .git/  )
+                a normal active git repo has this ./git content:
+                        total 72
+                              1) -rw-r--r--    1 sbasile  staff    27  5 Apr 17:25 COMMIT_EDITMSG
+                              2) -rw-r--r--    1 sbasile  staff    97 27 Feb 15:21 FETCH_HEAD
+                              3) -rw-r--r--    1 sbasile  staff    23  5 Apr  2016 HEAD
+                              4) -rw-r--r--    1 sbasile  staff    41 27 Feb 15:21 ORIG_HEAD
+                              5) drwxr-xr-x    2 sbasile  staff    68  5 Apr  2016 branches
+                              6) -rw-r--r--    1 sbasile  staff   309  5 Apr  2016 config
+                              7) -rw-r--r--    1 sbasile  staff    73  5 Apr  2016 description
+                              8) drwxr-xr-x   11 sbasile  staff   374  5 Apr  2016 hooks
+                              9) -rw-r--r--    1 sbasile  staff  5225  5 Apr 17:24 index
+                             10) drwxr-xr-x    3 sbasile  staff   102  5 Apr  2016 info
+                             11) drwxr-xr-x    4 sbasile  staff   136  5 Apr  2016 logs
+                             12) drwxr-xr-x  241 sbasile  staff  8194 12 Feb 18:43 objects           the 'object store'
+                             13) -rw-r--r--    1 sbasile  staff   107  5 Apr  2016 packed-refs
+                             14) drwxr-xr-x    5 sbasile  staff   170  5 Apr  2016 refs
+
+
+
+
+OBJECT STORE:
+
+   git hash-object pippo.txt          # calculates the SHA1 of file pippo.txt
+   git rev-parse 3b18e512d            # displays full long hash: 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
+
+   git cat-file -t 3b18e512d          # displays type of node (ex. "commit" )
+   git cat-file -p 3b18e512d          # displays the content of any node (tag blob tree commit)
+   git cat-file -s 3b18e...           # size (bytes) (ex. 443))
+   git cat-file -e 3b18e...           # 0 if node is 0K (echo $?)
+
+   git fsck                           # check consistency of the pack (ex. dangling nodes)
+
+
+
+
+INDEX:
+
+   git ls-files -s                    # to see which files are in the index
+   git ls-files --stage               # long form
+   git rev-parse 3b18e512d            # displays full long hash: 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
+
+   git cat-file -t 3b18e512d          # displays type of node (ex. "commit" )
+
+
+STAGING AREA:
+
+   git add a.txt           # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
+   git add .               # add this dir and any sub-dir   (more general: git add dirA    add all the tree rooted by dirA)
+   git add --interactive   # useful to check one by one
+
+
+
+LOGGING:
+
+   git log --pretty="%h %t %p %s"          %p: parent hash
+   git .
+   git .
+
+
+
+REFERENCES:
+
+             they are BRANCHES(local/remote) and TAGS.
+             They are stored in:
+
+              $GIT_DIR/refs/heads/ref              < branches >   local
+              $GIT_DIR/refs/remotes/ref            < branches >   remote
+              $GIT_DIR/refs/tags/ref               < tags >
+              $GIT_DIR/packed-refs                 if refs are packed by git gc
+
+              ex:   find .git/refs/  :
+
+                     .git/refs/
+                     .git/refs/remotes
+                     .git/refs/remotes/origin
+                     .git/refs/remotes/origin/master
+                     .git/refs/remotes/origin/HEAD
+                     .git/refs/tags
+                     .git/refs/heads
+                     .git/refs/heads/master
+
+                ______________________
+               |  special references :
+               |______________________
+
+                                HEAD:         LAST COMMIT (NOT always "current branch", as some operations 'detach' HEAD')
+                                              (since git 1.8.5,  '@' alias for HEAD):  git log @
+                                FETCH_HEAD    Git stores in FILE:.git/FETCH_HEAD all HEADS of the remote branches fetched.
+                                              (valid only immediately after a 'git fetch').
+                                ORIG_HEAD     (on a merge) prev  val of HEAD
+                                MERGE_HEAD    (on a merge) after val "   "  (the value HEAD is going to take)
+
+
+   git show-ref            # lists all references
+   git symbolic-ref        # plumbing command to manage ref
+
+
+
+
+
+NOTATIONS:
+
+         if C is a COMMIT then:
+                                    C~1 parent     abbreviated C~
+                                    C~2, C~3, ...
+
+                                    C^1 parent in 1st branch     abbreviated C^
+                                    C^2    "      2nd   "
+
+                                                           note: when no merge  C~1 = C^1
+                                                                 C^1^1 (abbr. C^^) = C~2   (abbr. C~~)
+
+
+         A .. B      think of 'take the last 2 commits' --> this + this~1,   (so this: INCLUDED & this~2 EXCLUDED)
+         ^    ^
+         |    newer & included  (if omitted HEAD assumed: A.. = A..@)
+         older &
+         excluded
+
+
+
+         ^C          'exclusion' group (like in regex [^a-z])
+                     it means: not C + not all commits reachable backward from C (all its parents)
+                     nb.   X..Y   =  ^X Y
+
+
+
+         A...B       Sum of C NOT COMMON between A and B (reachable from 1 but not the other)
+
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+   git .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   _________________________________________________________________________________________________________________________________________
   | $GIT_DIR
   | $GIT_EDITOR
@@ -22,8 +273,8 @@
   | git rm                                                     # rm is the opposite of add.
   | git show HEAD~2                                            # to see a Commit
   | git show master:Makefile                                   # to see a Blob  (here file Makefile)
-  | git show        HEAD~2:APPUNTI/appunti.GIT.txt  <-------   they
-  | git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------       do, the same
+  | git show        HEAD~2:APPUNTI/appunti.GIT.txt  <-------      "   "    "
+  | git cat-file -p HEAD~2:APPUNTI/appunti.GIT.txt  <-------      "   "    "
   | git cat-file -p 3b18e512dba79e4c8300dd08aeb37f8e728b8dad   # to see the content of any node (blob tree or commit)
   | git cat-file -t 3b18e...                                   # shows type (ex. commit)
   | git cat-file -s 3b18e...                                   #   "   size (bytes) (ex. 443))
@@ -86,7 +337,7 @@
   | git rebase --onto master 111AAA^  'rebase' is a way to cherry-pick a range of commit in a branch from 111AAA^ ---> ...
   |
   |                                   git rebase -i C       interactive way to change commit C (maybe remove it completely)
-  |                                                         'interactive' because it opens the ditor where the 'rebase commands' (p,r,e,s,f,x)
+  |                                                         'interactive' because it opens the editor where the 'rebase commands' (p,r,e,s,f,x)
   |                                                         can be submitted (as soon as the editor is saved & closed)
   |
   |                                                         ex. g rebase -i d9465bb
@@ -519,6 +770,8 @@
                                             |           ^ acts as the usual regex symbol: ex [^a-z]
                                             |
                                             |     X..Y   =  ^X Y
+                                                              ^
+                                                              nb. normal space here
                                             |
                                             | git log --pretty=short --abbrev-commit master~12..master~10        range ~12 ~10
                                             |                    |                                               12 is excluded(so 2 commits: 10, 11)
