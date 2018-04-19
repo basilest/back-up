@@ -75,11 +75,11 @@ REPO:
 
 OBJECT STORE:
 
-   git hash-object pippo.txt          # calculates the SHA1 of file pippo.txt
+   git hash-object pippo.txt          # calculates the SHA1 of pippo.txt
    git rev-parse 3b18e512d            # displays full long hash: 3b18e512dba79e4c8300dd08aeb37f8e728b8dad
 
    git cat-file -t 3b18e512d          # displays type of node (ex. "commit" )
-   git cat-file -p 3b18e512d          # displays the content of any node (tag blob tree commit)
+   git cat-file -p 3b18e512d          # displays node content (tag blob tree commit)
    git cat-file -s 3b18e...           # size (bytes) (ex. 443))
    git cat-file -e 3b18e...           # 0 if node is 0K (echo $?)
 
