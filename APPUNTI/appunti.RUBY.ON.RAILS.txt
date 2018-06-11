@@ -1,8 +1,53 @@
-INSTALLATION                      .   using RubyGems, included with Ruby.
-                                  .   This will provide a command line exe:  > rails
-                                  .   with many subcommands (ex.
-                                  .                             rails server    <--- runs a development WEB server)
+3 THINGS REQUIRED                 .  ruby:     ruby -v
+                                  .  gem:      gem -v
+                                  .  rails:    rails -v     <-- installed using ex RubyGems, included with Ruby.
+                                  .   This will provide a command line > rails
+                                  .   with many subcommands (ex.         rails server    <--- runs a development WEB server)
                                   .
+                                  .
+ gem                              .  gem list <gem name>    command line to know the versions of every gem
+                                  .  note: gems for Ruby on Rails have the same version number of Rails
+                                  .        ex. Rails 5.1 --> sub-gems are 5.1
+                                  .
+MVC                               .  Model-View-Controller: paradigm to keep separate the logically different parts of the application.
+                                  .
+                                  .        Model:  defines the code that interacts with the DB tables.
+                                  .                Domain logic: includes things such as validation
+                                  .
+                                  .        Controllers: They’re the layers user <---> DB.
+                                  .                They call methods on the model classes, (which return DB data).
+                                  .                and they RENDER it to the user.
+                                  .
+                                  .        View:   The HTML-TEMPLATEs (like in Perl, but in ruby it's used the Embedded Ruby (ERB))
+                                  .                which allows to use RUBY inside the page.
+                                  .
+                                  .
+CONVENTION OVER CONFIGURATION     .  every Ruby on Rails application relies on a standard directory structure and files.
+                                  .  ex:
+                                  .                     ./stef1.app/Gemfile        file with the versions of Gems required
+                                  .                     ./   "     /Rakefile       Makefile
+                                  .                     ./   "     /assets/        dir  root for CSS / Javascript/....
+                                  .                     ./   "     /bin/           dir for the binary
+                                  .                     ./   "     /library/       dir for libraries
+                                  .                     ./   "     /db/            dir for DB files
+                                  .                     ./   "     /config/        dir for configuration
+                                  .                     ./   "     /test/          dir for test
+                                  .                     ./   "     /....
+                                  .                 >   ./   "     /models
+                                  .                 >   ./   "     /views
+                                  .                 >   ./   "     /controllers
+                                  .                     ./   "     /helpers       dir for special compex formatting
+                                  .                     ./   "     /mailers       dir to put modules which manage the email sending
+                                  .
+                                  .
+REST                              .  Representational State Transfer (REST) is the CONVENTION for routing in Rails.
+     (Restfull)                   .  (routing = how URLs are mapped onto the controller-actions (that should process the form))
+                                  .  If a MVC application adheres to the REST paradigm is said RestFULL
+                                  .
+ ENVIRONMENTS                     .  Rails defines 3 ways (or envs) to execute my abpplication:
+                                  .                1. development  (usually classes not cached: so every change doesn't require a server RESTART)
+                                  .                2. production.  (classes cached)
+                                  .                3. test
                                   .
                                   .
                                   .
@@ -97,8 +142,6 @@ RUN A PROG
                                   .                                root 'stef1#hello'
                                   .                         end
 
- gem                              .  gem list <gem name>    command line to know the versions of every gem
-                                  .
                                   .
  BUNDLER                          .  After creating a new Rails application,
                                   .  the next step is to use Bundler to install and include the gems needed by the app.
@@ -176,18 +219,21 @@ SCAFFOLDING                       .
                                   .                  with a full BIG subtree of files (nb. it requires the network
                                   .                  connection to download some required componenets)
                                   .                  important dir or files are:
-                                  .                     ./stef1.app/Gemfile      file with the versions of Gems required
-                                  .                     ./   "     /Rakefile     Makefile
-                                  .                     ./   "     /assets/      dir  root for CSS / Javascript/....
-                                  .                     ./   "     /bin/         dir for the binary
-                                  .                     ./   "     /library/     dir for libraries
-                                  .                     ./   "     /db/          dir for DB files
-                                  .                     ./   "     /config/      dir for configuration
-                                  .                     ./   "     /test/        dir for test
+                                  .                     ./stef1.app/Gemfile        file with the versions of Gems required
+                                  .                     ./   "     /Rakefile       Makefile
+                                  .                     ./   "     /assets/        dir  root for CSS / Javascript/....
+                                  .                     ./   "     /bin/           dir for the binary
+                                  .                     ./   "     /library/       dir for libraries
+                                  .                     ./   "     /db/            dir for DB files
+                                  .                     ./   "     /config/        dir for configuration ex:
+                                  .                                                (config/routes.rb (routing) config/database.yml  (ex user& password for SQLite)
+                                  .                     ./   "     /test/          dir for test
                                   .                     ./   "     /....
                                   .                 >   ./   "     /models
                                   .                 >   ./   "     /views
                                   .                 >   ./   "     /controllers
+                                  .                 >   ./   "     /helpers       dir for special compex formatting
+                                  .                 >   ./   "     /mailers       dir to put modules which manage the email sending
                                   .
                                   .  2.    [bundle update]
                                   .                  Optional command
@@ -218,18 +264,49 @@ SCAFFOLDING                       .
                                   .                      group :production do gem 'pg', '0.20.0'
                                   .                      end
                                   .
-                                  .  5.    cd ./stef1.app && rails server        <-- runs the WEB server
-                                  .
-                                  .                  ex:
+                                  .  5.    cd ./stef1.app && rails server        <-- runs the WEB server (on local address / port 3000 : http://localhost:3000
                                   .
                                   .
+                                  .  rails generate scaffold purchase name:string cost:decimal          generate scaffold  1         2          3
+                                  .  rails g         <--- shortcut for generate                                          model    controller  views,
+                                  .
+  MIGRATIONS                      .  are the DB versions (timestamped)
+                                  .  Usually there is a list of files db/migrate/[date]_create_[my DB table name].rb    (ex db/migrate/[date]_create_purchase.rb
+                                  .  ex:
+                                  .             class CreatePurchases < ActiveRecord::Migration
+                                  .                 def change  <---- function 1/1 for simple cases (up & down are easy to guess)
+                                  .                             create_table :purchases do |t|
+                                  .                                    t.string :name
+                                  .                                    t.decimal :cost
+                                  .                                    t.timestamps null: false
+                                  .                             end
+                                  .                 end
+                                  .
+                                  .                 def up     <---- function 1/2 to manage do & redo
+                                  .                 end
+                                  .
+                                  .                 def down   <---- function 2/2 to manage do & redo
+                                  .                 end
+                                  .             end
+                                  .                 .
+          RUN MIGRATION           .    > bundle exec rake db:migrate    <-- to do the migrate:   it creates a new version of the DB (and timestamped the file)
+                                                                                       it calls the change function (or the up function)
+                                  .    > bundle exec rake db:rollback   <-- to undo:   it calls the down function
+                                                                                       or guesses the opposite commands of the 'change'
+                                  .
+                                  .    > bundle exec rake db:rollback STEP=3           It rollbacks 3 times (instead of calling db:rollback 3 times)
+                                  .
+          db/schema.rb            .    stores the last MIGRATION executed   (look in the section: ActiveRecord::Schema.define(version: [timestamp]) do ...)
+
+                                  .
+                                  .    > bundle exec rake db:schema:load               to restore the last known DB state
                                   .
                                   .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
+  DB Tables-user-interactions     .    Going to http://localhost:3000/[table_name]    (ex. http://localhost:3000/purchase)
+                                  .    I see a generated HTML with prepared links to ADD new rows (ex. New [table name]  (ex "New Purchase")
+                                  .    If I click the link the form to fill the column values
+                                  .    are rendered by the TEMPLATE: [app]/views/[Table name]/new.html.erb,   (ex.[app]/views/purchases/new.html.erb )
+
                                   .
                                   .
                                   .
