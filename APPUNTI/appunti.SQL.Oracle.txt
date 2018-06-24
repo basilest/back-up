@@ -85,10 +85,10 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |       "    MINUS     "          returns only select1 rows that are not also in select2
   |
   |  - GROUP BY;  collapse a Select of 1 col  in distinct val only
-                           a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
-                           a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
-
-
+  |                         a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
+  |                         a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
+  |
+  |
   |        - SELECT c1 from T1 GROUP BY c1;  Without a GROUP BY a select returns all the rows (ex. 1000 rows with duplicated the col City)
   |                                          With    a GROUP BY it returns rows grouped by that col (ex. City, so only 3 rows 'Milan' 'Rome' 'Venice')
   |
@@ -104,7 +104,23 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |                             WHEN 30 THEN ‘R&D’
   |                             ELSE “Unknown’
   |                             END
-  \           FROM T1;
+  |           FROM T1;
+  |
+  |  -  Example of multiple Select;
+  |           SELECT *
+  |                   FROM (SELECT *
+  |                       FROM (SELECT incorporation_number
+  |                           FROM (SELECT incorporation_number
+  |                               FROM corporate_body cb
+  |                                   WHERE  trading_status_type_id = 1
+  |                                       AND language_type_id = 1
+  |                                       AND register_location_type_id = 1
+  |                                       AND proof_type_id = 0
+  |                                       AND corporate_body_type_id = 20
+  |                                       AND cb.llp_designated_only_ind ='N'
+  |                                       AND cb.corporate_body_short_name NOT LIKE '%(cloned)%')
+  |                                  WHERE ROWNUM <= 100)
+  \
 
   /  - CREATE ( , , );            CREATE TABLE T1 (
   |                                  Empno      NUMBER(5),

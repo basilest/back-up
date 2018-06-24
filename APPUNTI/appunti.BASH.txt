@@ -313,9 +313,16 @@ ____________________________________________________________
     6. HISTSIZE=450  HISTFILESIZE=550    to set history to 450 cmd and file .bash_history to 550 text lines
     7. export HISTSIZE=0    to make bash not record anything (no history)
     8. history -c   to clear all the previous history
+       HISTCONTROL <--- [  ignoredups / ignorespace / (ignoreboth) /  erasedups  ]
     9. export HISTCONTROL=ignoredups         remember only 1 inst. of many consecutive = cmd
    11. export HISTCONTROL=erasedups          remember only 1 inst. of many also non consecutive = cmd
    12. export HISTCONTROL=ignorespace        ignore (not remember) cmd that start with a space
+
+              if I want set more values I concat with ':'
+              HISTCONTROL=ignorespace:ignoredups:erasedups
+
+              'ignoreboth' is an alias for HISTCONTROL=ignorespace:ignoredups
+
    13. export HISTIGNORE="pwd:ls:ls -ltr:"   ignore (not remember) this list of cmds
    14.  vi !!:$  execute a cmd (here vi) taking the arg of the last cmd
         vi  !^      "                  "           1st  arg     "

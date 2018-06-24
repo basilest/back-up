@@ -44,8 +44,8 @@ as 1 socket (
      tripwire
 -------------------------------
 
-a prog for sys aministrator that checksum
-system files and store result in a db.
+a prog for sys aministrator that checksums
+system files and stores result in a db.
 So if files have been changed you know.
 
 
@@ -84,7 +84,7 @@ NB. There are more than 1.
     commands are:
        netstat -rn
        route -n     only displays information in the main routing table
-       ip route     to access ALL routing feature of the Kernel
+       ip route     to access ALL routing features of the Kernel
 
 
 -------------------------------
@@ -173,7 +173,7 @@ SOCKET OPTIONS  they list open sockets (TCP or UDP application with a PORT num)
 -w      RAW data
 -x      UNIX socket
 
--a      alone gives all (-t u w x )
+-a      gives all (-t u w x )
 
         netstat -ta
 

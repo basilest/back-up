@@ -344,6 +344,10 @@ to change default shell (in user info)  chsh
                 -g                 Allows remote hosts to connect to local forwarded ports.
                 -e escape_char     can change the escpae default char ~ (see below, session manag.) to another
 
+                -t                 INTERACTIVE shell:  ssh -t user@hostname sudo command
+                                   (note that an INTERACT. and a NOT-INTERACT. shell load different config files
+                                    so for ex. the $PATH vars could be different)
+
 
     - session commands:
                         ENTER ~ .          ENTER: to be sure to have a newline
@@ -357,6 +361,36 @@ to change default shell (in user info)  chsh
                              ~^Z           suspend the remote ssh connection and
                                            allow to be at 'local' prompt.
                         Once I'm over, a fg bring me back into remote.
+
+    - remote commands via SSH:
+
+              |  ssh user1@serv date                     1 command
+              |  ssh user1@serv 'df -H'                  1 command  (quote if spaces sometimes can help)
+              |  ssh user1@serv ls; pwd; cat a.txt       + commands
+              |  ssh user1@serv ls && pwd && cat a.txt   + commands
+              |
+              |
+              |                                          + commands  (the "heredoc" ususl way to write on multilines) :
+              |
+              |  VAR1="boo"
+              |  ssh -T $HOST << EOSSH           ssh -T $HOST <<'EOSSH'    <---- use '' is want to assign and use remote var
+              |  ls                              VAR1=`pwd`
+              |  pwd                             echo $VAR1
+              |  if true; then
+              |    echo $VAR1                    VAR2=$(uname -a)
+              |  else                            echo $VAR2
+              |    echo "False"
+              |    fi                            EOSSH
+              |  EOSSH
+              |
+              |  use of LOCAL vars              use of REMOTE vars
+              |
+              |
+              |
+              |  ssh user1@serv '/scripts/r.sh'          run remote script
+              |  ssh user1@serv < loc.sh                 run a local script (just an input redirecti, so also a pipe work:    cat loc.sh | ssh user1@server1 )
+
+
 --------------------------------------------------- /
 To know Ubuntu version
     cat /etc/issue

@@ -18,8 +18,8 @@ EVERYTHING IS AN OBJECT
                                   .
                                   . self       as always refers to the current object
                                   .            so self.bla_bla_bla
-                                  .            but also alone, 'self' return the NAME of the object I'm in
-                                  .            (in the global scope return 'main').
+                                  .            but also alone, 'self' returns the NAME of the object I'm in
+                                  .            (in the global scope returns 'main').
                                   .
 
 each
@@ -33,7 +33,7 @@ each
 comments
                                   .   #        single line
                                   .
-                                  . =begin     multi line
+                                  . =begin     multi lines
                                   . ....
                                   . =end
                                   .
@@ -43,7 +43,7 @@ CONSTANTS
                                   .
 
 VARIABLES
-                                  .   like perl, vars hasn't a strict type and can be changed int/string/...
+                                  .   like perl, vars haven't a strict type and can be changed int/string/...
                                   .
                                   .   a = 2
                                   .   a, b, c, d = 10, 20, 30, 40      parallel assignment (useful also to swap vars: ex  a,b=b,a   a,b,c=b,a,a)
@@ -167,7 +167,7 @@ RANGES
                                   .                                 .reject     give upper vals, (rejecting lower ones)
                                   .                                             words.reject {|subrange| subrange < 'cal'}  =>  ["cal", "cam", "can", "cao", "cap", "caq", "car"]
                                   .
-                                  .                                 .each       iterates and perform a task
+                                  .                                 .each       iterates and performs a task
                                   .                                             words.each {|word| puts "Hello " + word}
                                   .
                                   .   conditions:                   a range used in an if
@@ -296,7 +296,7 @@ OP. PRECEDENCE                           _________________________ This are 'met
                                   .
 
 MATH
-                                  .  Math     is the class that provides all needed.
+                                  .  Math     is the class that provides whatever is needed.
                                   .
                                   .  most used:   Math.sqrt(9)   => 3
                                   .
