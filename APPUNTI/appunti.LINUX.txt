@@ -638,6 +638,9 @@ or otherwise
 
           To remove use this command (this keep the last 3 kernels just in case there is a problem to boot)
               apt-get remove `dpkg --list 'linux-image*' |grep ^ii | awk '{print $2}'\ | grep -v \`uname -r\``
+              or also (easier) just:
+                   sudo apt-get autoremove 
+
 
           then check if there are still unused pckg around:
               sudo apt-get autoremove
