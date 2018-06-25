@@ -44,7 +44,7 @@ REST                              .  Representational State Transfer (REST) is t
      (Restfull)                   .  (routing = how URLs are mapped onto the controller-actions (that should process the form))
                                   .  If a MVC application adheres to the REST paradigm is said RestFULL
                                   .
- ENVIRONMENTS                     .  Rails defines 3 ways (or envs) to execute my abpplication:
+ ENVIRONMENTS                     .  Rails defines 3 ways (or envs) to execute my application:
                                   .                1. development  (usually classes not cached: so every change doesn't require a server RESTART)
                                   .                2. production.  (classes cached)
                                   .                3. test
@@ -132,7 +132,7 @@ RUN A PROG
                                   .                     (my_app/config/routes.rb)
                                   .
                                   .                             root 'controller_name#action_name'
-                                  .                                         ^              ^git push --set-upstream origin feature/scrs/incorporation_cic_validation
+                                  .                                         ^              ^
                                   .                                   controller        function name
                                   .                                  (file name)   (inside controller class)
                                   .
@@ -314,17 +314,43 @@ SCAFFOLDING                       .
                                   .
                                   .
                                   .
-NUMBERS
+AUTOMATIC TESTING
+                                  . 2 testing tools
+                                  .     . MinitTest                 . test-driven development (TDD): tests the UNIT of CODE
+                                  .     . RSpec or ( Cucumber )     . behavior-driven development (BDD) : test how more UNITs of code works togethecode works togetherr
+                                  .
+                                  .             TDD with MiniTest:
+                                  .
+                                  .                  1. write 1 FAILING test case first  (red)
+                                  .                  2. write the CODE to make the test pass  (green)
+                                  .                  3. refactor the code to make it cleaner  (refactor)
+                                  .
+                                  .                  The above approach is called  red-green-refactor
+                                  .
+
+                                  . The first testing library for Ruby was
+                                  .                 Test::Unit, ( back in 2000 and
+                                  .                               now part of the Ruby standard library ).
+                                  .
+                                  . In Rails 4, it has been superseded by MiniTest, ( also part of the Ruby standard library ).
+                                  .
+                                  .  example:  ____________________________________________________
+                                  .            |    require "minitest/autorun"
+                                  .            |
+                                  .            |    class ExampleTest < Minitest::Test   <--- derived from this allows to have run any method whose name starts with 'test'
+                                  .            |      def test_truth                                 <--- in a file  <__some_dir__>/basilest1_test.rb
+                                  .            |          assert true
+                                  .            |      end
+                                  .            |    end
+                                  .            |___________________________________________________
                                   .
                                   .
+                                  .  run the example:      from the command line:
+                                  .                            > cd __some_dir__ && ruby basilest1_test.rb
                                   .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
-                                  .
+                                  .  common output:
+                                  .                        Finished in 0.001245s, 803.2129 runs/s, 803.2129 assertions/s.
+                                  .                        1 runs, 1 assertions, 0 failures, 0 errors, 0 skips
                                   .
                                   .
                                   .
