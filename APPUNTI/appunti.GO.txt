@@ -7,7 +7,7 @@ go build -gcflags "-m -m"
 _________________ INSTALL WITH PKG MANAGER
 
 .   GO can be installed with a package manager (homebrew, apt-get, ..)
-    and i.e. on a mac it goes in /usr/local/go/bin/go
+    and i.e. on a mac it goes in /usr/local/bin/go
 
 .   a package manager has always stable but older things, so once you have
     the (old) GO binary, I can even compile the latest GO version
@@ -71,7 +71,7 @@ ___________________________________________________________________________ GOPA
                src/  <----- here I put my code and any "go get github.com/...."
                             is downloaded into here
 
-    $ go build    <--- this command only checks the compilation but not create the binary in bin
+    $ go build    <--- this command only checks the compilation but doesn't create the binary in bin
     $ go install  <--- this command creates the proper subdirs in bin/ and pkg/
 
 
@@ -90,7 +90,8 @@ ___________________________________________________________________________ GOPA
                                                                                 cd src/github.com/user/hello
 
                    the 'install' will create in bin/
-                   the binary:       bin/hello*
+                   the binary:       bin/hello*               <---- n.b. the binaries are all (flat) in $GOPATH/bin
+                                                                         with no nested 'packages' sub-dirs
 
                    If GOPATH is in $PATH, from everywhere I can run
                              > hello
@@ -113,7 +114,7 @@ ___________________________________________________________________________ 1 GO
 
 ___________________________________________________________________________ 1 GO PROG OF 2+ FILES
 
-             If a prog (xxxx*) is made by 2 or more files there will be the main like above
+             If a prog (xxxx*) is made by 2 or more source files there will be the main like above
              so any of this (but package "main")
 
                  src/........./xxxx/main.go

@@ -293,10 +293,15 @@ ________________________________________________
                   % cp `perldoc -l Net::SMTP` ~/my_debug_lib/Net/.
                   % vi ~/my_debug_lib/Net/SMTP.pm
 
-           local::lib     this module can be downloaded and compiled with its option --bootstrap=
+           local::lib   to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
+                        (download from CPAN as doesn’t come with Perl)
+                        this module can be downloaded and compiled with its option --bootstrap=
+
                               $ perl Makefile.PL --bootstrap=~/.perl  <---- set here the dir you want
                               $ make test && make install
+
                           and allows to have an archive of CPAN Modules in the specified dir.
+
                           It's behaviour is to print the required variables (e.g. PERL5LIB)
                           and the command is usually:
 
@@ -310,6 +315,34 @@ ________________________________________________
 
                          you can add those lines in ~/.bashrc as
                          echo 'eval $(perl -I$HOME/.perl/lib/perl5 -Mlocal::lib=$HOME/.perl)' >> ~/.bashrc
+
+                                                                          ^
+
+                         $ perl  -Mlocal::lib
+
+                       export  PERL_LOCAL_LIB_ROOT="/Users/fred/perl5";
+                       export  PERL_MB_OPT="--install_base /Users/fred/perl5";
+                       export  PERL_MM_OPT="INSTALL_BASE=/Users/fred/perl5";
+                       export  PERL5LIB="...";
+                       export  PATH="/Users/brian/perl5/bin:$PATH";
+
+
+                       $ cpan -I Set::Crossproduct     <---- option -I  for cpan   when used the above dir settings
+
+                       $ cpanm --local-lib HTML::Parser  <--  with the cpanm way
+
+                 set this in your CPAN.pm configuration, it adds them every time it tries to install a module.
+                       $ cpan
+                       cpan> o conf makepl_arg INSTALL_BASE=/Users/fred/perl5
+                       cpan> o conf mbuild_arg "--install_base /Users/fred/perl5"
+                       cpan> o conf commit
+
+
+                 use local::lib;            # to write inside your Perl program so that it finds local modules.
+                                             # During compilation, Perl sees that line and loads the module
+
+
+
 
            perlbrew      to manage multiple Perl installations in your $HOME directory.
                          They are completely isolated perl universes.
@@ -391,11 +424,6 @@ ________________________________________________
                                ubic status
 
 
-________________________________________________ perldoc
-
-         -l               displays the file for the Module
-                          ex. perldoc -l Carp      --> /System/Library/Perl/5.18/Carp.pm
-                              perldoc -l Net::SMTP --> /System/Library/Perl/5.18/Net/SMTP.pm
 ________________________________________________
 
 
@@ -2138,6 +2166,11 @@ MODULEs / PACKAGEs
                                  - subroutines
                                  - and variables
             from a module.
+
+perl -M     it execute a "use" module before executing program
+            ex.:
+                    perl -MCPAN -e shell
+
 --------------------------
 OO
 --------------------------
@@ -2333,10 +2366,10 @@ prefer_installer                MB means that if there are both a Makefile.PL an
 
 cpan[1]>                        Once run the command 'cpan', I'm inside the cpan shell
                                 and that is the prompt.
-     -o conf                    command to edit the MyConfig.pm through the cpan shell.
-     -o conf commit             to save the changes
-     -h                         for the help
-     -o conf init               to see all the values (and the meaning!!) of each param.
+      o conf                    command to edit the MyConfig.pm through the cpan shell.
+      o conf commit             to save the changes
+      h                         for the help
+      o conf init               to see all the values (and the meaning!!) of each param.
                                 nb. I see the 'current' value not the 'factory' default.
                                 To see the original value, rename MyConfig.pm,
                                 and run -o conf init like it was the first time.
@@ -2471,36 +2504,6 @@ CPAN :
                                                                                     );
 
                                     5.3. cd dir-xxx/  &&   make   &&   make test   &  make dist
-                                                                          ^
---------------------------
-
-local::lib:  to keep additional Perl modules in their own directories (having no permission to install in Perl dir)
-             (download from CPAN as doesn’t come with Perl)
-              $ perl  -Mlocal::lib
-            export  PERL_LOCAL_LIB_ROOT="/Users/fred/perl5";
-            export  PERL_MB_OPT="--install_base /Users/fred/perl5";
-            export  PERL_MM_OPT="INSTALL_BASE=/Users/fred/perl5";
-            export  PERL5LIB="...";
-            export  PATH="/Users/brian/perl5/bin:$PATH";
-
-
-            $ cpan -I Set::Crossproduct     <---- option -I  for cpan   when used the above dir settings
-
-            $ cpanm --local-lib HTML::Parser  <--  with the cpanm way
-
-      set this in your CPAN.pm configuration, it adds them every time it tries to install a module.
-            $ cpan
-            cpan> o conf makepl_arg INSTALL_BASE=/Users/fred/perl5
-            cpan> o conf mbuild_arg "--install_base /Users/fred/perl5"
-            cpan> o conf commit
-
-
-      use local::lib;            # to write inside your Perl program so that it finds local modules.
-                                 # During compilation, Perl sees that line and loads the module
-
-
-
-
 
 -------------------------- SOME USEFULL MODULES
 File::Spec
@@ -2634,17 +2637,18 @@ DEBUGGERS
      |x %big_var
 
 
+   dump all 'eval'uated entries of debugger internal table:      p join "\n", map { "$   _$#{$_}" } grep /_<\(/, keys %::
 
 ---------- Perl 4ed Oreilly [2012] - PREFACE
 ---------- Perl 4ed Oreilly Ch1
-           =            <---- a line started with a '='
-           =cut               start a pod section up to a '=cut'
-                              a way to have 'muli-line comments
+           =            <---- a line started with '=' inits
+           =cut               a pod section up to a '=cut'
+                              (way to have 'muli-line comments)
 
 
-           $x = $y <--- rvalue  (value on the r-ight)
+           $x = $y <--- rvalue
             ^
-            lvalue (because in a value on the l-eft)
+            lvalue
 
 
            $x = $y + 1
@@ -2727,32 +2731,3 @@ DEBUGGERS
 
 
 ---------- Perl 4ed Oreilly Ch2
----------- Perl 4ed Oreilly Ch3
----------- Perl 4ed Oreilly Ch4
----------- Perl 4ed Oreilly Ch5
----------- Perl 4ed Oreilly Ch6
----------- Perl 4ed Oreilly Ch7
----------- Perl 4ed Oreilly Ch8
----------- Perl 4ed Oreilly Ch9
----------- Perl 4ed Oreilly Ch10
----------- Perl 4ed Oreilly Ch10
----------- Perl 4ed Oreilly Ch12
----------- Perl 4ed Oreilly Ch13
----------- Perl 4ed Oreilly Ch14
----------- Perl 4ed Oreilly Ch15
----------- Perl 4ed Oreilly Ch16
----------- Perl 4ed Oreilly Ch17
----------- Perl 4ed Oreilly Ch18
----------- Perl 4ed Oreilly Ch19
----------- Perl 4ed Oreilly Ch20
----------- Perl 4ed Oreilly Ch21
----------- Perl 4ed Oreilly Ch22
----------- Perl 4ed Oreilly Ch23
----------- Perl 4ed Oreilly Ch24
----------- Perl 4ed Oreilly Ch25
----------- Perl 4ed Oreilly Ch26
----------- Perl 4ed Oreilly Ch27
----------- Perl 4ed Oreilly Ch28
----------- Perl 4ed Oreilly Ch29
-
-
