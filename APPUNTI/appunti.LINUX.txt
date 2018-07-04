@@ -29,6 +29,18 @@ to change default shell (in user info)  chsh
      ~/.pam_environment
 
 
+
+
+                -------------------------------
+                     tripwire
+                -------------------------------
+
+                a prog for sys aministrator that checksums
+                system files and stores result in a db.
+                So if files have been changed you know.
+
+
+
 --------------------------------------------------- / ipcs
 
     ipcs    (System V) inter-process communication
@@ -673,7 +685,7 @@ or otherwise
           To remove use this command (this keep the last 3 kernels just in case there is a problem to boot)
               apt-get remove `dpkg --list 'linux-image*' |grep ^ii | awk '{print $2}'\ | grep -v \`uname -r\``
               or also (easier) just:
-                   sudo apt-get autoremove 
+                   sudo apt-get autoremove
 
 
           then check if there are still unused pckg around:
@@ -2171,16 +2183,24 @@ __  find
                                                                chmod 775 f2
                                                                chmod 775 f3
                                                               ....
-        find . -regex '.*\.\(tmpl\|json\)'            <---- no -name  and  .*  instead of * only
+        find . -regex '.*\.\(tmpl\|json\)'            <---- don't need a '-name' flag  and  .*  instead of * only
 
 
         find -regextype posix-extended -regex '.*\.(jpg|png)' <--- nb. -regextype MUST be BEFORE -regex
         find -E . -regex '.*\.(jpg|png)'                      <--- shortcut for above in some linux
 
 
-        to exclude dirs (ex. /xxx)
-                  path  '.....' -prune -o print<---- nb  xxx doesn't work as the match should be full
+        to exclude dirs (ex. /xxx)   -prune + (explicit)§ -print
+
+                  -path  '.....' -prune -o print<---- nb  xxx doesn't work as the match should be full
                                                           so works ./xxx/*
+                  ex:
+                      find . -type d \( -path dir1 -o -path dir2 -o -path dir3 \) -prune -o -print
+
+             alternative:    -not -path */dir1
+                  ex:
+                      find . -not -path */.git/*
+
 ____________________
 __  lsof
              is an 'utility' not a bash builtin

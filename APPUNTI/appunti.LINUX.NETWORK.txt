@@ -25,7 +25,7 @@
 
 All the protocols (TCP, X.25, Novel, ...) are implemented
 as 1 socket (
-    AF_INET    AF_INET6      :  TCP
+    AF_INET    AF_INET6      :  TCP  <---- yes, even TCP of course
     AF_X25                   :  X.25
     AF_IPX                   :  Novel
     AF_UNIX                  :  Unix domain
@@ -39,15 +39,6 @@ as 1 socket (
       'listen'
       'connect'
       'accept'
-
--------------------------------
-     tripwire
--------------------------------
-
-a prog for sys aministrator that checksums
-system files and stores result in a db.
-So if files have been changed you know.
-
 
 -------------------------------
      127.0.0.0   127.0.0.1
@@ -473,6 +464,105 @@ nslookup gives information from a hostname
                         Try the next nameserver if response = SERVFAIL
 
 
+-------------------------------
+     nc  (netcat)
+-------------------------------
+
+      -v    verbose
+
+
+      nc -l 1234          creates a listener :
+                                   - on port 1234         (in not specified => default 31337)
+                                   - using by default TCP (I can specify --udp     (or on OSX -u)
+                                                                      or --sctp  )
+
+
+      nc <ip> <port>    ex nc localhost 1234
+                          creates a client-sender:
+                                  - sending on port 1234  (if not specified => default 31337)
+                                  - using TCP (change with --udp / -u  / --sctp)
+
+
+                        NB. listener or 'server' is bit misleading.
+                            Even if 1 nc starts with a -l
+                            and the other (client) connects to it,
+                            still the 'echoed' of the input text in the 2 shels
+                            is dual (I can enter 'aaaaaaa' in the left (listener)
+                            or in the right (client) and it will be echoed in the other).
+
+
+ ----------------- server
+     -k                 (keep listening)
+                                        ex. nc -k -l
+                        by default the listener exits when the client disconnects.
+                        (so I can have only 1 listener with 1 client)
+                        With -k the listener remains alive, so I can have connect with another client.
+                        Even with many clients in parallel.
+                        An input 'aaaaaaa' in the listener will be echoed in all the clients
+                        at the same time.
+
+                        NB.
+                             In OSx and some minor implementation
+                             the connection is anyhow 1-1 (1.listener-1.client) at a time
+                             till the first client doesn't disconnect any other client CANNOT
+                             establish a connection with that listener.
+
+     -m                 (max clients)
+                        With -k I can have many clients (max by default 100)
+                        With -m I can specified how many:
+                                        ex. nc -m 2 -l     (a 3rd client attempting to connect
+                                                            will receive a connection refused)
+
+     --broker           it must be used on the listener     ex.    nc -l localhost --broker
+                        It makes the listener no more an echoed listener/clients  but allow clients
+                        to echoed (an 'aaaaaaa' in client 1 is displayed in all the others)
+
+
+     --chat             The same of --broker.
+                        The clients receives an nick-id (usually '<user num>'  ex. '<user 4>')
+                        so that when a client (ex. <user 2>' enters 'aaaaaaa' it's echoed in all the others
+                        prefixed by '<user 2>')
+
+ ----------------- client
+
+     --ssl              establish a HTTP secure connection (i.e. on port 443 instead of 80)
+                        ex.
+                               nc youtube.com 80            <---- doesn't answer because I didn't establish
+                                                                  a secure connection
+
+                               nc youtube.com 443 --ssl     <---- ok
+
+
+ ----------------- sending files:
+
+     server         ncat -l 1234 > output.txt
+     client         ncat -l 1234 < input.txt
+
+                    it's very simple.
+
+
+
+       socket listener (socket server):
+                        nc -v -l 1234               creates a listener on the port 1234  <--- TCP
+                                                                                              if I want UDP   -u 1234
+
+                                          if in another shell I connect on that port:
+                                          i.e.
+                                                         nc -v 1234    <--- TCP
+                                                                            if I want UDP   -u 1234
+                                          all I type is echoed
+       log in a file (instead of live outout) :
+                       nc -v -l 1234 > aaaa.log
+       echo server:
+                       nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
+       echo server:
+                       nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
+       echo server:
+                       nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
+       echo server:
+                       nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
+       echo server:
+                       nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
 -------------------------------
      ethtool
 -------------------------------

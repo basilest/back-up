@@ -111,6 +111,14 @@ $^W   $WARNING                         The current value of the warning switch, 
 $^X   $EXECUTABLE_NAME                 The name that the Perl binary itself was executed as.
 $ARGV                                  Contains the name of the current file when reading from <ARGV>.
 
+
+
+
+            ----------------------------------------------------
+            |   NOTE:    use perldoc to see any var:
+            |            ex.            perldoc -v '$"'
+            ----------------------------------------------------
+
 _____________ ARRAY
 
 @_ $#_        is the list of incoming parameters to a sub.
@@ -198,6 +206,19 @@ _____________ DOCUMENTATION
 
            “ perl –V:man.dir ”   To see the value to set in MANPATH in the UNIX man doesn't go properly.
 
+          useful perldoc commands:
+
+               perldoc -f uc             returns the help text of a builtin function (ex. here 'uc')
+               perldoc -l Net::SMTP      returns the pathname of a Module  (ex. /System/Library/Perl/5.18/Net/SMTP.pm )
+               perldoc -D Net::SMTP      returns a very Detailed man page (<-- nroff format) of a module
+               perldoc -t Net::SMTP      returns a very Detailed man page as normal 'text' (quicker but less nice)
+               perldoc -T ....           whatever other options are used the output will go to stdout instead to the pager (ex. nroff)
+               perldoc -m Net::SMTP      returns the module CODE + its pod-s
+               perldoc -F /System/Library/Perl/5.18/Net/SMTP.pm       documents the module given as filename
+               perldoc -v '$"'           returns the documentation of special vars (taken from 'perlvar')
+               perldoc -q shu[f]*le      returns what it finds in perlfaq[1-9] of  the regular expression given
+
+
 
 --------------------------
 PERL DISTRIBUTIONs     (http://perldoc.perl.org/perlpolicy.html)
@@ -263,7 +284,7 @@ ________________________________________________
            with the required -Dprefix=... (ex -Dprefix=${HOME}/perl_vers/5.10.1/)
 
            PERL5LIB :      this env variable must be set when I need to add additional dirs besides @INC.
-                           Perl does not require that the PERL5LIB variable be set.
+                           Perl does not require that the PERL:q5LIB variable be set.
                            Typically, the variable will not be set to any value.
                            Anyhow I can set PERL5LIB so that Perl looks for modules in a private directory.
 
