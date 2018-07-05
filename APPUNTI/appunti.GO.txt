@@ -71,13 +71,31 @@ ___________________________________________________________________________ GOPA
                src/  <----- here I put my code and any "go get github.com/...."
                             is downloaded into here
 
-    $ go build    <--- this command only checks the compilation but doesn't create the binary in bin
+    $ go build    <--- this command only checks the compilation but doesn't create the binary in bin/
+                       (actually it creates a binary in the same source dir, the "go install" will properly move it)
     $ go install  <--- this command creates the proper subdirs in bin/ and pkg/
 
+    $ go get <PPPPPP>    <--- go get is a:
+                                - download   (<--- it will create the usual souce sub-dirs in $GOPATH/src)
+                                - install
+                       go get -d    will only download (no "install" after)
+
+                       anyhow the path <PPPPPP> in "go get" can be also directly a sub-dir in $GOPATH/src
+                       ex:
+                                            go get sbasile/t1                 <---- subidr in $GOPATH/src/
+                                                   ^^^^^^^^^
+                                                       the syntax is a relatibe pathname of $GOPATH/src
+                                                       not a http://.....
+
+                       In this case the "download" phase is skipped and there is only a "get install".
+                       So "get install" is completely redundant as:
+                            1. if I want to download &  install:                  go get    http://
+                            2. if I need to only download something from the net: go get -d http://......
+                            2. if I want to only install  something locally       go get    ppp1/ppp2
 
 
     ex:
-          src/github.com/user/hello/main.go
+          src/github.com/user/hello/main.go                 (or src/sbasile/t1/main.go)
               ^^^^^^^^^^^^^^^^^^^^^   ^
                                 |     the code
                                 |
@@ -85,13 +103,14 @@ ___________________________________________________________________________ GOPA
                                 ex.
                                      go install github.com/user/hello      <--- I can run from everywhere
                                                                                 because $GOPATH is defined
+                                                                                It will create a "hello" exe in $GOPATH/bin/
+
+                                     go install sbasile/t1                 <--- I can run from everywhere
+                                                                                because $GOPATH is defined.
+                                                                                It will create a "t1" exe in $GOPATH/bin/
 
                                      go install                            <--- even just this after a
                                                                                 cd src/github.com/user/hello
-
-                   the 'install' will create in bin/
-                   the binary:       bin/hello*               <---- n.b. the binaries are all (flat) in $GOPATH/bin
-                                                                         with no nested 'packages' sub-dirs
 
                    If GOPATH is in $PATH, from everywhere I can run
                              > hello
@@ -190,15 +209,15 @@ ___________________________________________________________________________ FUNC
      func add(x, y, z int)       <--- if 2 or more args are of the same type
                                       I can add the type  just after the last
 
-     func swap(x, y string) (string, string)     <--- a function can return any number of args (here only the TYPEs are specified)
-     func swap(x, y string) (string a, string b) <--- in this case the return TYPEs are 'named'  (name 'a' and 'b')
-
-                                                      When there are 'named' return args
-                                                      it's supposed there are local vars with those names defined then in the function
-                                                      In this case I can use both of the following notations:
-
-                                                           return (a,b)    <--  explicit form
-                                                           return          <-- 'naked' form. local vars 'a' and 'b' are returned
+     func swap(x, y int) (int, int)     <--- a function can return any number of args (here only the TYPEs are specified)
+     func swap(x, y int) (a int, b int) <--- in this case the return TYPEs are 'named'  (name 'a' and 'b')
+     {
+          a=7                                         When there are 'named' return args
+          b=8                                         it's supposed there are local vars with those names defined then in the function
+          return                                      In this case I can use both of the following notations:
+     } ^
+       nb: missing 'var' for 'a' and 'b'                   return (a,b)    <--  explicit form
+           I can use them directly                         return          <-- 'naked' form. local vars 'a' and 'b' are returned
 
 
 
@@ -211,7 +230,7 @@ ___________________________________________________________________________ FUNC
 
      CLOSURES:  A closure is a function value that references var outside its body.
 
-                func adder() func(int) int {
+                func adder() func(int) int {       <---- receives nothing / returns a function  f(int)-->int
                      sum := 0
                          return func(x int) int {
                              sum += x
@@ -314,7 +333,7 @@ ___________________________________________________________________________ SWIT
 ___________________________________________________________________________ DEFER
 
 
-       'defer' keyword  tag something to be executed before return.
+       'defer' keyword  tags a function-call to be executed before return.
 
        func main() {                                                                                   for i := 0; i < 10; i++ {       --->     done
             defer fmt.Println("world")  <--- 'defer' are pushed on the stack, so called as LIFO            defer fmt.Println(i)                 9

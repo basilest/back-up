@@ -1,0 +1,206 @@
+________________________________________ COMMANDS
+
+start/stop
+              vagrant up
+              vagrant halt
+              vagrant destroy
+              vagrant status
+boxes
+              vagrant box
+              vagrant box add
+              vagrant list
+              vagrant box remove
+Vagrantfile
+              vagrant init
+              vagrant init precise64 http://files.vagrantup.com/precise64.box
+              vagrant reload
+connections
+              vagrant ssh
+________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VAGRANT LAYER                 Vagrant added value is to stop using VirtualBox by hand
+                              Instead of doing by hand, I can automate with Vagrant.
+                              So whatever Vagrant does, I could perform the same operation manually.
+
+                              ------------------------------------
+                              |              VAGRANT                 <----------- it's a layer that requires a VM framework below
+                              |------------------------------------                                                           |
+                              |                                                                                               |
+                              |                                                                                               |
+                              |          VIRTUALIZATION LAYER                         <---------------------------------------'
+                              |
+                              |         . VirtualBox                            <----  they
+                              |         . VmWare                                <----  are called
+                              |         . Amazon’s Elastic Compute Cloud (EC2)  <----   "PROVIDERS"
+                              |
+                              ------------------------------------
+
+
+BASE IMAGES                 Vagrant uses normally base images (called BOX FILES)
+(BOX FILES)                 and clones it to rapidly create a usable machine,   (var config.vm.box)
+                            (because building a virtual machine from scratch
+                            is a resource-intensive and time-consuming).
+
+                            Many projects can use the same BOX FILE
+
+                            These files are used only as BASE IMAGES
+                            (changes for every different project are stored out of them)
+
+
+                             command:
+                                             vagrant box           creates a box (the url is usally in the Vagrantfile)
+                                             vagrant box add       creates a box out of a project
+                                             vagrant list          lists the boxes
+                                             vagrant box remove    removes a box:
+                                                                                  . projects running have a cloned version of it
+                                                                                    so are not affected
+
+                                                                                  . projects closed, once started,
+                                                                                    will have to download it again
+
+
+
+
+VAGRANT                     to build complete development environments, sandboxed in a virtual machine.
+                            with 1 command:
+                                            $ vagrant               (on Mac: /usr/local/bin/vagrant)
+                                                                     so $PATH should be set to find it
+
+                            that in about 1 minute:
+
+                            . Creates a VM with an OS of your choice
+                            . Modifies the VM physical properties (e.g., RAM, num of CPUs, ...)
+                            . Establishes network interfaces  (nb. VirtualBox randomly generates a MAC address when
+                                                                   creating a new VM).
+                            . Sets up shared folders
+                            . Boots the VM (running)
+                            . Sets the "hostname" of the machine
+                            . Provisions software on the machine via a shell script or configuration management ( Chef, Puppet,..)
+                            . Performs host and guest specific tweaking to work around known issues that may arise.
+                              For example, VAGRANT comes with deep knowledge of many operating systems,
+                              ( Ubuntu, RedHat, CentOS, FreeBSD, ... )
+                              It uses this knowledge to properly configure networks based on the OS.
+
+
+
+TYPICAL USAGE                 use browser & editor in the host
+                              but running the code in the VM
+
+
+
+PLUGIN & OPEN SOURCE          Being open source (written in Ruby) I can modify myself or extend with plugins
+
+VERSIONS                      2.0.2             format M.S.P
+                                                                    M: mayor version
+                                                                    S: = 0   means very stable,
+                                                                       > 0   releases for latest or experimental features
+                                                                             can be unstable and not backward compatible
+                                                                    P: patches / bug fixes
+
+
+OLD DAYS   LAMP               Linux Apache MySQL PHP   were the chain to install to develop
+                              Web application.
+                              A VM can make life easier
+                              (moreover now the chain is more complex with also Javascrip/ Python/ Ruby/ ...)
+
+IMPROVEMENTS OF VAGRANT       . allows to keep development environments in sync with other team members.
+                              . test on same OS of production
+
+
+INSTALLATION                  VAGRANT, besides itself,  only requires VirtualBox.
+
+
+Vagrantfile                   . 1 file per project
+                              . it's like a Makefile, in the sense it's used to deploy all
+                              . it's written in Ruby
+                              . it's rarely modified
+
+             . vagrant init                                                        it creates a standard template
+             . vagrant init precise64 http://files.vagrantup.com/precise64.box     it also downloads/creates a VM
+             . vagrant reload                                                      to apply changes
+
+
+                           example:
+
+                            Vagrant::Config.run do |config|
+                                  config.vm.box = "precise64"                    <---- BOX FILE  (config.vm.box)
+                                  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+
+                                  config.vm.share_folder "v-root", "/vagrant", "."
+
+                                  config.vm.provision "shell" do |s|
+                                         s.path = "script.sh"
+                                  end
+                            end
+
+
+.vagrant/                   directory that
+                                 . keeps track of guest machine IDs, locks, configurations, and more.
+                                 . should be put in .gitignore, as it can cause the VM to get “lost” or
+                                   corrupted if these info are accidentally shared.
+
+
+
+
+
+vagrant up
+vagrant destroy               The VM will be deleted and any resources it consumed
+                              such as RAM or disk space will be reclaimed:
+                              Then a vagrant up again will re-create an identical, fully functioning
+                              development environment in a snap.
+
+                              nb. files in SHARED FOLDERS
+                                  are not destroyed
+                                  (this is the benefit to have them)
+
+
+
+SHARED FOLDERS
+               dir of Vagrantfile  <---->   /vagrant          by default the host dir containing the project
+                                                              (where there is the Vagrantfile) is shared
+                                                              and in the guest is the /vagrant dir
+
+                                                              This can be modified in the Vagrantfile:
+
+                                                              config.vm.share_folder "v-root", "/foo", "."
+                                                                                         ^        ^     ^
+                                                                                         |        |     |____ path in the host (absolute pathname or relative to 'this' Vagrantfile dir)
+                                                                                         |        |__________ how it will be known in the guest
+                                                                                         |___________________ type of SHARED FOLDER
+
+
+               other dirs <-----> /xxxxx                      ex. config.vm.share_folder "data", "/data", "./data"
+                                                                                         ^        ^     ^
+                                                                                         |        |     |____ same
+                                                                                         |        |__________ same
+                                                                                         |___________________ unique identifier
+
+               nb.   SHARED FOLDERS present a heavy performance penalty for IO
+                     so keep them for source code only (i.e. not for compilation .obj )
+
+
+
+
+
+
+
+
