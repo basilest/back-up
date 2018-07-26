@@ -79,6 +79,31 @@ brew upgrade                 to upgrade old packages
 
 
 
+-------------- PROXY ISSUE
+
+if any brew command has still issue with a proxy out from office, where NO proxy is required
+and where any proxy var has been set to undef
+
+                    NO_PROXY=chs-dev,localhost                                    NO_PROXY=
+                    http_proxy=http://wsproxy.internal.ch:8080                    http_proxy=
+                    RSYNC_PROXY=wsproxy.internal.ch:8080                          RSYNC_PROXY=
+                    rsync_proxy=wsproxy.internal.ch:8080               ------>    rsync_proxy=
+                    HTTPS_PROXY=http://wsproxy.internal.ch:8080                   HTTPS_PROXY=
+                    https_proxy=http://wsproxy.internal.ch:8080                   https_proxy=
+                    no_proxy=chs-dev,localhost                                    no_proxy=
+                    HTTP_PROXY=http://wsproxy.internal.ch:8080                    HTTP_PROXY=
+
+the reason is that git has maybe a proxy setting in the ~/.gitconfig file,
+so comment them if any:
+
+                                [http]
+                                28     #proxy = http://wsproxy.internal.ch:8080
+                                29     postBuffer = 524288000
+                                30 [https]
+                                31     #proxy = http://wsproxy.internal.ch:8080
+                                32 [push]
+                                33     default = simple
+                                34  .....
 
 
 __________________________  FORMULAE

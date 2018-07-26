@@ -1,0 +1,342 @@
+
+     KAFKA       must be thought like a black-box or layer
+                 which is used to send messages on 1 side
+                 and read them out on the other side:
+
+
+                 ------>                          ------>
+                 ------>   ------------------     ------>
+                 ------>   |    K A F K A   |     ------>
+                 ------>   ------------------     ------>
+                 ------>                          ------>
+
+                 Actually this black-box is:
+
+                     - Distributed     so not 1 single point of failure
+                                       (it's redundancy deployed as more clusters)
+
+                     - Scalable        I can extend it, adding more resorces, if needed
+
+
+
+                 Data written to Kafka is written to disk and replicated for fault-tolerance.
+
+     ACKS        I can configure a wait for acknowledgement in the SEND so that a write isn't considered complete until
+                 it is fully replicated and guaranteed to persist even if the server written to fails.
+
+
+
+
+     TCP         the communication is done via TCP
+
+
+
+
+
+
+     TERMS       Kafka defines these terms:
+                                                                             msg
+                    __ PRODUCERS         they send messages      PRODUCER   ----->  (TOPIC)
+          CLIENTS _/                                                                           msg
+                   \__ CONSUMERS         they read messages                         (TOPIC)   ----->   CONSUMER
+
+                                         - CLIENTS are available in many languages, 1st is in JAVA
+
+
+                     - TOPIC             messages are sent to a TOPIC, and are read from a TOPIC
+                                         A topic is like a BUFFER where messages are enqueued ( push & pop )
+
+
+                                         1 or + CONSUMERs can subsribe to a TOPIC  ( multi-subscriber )
+                                         CONSUMERs of the same TOPIC are groupped into a CONSUMER-GROUP
+
+
+
+                     - PARTITION         1 TOPIC = more PARTITIONS
+                                         this allows to parallelize more push-s and pop-s
+
+                                                       ===>  high message processing throughput.
+
+                                         1 PARTITION stays phisically on 1 SERVER
+                                         but different PRATITIONs of the same TOPIC can stay on different SERVERs
+
+
+
+                     - OFFSET            Is the ID which identifies a message in 1 PARTITION
+                                         - actually is like the SEEK in a file, which allows to retrieve
+                                           in the same buffer/log/file different records from different CONSUMERs
+
+
+                     - BROKER            each NODE in 1 CLUSTER
+                                         1 BROKER holds more duplicated PARTITIONS, and only 1 of the PARTITION is
+                                                    LEADER    (the messages are sent to this, and it forwards it also to all its FOLLOWERS)
+                                                    FOLLOWER   they send ack to the Leader so it knows they are in sync
+
+
+                             So the 3 fields:
+                                               ( TOPIC, PARTITION, OFFSET )  identify  1 MESSAGE
+
+
+                              ---------------------------------------------------------------------------------------------------------------
+                              |       __________ __________ __________ __________ __________ __________ __________
+                              |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |  msg 7   |      PARTITION 1
+                        T     |      |__________|__________|__________|__________|__________|__________|__________|
+                         O    |
+                          P   |       __________ __________ __________ __________
+                           I  |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |      PARTITION 2
+                            C |      |__________|__________|__________|__________|
+                              |
+                              |       __________ __________ __________ __________ __________ __________
+                              |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |      PARTITION 3
+                              |      |__________|__________|__________|__________|__________|__________|
+                              |
+                              --------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+                                                   broker 1              broker 2             broker 3
+                                                 __________            __________           __________                (L) Leader
+                                                |  PART 0  |(L)       |  PART 0  |F        |  PART 0  |F               F  Follower
+                                                |__________|          |__________|         |__________|
+
+                                                 __________            __________           __________
+                                                |  PART 1  |F         |  PART 1  |(L)      |  PART 1  |F
+                                                |__________|          |__________|         |__________|
+
+                                                 __________            __________           __________
+                                                |  PART 2  |F         |  PART 2  |F        |  PART 2  |(L)
+                                                |__________|          |__________|         |__________|
+
+
+
+
+
+
+
+     DELETE MESSAGES:      . Message stay in the PARTITION ( even once consumed )
+                           . KAFKA deletes OLD messages from the PARTITION after 'some' time ( configurable (ex. 1 day) called RETENTION PERIOD )
+                           . if the CONSUMER was down, during that period (ex. 1 day) the messages are lost.
+
+
+
+
+     PRODUCER STRATEGIES    3 strategies can be configured:
+                                                               1. PRODUCER WAITS that all brokers are in sync before sending another msg
+
+                                                               2. PRODUCER WAITS only Leader broker
+
+                                                               2. PRODUCER does NOT WAIT
+
+
+
+
+     CONSUMERR STRATEGIES    3 strategies can be configured:           (A)           (B)               (C)
+                                                               1. commit offset / process msg / save in downstream channel:
+
+                                                                  if CONSUMER crashes after (A) it will pick-up next time
+                                                                  another MSG and the crashed one is LOST
+
+                                                                       (A)           (B)               (C)
+                                                               2. process msg / commit offset / save in downstream channel:   <------ BETTER
+
+                                                                  if CONSUMER crashes after (A) it will pick-up next time
+                                                                  the same MSG and the crashed one will be present twice in the downstream channel
+
+                                                                       (A)           (B)                           (C)            (D)
+                                                               3.  process msg / save in downstream channel / save a session / downstream channel:
+
+                                                                  if CONSUMER crashes after (B) everything restarts from the saved
+                                                                  SESSION.
+                                                                  This approach guarantes NO DATA LOSS and NO DUPLICATION
+                                                                  BUT it decreases the throughput, so 2. is the preferred solution, and
+                                                                  it's up to the downstream channel to manage the duplications.
+
+
+
+__________________________________________________  API
+
+        4 API available to an application
+                 Producer  API      the application can publish mes to a TOPIC
+                 Consumer  API      the application can subscribe to 1 or more TOPICs & process the stream of messages
+                 Streams   API      extension of the Consumer API when the application must tansform an INPUT stream into an OUTPUT stream
+                                    In Kafka a stream processor is anything that takes continual streams of data from input topics,
+                                    performs some processing and produces continual streams of data to output.
+                 Connector API      to reuse PRODUCERs & CONSUMERs, lining to external resources (i.e. DB tables or external applications)
+
+
+
+__________________________________________________  KAFKA MIRROR-MAKER
+
+    Kafka MirrorMaker provides geo-replication support for your clusters.
+
+    With  MirrorMaker, messages are replicated across multiple datacenters or cloud regions.
+
+    You can use this in
+        active/passive scenarios for backup and recovery;
+        active/active  scenarios to place data closer to your users.
+
+__________________________________________________  ZooKeeper   (Apache)
+
+   In the cloud age, Autoscaler is a more robust solution.
+
+   JAVA        It is an application which runs in the JAVA VM.
+               ( and actually logs with log4j )
+
+               It allows distributed applications (on different environments/servers)
+               to coordindate with each other.
+
+               This is done via a shared hierarchal namespace which is organized
+               similarly to a standard file system.
+               (ex. a process p_3 of an APP2 could have the path   /APP2/p_3 )
+
+               Applications use Zookeeper via TCP, sending requests
+               getting responses and events.
+
+
+   BASIS       ZooKeeper is very fast and very simple.
+               Since its goal, though, is to be a basis for the construction of more complicated services,
+               (ex. synchronization).
+
+               So ZooKeeper provides a very simple programming interface, supporting only these API:
+
+                          create          creates a node at a location in the tree
+                          delete          deletes a node
+                          exists          tests if a node exists at a location
+                          get data        reads the data from a node
+                          set data        writes data to a node
+                          get children    retrieves a list of children of a node
+                          sync            waits for data to be propagated
+
+
+
+
+
+   REPLICATED     Like the distributed processes it coordinates, ZooKeeper itself
+               is intended to be replicated over a sets of servers.
+
+               These servers know of each other.
+
+               Till the majority of the servers is running, Zookeeper can provide
+               its service to the applications.
+
+               Every time a TCP connection is lost, the application
+               connects to another server.
+
+
+    ZNODE      ZNODE are like the Files of a File system.
+               These 'files' are called 'node's or 'znode's.
+
+               Every 'node' has information associated like:
+                     timpe stamps
+                     versions (for data, so a read will return also the data version and the client has this info)
+                     ACL (Access Control List) that restricts who can do what.
+
+
+    WATCHES    Clients can set a WATCH on a znodes.
+               A WATCH will be triggered and removed when the znode changes.
+
+
+_______________ Installation & Usage
+
+
+          CONFIG FILE         any name (ex conf/zoo.cfg)
+                              example:
+
+                                  tickTime=2000                             # heartbeats in ms
+                                  dataDir=/var/lib/zookeeper                # location to store the in-memory database snapshots.
+                                                                              In production, storage must be managed externally (dataDir and logs)
+                                  clientPort=2181                           # port to listen for client connections
+                                  maxClientCnxns=60
+                                  autopurge.snapRetainCount=3               # snapshots to retain in dataDir
+
+
+   COMMANDS:     commands are shell scripts which call the JAR file.
+                 Ex:
+                      $JAVA" "-Dzookeeper.log.dir=${ZOO_LOG_DIR}" "-Dzookeeper.root.logger=${ZOO_LOG4J_PROP}" \
+                      cp "$CLASSPATH" $JVMFLAGS org.apache.zookeeper.server.upgrade.UpgradeMain ${@}
+
+
+
+          START THE SERVER ( no replication )       bin/zkServer.sh start
+
+
+          CONNECTING                                bin/zkCli.sh -server 127.0.0.1:2181
+
+                                                          this opens a CLI.
+                                                          To see al the commands is ok typing "help"
+
+
+
+
+
+
+
+
+
+
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+__________________________________________________  API
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. zookeeper-server-start /usr/local/etc/kafka/zookeeper.properties
+2. kafka-server-start     /usr/local/etc/kafka/server.properties
+
+
+kafka-topics  --create --zookeeper localhost:2181 --replication-factor 1 --partitions 13 --topic my-topic
+kafka-topics --list --zookeeper localhost:2181
+
+kafka-console-producer --broker-list localhost:9092 --topic my-topic
+kafka-console-consumer --bootstrap-server localhost:9092 --topic my-topic --from-beginning
+—————————————————————————

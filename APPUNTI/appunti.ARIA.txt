@@ -1,0 +1,84 @@
+WAI-ARIA
+             WAI:    Web Accessibility Initiative
+             ARIA:   Accessible Rich Internet Applications
+
+             https://w3c.github.io/using-aria/
+
+             Defines support for accessible web apps (assistive technologies like screen readers).
+             To make Web applications more accessible to people with disabilities.
+
+             Predates HTML5 and does not require it
+             (anyhow WAI-ARIA has finally been integrated into the HTML 5 specification).
+
+             It defines bunch of markup extensions.
+             without affecting the core functionality (as if a user agent does not understand
+             those tgas/attributes it will just skip them):
+
+             ex:
+                 <ul role="menu">
+                     ^^^^
+                       the role attribute, if not known, doesn't affect the <ul> tag
+
+             other example:
+
+                 <li role="menuitem" aria-haspopup="true" aria-labelledby="fileLabel">
+
+KEYBOARD:    Programmers, must develop their application thinking as a rule that
+             all interactive ARIA controls must be usable with the keyboard.
+
+             ex:
+                  role=button    "enter"  (WIN OS) |_____ +  "space" key.
+                                 "return" (MAC OS) |
+
+
+lowecase     Authors MUST use lowercase ASCII letters for role=... or aria-*=...   values
+
+LABELS       <lable> in HTML adds info to a supposed linked <input> (or similar tags)
+             so some 'accessible' elements.
+
+             <lable> in the ARIA philosophy must then have an 'accessible-name' well defined.
+
+             ex. these work:
+
+                        <label>user name <input type="text"></label>     # ok it wraps its <input>
+
+                        <label for="uname">user name</label>             # ok it's linked to its <input>
+                        <input type="text" id="uname">
+
+             this doesn't work:
+                        <label>user name</label>                         # no 'accessible-name' for <lable>
+                        <input type="text">
+
+
+             DIV          Regardless of what roles is assigned they are never "labelable" elements  (but this rule is a work in progress)
+                          <label>
+                                user name <div  role="combobox"></div>       # doesn't work, iso the <lable> remains WITHOUT an 'accessible name.'
+                          </label>
+
+
+
+ROLE         role='presentation'   (or role=none  (synonym))               removes the semantics from that element
+                                                                           (and all its eventual children)
+
+             role=application      many (not all!) screen readers stop intercepting keystrokes,
+                                   and pass all keystrokes directly to the browser.
+                                   (so it should not be used)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
