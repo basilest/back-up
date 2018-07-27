@@ -178,12 +178,62 @@ __________________________________________________  KAFKA MIRROR-MAKER
         active/passive scenarios for backup and recovery;
         active/active  scenarios to place data closer to your users.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 __________________________________________________  ZooKeeper   (Apache)
 
    In the cloud age, Autoscaler is a more robust solution.
 
-   JAVA        It is an application which runs in the JAVA VM.
-               ( and actually logs with log4j )
+   JAVA        It is an application (comes as a .JAR) which runs in the JAVA VM. (release 1.6 or greater)
+               ( and actually logs with log4j  (version 1.2) )
+
+               The Java HEAP size is very important to avoid swapping,
+               which will seriously degrade ZooKeeper performance.
+               Be conservative - use a size of 3GB for a 4GB machine.
+
+                       - on the MAC:
+                                    lrwxr-xr-x  1 sbasile  wheel  54 21 Jul 11:09 /usr/local/bin/zookeeper-security-migration -> ../Cellar/kafka/1.1.0/bin/zookeeper-security-migration
+                                    lrwxr-xr-x  1 sbasile  wheel  48 21 Jul 11:09 /usr/local/bin/zookeeper-server-start       -> ../Cellar/kafka/1.1.0/bin/zookeeper-server-start
+                                    lrwxr-xr-x  1 sbasile  wheel  47 21 Jul 11:09 /usr/local/bin/zookeeper-server-stop        -> ../Cellar/kafka/1.1.0/bin/zookeeper-server-stop
+                                    lrwxr-xr-x  1 sbasile  wheel  41 21 Jul 11:09 /usr/local/bin/zookeeper-shell              -> ../Cellar/kafka/1.1.0/bin/zookeeper-shell
+
+
+                                    they are small 1-liner files
+                                    ex: ( /usr/local/bin/zookeeper-server-start )
+                                       JAVA_HOME="$(/usr/libexec/java_home --version 1.8)" exec "/usr/local/Cellar/kafka/1.1.0/libexec/bin/zookeeper-server-start.sh" "$@"
+
+                                    each calling a bigger bash file
+                                    ex ( /usr/local/Cellar/kafka/1.1.0/libexec/bin/zookeeper-server-start.sh )
+
+
+                       - on a vagrant VM
+                                    /home/vagrant/zookeeper-3.4.11/bin
+                                                                        /zkCleanup.sh
+                                                                        /zkCli.sh
+                                                                        /zkEnv.sh
+                                                                        /zkServer.sh
+                                    each calling somehow JAVA
+                                    ex. zkCli.sh
+                                             "$JAVA" "-Dzookeeper.log.dir=${ZOO_LOG_DIR}" "-Dzookeeper.root.logger=${ZOO_LOG4J_PROP}" \
+                                                     -cp "$CLASSPATH" $CLIENT_JVMFLAGS $JVMFLAGS \
+                                                     org.apache.zookeeper.ZooKeeperMain "$@"
+
+
+
+
 
                It allows distributed applications (on different environments/servers)
                to coordindate with each other.
@@ -222,8 +272,24 @@ __________________________________________________  ZooKeeper   (Apache)
                Till the majority of the servers is running, Zookeeper can provide
                its service to the applications.
 
+               Majority means half+1, so:
+                   . the minimum 'good' number is 3, as with 2
+                     it means that if anyone goes out of service even the other is suspended
+                     while with 5, it works if 2 go down
+
+                   . always configure an ODD number of servers
+
+
+
                Every time a TCP connection is lost, the application
                connects to another server.
+
+               The servers use 2 TCP ports to achive their job:
+                      . 1 to 'elect' the leader
+                      . 1 to normally speak to each other
+
+               Note that when a server is restarted after a fail, it joins without
+               manual interaction the other servers.
 
 
     ZNODE      ZNODE are like the Files of a File system.
@@ -247,10 +313,31 @@ _______________ Installation & Usage
 
                                   tickTime=2000                             # heartbeats in ms
                                   dataDir=/var/lib/zookeeper                # location to store the in-memory database snapshots.
-                                                                              In production, storage must be managed externally (dataDir and logs)
+                                                                              In production, storage must be managed externally (not a different partition, but a different device)
+
                                   clientPort=2181                           # port to listen for client connections
                                   maxClientCnxns=60
                                   autopurge.snapRetainCount=3               # snapshots to retain in dataDir
+
+                                  [dataLogDir]                              optional different place to store the log
+
+                             It's passed when running the server in the list of the JAVA args
+                             java -cp zookeeper.jar:lib/log4j-1.2.15.jar:conf \ org.apache.zookeeper.server.quorum.QuorumPeerMain zoo.cfg
+                                                                                                                                  ^^^^^^^
+
+             REPLICATION CONFIG adds these params
+
+                      initLimit=5                   max time to wait to connect to a leader  ( is in 'ticks', so the time (in ms) is initLimit * tickTime, here 10 sec)
+                      syncLimit=2                   max days of different dates a Sever has with the Leader
+                      server.1=zoo1:2888:3888       1st port 2888 for Server-Server normal communication  / 1nd port for Server-Server Leader election
+                      server.2=zoo2:2888:3888
+                      server.3=zoo3:2888:3888
+
+                            ^
+                            these numbers 1,2,3 are actually the id of each server. For each server it's the number written as plain text
+                            in the file <dataDir>/ myid     (range 1-255)
+
+
 
 
    COMMANDS:     commands are shell scripts which call the JAR file.
@@ -260,20 +347,72 @@ _______________ Installation & Usage
 
 
 
-          START THE SERVER ( no replication )       bin/zkServer.sh start
+          START THE SERVER
+                           ( no replication )       bin/zkServer.sh start
+
+                              ( replication )       bin/zkServer.sh start     <---- same command
+                                                                                    but irft there are more Servers
+                                                                                    It must be execute on each,
+                                                                                    moreover
 
 
           CONNECTING                                bin/zkCli.sh -server 127.0.0.1:2181
+                                                    bin/zkCli.sh  <-----  also alone
 
                                                           this opens a CLI.
-                                                          To see al the commands is ok typing "help"
+                                                          To see al the commands: "help"
+
+          CLI                                       the CLI is zkCli.sh.
+                                                    I can:
+                                                      . prepend every command with ./zkCli.sh (ex. ./zkCli.sh create /stefano null)
+                                                      . enter the CLI once (./zkCli.sh) and then run all commands (ex. creaote /stefano null)
+                                                        (The CLI prompt is something like:
+                                                                  [zk: localhost:2181(CONNECTED) 12]       12 is the history number of the command
+                                                                                                           as with bash with 'history' I see the previous commands
+
+         EXAMPLES
+                   create 'files' (nodes):
+
+                   1. create /stefano    null
+                   2. create /stefano/basile  null
+                   3. create /stefano/basile/is   null
+                   4. create /stefano/basile/is/ok   "my data blah blah"  <---- nb. I need the previous 3 commands
+                                                                         I cannot do in 1 command only: create /stefano/basile/is/ok "my data blah blah"
+
+                   5. ls /           <---- like normal file system
+
+                   6. get /stefano/basile/is/ok              will outout:
+
+                                                             my data blah blah       <----------
+                                                             cZxid = 0x10d1
+                                                             ctime = Fri Jul 27 14:35:08 BST 2018
+                                                             mZxid = 0x10d1
+                                                             mtime = Fri Jul 27 14:35:08 BST 2018
+                                                             pZxid = 0x10d1
+                                                             cversion = 0
+                                                             dataVersion = 0      <----------- 0
+                                                             aclVersion = 0
+                                                             ephemeralOwner = 0x0
+                                                             dataLength = 29
+                                                             numChildren = 0
+                                                             [zk: localhost:2181(CONNECTED) 23]
+
+                   7. set /stefano/basile/is/ok  "new info now"         <----- I can change the data.
+                                                                               n.b.  the version is increased: dataVersion = 1
+
+                   8. delete /stefano/basile/is/ok
 
 
 
+   STORAGE:
+                  The ZooKeeper Data Directory contains files which are a persistent copy of the znodes.
+
+                  As changes are made to the znodes these changes are appended to a transaction log.
+
+                  A ZooKeeper server will not remove old snapshots and log files, this is the responsibility of the operator.
 
 
-
-
+   LOG:          The LogFormatter class allows an administrator to look at the transactions in a log.
 
 
 
