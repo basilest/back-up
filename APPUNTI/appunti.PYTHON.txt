@@ -479,6 +479,46 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
            once pip is installed, you can install modules:
                              sudo pip install yolk
 
+           I can update pip via pip itself :
+             pip install --upgrade pip
+
+              ---------------------------------
+              ISSUE OF PIP NOT UPGRADING ITSLEF:
+              ---------------------------------
+
+              Python.org sites stopped supporting TLS version 1.0 and 1.1, which could be causing
+              the chicken-and-egg problem. Try upgrading pip without using pip
+
+                   curl https://bootstrap.pypa.io/get-pip.py | python
+
+
+
+
+              ---------------------------------
+               2.1  At this point is better to tidy up the system wrt python.
+
+               Like perlenv there is
+                           . virtualenv
+                           . virtualenvwrapper   is a set of extensions to virtualenv.
+
+
+                     1   pip uninstall virtualenvwrapper
+                     2   pip uninstall virtualenv
+                     3.  pip install virtualenv
+                     4.  pip install virtualenvwrapper
+
+                         this will install a shell script (virtualenvwrapper.sh) somewhere
+                         (on the Mac: /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh)
+                     5.  source ....../virtualenvwrapper.sh
+                         (add this also in the .bashrc)
+                     6.  WORKON_HOME=~/PYTHON_ENVS (or any wanted dirname)
+                     7.  mkvirtualenv env1  this will install a new python in a dir $WORKON_HOME/env1
+                     8.  lssitepackages     to see the packages
+                     9.  mkvirtualenv env2  this will install another python in a dir $WORKON_HOME/env2
+                    10.  workon env1        sets the env. (here back to env1)
+                    11.  deactivate      Switch from a virtual environment to the system-installed version of Python.
+
+
 yolk       list all the modules installed
            yolk -l
 

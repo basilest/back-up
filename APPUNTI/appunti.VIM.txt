@@ -1,3 +1,111 @@
+------------------------------------------------------ refresh not working highlight
+
+If VI doesn't paint the whole page when syntax constructs go back too far:
+see
+                  ":help :syn-sync".
+
+There are 4 possibilities described there.
+The only foolproof one, but also the slowest, is
+                  ":syn sync fromstart"
+
+which will backtrack from the start of the file
+in order to determine how to highlight
+the text visible in the current window.
+
+------------------------------------------------------ Plug 'majutsushi/tagbar'
+               To have with F8 a right-hand-side panel
+
+               with the list of functions / variable / ... of the current file
+
+               nmap <F8> :TagbarToggle<CR>
+------------------------------------------------------ Plug 'wincent/command-t'
+               to have files proposed as I type  (with fuzzy logic)
+
+               <leader>t  (i.e. in my case ",t") to open the panel
+               trl-s to open selected as H-split
+               Ctrl-v to open selected as V-split
+               Ctrl-t to open selected in new tab
+------------------------------------------------------ ctags
+
+
+           .  install ctags  (ie. brew install ctags)
+
+           .  the list of available languages is:   ctags --list-languages
+
+           .  if a language is not available it can be added (writing
+              the proper regex in ~/.ctags)
+              ex.
+                  for GO: I add in ~/.ctags (or I create if not present)
+
+                            --langdef=Go
+                            --langmap=Go:.go
+                            --regex-Go=/func([ \t]+\([^)]+\))?[ \t]+([a-zA-Z0-9_]+)/\2/d,func/
+                            --regex-Go=/var[ \t]+([a-zA-Z_][a-zA-Z0-9_]+)/\1/d,var/
+                            --regex-Go=/type[ \t]+([a-zA-Z_][a-zA-Z0-9_]+)/\1/d,type/
+
+           .  In the project root-dir I run:  ctags -R .
+              it will create a file ./tags
+
+           .  In VI I add in ~/.vimrc the line
+                          set tags=tags       <--- that will base on the current tags file every time
+
+
+
+
+            vi −t tag     Start vi and position the cursor at the file and line where "tag" is defined.
+            :ta tag       Find a tag.
+            Ctrl-]        Find the tag under the cursor.
+            Ctrl-t        Return to previous location before jump to tag (not widely implemented).
+
+------------------------------------------------------ ctags
+   _______________________________  F O R M A T T I N G
+
+    :GoFmt              not necessary as it works by default on every save
+
+   _______________________________  C O M P I L I N G
+
+    :GoRun %         run the opened file
+    :GoBuild
+
+   _______________________________  E R R O R S   M O V I N G
+
+   cnext and :cprevious    to jump to next previous compiling errors   (for info in quickfix panel)
+   lnext                   to jump around from other (not quickfix) panels
+
+   et g:go_list_type = "quickfix"         to have all messages from any panel, always in quickfix panel
+                                          (so I can always use only :next :cprevious)
+
+   _______________________________  T E S T
+
+    :GoTest                   runs the test (this command is launched from inside both the  *_test.go file or from any other source .go of the same dir)
+    :GoTestFunc               tests only the function under cursor (ex. TestBar)
+
+    :GoTestCompile            checks compilation only for a Test file (maybe large file, so I don't want to wait for the test execution)
+
+    :GoCoverage               reports coverage (showing lines green and red)
+    :GoCoverageClear          resets lines colours
+    :GoCoverageToggle         instead if calling in sequnce many times :GoCoverage / :GoCoverageClear
+
+    :GoCoverageBrowse         beautifully opens directly the page in the browser
+
+    let g:go_test_timeout = '15s'       set a timeout an waiting for Test ending (default is 10 sec)
+
+   _______________________________  I M P O R T
+
+    :GoImport strings         to add that import 'string' in the proper section
+    :GoImport s... <tab>      <tab> autocompletes (looping through the matching values)
+    :GoImports                call 'goimports' new version of gofmt
+
+   _______________________________  F U N C T I O N   S E L E C T I O N
+
+    if           select the body of the function --> dif delete, yif yank, vif visual, ...
+    af           like <if> + also the function name line + any // comments line near the function
+                 let g:go_textobj_include_function_doc = 0 <---- if I want to exclude the behaviour for the comments near the function
+
+
+------------------------------------------------------ format json inside vim
+
+:%!jq '.'
 ------------------------------------------------------ save vim sessions
 :mksession ~/mysession.vim                       # save in that file
 

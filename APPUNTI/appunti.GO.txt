@@ -7,9 +7,9 @@ go build -gcflags "-m -m"
 _________________ INSTALL WITH PKG MANAGER
 
 .   GO can be installed with a package manager (homebrew, apt-get, ..)
-    and i.e. on a mac it goes in /usr/local/bin/go
+    and i.e. on a mac it goes in /usr/local/bin/go*
 
-.   a package manager has always stable but older things, so once you have
+.   a package manager has always stable but older things, so once I have
     the (old) GO binary, I can even compile the latest GO version
 
     because GO is open source (and written in GO itself):  git@github.com:golang/go.git
@@ -42,6 +42,9 @@ _________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
                                    ./bin where it will create 2 binaries (go / gofmt)
                                    (gofmt is the formatter: use it on the command line as  > gofmt a.go)
 
+                                   nb. gofmt is the old tool (still available), anyhow now there is
+                                                 goimport which formats & manage the imports
+
      5. update PATH to find them (~/.bash_profile):
 
                                export GOPATH="$HOME/go"
@@ -61,7 +64,7 @@ _________________ COMPILE WITH GCC the LAST VERSION WRITTEN IN C
 ___________________________________________________________________________ GOROOT
 ___________________________________________________________________________ GOPATH (the 'Workspace')
 
-    "GOPATH" is the path where ALL the go repos (both my code, and remote repo) are put
+    "GOPATH" is the path where ALL the go repos (both my code, and remote repos) are put
              (It's not the path where GO binary is installed)
 
     the GOPATH dir, has 3 subdir
@@ -76,7 +79,7 @@ ___________________________________________________________________________ GOPA
     $ go install  <--- this command creates the proper subdirs in bin/ and pkg/
 
     $ go get <PPPPPP>    <--- go get is a:
-                                - download   (<--- it will create the usual souce sub-dirs in $GOPATH/src)
+                                - download   (<--- it will create the usual source sub-dirs in $GOPATH/src)
                                 - install
                        go get -d    will only download (no "install" after)
 
@@ -84,7 +87,7 @@ ___________________________________________________________________________ GOPA
                        ex:
                                             go get sbasile/t1                 <---- subidr in $GOPATH/src/
                                                    ^^^^^^^^^
-                                                       the syntax is a relatibe pathname of $GOPATH/src
+                                                       the syntax is a relative pathname of $GOPATH/src
                                                        not a http://.....
 
                        In this case the "download" phase is skipped and there is only a "get install".
@@ -125,11 +128,28 @@ ___________________________________________________________________________ 1 GO
              1 prog (executable xxxx*) will so have 1 of the possible structures below
 
                  src/........./xxxx/main.go   <---- the source code starts with  "package main"
-                 src/........./xxxx/xxxx.go   <----      "       "    "     "        "     "
+                 src/........./xxxx/ffff.go   <----      "       "    "     "        "     "
 
 
+                       nb. there is another important function in every package: 'init'.
+                                       func init() { .... <--- no args / no return val)
+                           The runtime steps done by GO are:
+                                    . recursively load all the imported packages
+                                    . set all global vars to their values
+                                    . call the 'init' function (if present)
+
+                           INCREDIBLY: I can have many DEFINITION of init().
+                                       Many
+                                              func init() {
+                                       in the same file
+                                       and/or many in different files of the same package.
+                                       They will just be called in sequence.
 
 
+                           import _ "xxxx"  <---- the _ is used to silent the compiler of
+                                                  the fact that "xxxx" is not used in the file.
+                                                  The reason is that GO will not trigger an error
+                                                  and then, as usual, will call xxxx.init that is what I maybe want.
 
 ___________________________________________________________________________ 1 GO PROG OF 2+ FILES
 
@@ -137,11 +157,11 @@ ___________________________________________________________________________ 1 GO
              so any of this (but package "main")
 
                  src/........./xxxx/main.go
-                 src/........./xxxx/xxxx.go
+                 src/........./xxxx/ffff.go
 
              while any other source file will be something like
 
-                 src/........./yyyy/yyyy.go   <---- the source code starts with  "package yyyy"
+                 src/........./yyyy/ffff.go   <---- the source code starts with  "package yyyy"
                                                     and in the main I can include yyyy like
                                                     import "...../yyyy"
 
@@ -156,6 +176,25 @@ ___________________________________________________________________________ PACK
         "math/rand"                                           import "math/rand"
       )
 
+
+
+      import (
+          "xxxx"
+        m "xxxx"
+        . "xxxx"
+        _ "xxxx"
+      )
+
+        m "xxxx"    <---- I add an 'alias', so after I can just use m.B to refer a B var/function of package "xxxx"
+                          It's usefull when a package B is like another A (ex. .../logxxx and  'log')
+                          In the following code using the alias allow to have the same code
+                          even i I change the package (both will have m.----)
+
+        . "xxxx"    <---- In this case I can use the var/functions of "xxxx" without
+                          prepending anything (ex. instad of xxxx.B or m.B directly B)
+
+        _ "xxxx"    <---- call xxxx.init() even if xxxx is not used in the file (which otherwsie
+                          would call an error by GO compiler).
 
 ___________________________________________________________________________ Exported names
 
@@ -303,6 +342,9 @@ ___________________________________________________________________________ IF
        if v := 4; v < lim {       <--- like 'for' a pre-part to init (only 1 var) is possible
 
 
+
+       } else {                   <--- the else stays on the line with the 2  '}'  '{'
+
 ___________________________________________________________________________ SWITCH
 
 
@@ -376,6 +418,90 @@ ___________________________________________________________________________ STRU
                               I can specify the fields with the syntax 'f_name : value'
                                             v :=  Vertex{Y: 6}  // X:0       is implicit
                                             p := &Vertex{}      // X:0 & Y:0 is implicit
+
+
+==================== embedded fields
+             they are fields with no name
+             ex:
+             type T1 struct {
+                  f1 string
+             }
+
+             type T2 struct {
+                     T1         <---------------- embedded field
+                     f2     int64
+                     f3, f4 float64
+             }
+
+             func main() {
+                            t := T2{T1{"foo"}, 1, 2, 3}
+                            fmt.Println(t.f1)    // foo
+                            fmt.Println(t.T1.f1) // foo
+
+==================== fields 'tags' and reflection
+
+           REFLECTION is the ability of a computer program to examine, introspect, and modify
+           its own structure / behavior at runtime.
+
+
+           Struct fields can have some meta-information with the syntax
+                `key1:"val1" [ key2:"val2"...]`     so:
+                                                       . `......`
+                                                       . key ':'  "..."
+                                                       . 1 <space> separates more pairs
+
+                                                    actually the syntax can be any different
+                                                    ex
+                                                             f1 string "f one"
+                                                    but GO compiler can warns on this
+                                                    "vet" enforces the syntax to be strictly ok
+                                                    $ go vet file.go
+
+                    _________________ even more fields together (they share the same spec):
+                    type S struct {
+                         F, G, H string `species:"gopher" color:"blue"`
+                    }
+
+
+            This information are usually added to instruct 3rd parties
+            to 'transform / manipulate' the structure  (ex. JSON processing
+                    type User struct {
+                        Name string `json:"name" xml:"name"`
+                    }
+               nb. Usually a dash value ('-') for the "value"
+                    means to exclude the field from the process
+                    (e.g. in case of json it means not to marshal or unmarshal that field).
+                    type Foo struct {
+                        Bar string `json:"-"`
+                        }
+
+            )
+            but can also be added and managed directly with the 'reflect' module
+            (and its 2 methods 'Get' and 'Lookup' )
+
+            package main
+
+            import (
+                "fmt"
+                "reflect"
+            )
+
+            func main() {
+                type S struct {
+                     F string `species:"gopher" color:"blue"`
+                }
+
+                s := S{}
+                st := reflect.TypeOf(s)
+                field := st.Field(0)
+                fmt.Println(field.Tag.Get("color"), field.Tag.Get("species")) --> blue gopher
+            }                          ^                       ^
+
+            we used 'Get'
+            Get is the ligth version of Lookup:
+               v, ok := f.Tag.Lookup("color")
+            which, as usual, returns the "value" (of the key) and the boolean to say ok, not-ok
+            With Get we don't care about ok/not-ok
 
 
 ___________________________________________________________________________ ARRAY
@@ -551,12 +677,16 @@ ___________________________________________________________________________ METH
                                                                                                                ^
                                                                                                                syntactic sugar
 
-       . There is one more aspect of naming to be mentioned: method lookup is always by name only, not by signature (type) of the method.
-         In other words, a single type can never have two methods with the same name. Given a method x.M, there's only ever one M associated with x.
-         Again, this makes it easy to identify which method is referred to given only the name. It also makes the implementation of method invocation simple.
+       . There is one more aspect of naming to be mentioned: method lookup
+         is always by NAME only, not by signature (type) of the method.
+         In other words, a single type can never have two methods with the same name.
+         Given a method x.M, there's only ever one M associated with x.
+         Again, this makes it easy to identify which method is referred to
+         given only the name.
+         It also makes the implementation of method invocation simple.
 ___________________________________________________________________________ INTERFACES
 
-       . type iiiii interface {    <---- iiiii is now a type (interface)  so a var can be defined of this type:  var x iiii
+       . type iiii interface {    <---- iiiii is now a type (interface)  so a var can be defined of this type:  var x iiii
                 xxxx() float64
          }
 
@@ -771,8 +901,10 @@ function names are    TestXXX
 function arg   are  (t *testing.T).
 The code inside those functions must be any, but to be usefull somewhere
 there must be a call to
-                        t.Error
+                        t.Error       (or t.Errorf   for formatting like a printf: ex t.Errorf("Sum was incorrect, got: %d, want: %d.", total, 10))
                         t.Fail
+
+                        t.Log        can be used to provide non-failing debug information
 
 The framework runs each such function;
 If any t.Error or t.Fail, is executed the test is considered to have failed.
@@ -797,12 +929,147 @@ If any t.Error or t.Fail, is executed the test is considered to have failed.
                       	}
                       }
 
-run as:
-
-$ go test github.com/user/stringutil
+if the above file xxxxx_test.go is in the dir $GOPATH/src/github.com/user/stringutil/xxxxx_test.go
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+run as:                                                               |
+                                                                      |
+$ go test github.com/user/stringutil   <------------------------------'
 ok  	github.com/user/stringutil 0.165s
 
-___________________________________________________________________________
+
+$ go test            will run all the *_test.go files in the current dir
+$ go test -v         adds verbosity
+$ go test --cover    built-in code-coverage for statements.
+                     ex of output:
+                                  $ go test -cover
+                                  PASS
+                                  coverage: 50.0% of statements
+                                  ok     github.com/user/stringutil  0.009s
+
+
+$  go test --cover -coverprofile=c.out         <--- this pair
+$  go tool   cover -html=c.out -o c.html         <--- of commands creates a file c.out and then a c.html
+                                                      (in the c.html opened in a browser I can see
+                                                           in RED:  the lines "not covered"
+                                                           in GREEN the lines "covered" )
+
+
+
+===============================   ( TESTING with GoConvey )  https://github.com/smartystreets/goconvey
+
+      . It adds a visual/colo
+      . Directly integrates with go test
+
+      1. install:   go get github.com/smartystreets/goconvey
+
+      2. usage (impprt):
+                    import (
+                          "testing"
+                          . "github.com/smartystreets/goconvey/convey"
+                    )
+
+
+      3. usage (function):
+
+                    func TestSpec(t *testing.T) {
+
+
+                        Convey("Given some integer with a starting value", t, func() {
+                               x := 1                                      ^
+                                                                           Only pass t into this top-level Convey call
+                               Convey("When the integer is incremented", func() {
+                                      x++
+
+                                      Convey("The value should be greater by one", func() {
+                                             So(x, ShouldEqual, 2)
+                                      })
+                               })
+                        })
+                    }
+
+      4. run in the terminal
+                       4.1   normal   go test
+
+
+      5. see results in the browsers:
+                       5.1   start the server:   $GOPATH/bin/goconvey
+                       5.2   http://localhost:8080    <--- in the browser
+
+
+
+
+___________________________________________________________________________ 'go list' command
+
+given a package (ex.  $GOPATH/src/github.com/user/stringutil/......*.go)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+I can use bash '$ find -iname ...' to list                            |
+the go files and the test files or I can use the 'go list' command    |
+                                                                      |
+        $ go list -f={{.GoFiles}} github.com/user/stringutil  <-------'
+
+        $ go list -f={{.TestGoFiles}} github.com/user/stringutil
+
+
+        they produce:
+                       . [handlers.go healthcheck.go]
+                       . [handlers_test.go]
+
+
+        with the `-f` (field) and the {{.xxxxx}} syntax
+        I can print any xxxxxx field of this structure:
+
+                type Package struct {
+                    Dir           string // directory containing package sources
+                    ImportPath    string // import path of package in dir
+                    ImportComment string // path in import comment on package statement
+                    Name          string // package name
+                    Doc           string // package documentation string
+                    Target        string // install path
+                    Shlib         string // the shared library that contains this package (only set when -linkshared)
+                    Goroot        bool   // is this package in the Go root?
+                    Standard      bool   // is this package part of the standard Go library?
+                    Stale         bool   // would 'go install' do anything for this package?
+                    StaleReason   string // explanation for Stale==true
+                    Root          string // Go root or Go path dir containing this package
+                    ConflictDir   string // this directory shadows Dir in $GOPATH
+                    BinaryOnly    bool   // binary-only package: cannot be recompiled from sources
+
+                    // Source files
+              ----> GoFiles        []string // .go source files (excluding CgoFiles, TestGoFiles, XTestGoFiles)
+                    CgoFiles       []string // .go sources files that import "C"
+                    IgnoredGoFiles []string // .go sources ignored due to build constraints
+                    CFiles         []string // .c source files
+                    CXXFiles       []string // .cc, .cxx and .cpp source files
+                    MFiles         []string // .m source files
+                    HFiles         []string // .h, .hh, .hpp and .hxx source files
+                    FFiles         []string // .f, .F, .for and .f90 Fortran source files
+                    SFiles         []string // .s source files
+                    SwigFiles      []string // .swig files
+                    SwigCXXFiles   []string // .swigcxx files
+                    SysoFiles      []string // .syso object files to add to archive
+              ----> TestGoFiles    []string // _test.go files in package
+                    XTestGoFiles   []string // _test.go files outside package
+
+                    // Cgo directives
+                    CgoCFLAGS    []string // cgo: flags for C compiler
+                    CgoCPPFLAGS  []string // cgo: flags for C preprocessor
+                    CgoCXXFLAGS  []string // cgo: flags for C++ compiler
+                    CgoFFLAGS    []string // cgo: flags for Fortran compiler
+                    CgoLDFLAGS   []string // cgo: flags for linker
+                    CgoPkgConfig []string // cgo: pkg-config names
+
+                    // Dependency information
+                    Imports      []string // import paths used by this package
+                    Deps         []string // all (recursively) imported dependencies
+                    TestImports  []string // imports from TestGoFiles
+                    XTestImports []string // imports from XTestGoFiles
+
+                    // Error information
+                    Incomplete bool            // this package or a dependency has an error
+                    Error      *PackageError   // error loading package
+                    DepsErrors []*PackageError // errors loading dependencies
+                }
+
 ___________________________________________________________________________
 ___________________________________________________________________________
 ___________________________________________________________________________
