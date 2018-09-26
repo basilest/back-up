@@ -12,13 +12,13 @@
 ...       ends a doc   (3 dots) // this is OPTIONAL
 
   #       <--- a comment
-  SAME INDENTETION:    the fields of my 'sctuture' are identified just because they are indented with the same
+  SAME INDENTETION:    the fields of my 'structure' are identified just because they are indented with the same
                        num of spaces ((<Tab> NEVER allowed))
 
 
 
   _______________ LIST / (ARRAY):
-  -       all MEMBERS of a list starts with a -    (it's like the C enum, a list of the possible values)
+  -       all MEMBERS of a list start with a -    (it's like the C enum, a list of the possible values)
                       fruits:
                           - Apple
                           - Orange
@@ -29,7 +29,16 @@
 
 
 
+
   _______________ HASH:
+
+  the HASH (so key / value pairs) can be in the usual 'implicit' syntax or 'explicit'
+
+
+  IMPLICiT SYNTAX
+  __________________
+
+
   key: value        NB. a ' ' (space) must follow the ':'
                         Quote if there is a :
                         foo: "somebody said I should put a colon here: so I did"
@@ -51,15 +60,55 @@
 
 
 
-  ?                A question mark indicate a complex-mapping-KEY.
+  EXPLICIT SYNTAX
+  __________________
 
-                             ? - Detroit Tigers           |  all
-                               - Chicago cubs             |  a key
+  It is useful when keys and/or values are 'complex'
+  In this case I identify a key prepending it with a '?'
+  and a value, prepending it with a ':'
+
+ Then a key and/or a value can be any type:
+
+
+                             # Use a sequence as a key
+                             ? - foo
+                               - bar
+                             : 1
+
+                             # Use a (implicit) hash as a key
+                             ? baz: qux
+                             : 2
+
+                             # I can skip the value, which implies `null`
+                             ? quux
+
+                             # I can leave the key blank, which implies a `null` key
+                             ?
+                             : 3
+
+                             # I can even skip both the key and value, so both will be `null`
+                             ?
+
+                             # Or even long scalar as a key
+                             ? |
+                               We the People of the United States, in Order to form a more
+                               perfect Union, establish Justice, insure domestic Tranquility,
+                               provide for the common defence, promote the general Welfare,
+                               and secure the Blessings of Liberty to ourselves and our
+                               Posterity, do ordain and establish this Constitution for the
+                               United States of America.
+                             : 3
+
+
+                             other examples:
+
+                             ? - Detroit Tigers
+                               - Chicago cubs
                              :
                                - 2001-07-23
 
-                             ? [ New York Yankees,        |  all
-                                 Atlanta Braves ]         |  a key
+                             ? [ New York Yankees,
+                                 Atlanta Braves ]
                              : [ 2001-07-02, 2001-08-12,
                                  2001-08-14 ]
 
@@ -82,7 +131,7 @@
            h: Yes we have No bananas  # a string, "Yes" and "No" disambiguated by context.
 
 
-  &xxx     add a mark-label named xxx (to then refer the item with *xxx)     like  C ( & for var address, and * for then usage)
+  &xxx     add a mark-label named xxx (to then refer the item with *xxx)     like  C ( & / * )
   *        refers a marked item
            nb.1 << is the symbol to 'merge 1 hash into another'
 
@@ -161,7 +210,7 @@
                ? item2
                ? item3
 
-           # Like Python, sets are just maps with null values; the above is equivalent to:stopchips
+           # Like Python, sets are just maps with null values; the above is equivalent to:
            set2:
                item1: null
                item2: null

@@ -1,4 +1,5 @@
 
+
      KAFKA       must be thought like a black-box or layer
                  which is used to send messages on 1 side
                  and read them out on the other side:
@@ -479,3 +480,204 @@ kafka-topics --list --zookeeper localhost:2181
 kafka-console-producer --broker-list localhost:9092 --topic my-topic
 kafka-console-consumer --bootstrap-server localhost:9092 --topic my-topic --from-beginning
 —————————————————————————
+
+
+
+
+
+
+WHY streaming:
+   - pipeline sprawl
+   - everything is syncronous
+
+
+   - ALL your data is "EVENT-STREAMS"
+   - DATA PIPELINE = EVENT STREAM  (keep a DB in sync: every DB update is streamed)
+
+   - TOPIC = PARTITIONED LOG   (the huge LOG for scalability is partitiones in 'name - spaces'
+   - 4 CORE APIs:
+                  1. PRDUCER
+                  2. CONSUMER
+                  3. CONNECTORS
+                                   KAFKA CONNECTOR DOES THE HARD WORK:
+                                            - SCLAE OUT
+                                            - FAULT TOLERANCE
+                                            - CENTRAL MANAGEMENT
+                                            - SCHEMA PROPAGATION
+                  4. STREAMS
+-----------------------------------------------------------------------------------------
+
+HIGH TROUGHPUT :
+                    - Scaled-out architecture:
+                                                 - producres -- (send to) --> KAFKA Cluster : { many brokers := each broker { many TOPIC partitions} }
+
+
+                    - SO, TOPIC PARTITION is the UNIT.
+                      We assign it to brokers.
+
+                    - PARALLELISM IS THEN POSSIBLE ---> HIGH TROUGHPUT = PARALLEL
+
+
+                    - EACH PARTITION = PERSISTENT LOG
+
+                    - LOG is an APPEND-ONLY BUFFER <-----
+                      (each MESSAGE haa 1 UNIQUE ID (offset))
+                       EVER GROWING)
+
+                    - MESSAGE STRUCTURE:
+
+                  OFFSET       MSG   CRC  MAGIC ATTRIBUTE        KEY     KEY      VALUE
+                             LENGTH       BYTE       TIMESTAMP   LENGTH  CONTENT  LENGTH     VALUE CONTENT
+
+            +---------------+------+------+---+---+-------------+------+-------+------+----------------------+
+            |     8         |  4   |  4   | 1 | 1 |     8       |  4   | var   |  4   |      var             |
+            +---------------+------+------+---+---+-------------+------+-------+------+----------------------+
+
+
+
+                     MAGIC BYTE : is the KAFKA MSG version  : 0 / 1 (they added the timestamp)
+
+                     ATTRIBUTR: if the message is compressed or not, and if compressed the codec)
+
+
+
+                     PRODUCER -----/  /----> BROKER     -----/  /---> CONSUMER
+
+
+                                    /  / : actually the interface to and from the BROKER are cached.
+                                           - PRODUCER messages are cached into a BUFFER and then send all together to the BROKER
+                                           - BROKER then will FLUSH them to the CONSUMER
+
+                                           This is done in the background in batch processing jobs.
+                                           The multi-messages buffer is compressed. This is better
+                                           then compressing individual messages as it strips lots of message-commonalities.
+
+                                           Compression also saves bandwith to the server and disk space
+
+
+
+                    - REPLICATION FACTOR
+
+                         The same UNIT (we know is 1 TOPIC PARTITION) is copied into different BROKERS
+
+                         We want that every UNIT (1 TOPIC PARTITION) is copied in an even-number of other BROKERS
+
+                         Every UNIT/TOPIC PARTITION has 1 of the BROKERS it is on, as LEADER BROKER
+                         That BROKER will copy that UNIT to the other BROKERS
+
+                         When a PRODUCER send that UNIT it must send to the LEADER
+                         If it sends to a FOLLOWER broker, the message will be discarded.
+
+                         The message will be exposed to the CONSUMER for consumption only
+                         when the LEADER has received an ack from all the FOLLOWERS  (acks = all)
+                         (acks = 0    not wait for all REPLICA acks before answering ack to the PRIDUCER)
+                         (acks = 1    not wait for 1   REPLICA ack  before answering ack to the PRIDUCER)
+
+
+                         IN-SYNC REPLICA SET: is the SET of all the REPLICAS actually fully equipped
+                                              with ALL the messages.
+                                              If 1 REPLICA felt down and now is UP but not fully up-dated
+                                              with ALL the messages it lost in the downtime, (i.e. it's at 70%
+                                              of msg-retrieving), then even if UP it's not in the IN-SYNC REPLICA SET.
+                                              This avoids it could become LEADER (if any other running
+                                              LEADER REPLICA should now fail) before it's fully ready.
+
+
+                         UNCLEAN LEADER ELECTION: it's the condition where even if 70%, but if that REPLICA
+                                              at some point should be the only UP BROKER, then it will be set LEADER anyhow
+                                              (even if missing the 30% of downtime lost messages)
+
+                         MIN.INSYNC.REPLICAS: if is 1, it means that even with 1 only single UP-100% REPLICA (so for sure also LEADER)
+                                              I accept to store and commit an ack to the producer (even if I cannot copy to
+                                              any other FOLLOWER)
+
+                         MISSION CRITICAL:
+                                              unclean.leader.election.enable = false
+                                              default.replication.factor = 3
+                                              min.insync.replicas = 2
+                                              acks = all
+
+                         CONTROL BROKER: is the broker elected betwen the live ones to process the liveness
+                                         of the replicas. It keeps controlling the status of all to always know
+                                         which is UP and which is DOWN.
+
+
+                         LOG COMPACTION: is the broker elected betwen the live ones to process the liveness
+                                         of the replicas. It keeps controlling the status of all to always know
+                                         which is UP and which is DOWN.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
