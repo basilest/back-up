@@ -1,0 +1,177 @@
+
+
+               MESOS:
+                       . an HTTP API
+                       . a Web UI
+                       . true high availability
+                       . fault tolerance
+                       . built-in support for Docker containers
+                       . designed natively for the cloud.
+
+
+
+
+Example to test it inside a Vagrant-VM:
+
+_______________________________________  1/5 Vagrantfile    (put this in a dir xxxx)
+
+
+  1 # -*- mode: ruby -*-
+  2 # vi: set ft=ruby :
+  3 Vagrant.configure(2) do |config|
+  4   config.vm.box = "bento/centos-7.1"    <---------------------- load a CentOS WM
+  5   config.vm.network "private_network", ip: "192.168.33.10"
+  6   config.vm.hostname = "node1"
+  7   config.vm.provision "ansible_local" do |ansible|
+  8     ansible.playbook = "playbook.yml"   <---------------------- link to an ansible playbook (same dir xxxx)
+  9   end
+ 10 end
+
+
+
+
+_______________________________________  2/5 Ansible playbook (same dir xxxx)
+
+
+---
+- hosts: default
+  name: default
+  become: true
+                                     # Configure /etc/hosts file writing it from
+  tasks:                             # the file "hostsfile" in the same xxxx dir:
+  - name: write /etc/hosts           # "hostfile" ________________________________________________________________________________
+    file:                                         | 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+      src: hostsfile                              | ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+      dest: /etc/hosts                            | 192.168.33.10 node1
+    tags: files                                   ________________________________________________________________________________
+
+  - name: write /etc/yum.conf        # configure yum with the file "yum.conf" in the same dir xxxx
+    file:
+      src: yum.conf
+      dest: /etc/yum.conf
+    tags: files
+                                     # download the Mesosphere RPM
+  - shell: rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+    ignore_errors: true
+
+                                     # download the Mesosphere RPM
+  - shell: rpm -Uvh http://archive.cloudera.com/cdh4/one-click-install/redhat/6/x86_64/cloudera-cdh-4-0.x86_64.rpm
+    ignore_errors: true
+
+                                     # install Mesos
+  - name: Install mesos
+    yum:
+      name: mesos
+      state: latest
+
+                                     # install Marathon
+  - name: Install marathon
+    yum:
+      name: marathon
+      state: latest
+
+                                     # install Zookeeper then configure it and then start it
+  - name: Install zookeeper
+    yum:
+      name: zookeeper
+      state: latest
+
+  - name: Install zookeeper-server
+    yum:
+      name: zookeeper-server
+      state: latest
+
+  - shell: zookeeper-server-initialize --myid=1 --force
+    become_user: zookeeper
+
+  - name: Start zookeeper-server
+    service:
+      name: zookeeper-server
+      state: started
+      enabled: yes
+
+                                     # install Zookeeper then configure it and then start it
+  - name: Start mesos-master
+    service:
+      name: mesos-master
+      state: started
+      enabled: yes
+
+  - name: Start mesos-slave
+    service:
+      name: mesos-slave
+      state: started
+      enabled: yes
+
+  - name: Start marathon
+    service:
+      name: marathon
+      state: started
+      enabled: yes
+
+
+_______________________________________  3/5 ssh into the VM
+  vagrant up
+  vagrant ssh
+
+
+_______________________________________  4/5 check that in the VM check mesos is running
+  sudo netstat -nlp | grep mesos
+
+
+  to have help:
+
+       $ mesos help
+
+
+
+_______________________________________  5/5 connect to the Web UI
+  In the browser go to
+                    192.168.33.10:5050        # 5050 the usual PORT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------- MARATHON
+
+Marathon Apache Mesos framework
+for container orchestration.
+
+ACtually it is a meta framework,
+meaning you can start other Mesos frameworks
+such as Chronos or Storm.
+It can launch anything that can be launched in a standard shell. In fact, you can even start another Marathon instances via Marathon.
+
+
+
+It provides a REST API for
+          starting
+          stopping
+          scaling
+applications.
+
+Written in Scala
+
+highly-availablility : running multiple copies. The state of running tasks gets stored in the Mesos state abstraction.
+
+Marathon is a     Mesos can launch anything that can be launched in a standard shell.
+
+

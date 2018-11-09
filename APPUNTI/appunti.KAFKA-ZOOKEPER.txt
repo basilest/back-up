@@ -1,5 +1,25 @@
 
 
+
+
+--------------------------------------------------------------------------------
+
+     LIST ALL TOPICS:
+                        bin/kafka-topics.sh  --list --zookeeper localhost:2181
+                        kafka-topics  --list --zookeeper 10.53.21.234:2181        :in AWS (
+                                                                                      1.  ssh into the kafka instance:
+                                                                                          ssh -i ~/.ssh/chs-fozzie.pem  ec2-user@10.53.22.10
+                                                                                      2. sudo su
+                                                                                      3. get the IP:PORT for zookeeper server
+                                                                                         kafka-topics  --list --zookeeper 10.53.21.234:2181
+
+
+     SEE TOPIC CHANNEL
+                        bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic $TOPIC --from-beginning
+                        bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic $TOPIC --from-beginning
+--------------------------------------------------------------------------------
+
+
      KAFKA       must be thought like a black-box or layer
                  which is used to send messages on 1 side
                  and read them out on the other side:
@@ -196,7 +216,7 @@ __________________________________________________  KAFKA MIRROR-MAKER
 
 __________________________________________________  ZooKeeper   (Apache)
 
-   In the cloud age, Autoscaler is a more robust solution.
+   In the cloud erea, Autoscaler is a more robust solution.
 
    JAVA        It is an application (comes as a .JAR) which runs in the JAVA VM. (release 1.6 or greater)
                ( and actually logs with log4j  (version 1.2) )
@@ -236,10 +256,23 @@ __________________________________________________  ZooKeeper   (Apache)
 
 
 
+               $ srvr                to have zookeeper version
+                                     possible output:
+                                                 Zookeeper version: 3.4.6-1569965, built on 02/20/2014 09:09 GMT
+                                                 Latency min/avg/max: 0/0/0
+                                                 Received: 1
+                                                 Sent: 0
+                                                 Connections: 1
+                                                 Outstanding: 0
+                                                 Zxid: 0x0
+                                                 Mode: standalone
+                                                 Node count: 4
+
+
                It allows distributed applications (on different environments/servers)
                to coordindate with each other.
 
-               This is done via a shared hierarchal namespace which is organized
+               This is done via a shared hierarchycal namespace which is organized
                similarly to a standard file system.
                (ex. a process p_3 of an APP2 could have the path   /APP2/p_3 )
 
@@ -248,7 +281,7 @@ __________________________________________________  ZooKeeper   (Apache)
 
 
    BASIS       ZooKeeper is very fast and very simple.
-               Since its goal, though, is to be a basis for the construction of more complicated services,
+               It's thought simple to then build more complicated services,
                (ex. synchronization).
 
                So ZooKeeper provides a very simple programming interface, supporting only these API:
@@ -265,7 +298,7 @@ __________________________________________________  ZooKeeper   (Apache)
 
 
 
-   REPLICATED     Like the distributed processes it coordinates, ZooKeeper itself
+   REPLICATED  Like the distributed processes it coordinates, ZooKeeper itself
                is intended to be replicated over a sets of servers.
 
                These servers know of each other.
@@ -274,11 +307,14 @@ __________________________________________________  ZooKeeper   (Apache)
                its service to the applications.
 
                Majority means half+1, so:
-                   . the minimum 'good' number is 3, as with 2
-                     it means that if anyone goes out of service even the other is suspended
-                     while with 5, it works if 2 go down
+                   . the minimum 'good' number is TOTAL=3, because when TOTAL=2
+                     if 1 stops even the other is suspended
+                     while with TOTAL=5, it works if 2 go down
 
                    . always configure an ODD number of servers
+                   . < 7
+                     with >= 7 performance can start to degrade due to the nature of the consensus protocol.
+                     So best is only 3 or 5
 
 
 
@@ -290,16 +326,16 @@ __________________________________________________  ZooKeeper   (Apache)
                       . 1 to normally speak to each other
 
                Note that when a server is restarted after a fail, it joins without
-               manual interaction the other servers.
+               manual interaction to the other servers.
 
 
     ZNODE      ZNODE are like the Files of a File system.
                These 'files' are called 'node's or 'znode's.
 
                Every 'node' has information associated like:
-                     timpe stamps
-                     versions (for data, so a read will return also the data version and the client has this info)
-                     ACL (Access Control List) that restricts who can do what.
+                   . timpe stamps
+                   . versions (for data, so a read will return also the data version and the client has this info)
+                   . ACL (Access Control List) that restricts who can do what.
 
 
     WATCHES    Clients can set a WATCH on a znodes.
@@ -329,14 +365,17 @@ _______________ Installation & Usage
              REPLICATION CONFIG adds these params
 
                       initLimit=5                   max time to wait to connect to a leader  ( is in 'ticks', so the time (in ms) is initLimit * tickTime, here 10 sec)
-                      syncLimit=2                   max days of different dates a Sever has with the Leader
-                      server.1=zoo1:2888:3888       1st port 2888 for Server-Server normal communication  / 1nd port for Server-Server Leader election
-                      server.2=zoo2:2888:3888
-                      server.3=zoo3:2888:3888
+                      syncLimit=2                   max delay (also in 'ticks') of different dates a Sever has with the Leader
+                      server.1=zoo1:2888:3888       . zoo?: hostname
+                      server.2=zoo2:2888:3888       . 2888: port for Server-Server normal communication  (peerPort)
+                      server.3=zoo3:2888:3888       . 3888: port for Leader election                     (leaderPort)
 
                             ^
-                            these numbers 1,2,3 are actually the id of each server. For each server it's the number written as plain text
-                            in the file <dataDir>/ myid     (range 1-255)
+                            these numbers 1,2,3 are actually the id of each server.
+                            They must be integers (not important if 0 beased or sequential, just different integers)
+                            For each server it's the number written as plain text
+                            in the file <dataDir>/ myid     (the content is an integer with range 1-255)
+                            nb. the filename is literally 'myid' (all lowercase)
 
 
 
@@ -352,9 +391,8 @@ _______________ Installation & Usage
                            ( no replication )       bin/zkServer.sh start
 
                               ( replication )       bin/zkServer.sh start     <---- same command
-                                                                                    but irft there are more Servers
-                                                                                    It must be execute on each,
-                                                                                    moreover
+                                                                                    but if there are more Servers
+                                                                                    It must be execute on each
 
 
           CONNECTING                                bin/zkCli.sh -server 127.0.0.1:2181
@@ -366,7 +404,7 @@ _______________ Installation & Usage
           CLI                                       the CLI is zkCli.sh.
                                                     I can:
                                                       . prepend every command with ./zkCli.sh (ex. ./zkCli.sh create /stefano null)
-                                                      . enter the CLI once (./zkCli.sh) and then run all commands (ex. creaote /stefano null)
+                                                      . enter the CLI once (./zkCli.sh) and then run all commands (ex. create /stefano null)
                                                         (The CLI prompt is something like:
                                                                   [zk: localhost:2181(CONNECTED) 12]       12 is the history number of the command
                                                                                                            as with bash with 'history' I see the previous commands
@@ -382,7 +420,7 @@ _______________ Installation & Usage
 
                    5. ls /           <---- like normal file system
 
-                   6. get /stefano/basile/is/ok              will outout:
+                   6. get /stefano/basile/is/ok              will output:
 
                                                              my data blah blah       <----------
                                                              cZxid = 0x10d1
@@ -494,7 +532,7 @@ WHY streaming:
    - ALL your data is "EVENT-STREAMS"
    - DATA PIPELINE = EVENT STREAM  (keep a DB in sync: every DB update is streamed)
 
-   - TOPIC = PARTITIONED LOG   (the huge LOG for scalability is partitiones in 'name - spaces'
+   - TOPIC = PARTITIONED LOG   (the huge LOG for scalability is partitioned in 'name - spaces'
    - 4 CORE APIs:
                   1. PRDUCER
                   2. CONSUMER
@@ -509,7 +547,7 @@ WHY streaming:
 
 HIGH TROUGHPUT :
                     - Scaled-out architecture:
-                                                 - producres -- (send to) --> KAFKA Cluster : { many brokers := each broker { many TOPIC partitions} }
+                                                 - producers -- (send to) --> KAFKA Cluster : { many brokers := each broker { many TOPIC partitions} }
 
 
                     - SO, TOPIC PARTITION is the UNIT.
@@ -616,68 +654,391 @@ HIGH TROUGHPUT :
 
 
 
+--------------------------------------------------------------------------------
+   Kafka: The Definitive Guide
 
+                          (APACHE) KAFKA started at Linkedin
 
+                          Released OPEN SOURCE on GitHub in 2010.   (JAVA code)
 
+                          Accepted as an Apache Software Foundation incubator project in July of 2011.
 
+                          Graduated from the incubator in October 2012.
 
 
+        KAFKA moves data around.
+        It solves the problem to dispatch the data as quick as possible
+        from a PRODUCER to a CONSUMER.
+        (which is a recurrent issue/pattern in many modern
+        corporate architectures (DATA-DRIVEN enterprise).
 
+        Relying on an efficient & fast dispatch messaging layer
+        I can focus on the core logic of my architecture.
 
+        Decouples PRODUCERS and CONSUMERS by using a push-pull model
 
 
 
 
 
+        continuous data STREAMS  --> Kafka =  STREAMING platform   = you publish and subscribe to STREAMS of data
 
 
+        90 % is like MESSAGEs system but with these 3 differences:
 
+                  1. DISTRIBUTED system ( runs as a CLUSTER and
+                                          can SCALE )
 
+                  2. true STORAGE system ( data are : REPLICATED,
+                                                      PERSISTENT for as long as you might like )
 
+                  3. ABSTRACTION : the streamed contents can be computed and interpreted in any way
+                                   not only as just handing out messages.
 
 
 
 
+        Kafkfa can be also thought as a
+                          real-time version of Hadoop.
 
+        Hadoop = big data system which lets you store and periodically process
+                 file data at a very large scale.
 
+                 It usually comes with added softwares for post-processing / batch processing
+                 the analytical data. So the processing is postponed or high latency.
 
+                 Kafka instead is low latency, as it's a continuos processing.
 
 
+--------------------------------------------------------------------------------
 
 
+            SENDER (publisher) of a piece of data (message)
+                               not specifically directing it to a receiver.
+                               It CLASSIFIES the message somehow.
 
+            RECEIVER (subscriber) subscribes to receive
+                               certain CLASSES of messages.
 
+            Pub/sub systems often have a BROKER
 
+            The UNIT of data within Kafka is called a MESSAGE
+                        (simply an ARRAY of BYTES = data content has no meaning to Kafka)
 
+            KEY: A message can have an optional bit of METADATA (the Key)
+                 The key is also a BYTE ARRAY having
+                 no specific meaning to Kafka.
 
+                 KEYS are used to OPTIMISE when MESSAGES are to be written to PARTITIONS
+                 Ex: generate a consistent HASH of the KEY ==>
+                     Then select the PARTITION number for that HASH (
+                     MESSAGES with = KEY --> same PARTITION.
 
+            BATCH: is just a COLLECTION of messages, produced to the SAME (TOPIC & PARTITION)
+                   (writing in groups is a TRADEOFF between
+                            . latency
+                            . throughput:
+                    the LARGER the batch, the more messages can be handled per unit of time,
+                    but the LONGER it takes an individual message to propagate.
 
+                    Batches are also typically compressed,
+                         PROS: more efficient data transfer & storage
+                         CONS: at the cost of some processing power.
 
 
+            SCHEMA: robust type handling
+                    (usually Apache Avro:
+                                    SERIALIZATION FRAMEWORK originally developed for Hadoop).
 
+                                  . Provides a COMPACT serialization format;
+                    ):
 
+                    Importance of SCHEMAS:
+                        it allows WRITING and READING messages to be decoupled.
+                        The contract is the format defined by a well defined SCHEMA.
 
+            TOPICS: They are like a Table in a DB, or a Slack CHANNEL
 
+                    . 1 TOPIC = { MANY PARTITIONS }
 
+                                . 1 PARTITION =
+                                                . 1 LOG of COMMITS
+                                                . APPEND-only
+                                                . reads are in ORDER from start to end (
+                                                  this occurs via an incremental OFFSET for each message)
+                                                . Each PARTITION can be hosted on a DIFFERENT server,
+                                                  which means that a single TOPIC can be SCALED HORIZONTALLY
+                                                  across MULTIPLE SERVERS ( so PARTITIONS are the way Kafka
+                                                  provides REDUNDANCY & SCALABILITY).
 
+                                NO-ORDER-TOPIC:
+                                                . reads are ORDERED per PARTITION only
+                                                . as 1 TOPIC = + PARTITIONS, the ORDER of reads from a TOPIC
+                                                  is not guaranteed
 
 
+                             So the 3 fields:
+                                               ( TOPIC, PARTITION, OFFSET )  identify  1 MESSAGE
 
+.
+                                                                                                          Writes here (APPENDED)
+                              -------------------------------------------------------------------------------|---------------------
+                              |       __________ __________ __________ __________ __________ __________ _____|____
+                              |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |  msg 7   |   PARTITION 1
+                        T     |      |__________|__________|__________|__________|__________|__________|__________|
+                         O    |
+                          P   |       __________ __________ __________ __________
+                           I  |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |                                    PARTITION 2
+                            C |      |__________|__________|__________|__________|
+                              |
+                              |       __________ __________ __________ __________ __________ __________
+                              |      |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |              PARTITION 3
+                              |      |____._____|__________|__________|__________|__________|__________|
+                              |           |
+                              ------------|---------------------------------------------------------------------------------------
+                                          |
+                                    Reads here (from start)
 
 
+            CLIENTS: They are 4 types in Kafka:
 
+                     2 BASIC:    . PRODUCER
+                                 . CONSUMER
 
+                     2 ADVANCED: They are built on top of the 2 BASICS
+                                 They use PRODUCERS and CONSUMERS as building blocks to provide higher-level functionality
+                                 . Kafka CONNECT for data integration
+                                 . Kafka STREAMS for stream processing.
 
 
 
+------------------------------
 
+   PRODUCER:   Usually a message is produced to a specific TOPIC.
+               The PARTITION is usually not specified, so Kafka will balance it EVENLY.
+               Sometimes the PARTITION is specified by the PRODUCER according to the KEYS.
+               (mapping HASK-KEY ---> PARTITION )  <---- note that so 1 PARTITION can map more KEYS of the same TOPIC
 
 
 
 
+------------------------------
 
+   CONSUMER:   The SUBSCRIBE to 1 or + TOPICs.
 
 
+               By storing the OFFSET of the LAST consumed message for each PARTITION,
+               either in Zookeeper or in Kafka itself, a CONSUMER can
+                              STOP and RESTART without losing its place.
 
 
+   CONSUMER GROUP: 1 or + CONSUMER to manage 1 TOPIC.
+                   (So 1 GROUP ---> 1 TOPIC       but possible 1 same TOPIC consumed by + GROUPS)
 
+
+
+                   CONSTRAINT : 1 PARTITION cannot be consumed by + members of the GROUP
+
+                                1 PARTITION <-- 1 member
+
+                                (The mapping of 1 member to a PARTITION is called OWNERSHIP of the PARTITION
+                                 by the consumer).
+
+               -----------------------------------------------------------------------------------------------------  GROUP (2 members)
+               |                   __________ __________ __________ __________ __________ __________ __________   ------------
+               |  PARTITION 1     |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |  msg 7   | |            |
+         T     |                  |__________|__________|__________|__________|__________|__ \  ____|__________| |            |
+          O    |                                                                              '--------------------CONSUMER 1 | ownership of 1 PARTITION
+           P   |                   __________ __________ __________ __________                                   |            |
+            I  |  PARTITION 2     |  msg 1   |  msg 2   |  msg 3   |  msg 4   |                                  |            |
+             C |                  |__________|__________|__________|___ \ ____|                                  |            |
+               |                                                         '-----------.-----------------------------CONSUMER 2 | ownership of 2 PARTITIONS
+               |                   __________ __________ __________ __________ ___  / ____ __________            |            |
+               |  PARTITION 3     |  msg 1   |  msg 2   |  msg 3   |  msg 4   |  msg 5   |  msg 6   |            |            |
+               |                  |__________|__________|__________|__________|__________|__________|            --------------
+               |
+               ----------------------------------------------------------------------------------------------------
+
+
+
+------------------------------
+
+   BROKER: 1 SERVER
+                                        . receives messages for a TOPIC
+                   to PRODUCERS it      . commits them in 1 PARTITION
+                                        . assigns their OFFSET
+
+                   to CONSUMERS it      . fetches the specified message given (TOPIC / PARTITION / OFFSET)
+
+           Usually a BROKER manages
+                                    thousands of PARTITIONS
+                                    millions  of messages / sec
+
+
+------------------------------
+
+   CLUSTER: + BROKERs
+
+
+   CONTROLLER: Within a CLUSTER, 1 BROKER will also function as the CLUSTER CONTROLLER
+               (elected AUTOMATICALLY from the LIVE members of the CLUSTER).
+
+                 . Assigns PARTITIONS to BROKERS  (1 PARTITION --> 1 BROKER (this broker is the LEADER for that PARTITION))
+                 . Monitors for broker FAILURES.
+
+   REPLICATED PARTITIONS: Is when the same PARTITION is replicated, or otherwise, assigned to + BROKERS
+                          (This provides REDUNDANCY).
+                          1 BROKER at a time is the LEADER.
+
+   MULTIPLE CLUSTERS: I can configure a Mirror of a CLUSTER to then be MULTI CLUSTER.
+    (MirrorMaker)     This can be for many reasons, ex:
+                           . Segregation of types of data
+                           . Isolation for security requirements
+                           . Multiple datacenters (disaster recovery)
+
+                      This is achived through a Kafka tool called
+                                 "MirrorMaker"
+                      which is a Consumer-Producer" linked together
+                      Messages are CONSUMED from one Kafka cluster and PRODUCED for another.
+
+
+------------------------------
+
+   RETENTION: policy to configure (on TOPIC base) till when the messages are kept in the PARTITION
+              (whichever LIMIT is reached first):
+
+              TIME: retaining messages for some PERIOD of time (e.g., 7 days) or
+              SIZE: until the topic reaches a certain SIZE in bytes (e.g., 1 GB).
+
+              KEY:  keep only the last message for a given KEY
+
+         So RETENTION is configurable per TOPIC
+
+
+--------------------------------------------------------------------------------
+                      Chap 2.     INSTALLING KAFKA
+__________________________________________________
+
+    Apache Zookeeper:    used by Kafka for storing METADATA for the BROKERS.
+
+    OPERATING SYSTEM:    being a JAVA appl. it can run on every OS
+                         (but recommend Linux)
+
+    JAVA:                JAVA (8) is then required.
+                         Even if it's ok just the runtime JVM to execute
+                         both Zookeeper and Kafka, to develop or extend
+                         it's worth having
+                         the full Java Development Kit (JDK)
+
+    KAFKA:               After both
+                             JAVA (>=8)
+                             Zookeeeper
+                         are installed, I can install Kafka
+
+
+        _________________________
+        i) Run Kafka server
+        _________________________
+
+          1) export JAVA_HOME= ....                                   ex export JAVA_HOME=/usr/java/jdk1.8.0_51
+          2) kafka-server-start.sh -daemon ...../server.properties    ex usr/local/kafka/bin/kafka-server-start.sh -daemon \
+                                                                                            /usr/local/kafka/config/server.properties
+
+
+        _________________________
+        ii) Create a topic:
+        _________________________
+
+          3) kafka-topics.sh  --create
+
+             ex.
+             # /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+
+             -> Created topic "test".
+
+        _________________________
+        iii) Verify a topic:
+        _________________________
+
+          4) kafka-topics.sh  --describe
+
+             ex.
+             # /usr/local/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic test
+
+            -> Topic:test    PartitionCount:1    ReplicationFactor:1    Configs:
+            -> Topic: test    Partition: 0    Leader: 0    Replicas: 0    Isr: 0
+
+
+        _________________________
+        iv) Produce msg to a topic:
+        _________________________
+
+
+          5) kafka-console-producer.sh
+
+            ex:
+            # /usr/local/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+            Test Message 1
+            Test Message 2
+            ^D
+            #
+
+        _________________________
+        v) Consume msg from a topic:
+        _________________________
+
+
+          6) kafka-console-consumer.sh
+
+            # /usr/local/kafka/bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic test --from-beginning
+            Test Message 1
+            Test Message 2
+            ^C
+            Consumed 2 messages #
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
