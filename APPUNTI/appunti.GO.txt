@@ -1,6 +1,44 @@
 
 go build -gcflags "-m -m"
+----------  (debugger) DELVE
+        1.  install
+                 go get -u github.com/derekparker/delve/cmd/dlv
 
+        2.  set a breakpoint
+                 break main.main        <--- package & function
+                 break hello.go:13      <--- file & line
+
+            If a breakpoint is not set at the very beginning nothing (like 'list' to show
+            source lines) can be executed
+
+        3.  in the same directory you would run go build
+            run 1 of the following:
+
+                 - dlv debug                   it builds the `main` with the compilantion flags
+                                               correct for debugging.
+
+                 - dlv test                    when there isn't a `main` (like for tests)
+
+                 - dlv attach <pid>            atttach to a running process (whose I know the 'pid')
+                                               some issues could occir as the program wasn't built with the best compilation flag
+
+                 - dlv trace <function_regex>  builds and start program, setting tracepoints at any function that matches [regexp].
+                                               This will not begin a full debug session, but will print information whenever a tracepoint is hit.
+
+                 - dlv exec ./path/to/binary   Run and attach to an existing binary.
+
+                 - dlv connect                 connect to headless debug server.
+
+        4.  useful commands:
+                     list          list code lines
+                     print x       show var x
+                     break  fun    breaks at function `fun`
+                     break 10      breaks line 10
+                     next
+                     step
+                     continue
+                     args          shows the args of a function
+                     <enter>       re-run last command
 
 
 

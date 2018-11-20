@@ -1,0 +1,19 @@
+
+      image  :  is an EXEC package (including all what is required
+                                          - the application to tun
+                                                    +
+                                          - required LIBRARIES
+                                          - required ENV vars
+                                          - required CONFIG file
+                                          )
+
+      container  :  it's a running instance of an image
+                    (it has a proc id)
+
+      docker ps                         to see all the containers
+      docker --version
+      docker version                    nb. without --      it gives more info for Client and Sever
+      docker info                       even more verbose
+
+      docker container ls --all
+
