@@ -209,3 +209,7 @@ VAULTs:   They are the solution to store sensible info (like passwords) ant make
 
 _______________________________________ ANSIBLE
 
+       ansible-playbook install.yml --syntax-check           like a Make dry-run
+       ansible-playbook install.yml --list-hosts             to see the hosts affected
+       ansible-doc -l
+       ansible-doc yum

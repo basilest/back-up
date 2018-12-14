@@ -17,6 +17,9 @@
      SEE TOPIC CHANNEL
                         bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic $TOPIC --from-beginning
                         bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic $TOPIC --from-beginning
+
+     SEND MESSAGE TO ERIC
+                      curl -u OpXFFV77ghkgZlK9U7HcVvaK0rUqKUK0M0AlDi5c: http://10.53.21.119:31839/filings\?timepoint=2
 --------------------------------------------------------------------------------
 
 
