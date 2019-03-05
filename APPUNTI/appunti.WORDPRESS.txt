@@ -1,0 +1,138 @@
+________________________________
+     access the dashboard
+
+                            http:// yoursite.com / wp-admin
+                            http:// yoursite.com / wp-login.php
+
+
+
+     USEFUL PLUGINS
+
+
+         SPEEDING UP
+
+              CACHING
+                            Page cache plugin       (and Purge Cache button)
+                            Browser cache plugin
+                            W3 total cache
+                            WP Super Cache
+
+              IMAGES OPTIMIZ.
+                            WP Smush            compress & optimize all uploaded images.
+
+         COMMENTS OPTIMIZ.
+                            Break comments into pages
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________________________________
+
+     AWS TOOLS
+                            AWS Elastic Beanstalk
+                                                            You’ll upload the code to Elastic Beanstalk, i
+                                                            which handles all deployment details for you:
+                                                                     capacity provisioning,
+                                                                     load balancing,
+                                                                     auto-scaling
+                                                                     application health monitoring
+                                            ELB:  Elastic Load Balancer
+
+
+                            Amazon Relational Database Service (RDS)  - provides the MySQL DB
+
+                                                            provides cost-efficient and resizable capacity,
+                                                            while managing time-consuming database administration tasks for you
+                                            DB Master
+                                            DB Standby
+
+
+________________________________
+                            S3
+                                                            highly-scalable cloud storage
+         $0.03 / $0.00                                          . WordPress website resources:
+                                                                        libraries,
+                                                                        themes,
+                                                                        images,
+                                                                        videos,
+                                                                        JavaScript
+
+                                                            COSTS:
+                                                                 storage you use,
+                                                                 where content (e.g. US East vs. Asia Pacific - Sydney),
+                                                                 number of requests you/your users make to store new content or retrieve the content,
+                                                                 and the amount of data that is transferred from S3 to you or your users.
+                                                                 oex. 1 GB of content =  you’d pay $0.03 per month.
+
+                                                                 12 months AWS Free Tier: $0.00 per month.
+________________________________
+                            EC2
+         $76.13     ($76.16)                                It's the VM, The virtual servers where my code runs
+
+                                                            There are 40+ different types.
+                                                                       - optimized for
+                                                                                   computing
+                                                                                   memory
+                                                                                   storage
+                                                                                   ...
+                                                                       - region
+                                                                       - Software you run
+                                                                       - Pricing model chosen
+
+                                                            COSTS:
+                                                                 ex.
+                                                                     to host your WordPress website on
+                                                                     1 Linux  t2.large EC2 instance
+                                                                     in the US East region.
+
+                                                                     = $76.13/month
+________________________________
+                            Amazon EDS
+         $352.52      ($428.68)                             Manages my DB (DBs are called 'instances' in AWS terminology)
+                                                            Instances classes can be:
+                                                            (MySQL, Amazon Aurora, Oracle, Microsoft SQL Server, PostgreSQL, and MariaDB).
+
+                                                            COSTS:
+                                                                       - instance class chosen
+                                                                       - price model chosen
+                                                                       - data transfer fees
+                                                                 ex.
+                                                                       db.r3.large DB instance class
+                                                                       with a multi-Availability Zone deployment.
+                                                                       ran 24 hours a day
+                                                                       with 5 GB of general purpose (SSD) storage,
+
+                                                                       = $352.52/month.
+________________________________
+                            Elastic Load Balancing
+                                                            distributes requests to the EC2s
+         $18.31       ($446.99)                             achieves fault tolerance in your application.
+
+                                                            COSTS:
+                                                                       - number of hours your Elastic Load Balancer is running
+                                                                       - the amount of data (GB) transferred through your Elastic Load Balancer.
+                                                                 ex.
+                                                                       1 GB of data
+                                                                       over a 30 day period,
+                                                                       = $18.30/month  (Elastic Load Balancer hours)
+                                                                          $0.01       (for the data transferred)
+                                                                                = total $18.31/month
+
+
+________________________________
+                            Auto Scaling
+                                                            It's a configuration level,
+         $0.00        ($446.99)                             which ensures the WordPress environment is optimized for availability
+
+                                                            COSTS: 0
+
+________________________________
+                            AWS Elastic Beanstalk
+                                                            service to use and configure the above
+         $0.00        ($446.99)                             No extra cost.
+
+

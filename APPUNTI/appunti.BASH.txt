@@ -336,6 +336,26 @@ ____________________________________________________________
        fc -l  gcc   edit cmd starting with gcc
        fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb
 
+
+                      bash                        zsh
+
+         history      all                         last 15
+                         in bash history is           in zsh history is
+                         its own command               an alias for 'fc -l'
+
+         history n    shows last n                shows all from n  <--- this search 'all from ..' is missing in bash history
+                                                                         which must use 'fc -l F [T]'  F: FROM    [T]: optional TO
+
+    (ex  history 1    shows last                  shows ALL  (also 'fc -l 1' ))
+         history -n       -                       shows last n
+                                                  so 'history' = 'history -15'
+
+
+
+
+
+
+
 ____________________________________________________________
     SHELL OPTIONS:  set -o
 ____________________________________________________________

@@ -1,0 +1,376 @@
+         __________________  MODERN PERL
+
+               It assumes modern Perl and in the specific:
+
+                use strict;
+                use warnings;
+                use utf8;
+                use feature ':5.10';
+
+
+
+
+         __________________  HELLO WORLD
+
+                ______________________________          ______________________________
+               |   use Mojolicious::Lite;              |  use Mojolicious::Lite;
+               |                                       |
+               |   get '/' => {text => 'Hello World'}; |  get '/' => sub {
+               |                                       |    my $c = shift;        (*)
+               |   app->start;                         |    $c->render(text => 'Hello World!');
+               |                                       |  };
+               |                                       |
+               |                                       |  app->start;
+               |______________________________         |______________________________
+
+
+               (*)   $c :  The first argument passed to all actions ($c)
+                           is a Mojolicious::Controller object,
+                           containing both the HTTP request and response.
+
+
+         __________________  AUTO GENERATE TEMPLATE
+
+         Mojo comes with the 'mojo' command-line   (see below the available syntax)
+         and i.e. with the
+                       'generate' arg,
+         it can create the first skeleton for my application:
+
+          $ mojo generate lite_app myapp.pl
+                             ^
+                             |
+                          literally  'lite_app'
+
+                            |Usage: APPLICATION COMMAND [OPTIONS]
+                            |
+                            |  mojo version
+                            |  mojo generate lite_app
+                            |  ./myapp.pl daemon -m production -l http://*:8080
+                            |  ./myapp.pl get /foo
+                            |  ./myapp.pl routes -v
+                            |
+                            |Tip: CGI and PSGI environments can be automatically detected very often and
+                            |     work without commands.
+                            |
+                            |Options (for all commands):
+                            |  -h, --help          Get more information on a specific command
+                            |      --home <path>   Path to home directory of your application, defaults to
+                            |                      the value of MOJO_HOME or auto-detection
+                            |  -m, --mode <name>   Operating mode for your application, defaults to the
+                            |                      value of MOJO_MODE/PLACK_ENV or "development"
+                            |
+                            |Commands:
+                            | cgi       Start application with CGI
+                            | cpanify   Upload distribution to CPAN
+                            | daemon    Start application with HTTP and WebSocket server
+                            | eval      Run code against application
+                            | generate  Generate files and directories from templates  <--------------------- generate
+                            | get       Perform HTTP request
+                            | inflate   Inflate embedded files to real files
+                            | prefork   Start application with pre-forking HTTP and WebSocket server
+                            | psgi      Start application with PSGI
+                            | routes    Show available routes
+                            | test      Run tests
+                            | version   Show versions of available modules
+                            |
+                            |See 'APPLICATION help COMMAND' for more information on a specific command.
+
+
+
+
+         __________________  RUN THE APP
+
+         Once '[some_dir]/myapp.pl' is written,
+                          ______________________________
+                         |  use Mojolicious::Lite;
+                         |
+                         |  get '/' => sub {
+                         |    my $c = shift;
+                         |    $c->render(text => 'Hello World!');
+                         |  };
+                         |
+                         |  app->start;
+                         |______________________________
+
+
+         it can be executed as:
+
+                 1. cd [some_dir]
+                 2.1 ./myapp.pl daemon   <-- starts the server  (the shell doesn't return a prompt) :
+
+                                          [Mon Jan 14 18:33:44 2019] [info] Listening at "http://*:3000"
+                                          Server available at http://127.0.0.1:3000
+                                          [Mon Jan 14 18:34:01 2019] [debug] GET "/"
+                                          [Mon Jan 14 18:34:01 2019] [debug] Routing to a callback
+                                          [Mon Jan 14 18:34:01 2019] [debug] 200 OK (0.000554s, 1805.054/s)
+
+                   note that I can see the result in the browser at http://127.0.0.1:3000
+
+
+
+                 2.2 ./myapp.pl daemon  -l http://*:8080      <-- starts the server on http://127.0.0.1:8080
+
+                 2.3 ./myapp.pl get /                         <-- returns 'Hello World!'  (like a curl)
+
+                 2.4 change
+                             app->start;
+                     as
+                             app->start('daemon', '-l', 'http://*:8080');
+
+                     and then just run ./myapp.pl
+
+
+         __________________  RUN THE APP WITH morbo
+
+         morbo allows to automatically restart
+         the server every time I change & save the source-code
+
+                 2.5  morbo ./myapp.pl
+
+
+
+
+
+
+
+
+
+         __________________  ROUTES
+
+         To define a route (i.e. /foo) is easy as this:
+
+              get '/foo' => sub {
+                  my $c = shift;
+                  $c->render(text => 'Hello World!');
+                };
+
+
+
+
+
+         __________________  ACCESS GET & POST args   via 'param'
+
+
+          get '/foo' => sub {
+            my $c    = shift;
+            my $user = $c->param('user');   <---------------  ex. read /foo?user=xxxx
+            $c->render(text => "Hello $user.");
+          };
+
+
+
+
+
+         __________________  RENDER WITH A TEMPLATE  and 'stash()'
+
+         The template to render the response can stay in the __DATA__
+         section of the page
+         I can pass args to that section with the $c->stash (..
+         method
+
+         |  get '/foo' => sub {
+         |    my $c = shift;
+         |    $c->stash(one => 23);    <-----------------------
+         |    $c->render(template => 'magic', two => 24);
+         |  };
+         |
+         |  app->start;
+         |
+         |  __DATA__    <-----------------------
+         |
+         |  @@ magic.html.ep
+         |  The magic numbers are <%= $one %> and <%= $two %>.
+
+
+         __________________  ROUTE WITH NAMES <---> TEMPLATES
+
+         I can assign a name to a route
+
+                   get '/' => sub {
+                      my $c = shift;
+                      $c->render;
+                   } => 'xxxx';  <---------- route name
+
+         in which case, a templae section   @@ xxxx.html.ep
+         is supposed.
+         Automatic names are assigned to routes with no explict name
+         (the predefined name is the route itself without non-word characters):
+
+
+                | # Render the template "index.html.ep"
+                | get '/' => sub {
+                |   my $c = shift;
+                |   $c->render;
+                | } => 'index';  <-------------- explict name  ==>  a template index.html.ep is supposed
+                |
+                | # Render the template "hello.html.ep"
+                | get '/hello';  <------------- automatic name ==> a template hello.html.ep is supposed
+                |
+                | app->start;
+                | __DATA__
+                |
+                | @@ index.html.ep
+                | <%= link_to Hello  => 'hello' %>.
+                | <%= link_to Reload => 'index' %>.
+                |
+                | @@ hello.html.ep
+                | Hello World!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         __________________  manage HTTP request and response with 'req' / 'res'
+
+         from the controller $c I can fully access both the
+         request and the response
+
+
+         | # Access request information
+         | get '/agent' => sub {
+         |   my $c    = shift;
+         |   my $host = $c->req->url->to_abs->host;
+         |   my $ua   = $c->req->headers->user_agent;
+         |   $c->render(text => "Request by $ua reached $host.");
+         | };
+         |
+         | # Echo the request body and send custom header with response
+         | post '/echo' => sub {
+         |   my $c = shift;
+         |   $c->res->headers->header('X-Bender' => 'Bite my shiny metal ass!');
+         |   $c->render(data => $c->req->body);
+         | };
+
+
+
+
+
+
+
+
+         __________________  JSON
+
+         'json' is the builtin keyword to manage JSON
+         contents both in req and res:
+
+         | # Modify the received JSON document and return it
+         | put '/reverse' => sub {
+         |   my $c    = shift;
+         |   my $hash = $c->req->json;  <------------------- IN
+         |   $hash->{message} = reverse $hash->{message};
+         |   $c->render(json => $hash);  <------------------ OUT
+         | };
+         |
+
+
+                 . Mojo::JSON   pure-Perl implementation.
+                 . 'json' is the field of in Mojo::Message
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

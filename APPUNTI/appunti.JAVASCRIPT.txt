@@ -9,7 +9,8 @@ vim plugin:
             tern.js
 
 
-
+npm          to update npm the best way is via itself
+             npm install -g npm
 
 
 

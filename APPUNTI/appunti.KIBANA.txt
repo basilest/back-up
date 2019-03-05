@@ -1,0 +1,103 @@
+
+             DATA-DRIVEN ARCHITECTURE.
+
+             INSTALLATION:      brew install kibana
+             RUN:               kibana
+             VIEW:              http://localhost:5601/status
+
+             Kibana is part of the Elastic Stack and
+                    provide a visualization layer on top of data indexed in Elasticsearch
+
+                       different use cases, such as
+
+                       . creating DASHBOARDS using accidents data,
+                       . building STATISTICS on top system data,
+                       . even detecting ANOMALIES in data.
+
+
+           correlate different data to understand
+
+           data can be huge and increase quickly
+
+           I need then a tool to
+              . decrease the complexity
+              . visualize effectively and in real time
+
+
+          shipping data      // Beats
+              . a lightweight agent is near where the data are generated and so it can collect them
+              . the agent SHIPS the data to a colleting place
+              . it ships in a safe way (assures integrity and e-2-e safe channel)
+              . it ships at pace (avoding pressure or overflow on the destination)
+
+          ingesting data
+              . ingesting is the layer which is on the other side of the 'wire'
+                with respect to the shippers.
+              . it must
+                  . receive the data
+                  . parse / transform and correlate with other data
+                  . store it
+
+          storing data
+                  . usually NoSQL (scalable and not relationale)
+
+          visualizing data
+                  . It should be lightweight and only render the result of processing done in the storage layer
+
+
+
+___________________________________________________________ BEATS
+
+          Beat is a lightweight data shipper
+
+          is built on top of libbeat, an open source library
+          that allows every flavor of beat to send data to Elasticsearch
+
+
+                                        search & analyse               Explore & Visualize
+                                       __________________              __________________
+                          |   |       |                  |            |                  |
+                          | l |       |                  |            |                  |
+             Filebeat     |   | ----> |   Elasticsearch  | ---------> |   K I B A N A    |
+                          | i |       |                  |            |                  |
+             Packetbeat   |   |       |        ^         |            |                  |
+                          | b |       |________|_________|            |__________________|
+             Topbeat      |   |                |
+                          | b |        ________|_________
+             {Future}beat |   |       |        '         |
+                          | e |       |                  |
+                          |   | ----> |     Logstash     |
+                          | a |       |                  |
+                          |   |       |                  |
+                          | t |       |__________________|
+
+                                        Enrich & Transport
+
+
+
+             Filebeat:   to securely transport the content of a file from point A to point B
+                         (like the tail command).
+
+             Packetbeat: sniffs packets over the network for specific protocols such as MySQL and HTTP.
+                         It grabs all the fundamental metrics (ie., in the case of HTTP, it will get the request, the response and wrap into a document)
+                         then index the document into Elasticsearch (that will be used to monitor the protocol in question).
+
+             other beats: There are a lot of different Beats made by the community:
+                          https://www.elast ic.co/guide/en/beats/libbeat/current/index.html.
+
+
+___________________________________________________________ LOGSTASH
+
+             Logstash processes the data before indexation.
+___________________________________________________________ KIBANA
+
+
+             Kibana is fitted for time-based visualization, even if your data can come without any timestamp.
+
+             Many plug-ins to
+                     . monitor data
+                     . do metrics analytics
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________

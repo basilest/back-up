@@ -47,7 +47,7 @@ REFERENCES:
                      .git/refs/remotes
                      .git/refs/remotes/origin
                      .git/refs/remotes/origin/master
-                     .git/refs/remotes/origin/HEAD
+                     .git/refs/remotes/origin/HEAD      <---- a text file like   ----->"  ref: refs/remotes/origin/develop  "<-----
                      .git/refs/tags
                      .git/refs/heads
                      .git/refs/heads/master
@@ -82,6 +82,32 @@ NOTATIONS:
                                                                  C^1^1 (abbr. C^^) = C~2   (abbr. C~~)
 
 
+
+                                   note:
+                                          git log shows all commits in 1 line      C
+                                                                                   C2
+                                                                                   C3
+                                                                                   C4
+                                          while the real story was
+                                                                                   C
+                                                                                   | \
+                                                                                   |  C2    C^2
+                                                                                   |  C3    C^2~
+                                                                            C^1    C4
+                                          git cat-file -p C1
+
+                                          shows that C1 has 2 'parents' so comes from a merge of 2 branches:
+
+                                          tree a15a09efe80739d9278fe57fc5ae7359eb9cb6df
+                                          parent 112221588ce044e18ad3db2aeb72039b991853e4   <------- C4   C4 is C^1
+                                          parent 200c74c3aca1d623609ca775d41a19376362313c   <------- C2   C2 is C^2 and C3 is C^2~
+                                          author Matt Reis <37841336+mreis-ch@users.noreply.github.com> 1547801306 +0000
+                                          committer GitHub <noreply@github.com> 1547801306 +0000
+
+                                          Merge pull request #144 from companieshouse/feature/add-prosecution-event-handler
+
+
+
          A .. B      think of 'take the last 2 commits' --> this + this~1,   (so this: INCLUDED & this~2 EXCLUDED)
          ^    ^
          |    newer & included  (if omitted HEAD assumed: A.. = A..@)
@@ -114,7 +140,7 @@ NOTATIONS:
   |                             |                   GIT reads var $GIT_DIR to do this.
   |                             |                   n.b. EACH (yes nb. EACH !!) repository has its own .git dir
   |                             |                        and so all the files in there (not only the index, but
-  |                             |                        the ref (ex. the remotes !!! names and protocol used hhtps/git/...))
+  |                             |                        the ref (ex. the remotes !!! names and protocol used https/git/...))
   |                             |                        are settings specific to only that repo.
   |                             |                        Another repo can have complete different settings
   |                             |
@@ -156,7 +182,7 @@ NOTATIONS:
   |                            |
   |                            |                      git config <------- alone, is by default --local: $ git config --local
   |                            |
-  | git config -l | --list     | to list the settings   (almost like a simple  $ cat .gitconfig)
+  | git config -l --list       | to list the settings   (almost like a simple  $ cat .gitconfig)
   |                            |
   |                            |--------------------------------------------------------------------------------------------------
   |                            |                    git config -l:                                                cat .git/config:
@@ -219,8 +245,10 @@ NOTATIONS:
   |                                                            # 14) drwxr-xr-x    5 sbasile  staff   170  5 Apr  2016 refs
   |                                                            #
   |                                                            #
-  | git ls-files -s                                            # to see which files are in the index
-  | git ls-files --stage                                       #      "       "   (long form)
+  | git ls-files                                               # to see which files are in the index
+  | git ls-files -s |  --stage                                 # to see all  files with STAGE NUMBERS (0,   1,2,3)   default: 0: no merge ongoing
+  | git ls-files -u                                            # to see only file  under conflict  (during an ongoing merge)
+  |                                                            #
   |                                                            #
   | git fsck                                                   # to check integrity (of the pack)
   |                                                            #
@@ -228,7 +256,7 @@ NOTATIONS:
   | git hash-object pippo.txt                                  # calculates the SHA1 of file pippo.txt
   |                                                            #
   | git status                                                 # SHOW INDEX: shows what is staged and is going to be committed.
-  | git status -s | --short                                    #     git status -s
+  | git status -s  --short                                     #     git status -s
   |                                                            #       M  README              M  = status Modified (in stage area)
   |                                                            #      MM  Rakefile            MM = status Modified (both stage and wd) (warning: commit will miss wd changes)
   |                                                            #      A   lib/git.rb          A  = status Added (new files)
@@ -241,7 +269,29 @@ NOTATIONS:
   | git show 9da581d910c9c4acf516                              # show more info for the commit identified
   | git show HEAD~2                                            #  " "
   | git show master:Makefile                                   # to see a Blob  (here file Makefile)
-  | git show-branch                                            # show even more info
+  | git show-branch                                            # show info on local branches
+  | git show-branch bbbbb1  bbbbb2                             # to limit only to the specified listed branches
+  | git show-branch 'bbbbb*'                                   # supports wildcards
+  | git show-branch -r                                         # show info on remote branches
+  | git show-branch -a                                         # show all branches and structure of historical commits on them
+  |                                                            #   -a (remote + topic)
+  |                                                            #   --more=n           n>0 instead of stopping (as default behaviour) at 1st common
+  |                                                            #                      parent Commit, go on for more n Commits.
+  |                                                            #                      n<0 show only indicated branches, without parents tree.
+  |                                                            #
+  |                                                            #   ! [bug/pr-1] Fix Problem Report 1       \   this first section lists each branch on 1 line, with * for
+  |                                                            #    * [dev] Improve the new development     |  active branch and ! for the others.  Each branch is shifted
+  |                                                            #     ! [master] Added Bob's fixes.         /   1 char right (preserving this proper column also in the 2 section)
+  |                                                            #   ---
+  |                                                            #    * [dev] Improve the new development   \   This 2 section lists all the branch commits. * active, - merge, + normal
+  |                                                            #    * [dev^] Start some new development.   |
+  |                                                            #   + [bug/pr-1] Fix Problem Report 1       |
+  |                                                            #   +*+ [master] Added Bob's fixes.        /  <--- this commit is present in all the branches. That it's the last line
+  |                                                            #                                             always, as 'git show-branch' goes back through all the commits up to the 1st
+  |                                                            #                                             common to all!
+  |                                                            #                                             To go on, use --more=n
+  |                                                            #
+  |                                                            #                         nb the '*'  shows the checkout branch, ex   * master
   | git show --pretty=fuller                                   # to see additional details about a given commit.
   | git show branchName:a.c                                    # to see a file (a.c) from branch 'branchName' (ex git show master:a.c)
   |                                                            # git show origin/master:src/spec/ch/fe/web/ewf/E90Forms/appointments/AP03ErrorValidation.html
@@ -305,7 +355,8 @@ NOTATIONS:
   |                                                            #                       A git fetch from this server, will not download anything.
   |                                                            #
   | git remote show <remote-name>                              # ex. git remote show origin
-  | git remote show                                            # Shows which branch is automatically pushed  when you run git push.
+  | git remote show                                            # Very useful to see the diff between local & remote branches.
+  |                                                            # Shows which branch is automatically pushed  when you run git push.
   |                                                            # It also shows:
   |                                                            #      remote branches on the server I don't have
   |                                                            #      branches I still have while nomore on the server
@@ -332,7 +383,7 @@ NOTATIONS:
   | git fetch origin                                           # allows to resynchronize to the last commit Cx on the server
   |                                                            # so:
   |                                                            #     1. moves origin/master
-  |                                                            #     2. download the state from C4 to Cx
+  |                                                            #     2. downloads the state from C4 to Cx
   |                                                            # nb. local master remains where it is. With a merge it also
   |                                                            #     moves: git pull = git fetch + merge.
   | git fetch pb                                               #
@@ -348,8 +399,8 @@ NOTATIONS:
   |                                                            # ex. git push origin master
   |                                                            #     push works only if:
   |                                                            #     1. I have write permissions onto the server
-  |                                                            #     2. nobody else has  pushed since I cloned/pulled. If there are other recent push,
-  |                                                            #        I must first pull align to the new code and push.
+  |                                                            #     2. nobody else has pushed since I cloned/pulled. If there are other recent push,
+  |                                                            #        I must first pull to align to the new code and then push.
   |                                                            #
   |                                                            #
   | git branch                                                 # to see the active branches (a * indicates the checkout (HEAD))  list only local branches
@@ -397,18 +448,11 @@ NOTATIONS:
   |                                                            # To force use -D
   |                                                            #
   | git rev-parse --abbrev-ref HEAD                            # to see the name of the current branch
-  |                                                            #
-  |                                                            # "master" branch.
-  |                                                            #   there is nothing special. It's created by default on a "git init"
-  |                                                            #   and people don’t bother to change it.
-  |                                                            #
-  |                                                            # "HEAD" it's the special pointer Git uses to point to the current active branch
-  |                                                            #
-  |                                                            # So all the branches inside a proj, are a set of POINTERS (to COMMITs) !
-  |                                                            # HEAD indicates the current branch, and so the current COMMIT.
+  |                                                            #  git rev-parse HEAD               ---> 5c55e84ed9727af11f89cdfb46581b660b83da6a        # hash of commit HEAD
+  |                                                            #  git rev-parse --abbrev-ref HEAD  ---> develop
   |                                                            #
   |                                                            #
-  | git branch name_here [starting-commit]                     # create branch:  Must only specify from which commit to fork
+  | git branch name_here [starting-commit]                     # creates branch:  Must only specify from which commit to fork
   |                                                            # (the default is the HEAD of the active branch) and a name.
   |                                                            #
   |                                                            # git branch prs/pr-1138               (considered starting from HEAD)
@@ -419,6 +463,27 @@ NOTATIONS:
   |                                                            # the branch until you switch to it.
   |                                                            #
   | git merge-base original-branch new-branch                  # to identify the original commit from which a branch was started.
+  |                                                            # (ex. g merge-base develop feature/no-duplicate-emails   --> 5c55e84ed9727af11f89cdfb46581b660b83da6a)
+  |                                                            #
+  |                                                            #
+  | git checkout <name>                                        # switches to branch <name>.
+  |                                                            # wd can reflect 1 branch at a time (the active branch: '*')
+  |                                                            # nb. HEAD is changed!!!!
+  |                                                            # nb. wd is changed!: It’s important to note that when
+  |                                                            #     you switch branch, files in your wd will change.
+  |                                                            #     For any case where you risk to overwrite some file not saved
+  |                                                            #     Git stops without checking out.
+  | git checkout -f <name>                                     #     to force even when overwriting.
+  | git checkout -b <name>                                     #     creating & checking out with 1 only command
+  | git checkout -b <name> [starting commit]                   #  when COMMIT is not HEAD     #  ex: git checkout -b <name>  ad567f
+  | git checkout HEAD -- a.txt                                 #
+  | git checkout -- a.txt                                      # to discard changes in wd, overwriting a.txt
+  | git checkout .                                             # do the same for all files of current dir
+  | git checkout dirx                                          # do the same for all files of  dirx
+  |                                                            #
+  | git checkout -m dev                                        # to undo a merge     (or to exit a running merge:   git merge --abort)
+  | git fetch + git checkout xxxxxx a.txt                      # to get a specific file from the remote repo
+  |                                                            #
   |                                                            #
   | git merge                                                  #
   |                                                            #                   Before merging,  tidy up wd + index.
@@ -431,7 +496,7 @@ NOTATIONS:
   |                                                            #
   |                                                            #           diff acts between HEAD (of active branch) (called 'ours') and
   |                                                            #           the HEAD of the merging branch called MERGE_HEAD or 'theirs'.
-  |                                                            #           these command can be performed explicitly
+  |                                                            #           these commands can be performed explicitly
   |                                                            # git diff HEAD             or git diff --ours     : wd   / HEAD
   |                                                            # git diff MERGE_HEAD       or git diff --theirs   : wd   / MERGE_HEAD
   |                                                            # git diff HEAD MERGE_HEAD  or git diff --base     : HEAD / MERGE_HEAD
@@ -452,6 +517,19 @@ NOTATIONS:
   |                                                            # git ls-files -u -s      help to see the set of files under merge conflicts
   |                                                            #                                             (-u : only file  under conflict)
   |                                                            #                                             (-s : all  files with STAGE NUMBERS (1,2,3))
+  |                                                            # git diff :1:A.txt :3:A.txt     syntax to diff between STAGE NUMBERS.
+  |                                                            #                                             very easy to remember:
+  |                                                            #                                                  suppose I did:  g checkout develop
+  |                                                            #                                                                  g merge branch_xx <--- conflicts at this time
+  |                                                            #
+  |                                                            #                                             1--2  shows the normal changes done in develop
+  |                                                            #                                             1--3  shows the normal changes done in branch_xx
+  |                                                            #
+  |                                                            #                                             2--3  shows the conflicting changes between develop & branch_xx
+  |                                                            #
+  |                                                            #                                             --base    shows the file with the conflicts <<<<<  ===== >>>>>
+  |                                                            #                                             --ours    shows the file with the conflicts <<<<<  ===== >>>>>  & higlights the changes done by 2 (develop)
+  |                                                            #                                             --theirs  shows the file with the conflicts <<<<<  ===== >>>>>  & higlights the changes done by 3 (branch_xx)
   |                                                            #                                             ex.
   |                                                            #                                             git ls-files -s
   |                                                            #                                                 100644 ce013625030ba8dba906f756967f9e9ca394464a 1  A.txt
@@ -464,7 +542,6 @@ NOTATIONS:
   |                                                            #                                             I can then look for ex at 2 A.txt :
   |                                                            #                                             git cat-file -p e63164d951
   |                                                            #
-  |                                                            # git diff :1:A.txt :3:A.txt     syntax to diff between STAGE NUMBERS.
   |                                                            #
   |                                                            # git log --merge --left-right -p
   |                                                            #             \          \      \_ shows the commit message and the patch associated
@@ -473,8 +550,6 @@ NOTATIONS:
   |                                                            #                \________________ shows only Commits that produced conflicts
   |                                                            #
   |                                                            # git log --merge --left-right -p  A.txt       if you only want to display for a single file A.txt
-  |                                                            #
-  |                                                            #               undo a merge:          to go back at the point before the 'git merge'  (so having a clean wd)
   |                                                            #
   |                                                            #
   |                                                            # "three-way merge" in the cases where the 2 branches went both ahead from their
@@ -490,6 +565,15 @@ NOTATIONS:
   |                                                            #
   |                                                            #                   nb. while "fast-forward" only moves a pointer, here git creates
   |                                                            #                       a new Commit (C6) and then moves both the pointers
+  |                                                            #
+  |                                                            #                  "fast-forward"    in the cases where the branch B (that is a COMMIT pointed by pointer B)
+  |                                                            #                                    is an upstream (one commit that can be reached by following ahead
+  |                                                            #                                    from master) of the commit you’re on, Git simply moves the pointer forward.
+  |                                                            #                                              ____ C3 ___C4               ____ C3 ___C4
+  |                                                            #                                             /           ^               /           ^
+  |                                                            #                                    C1 -- C2             B      C1 -- C2             B/master
+  |                                                            #                                          ^
+  |                                                            #                                        master
   |                                                            #
   |                                                            # CONFLICTs         if some <k> files of total <N> involved in the merge
   |                                                            #                   cannot be automatically merged then:
@@ -509,86 +593,20 @@ NOTATIONS:
   |                                                            # git mergetool          to use one of the possible tools to see graphically
   |                                                            #                        the merge conflicts.
   |                                                            #                        (use git mergetool --tool-help   to see the list)
+  |                                                            # MERGE UNDO:
+  |                                                            #           - git merge --abort
+  |                                                            #           - git checkout -m        from Git ver. 1.6.1)
   |
-  | git reset --hard HEAD         # if 'git commit' not done yet
-  | git reset --hard ORIG_HEAD    # if 'git commit' already done
-  | git reset --hard @~5          removes the last 5 commits
-  | git checkout -m               # from Git ver. 1.6.1
-  |
-  | merge modifications from branch B into master:
-  |              1. git checkout master     (I first switch to the branch where I want to merge into)
-  |              2. git merge    B          (then I use command "git merge")
-  |
-  | "fast-forward"    in the cases where the branch B (that is a COMMIT pointed by pointer B)
-  |                   is an upstream (one commit that can be reached by following ahead
-  |                   from master) of the commit you’re on, Git simply moves the pointer forward.
-  |                             ____ C3 ___C4               ____ C3 ___C4
-  |                            /           ^               /           ^
-  |                   C1 -- C2             B      C1 -- C2             B/master
-  |                         ^
-  |                       master
   |                                                            #
-  |                                                            #
-  | git checkout <name>                                        # switches to branch <name>.
-  |                                                            # wd can reflect 1 branch at a time (the active branch: '*')
-  |                                                            # nb. HEAD is changed!!!!
-  |                                                            # nb. wd is changed!: It’s important to note that when
-  |                                                            #     you switch branch, files in your wd will change.
-  |                                                            #     For any case where you risk to overwrite some file not saved
-  |                                                            #     Git stops without checking out.
-  | git checkout -f <name>                                     #     to force even when overwriting.
-  | git checkout -b <name>                                     #     creating & checking out with 1 only command
-  | git checkout -b <name> [starting commit]                   #  when COMMIT is not HEAD
-  |                                                            #  ex: git checkout -b <name>  ad567f
-  |                                                            #
-  | git checkout HEAD -- a.txt                                 #
-  | git checkout -- a.txt                                      # to discard changes in wd, overwriting a.txt
-  | git checkout .                                             # do the same for all files of current dir
-  | git checkout dirx                                          # do the same for all files of  dirx
-  |                                                            #
-  | git checkout -m dev                                        # to undo a merge     (or to exit a running merge:   git merge --abort)
-  | git fetch + git checkout xxxxxx a.txt                      # to get a specific file from the remote repo
-  |                                                            #
-  | git show-branch                                            # 'show-branch' provides more detailed output than 'git branch'.
-  |                                                            #   -r (remote)
-  |                                                            #   -a (remote + topic)
-  |                                                            #   --more=n           n>0 instead of stopping (as default behaviour) at 1st common
-  |                                                            #                      parent Commit, go on for more n Commits.
-  |                                                            #                      n<0 show only indicated branches, without parents tree.
-  |                                                            #
-  |                                                            #   ! [bug/pr-1] Fix Problem Report 1       \   this first section lists each branch on 1 line, with * for
-  |                                                            #    * [dev] Improve the new development     |  active branch and ! for the others.  Each branch is shifted
-  |                                                            #     ! [master] Added Bob's fixes.         /   1 char right (preserving this proper column also in the 2 section)
-  |                                                            #   ---
-  |                                                            #    * [dev] Improve the new development   \   This 2 section lists all the branch commits. * active, - merge, + normal
-  |                                                            #    * [dev^] Start some new development.   |
-  |                                                            #   + [bug/pr-1] Fix Problem Report 1       |
-  |                                                            #   +*+ [master] Added Bob's fixes.        /  <--- this commit is present in all the branches. That it's the last line
-  |                                                            #                                             always, as 'git show-branch' goes back through all the commits up to the 1st
-  |                                                            #                                             common to all!
-  |                                                            #                                             To go on, use --more=n
-  |                                                            #
-  |                                                            #                         nb the '*'  shows the checkout branch, ex   * master
-  |                                                            #
-  | git show-branch bug/pr-1 bug/pr-2                          # to limit only to the specified listed branches
-  | git show-branch 'bug/*'                                    # supports wildcards
   |                                                            #
   | git push origin :feature/april_17/ci_pflp_indicator        # this syntax will remove the REMOTE branch
   |                 ^                                          # keeping the LOCAL. The magic is the ':'
   |                                                            #
-  | git show-ref                                               # lists all references
-  | git symbolic-ref                                           # plumbing command to manage ref
-  |                                                            #
-  | git checkout -- <file>                                     # to reset changes also in wd, where <file> will be overwritten taking
-  |                                                            # the previous version from the last committed shapshot
-  |                                                            # (as it is a cmd for branches, go there to see more info)
-  |                                                            #
   | git add a.txt                                              # add file a.txt  (not yet committed: it's staged) (regex: git add *.p[lm])
   | git add dira                                               # add all dira
   | git add .                                                  # add all in current dir
-  | git add --interactive                                      # useful to check one by one
+  | git add -i | --interactive                                 # interactive menu (useful to check one by one)
   |                                                            #
-  | git rm                                                     # opposite of add.
   | git rm  a.txt                                              # removes from both INDEX & wd
   |                                                            # It's not usually what you want
   |                                                            # To unstage a file use instead  $ git reset HEAD a.txt
@@ -604,6 +622,10 @@ NOTATIONS:
   |                                                            #
   |                                                            # git log  2.txt          show the story of 2.txt, so I miss the story of 1.txt before the rename
   |                                                            # git log --follow 2.tx   can go back on 1.txt
+  | git reset --hard HEAD                                      # if 'git commit' not done yet
+  | git reset --hard ORIG_HEAD                                 # if 'git commit' already done
+  | git reset --hard @~5                                       # removes the last 5 commits
+  |                                                            #
   |                                                            #
   | .gitignore                                                 # a .gitignore can be in any dir (of the repo)
   |                                                            # EACH FILE AFFECTS ITS DIRECTORY AND ALL SUBDIRECTORIES.

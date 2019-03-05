@@ -1,0 +1,1010 @@
+
+             Elasticsearch is
+                       . is an Apache Lucene-based search server (accessible from RESTful interfaces exchanging  JSONs)
+                       . Lucene is a fast search library but tough to use directly and has very limited features
+                         to scale beyond a single machine.”
+                       . Default HTTP PORT  : 9200
+                       . Default TCP PORT  : 9300  TCP connection through a JAVA client and the node's interconnection inside a cluster
+                       . both exchange formats and store format are JSON
+                       . real-time distributed search and analytics engine.
+                       . open source    (Apache license version 2.0.)
+                       . developed in Java
+                       . can be used as a replacement of document stores like MongoDB
+                       . each resource (index, document, node, and so on) is accessible via a simple URI.
+
+    QUERY DSL
+
+    Query DSL (domain-specific language) is a JSON Elasticsearch interface
+    to expose the power of Lucene to write and read queries in a very easy way.
+    Developers who are not aware of Lucene query syntaxes can also write
+    complex queries in Elasticsearch.
+
+
+    SCHEMA LESS
+
+    Elasticsearch is not completely schemaless. If I send a JSON to an Index the first time,
+    that JSON could be anything, and every field is parsed.
+    But subsequent sends will be accepted for the same Index, only if the JSONs
+    match the original 'schema'
+
+
+___________________________________________________________ TERMINOLOGY
+
+    Node:         single running instance of Elasticsearch.
+                  A server can host many Nodes
+
+    Cluster:      collection of Nodes sharing same data
+
+    Index:        a DB
+
+    Document:     1 JSON
+
+    Mapping:      a Table
+    Type:         it's the 'schema' o bunch of fields
+                  common to more JSONs
+
+    Shard:        Slice of an Index (containing part of its documents)
+                  can be
+                     primary     serving queries
+                     secondary   duplicated data of the primary
+
+    Replicas:     of both Shard or Indexes to improve
+                        . performance (parallel execution)
+                        . availability (failures)
+
+
+When we create an index, Elasticsearch by default creates 5 shards and 1 replica for each shard
+(this means 5 primary and 5 replica shards).
+This setting can be controlled in the elasticsearch.yml file by changing the
+       index.number_of_shards
+       index.number_of_replicas
+
+Once the index is created, the number of shards can't be changed;
+however, you can change the number of replicas.
+So it is better to choose the number of required shards for an index at the time of index creation
+
+___________________________________________________________ INSTALL & RUN
+
+    1. brew install elasticsearch    (and be sure JAVA > 1.5 is installed and $JAVA_HOME points there)
+    2. to run:
+
+        manual:   cd /usr/local/bin/    &&   ./elasticsearch
+        services  services start elasticsearch
+        brew:     brew services start elasticsearch
+
+    INSTALL other Nodes in the cluster:
+
+        1. do the same (and in every /elasticsearch.yml keep the same cluster name:
+           cluster.name: elasticsearch_sbasile )
+        2. use the same JAVA version
+
+___________________________________________________________ INSTALL DIRS
+
+     brew info elasticsearch
+                                  elasticsearch: stable 6.6.1, HEAD
+                                  Distributed search & analytics engine
+                                  https://www.elastic.co/products/elasticsearch
+                                  /usr/local/Cellar/elasticsearch/6.6.1 (120 files, 36.8MB) *
+                                    Built from source on 2019-02-28 at 13:03:26
+                                  From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/elasticsearch.rb
+                                  ==> Requirements
+                                  Required: java = 1.8
+                                  ==> Options
+                                  --HEAD
+                                  	Install HEAD version
+                                  ==> Caveats
+                            |     Data:    /usr/local/var/lib/elasticsearch/elasticsearch_sbasile/
+                            |     Logs:    /usr/local/var/log/elasticsearch/elasticsearch_sbasile.log
+                    D I R S |     Plugins: /usr/local/var/elasticsearch/plugins/
+                            |     Config:  /usr/local/etc/elasticsearch/   <--------------- here /elasticsearch.yml
+
+                                  To have launchd start elasticsearch now and restart at login:
+                                    brew services start elasticsearch
+                                  Or, if you don't want/need a background service you can just run:
+                                    elasticsearch
+
+___________________________________________________________ CHECKING IT'S WORKING
+
+   1. load http://localhost:9200
+   2. I'd see something like:
+
+              {
+                  "name" : "zVqEOkD",
+                  "cluster_name" : "elasticsearch_sbasile",
+                  "cluster_uuid" : "e758aM2vTla-dkdvoZ5fDQ",
+                  "version" : {
+                    "number" : "6.6.1",
+                    "build_flavor" : "oss",
+                    "build_type" : "tar",
+                    "build_hash" : "1fd8f69",
+                    "build_date" : "2019-02-13T17:10:04.160291Z",
+                    "build_snapshot" : false,
+                    "lucene_version" : "7.6.0",
+                    "minimum_wire_compatibility_version" : "5.6.0",
+                    "minimum_index_compatibility_version" : "5.0.0"
+                  },
+                  "tagline" : "You Know, for Search"
+                }
+
+
+
+___________________________________________________________ POST and URL STRUCTURE
+
+
+       The URL structure is
+                ${ELASTIC-SEARCH-ADDRESS} / index_name / mapping_name
+
+       ex:
+                http://localhost:9200/schools/school    <--- table school insdie DB schools
+
+       POST is sued to send JSONs
+___________________________________________________________ QUERIES
+
+
+       1. method:  add _search to the end of the URL
+       curl -d '{}' -H "Content-Type: application/json" -X POST http://localhost:9200/schools/school/_search
+
+       2. method:  use explicitly the query with the wanted value
+       ex
+       curl -d '{ "query":{ "match_all":{} } }' -H "Content-Type: application/json" -X POST http://localhost:9200/schools/school
+
+       3. method:  use the _id
+       ex
+       curl  -H "Content-Type: application/json" -XGET http://localhost:9200/books/elasticstef/2IwpNmkBU8hFjrpDMhBk?pretty
+
+       ex.
+                                   |{
+                                   |  "_index" : "books",
+                                   |  "_type" : "elasticstef",
+                                   |  "_id" : "2IwpNmkBU8hFjrpDMhBk",
+                                   |  "_version" : 1,
+                                   |  "_seq_no" : 0,
+                                   |  "_primary_term" : 1,
+                                   |  "found" : true,    <---------  found (true or false)
+                  _source ----->   |  "_source" : {
+                                   |    "name" : "Elasticsearch Essentials",
+                                   |    "author" : "Bharvi Dixit",
+                                   |    "tags" : [
+                                   |      "Data Analytics",
+                                   |      "Text Search",
+                                   |      "Elasticsearch"
+                                   |    ],
+                                   |    "content" : "Added with PUT request"
+                                   |  }
+                                   |}
+                                   |
+                 The _source field contains all the JSON
+                 It can be removed settings that in the config
+
+       returning only some fields from _source
+       curl  -H "Content-Type: application/json" -XGET http://localhost:9200/books/elasticstef/2IwpNmkBU8hFjrpDMhBk?_source=name,author
+                                                                                                                    ^^^^^^^^^^^^^^^^^^
+
+
+___________________________________________________________ ?pretty
+
+       JSON returned by Elasticsearch commands are 1-liner
+       To have them formatted, add ?pretty
+
+       ex
+           ....  http://localhost:9200/schools/school/_search?pretty
+           ....  http://localhost:9200/schools/_bulk?pretty
+
+___________________________________________________________ DELETE
+
+
+       HTTP method DELETE instead of POST
+
+___________________________________________________________ PUT (and create INDEX)
+
+       HTTP method PUT instead of POST is used to CREATE an INDEX
+       ex
+       curl -d '{}' -H "Content-Type: application/json" -X PUT http://localhost:9200/schools
+
+       UPPERCASE letters not allowed (for index name)
+
+___________________________________________________________ CREATE with _bulk
+
+       Like MongoDB.
+       Elasticsearch is schemaless.
+       I can CREATE the TABLES in the INDEX sending 1 big JSON containing the other JSON documents.
+       I must just ass _bulk to the URL
+
+       file_data.txt : {
+                       "index":{
+                          "_index":"schools", "_type":"school", "_id":"1"     <-------- DB name and Table name here
+                       }
+                    }
+                    {
+                       "name":"Central School", "description":"CBSE Affiliation", "street":"Nagan",
+                       "city":"paprola", "state":"HP", "zip":"176115", "location":[31.8955385, 76.8380405],
+                       "fees":2000, "tags":["Senior Secondary", "beautiful campus"], "rating":"3.5"
+                    }
+                    {
+                       "index":{
+                          "_index":"schools", "_type":"school", "_id":"2"
+                       }
+                    }
+                    {
+                       "name":"Saint Paul School", "description":"ICSE
+                       Afiliation", "street":"Dawarka", "city":"Delhi", "state":"Delhi", "zip":"110075",
+                       "location":[28.5733056, 77.0122136], "fees":5000,
+                       "tags":["Good Faculty", "Great Sports"], "rating":"4.5"
+                    }
+                    {
+                       "index":{"_index":"schools", "_type":"school", "_id":"3"}
+                    }
+                    {
+                       "name":"Crescent School", "description":"State Board Affiliation", "street":"Tonk Road",
+                       "city":"Jaipur", "state":"RJ", "zip":"176114","location":[26.8535922, 75.7923988],
+                       "fees":2500, "tags":["Well equipped labs"], "rating":"4.5"
+                    }
+
+      curl -d @file_data.txt -H "Content-Type: application/json" -X POST http://localhost:9200/schools/_bulk
+
+___________________________________________________________ SOME APIs
+      some APIs to manage the index (ex: index_name) are:
+
+      OPEN / CLOSE / SETTINGS
+      curl -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_open
+      curl -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_close
+      curl -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_settings
+
+      in a _settings I have the settings usually ina JSON (ex s.json)
+      so I will do curl -H "Content-Type: application/json" -X PUT http://localhost:9200/index_name/_settings -d @s.json
+
+      NOTE: a _settings needs a sequence of
+                      . _close
+                      . _settings
+                      . _open
+
+___________________________________________________________ SNAPSHOT
+
+      to save the content of Elasticsearch DB into a snapshot "backup1"
+
+                     http://localhost:9200/_snapshot/backup1
+
+___________________________________________________________ elasticsearch.yml
+
+      In a MAC: /usr/local/etc/elasticsearch/elasticsearch.yml
+
+      I can configure it.
+      Usual args:
+
+      cluster.name: elasticsearch_sbasile
+      ode.name: node-1
+      path.data: /usr/local/var/lib/elasticsearch/
+
+      index.number_of_shards
+      index.number_of_replicas
+
+      script.inline: on       # to enable (Groovy) scripting in Elasticsearch
+___________________________________________________________ PLUGIN
+
+      The Elasticsearch plugins come in two flavors:
+
+      Java plugins: They contain .jar files and
+                    are used to extend Elasticsearch functionalities.
+
+      Site plugins: they do not contain any Java-related content.
+                    After installation, they are moved to the site directory
+                    and can be accessed using
+                               es_ip:port/_plugin/plugin_name.
+
+      To see the plugins installed:
+
+      curl -H "Content-Type: application/json" -XGET http://localhost:9200/_nodes/plugins\?pretty
+
+      or in the browser:  http://localhost:9200/_nodes/plugins
+
+      the binary on the command line to manage the plugins is:
+
+      /usr/local/bin/elasticsearch-plugin -> ../Cellar/elasticsearch/6.6.1/bin/elasticsearch-plugin
+
+
+      ex.
+      to install plugin analysis-phonetic
+      elasticsearch-plugin install analysis-phonetic
+
+      with just  "elasticsearch-plugin" alone :
+
+                Commands
+                --------
+                list - Lists installed elasticsearch plugins
+                install - Install a plugin
+                remove - removes a plugin from Elasticsearch
+
+                Non-option arguments:
+                command
+
+                Option         Description
+                ------         -----------
+                -h, --help     show help
+                -s, --silent   show minimal output
+                -v, --verbose  show verbose output
+
+       PROXY
+
+       to install behind a proxy I must set the var "ES_JAVA_OPTS"
+       ES_JAVA_OPTS="-Dhttp.proxyHost=host_name -Dhttp.proxyPort=port_number -Dhttps.proxyHost=host_name -Dhttps.proxyPort=https_port_number"
+
+       ex:
+
+       1.  export  ES_JAVA_OPTS="-Dhttp.proxyHost=wsproxy.internal.ch -Dhttp.proxyPort=8080 -Dhttps.proxyHost=wsproxy.internal.ch -Dhttps.proxyPort=8080"
+       2.  elasticsearch-plugin install analysis-phonetic
+
+       or 1 liner:
+       ES_JAVA_OPTS="-Dhttp.proxyHost=wsproxy.internal.ch -Dhttp.proxyPort=8080 -Dhttps.proxyHost=wsproxy.internal.ch -Dhttps.proxyPort=8080" elasticsearch-plugin install analysis-phonetic
+
+___________________________________________________________ UPDATING DOCS
+       1 method: HTTP PUT with the new JSON
+         curl -d @new.json -H "Content-Type: application/json" -XPUT http://localhost:9200/index/type/id
+                                                                                          /books/stef/1
+
+       2 method: use the API entrypoint '_update' :
+
+                 curl -d '{ "script" : "ctx._source.updated_time= \"2015-09-09T00:00:00\""}'
+                 -X POST 'localhost:9200/books/stef/1/_update'
+
+
+___________________________________________________________ HTTP DELETE
+       to delete a doc:
+
+         curl -X DELETE http://localhost:9200/index/type/id
+___________________________________________________________ CHECK WITH HTTP HEAD
+       to check for the existence of a doc instead of a GET
+       (which returns also the HTTP message BODY) I can rely
+       only on the HEAD-er (option -i & HEAD)
+
+         curl -i -X HEAD http://localhost:9200/index/type/id
+              ^^    ^^^^
+       it returns only the HEAD-er with 200 for ok.
+           “HTTP/1.1 200 OK”
+
+___________________________________________________________ TF-IDF
+
+       TF-IDF stands for term frequencies-inverse document frequencies
+
+       It measures the statistical occurrence of a word in a document
+       relative to its total occurrence in a set of documents.
+
+       TF  : term frequencies       (ex. 5 times in that JSON)
+       DF  : document frequencies   num_JSON_containing_the_term / TOT num of JSON
+                                    (ex. 3.5% )
+
+       IDF : inverse DF    : 1 / DF
+
+       TF-IDF : TF * IDF  = TF / DF     ex 5/3.5% = 142.857
+
+
+       RANKING OF MORE TERMS IN A QUERY:   SUM of the TF-IDF of every TERM
+
+                                           (ex. QUERY="T1 T2 T3")
+                                                ranking: TF-IDF(T1) +
+                                                         TF-IDF(T2) +
+                                                         TF-IDF(T3) =
+                                                         ------------
+
+
+___________________________________________________________
+
+         I hate when spiders sit on the wall and act like they pay rent
+         I hate when spider just sit there
+
+         spider AND spiders :   0    (none document contain BOTH)
+
+    NORMALIZATION:    Elasticsearch Normalise the terms (they pass through an analysis phase)
+
+                      1. remove STOP words (and / an / a/ the /....)   (STOP-TOKEN-FILTER)
+                      2. all lowercase                                 (LOWERCASE-TOKEN-FILTER)
+                      3. UNICODE --> ASCII                             (TOKENIZER)
+
+
+      Lucene (Elasticsearch) has different Normalizations alaysers,
+      and I can choose.
+
+      The default one has all the 3 FILTERS above
+      BUT the 1 even if present has an empty  LIST of STOP words.
+      So if I use the default one, I should define my list.
+
+___________________________________________________________ _analyze
+
+    I can call the REST API of Elasticsearch to tokenize
+
+    1. I prepare a JSON a.json
+       {
+         "analyzer": "whitespace",      <--------- tokenize by spaces
+         "text": "testing, Analyzers"   <--------- string to analyze here
+       }
+
+
+    2. I call the API
+     curl -d @a.json -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_analyze\?pretty
+
+     here the output:
+
+       {
+		  "tokens" : [
+			{
+			  "token" : "testing,",
+			  "start_offset" : 0,
+			  "end_offset" : 8,
+			  "type" : "word",
+			  "position" : 0
+			},
+			{
+			  "token" : "Analyzers",
+			  "start_offset" : 9,
+			  "end_offset" : 18,
+			  "type" : "word",
+			  "position" : 1
+			}
+		  ]
+		}
+
+___________________________________________________________   DIFFERENT ANALYZERS
+
+    Here the list of tokens provided by the different tokenizers
+    for the string:
+          "I hate when spiders sit on the wall and act like they pay rent"
+
+standard                       simple                     whitespace                   stop                          keyword
+
+{                              {                          {                            {                             {
+  "tokens" : [                   "tokens" : [               "tokens" : [                 "tokens" : [                  "tokens" : [
+    {                              {                          {                            {                             {
+      "token" : "i",                 "token" : "i",             "token" : "I",               "token" : "i",                "token" : "I hate when spiders sit on the wall and act like they pay rent",
+      "start_offset" : 0,            "start_offset" : 0,        "start_offset" : 0,          "start_offset" : 0,           "start_offset" : 0,
+      "end_offset" : 1,              "end_offset" : 1,          "end_offset" : 1,            "end_offset" : 1,             "end_offset" : 62,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",              "type" : "word",
+      "position" : 0                 "position" : 0             "position" : 0               "position" : 0                "position" : 0
+    },                             },                         },                           },                            }
+    {                              {                          {                            {                           ]
+      "token" : "hate",              "token" : "hate",          "token" : "hate",            "token" : "hate",       }
+      "start_offset" : 2,            "start_offset" : 2,        "start_offset" : 2,          "start_offset" : 2,
+      "end_offset" : 6,              "end_offset" : 6,          "end_offset" : 6,            "end_offset" : 6,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 1                 "position" : 1             "position" : 1               "position" : 1
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "when",              "token" : "when",          "token" : "when",            "token" : "when",
+      "start_offset" : 7,            "start_offset" : 7,        "start_offset" : 7,          "start_offset" : 7,
+      "end_offset" : 11,             "end_offset" : 11,         "end_offset" : 11,           "end_offset" : 11,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 2                 "position" : 2             "position" : 2               "position" : 2
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "spiders",           "token" : "spiders",       "token" : "spiders",         "token" : "spiders",
+      "start_offset" : 12,           "start_offset" : 12,       "start_offset" : 12,         "start_offset" : 12,
+      "end_offset" : 19,             "end_offset" : 19,         "end_offset" : 19,           "end_offset" : 19,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 3                 "position" : 3             "position" : 3               "position" : 3
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "sit",               "token" : "sit",           "token" : "sit",             "token" : "sit",
+      "start_offset" : 20,           "start_offset" : 20,       "start_offset" : 20,         "start_offset" : 20,
+      "end_offset" : 23,             "end_offset" : 23,         "end_offset" : 23,           "end_offset" : 23,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 4                 "position" : 4             "position" : 4               "position" : 4
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "on",                "token" : "on",            "token" : "on",              "token" : "wall",
+      "start_offset" : 24,           "start_offset" : 24,       "start_offset" : 24,         "start_offset" : 31,
+      "end_offset" : 26,             "end_offset" : 26,         "end_offset" : 26,           "end_offset" : 35,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 5                 "position" : 5             "position" : 5               "position" : 7
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "the",               "token" : "the",           "token" : "the",             "token" : "act",
+      "start_offset" : 27,           "start_offset" : 27,       "start_offset" : 27,         "start_offset" : 40,
+      "end_offset" : 30,             "end_offset" : 30,         "end_offset" : 30,           "end_offset" : 43,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 6                 "position" : 6             "position" : 6               "position" : 9
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "wall",              "token" : "wall",          "token" : "wall",            "token" : "like",
+      "start_offset" : 31,           "start_offset" : 31,       "start_offset" : 31,         "start_offset" : 44,
+      "end_offset" : 35,             "end_offset" : 35,         "end_offset" : 35,           "end_offset" : 48,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 7                 "position" : 7             "position" : 7               "position" : 10
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "and",               "token" : "and",           "token" : "and",             "token" : "pay",
+      "start_offset" : 36,           "start_offset" : 36,       "start_offset" : 36,         "start_offset" : 54,
+      "end_offset" : 39,             "end_offset" : 39,         "end_offset" : 39,           "end_offset" : 57,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 8                 "position" : 8             "position" : 8               "position" : 12
+    },                             },                         },                           },
+    {                              {                          {                            {
+      "token" : "act",               "token" : "act",           "token" : "act",             "token" : "rent",
+      "start_offset" : 40,           "start_offset" : 40,       "start_offset" : 40,         "start_offset" : 58,
+      "end_offset" : 43,             "end_offset" : 43,         "end_offset" : 43,           "end_offset" : 62,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",             "type" : "word",
+      "position" : 9                 "position" : 9             "position" : 9               "position" : 13
+    },                             },                         },                           }
+    {                              {                          {                          ]
+      "token" : "like",              "token" : "like",          "token" : "like",      }
+      "start_offset" : 44,           "start_offset" : 44,       "start_offset" : 44,
+      "end_offset" : 48,             "end_offset" : 48,         "end_offset" : 48,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",
+      "position" : 10                "position" : 10            "position" : 10
+    },                             },                         },
+    {                              {                          {
+      "token" : "they",              "token" : "they",          "token" : "they",
+      "start_offset" : 49,           "start_offset" : 49,       "start_offset" : 49,
+      "end_offset" : 53,             "end_offset" : 53,         "end_offset" : 53,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",
+      "position" : 11                "position" : 11            "position" : 11
+    },                             },                         },
+    {                              {                          {
+      "token" : "pay",               "token" : "pay",           "token" : "pay",
+      "start_offset" : 54,           "start_offset" : 54,       "start_offset" : 54,
+      "end_offset" : 57,             "end_offset" : 57,         "end_offset" : 57,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",
+      "position" : 12                "position" : 12            "position" : 12
+    },                             },                         },
+    {                              {                          {
+      "token" : "rent",              "token" : "rent",          "token" : "rent",
+      "start_offset" : 58,           "start_offset" : 58,       "start_offset" : 58,
+      "end_offset" : 62,             "end_offset" : 62,         "end_offset" : 62,
+      "type" : "<ALPHANUM>",         "type" : "word",           "type" : "word",
+      "position" : 13                "position" : 13            "position" : 13
+    }                              }                          }
+  ]                              ]                          ]
+}                              }                          }
+
+
+___________________________________________________________ CUSTOM ANALYZER
+
+    1 TOKENIZER          splits input into tokens
+    2 char FILTERs
+    3 token FILTERs
+
+   "analysis": {                         fixed name
+      "analyzer": {                      fixed name
+        "my_custom_analyzer": {          I give it the name I like
+          "type":      "custom",         'type'  field's value is always "custom"
+    1     "tokenizer": "standard",       the tokenizer I want  (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html)
+    2     "char_filter": [               An optional array of built-in or customised character filters.
+            "html_strip"                 html_strip / mapping / pattern_replace   (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-charfilters.html)
+          ],
+    3     "filter": [                    An optional array of built-in or customised token filters.
+            "lowercase",                 standard / asciifolding / flatten_graph  / length  / lowercase  / uppercase   / nGram / edgeNGram / porter_stem
+            "asciifolding"               shingle  / stop         / word_delimiter / word_delimiter_graph / multiplexer /  <conditional> / <predicate_token_filter>
+          ]                              stemmer / stemmer_override / keyword_marker / keyword_repeat / kstem / snowball / phonetic / synonym
+        }
+      }
+   }
+
+___________________________________________________________ TOKENIZER
+     1.  splits input into tokens
+     2.  stores also the position/offset of the token in the string
+
+     The below list shows the result for this input string:   "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+
+
+        ____________________________
+     .  "tokenizer": "standard"     based on the Unicode Text Segmentation algorithm, and works well for most languages.
+
+                                 --> [ The, 2, QUICK, Brown, Foxes, jumped, over, the, lazy, dog's, bone ]
+                     config:
+
+                         "max_token_length": 5    //Default 255
+
+                                 --> [ The, 2, QUICK, Brown, Foxes, jumpe, d, over, the, lazy, dog's, bone ]
+                                                                    ^^^^^^^^
+        ____________________________
+     .  "tokenizer": "letter"      breaks on not-a-letter
+
+                                  --> [ The, QUICK, Brown, Foxes, jumped, over, the, lazy, dog, s, bone ]
+                     config: -
+
+        ____________________________
+     .  "tokenizer": "lowercase"      "letter"-tokenizer + lowercase output
+                                      It is equivalent to the letter-tokenizer combined with the lowercase token-FILTER,
+                                      but is more efficient as it performs both steps in a single pass.
+
+                                 --> [ the, quick, brown, foxes, jumped, over, the, lazy, dog, s, bone ]
+                     config: -
+
+        ____________________________
+     .  "tokenizer": "whitespace"    breaks on spaces
+
+                                 --> [ The, 2, QUICK, Brown-Foxes, jumped, over, the, lazy, dog's, bone. ]
+                     config:
+
+                         "max_token_length": 5    //Default 255
+
+        ____________________________
+     .  "tokenizer": "uax_url_email"     like "standard"-tokenizer  but recognizes URLs and @MAILs and keep them as 1 single token
+
+                                 "Email me at john.smith@global-international.com" -->
+
+                                     --> [ Email, me, at, john.smith, global, international.com ]    standard
+                                     --> [ Email, me, at, john.smith@global-international.com ]      uax_url_email
+                     config:
+
+                         "max_token_length": 5    //Default 255
+
+        ____________________________
+     .  "tokenizer": "classic"       good only for English docs. It ihas heuristics for special treatment of acronyms, company names, email addresses.
+
+                                 --> [ The, 2, QUICK, Brown, Foxes, jumped, over, the, lazy, dog's, bone ]
+                     config:
+
+                         "max_token_length": 5    //Default 255
+
+        ____________________________
+     .  "tokenizer": "thai"          breaks like JAVA. ( It is known to work with Sun/Oracle and OpenJDK )
+                                     It may not be supported by all JREs. For fully portability, consider using the ICU Tokenizer.
+
+                                 "การที่ได้ต้องแสดงว่างานดี" --> [ การ, ที่, ได้, ต้อง, แสดง, ว่า, งาน, ดี ]
+                     config: -
+
+        ____________________________
+     .  "tokenizer": "N-grams"       breaks in chunks of min-len max-len tokens.
+
+                                 "Quick Fox" --> [ Q, Qu, u, ui, i, ic, c, ck, k, "k ", " ", " F", F, Fo, o, ox, x ]
+                     config:
+
+                         "min_gram": 1    //Default 1        It usually makes sense to set min_gram and max_gram to the same value.
+                         "max_gram": 2    //Default 2
+                         "token_chars":   range of allowed chars (a break at 1st char not in range)
+                                          values:
+                                                  - letter
+                                                  - digit
+                                                  - whitespace
+                                                  - punctuation
+                                                  - symbol
+
+                    min = max = 3-> [ Qui, uic, ick, Fox, oxe, xes ]
+
+        ____________________________
+     .  "tokenizer": "edge_ngram"    break on known words from range +  "N-grams"
+                                     Used in search-as-you-type queries.
+                                 --> [
+                     config: same of "N-grams"
+
+        ____________________________
+     .  "tokenizer": "keyword"       never breaks. It gives as output the same input.
+                                     It can be combined with token filters to normalise output,
+                     config:
+
+                         "buffer_size": 160    //Default 256
+
+        ____________________________
+     .  "tokenizer": "pattern"       breaks on regular expression match  (default \W+ : splits on no-word chars)
+                                     "Regular-Expressioni" are the JAVA ones.
+                     config:
+
+                         "pattern": "\"((?:\\\\\"|[^\"]|\\\\\")+)\""     Java regex
+                         "flags":   "CASE_INSENSITIVE|COMMENTS"          Java regular expression flags.
+                         "group":    Which capture group to extract as tokens. Defaults to -1 (split).
+
+            default \W+         "The foo_bar_size's default is 5."  --> [ The, foo_bar_size, s, default, is, 5 ]
+            "pattern": ","      "comma,separated,values"            --> [ comma, separated, values ]
+
+            "pattern": "\"((?:\\\\\"|[^\"]|\\\\\")+)\"",
+            "group": 1                                     "\"value\", \"value with embedded \\\" quote\"" --> [ value, value with embedded \" quote ]
+
+        ____________________________
+     .  "tokenizer": "char_group"    breaks on 1st char from a range
+                     config:
+
+                         "tokenize_on_chars": [
+                                                  "whitespace",
+                                                  "-",
+                                                  "\n"
+                                              ]
+
+                             "The QUICK brown-fox" --> [ The, QUICK, brown, fox ]
+
+        ____________________________
+     .  "tokenizer": "simple_pattern"  experimental in Lucene. It uses Lucene regular expressions.
+
+        ____________________________
+     .  "tokenizer": "simple_pattern_split"   experimental in Lucene. It uses Lucene regular expressions.
+
+        ____________________________
+     .  "tokenizer": "path_hierarchy"     break like path-names on a specified delimiter char
+                                 --> [
+                     config:
+
+                         "delimiter": -      //Default /
+                         "replacement": .    // Optional char to substitute delimiter after the split (Default same of delimiter)
+                         "buffer_size": 160  //Default 1024
+                         "reverse" : false   // If set to true, emits the tokens in reverse order. (Default false)
+                         "skip": 2           //Num of token to skip (Default 0)
+
+
+                         "delimiter": "-",
+                         "replacement": "/"   "one-two-three-four-five"  --> [ /three, /three/four, /three/four/five ]
+                         "skip": 2
+
+                         "reverse":true                                      [ one/two/three/, two/three/, three/ ]
+        ____________________________
+
+
+
+
+
+
+
+
+
+
+
+___________________________________________________________ CHAR FILTER
+
+     .  "char_filter":  [ "html_strip" ]      converts HTML el to their value  (ex. &amp; --> &)
+
+                                              "<p>I&apos;m so <b>happy</b>!</p>" --> [ \nI'm so happy!\n ]
+
+     .  "char_filter": [ "mapping" ]          substitute according to a JSON key-value list
+
+                     config:
+                         "mappings": [ .."k" : "v", .. ]     key-value list
+                         "delimiter": -      //Default /
+
+                      "mappings": [
+                            "٠ => 0",
+                            "١ => 1",
+                            "٢ => 2",
+                            "٣ => 3",            "My license plate is ٢٥٠١٥" --> [ My license plate is 25015 ]
+                            "٤ => 4",
+                            "٥ => 5",
+                            "٦ => 6",
+                            "٧ => 7",
+                            "٨ => 8",
+                            "٩ => 9"
+                          ]
+
+                       "mappings": [
+                            ":) => _happy_",   "I'm delighted about it :("  --> [ I'm, delighted, about, it, _sad_ ]
+                            ":( => _sad_"
+                          ]
+
+     .  "char_filter": [ "pattern_replace" ]   like the "mapping" but the list is 1 (JAVA) regex
+
+                     config:
+                         "pattern":      the JAVA regex
+                         "replacement":  substituting text (can use $1,$2,.. to refer to the cathed groups
+                         "flags":   "CASE_INSENSITIVE|COMMENTS"          Java regular expression flags.
+
+                      "pattern": "(\\d+)-(?=\\d)",
+                      "replacement": "$1_"           123-456-789 -->  123_456_789:
+
+___________________________________________________________ TOKEN FILTERS
+
+           they take the TOKENs from the TOKENIZER
+           and can change / remove them
+
+           There are many many FILTERS
+
+              . "filter" : ["asciifolding"]      Unicode --> ASCII
+              . "filter" : ["length"]            removes token < min & > max
+              . "filter" : ["lowercase"]
+              . "filter" : ["uppercase"]
+              . "filter" : ["stop"]              removes the tokens found in the array "stopwords": []
+                                                 "stopwords": ["and", "is", "the"]
+                                                 "stopwords":  "_english_"       other ranges/languages:
+
+                                                                                  _arabic_, _armenian_, _basque_, _bengali_,
+                                                                                  _brazilian_, _bulgarian_, _catalan_, _czech_,
+                                                                                  _danish_, _dutch_, _english_, _finnish_, _french_,
+                                                                                  _galician_, _german_, _greek_, _hindi_, _hungarian_,
+                                                                                  _indonesian_, _irish_, _italian_, _latvian_, _norwegian_,
+                                                                                  _persian_, _portuguese_, _romanian_, _russian_, _sorani_,
+                                                                                  _spanish_, _swedish_, _thai_, _turkish_.
+
+
+
+              . "filter" : ["word_delimiter"]    split on
+                                                          . non-a-letter   "Wi-Fi"      --> "Wi", "Fi"
+                                                          . number / letter "SD500"     --> "SD", "500"       (split_on_numerics      true(default)/false)
+                                                          . case change    "PowerShot"  --> "Power", "Shot"   (split_on_case_change   true(default)/false)
+
+
+                                                        other  config:
+                                                           catenate_words     (default:false)  Wiffi        --> Wifi
+                                                           catenate_numbers   (default:false)  500-42       --> 50042
+                                                           catenate_all       (default:false)  wi-fi-4000   --> wifi4000
+                                                           preserve_original  (default:false)   "500-42"    -->  "500-42" "500" "42"
+
+
+              OTHER TOKEN FILTERS:
+
+              . "filter" : [".."] // NGram Token Filter
+              . "filter" : [".."] // Edge NGram Token Filter
+              . "filter" : [".."] // Porter Stem Token Filter
+              . "filter" : [".."] // Shingle Token Filter
+              . "filter" : [".."] // Word Delimiter Graph Token Filter
+              . "filter" : [".."] // Multiplexer Token Filter
+              . "filter" : [".."] // Conditional Token Filter
+              . "filter" : [".."] // Predicate Token Filter Script
+              . "filter" : [".."] // Stemmer Token Filter
+              . "filter" : [".."] // Stemmer Override Token Filter
+              . "filter" : [".."] // Keyword Marker Token Filter
+              . "filter" : [".."] // Keyword Repeat Token Filter
+              . "filter" : [".."] // KStem Token Filter
+              . "filter" : [".."] // Snowball Token Filter
+              . "filter" : [".."] // Phonetic Token Filter
+              . "filter" : [".."] // Synonym Token Filter
+              . "filter" : [".."] // Parsing synonym files
+              . "filter" : [".."] // Synonym Graph Token Filter
+              . "filter" : [".."] // Parsing synonym files
+              . "filter" : [".."] // Compound Word Token Filters
+              . "filter" : [".."] // Reverse Token Filter
+              . "filter" : [".."] // Elision Token Filter
+              . "filter" : [".."] // Truncate Token Filter
+              . "filter" : [".."] // Unique Token Filter
+              . "filter" : [".."] // Pattern Capture Token Filter
+              . "filter" : [".."] // Pattern Replace Token Filter
+              . "filter" : [".."] // Trim Token Filter
+              . "filter" : [".."] // Limit Token Count Token Filter
+              . "filter" : [".."] // Hunspell Token Filter
+              . "filter" : [".."] // Common Grams Token Filter
+              . "filter" : [".."] // Normalization Token Filter
+              . "filter" : [".."] // CJK Width Token Filter
+              . "filter" : [".."] // CJK Bigram Token Filter
+              . "filter" : [".."] // Delimited Payload Token Filter
+              . "filter" : [".."] // Keep Words Token Filter
+              . "filter" : [".."] // Keep Types Token Filter
+              . "filter" : [".."] // Exclude mode settings example
+              . "filter" : [".."] // Classic Token Filter
+              . "filter" : [".."] // Apostrophe Token Filter
+              . "filter" : [".."] // Decimal Digit Token Filter
+              . "filter" : [".."] // Fingerprint Token Filter
+              . "filter" : [".."] // Minhash Token Filter
+              . "filter" : [".."] // Remove Duplicates Token Filter
+
+
+___________________________________________________________  TYPES
+      my JSON types are usually defined as:
+      (when creating a "type" for the documents I'm writing a "mapping")
+
+      . the "mapping"  are the individual definition of the fields
+      . the "type" is the overall "schema" defining the structure of that document
+
+
+              "name_of_the_field" : {
+                     "type" : "xxxxxxx",  <--------- the type of the field: string / number / date / ...
+                     [options] : ["..."],
+                     [options] : ["..."], <---- specific optional params for each type
+                     [options] : ["..."],       (see Elastic Search for the full spec for each type)
+
+      ex.
+              {
+                 "price":{"type":"float"},              NUMBERS
+                 "age":  {"type":"integer"}
+
+              {
+                 “contents": {
+                         "type": "string",
+                         "store": "yes",
+                         "index": "analyzed",           STRINGS
+                         "include_in_all": false,
+                         "analyzer": "simple"
+                       },
+                 "author_name": {
+                         "type": "string",
+                         "index": "not_analyzed",
+                         "ignore_above": 50
+                       }
+
+              {
+                 “creation_time": {
+                        "type": "date",                 DATES
+                        "format": "YYYY-MM-dd"
+                      },
+                 "updation_time": {
+                        "type": "date",
+                        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd"
+                      },”
+
+
+
+
+
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+___________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

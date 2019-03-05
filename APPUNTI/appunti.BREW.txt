@@ -78,6 +78,22 @@ brew update                  to update Homebrew itself  (and all its internal di
 brew upgrade                 to upgrade old packages
 
 
+brew services                to operate on services  (MAC doesn't have the linux command 'service')
+                             which have been installed via brew
+
+                             brew services list                to see the available service
+                             ex:
+                                   Name          Status  User    Plist
+                                   elasticsearch started sbasile /Users/sbasile/Library/LaunchAgents/homebrew.mxcl.elasticsearch.plist
+                                   kafka         stopped
+                                   mongodb       stopped
+                                   zookeeper     stopped
+
+                             brew services start kafka         to start
+                             brew services start elasticsearch
+
+                             brew services stop kafka
+
 
 -------------- PROXY ISSUE
 

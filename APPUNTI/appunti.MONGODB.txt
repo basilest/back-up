@@ -230,7 +230,8 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                              $lte   <=
                                              $gt    >
                                              $gte   >=
-                                             $ne    !=
+                                             $ne    !=           ex. {"data.type" : {$ne : "publish_filing"}}
+                                             $eq    ==
                                              $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '*'
                                                                 so it is ex           db.users.find({"name": /.*m.*/}
                                                                  or even shorter :    db.users.find({"name": /m/})

@@ -167,6 +167,8 @@ It provides a REST API for
           stopping
           scaling
 applications.
+(other apps (ex. Marathon-lb written in PYTHON) can call the API
+to have information (ex. to retrieve all running apps)
 
 Written in Scala
 
@@ -174,4 +176,12 @@ highly-availablility : running multiple copies. The state of running tasks gets 
 
 Marathon is a     Mesos can launch anything that can be launched in a standard shell.
 
+
+
+------------------------------- MARATHON-LB
+
+
+
+            Marathon-lb is a tool for managing HAProxy, which is a fast, load balancer
+            with many advanced features
 
