@@ -35,6 +35,27 @@ DNF          . DNF is a rewrite of YUM based on the gitHub project "libsolv" to 
 _______________________________________ ANSIBLE
 
 
+_________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
+
+        Ansible is a free SW platform for configuring and managing computers (nodes)
+        over SSH or PowerShell and requires Python (2.4 or later) to be installed on them.
+
+        Modules work over JSON and standard output and can be written in any programming language.
+
+        The system uses YAML to express reusable descriptions of systems.
+
+        It is included as part of the Fedora distribution of Linux, owned by Red Hat inc.,
+        and is also available for Red Hat Enterprise Linux, CentOS, and
+        Scientific Linux via Extra Packages for Enterprise Linux (EPEL)
+        as well as other operating systems.
+
+        Ansible is commercially supported and sponsored by Ansible, Inc.
+        On 16 October, 2015, Red Hat Inc. announced that it had signed a definitive agreement to acquire Ansible, Inc.
+
+        It was named "Ansible" after the fictional instantaneous hyperspace communication system featured in Orson Scott Card's Ender's Game,
+        and originally invented by Ursula K. Le Guin for her 1966 novel Rocannon's World.
+
+
          . is a configuration management and provisioning tool, similar to Chef, Puppet or Salt
 
          . is "just SSH"; It uses SSH to connect to servers and run the configured TASKS

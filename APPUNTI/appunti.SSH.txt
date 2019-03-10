@@ -63,9 +63,9 @@
          |                  |       /id_rsa
          |              1)  |       /id_rsa.pub <--- ex. "ssh-rsa AAAAB3N.....sbasile@pd12682.internal.ch"
          |                  |            |                     ^
-         |                  |            |to copy here
+         |                  |            |to copy here    (use ssh-copy-id -i ~/.ssh/id_rsa.pub user@host)
          |                  |            |
-     2)  |~/,ssh/authorized_keys  <------' 1 line for each pub-key (so copy pasted here the client id_rsa.pub)
+     2)  |~/.ssh/authorized_keys  <------' 1 line for each pub-key (so copy pasted here the client id_rsa.pub)
          |                  |              (nb. each *.pub key has the 1st chars saying its type: rsa/dsa/...)
        __|_____            _|_______       The server will authenticate only these clients
       |        |          |         |
@@ -111,7 +111,8 @@
       doing this on R:
                      - create or enter into dir ~/.ssh   (must have chmod 700)
                      - append in ~/.ssh/authorized_keys (or create if not present, with chmod 640)
-                       the exact text of ~/.ssh/id_rsa (with no new line)
+                       the exact text of ~/.ssh/id_rsa.pub (with no new line)
+                       (make it easy with  "ssh-copy-id -i ~/.ssh/id_rsa.pub user@host")
                      - (some servers that the file is called with an ending 2: a authorized_keys2)
 
                    ______________________________________
@@ -121,6 +122,9 @@
                    |    - cat .ssh/id_rsa.pub | ssh basilest@R 'cat >> .ssh/authorized_keys'
                    |_____________________________________
 
+    - If a key (ie. id_rsa.pub) has been copied in the remote '~/.ssh/authorized_keys'
+      then without any password I can connect directly as
+              ssh -i ~/.ssh/id_rsa user@host
 
 
     - 'ssh-keygen': the above files are created by 'ssh-keygen':
@@ -134,7 +138,7 @@
 
                               -f   to add a meaningfull name (otherwise you don't know for which
                                    server it was created)
-                                   So  dir ~/.ssh can contain many diffenet ssh-keys for different servers.
+                                   So  dir ~/.ssh can contain many different ssh-keys for different servers.
 
                               -O
                                    clear      clear all enabled permissions.  This is useful to clear
@@ -201,6 +205,36 @@
                                    is in clear text. With a passphrase it is encripted, so even if an hacker can access my id_rsa
                                    it's not usable.
 
+                                   the passphrase is asked twice when creating the key:
+
+                                    ╭─   6804   172.19.68.81  sbasile@pd12968   ~/.ss 
+                                    ╰─ ssh-keygen -t dsa -f stef.dsa.test
+                                    Generating public/private dsa key pair.
+                      -----1---->   Enter passphrase (empty for no passphrase):
+                      -----2---->   Enter same passphrase again:
+                                    Your identification has been saved in stef.dsa.test.
+                                    Your public key has been saved in stef.dsa.test.pub.
+                                    The key fingerprint is:
+                                    SHA256:zMPUhIRLJLjXCTJfNm0667GxOtBk4SZ3IVwst0wZucQ sbasile@pd12968.internal.ch
+                                    The key's randomart image is:
+                                    +---[DSA 1024]----+
+                                    |   o.=+B...      |
+                                    |  + *.E +o       |
+                                    |   * # X. .      |
+                                    |  o O @=         |
+                                    |   O . oS        |
+                                    |  . . +  .       |
+                                    |   . . =         |
+                                    |    . +          |
+                                    |    .o           |
+                                    +----[SHA256]-----+
+
+                                    ╭─   6805   172.19.68.81  sbasile@pd12968   ~/.ss 
+                                    ╰─
+
+
+
+
     - 'ssh-agent':     it can be started to run in background,
 
                  eval "$(ssh-agent -s)"  --> Agent pid 3319
@@ -238,8 +272,186 @@
 
     - The sequence is usually:
                                1. eval "$(ssh-agent -s)"       create a running instance of ssh-agent
-                               2. ssh-add                      add any desired keys
+                               2. ssh-add                      add any desired keys  (if keys have a passphrase I must enter it)
                                3.
+      ______________________________
+      if an agent is not running, then a 'ssh-add'
+      will give :
+                "Could not open a connection to your authentication agent."
+
+      ______________________________
+      while if I never added a key to the agent (never executed a 'ssh-add'), then a 'ssh-add -l'
+      will give :
+                ""The agent has no identities.
+      ______________________________
+--------------------------------------------------------------- ssh-agent
+
+       1. a ssh-agent is a box where I add keys (with ssh-add)
+        .--------------.
+        |              |
+        |              |    <----- box (empty: no keys added yet)
+        |              |
+        '--------------'
+          ssh-agent
+
+
+        .--------------.
+        |  key1.rsa    |
+        |  key2.dsa    |    <----- 2 keys added with ssh-add
+        |              |                   (these keys can be remove as
+        '--------------'                       . ssh-add -d
+          ssh-agent                            . ssh-agent -t 3600  <--- launching the agent with an elapsing time in sec)
+
+       2. a ssh-agent allows to ssh without password to the servers where in the relative 'authorized_keys'
+          there is a public version (ex. "key3.rsa.pub") of a private key loaded in the agent
+
+            .--------------.                          .--------------.
+            |  key1.rsa    |                          |              | REMOTE
+            |  key2.dsa    |        .________________ | key3.rsa.pub | SERVER
+            |  key3.rsa    |_______/                  |              |
+            '--------------'                          '--------------'
+              ssh-agent                                authorized_keys
+
+
+          . the client's ssh-agent sends to the server the public keys of every private key it holds
+          . if it stores 6 keys it can send up to 6 keys before the SERVER accepts the one it knows.
+            In the above picture the SERVER will accept the 3rd attempt on key3.
+          . Some servers (GitHub) will not accept many attempts, and will kill the connection.
+            So having an ssh-agent with many keys can not work
+
+
+
+       3. a ssh-agent is created with an --> eval "$(ssh-agent)"
+          It sets the 2 vars [$SSH_AGENT_PID] [$SSH_AUTH_SOCK]
+
+          Note that:
+                     3.1  I can start many instances of 'ssh-agent'
+                     3.2  In the same shell, the 2 vars remain with the values of the first
+                          even if I kill it
+
+                          ____________ check no agent is running
+
+                          ps -u $(whoami) | grep ssh-agent
+                            \__ 504 79617 ttys008    0:00.00 grep ssh-agent
+
+                          echo "[$SSH_AGENT_PID] [$SSH_AUTH_SOCK]"
+                            \__ [] []
+
+                          ____________ start 1st
+
+                          eval "$(ssh-agent)"
+                            \___ Agent pid 78770
+
+                          ps -u $(whoami) | grep ssh-agent
+                            \___ 504 78770 ??         0:00.00 ssh-agent
+                                 504 79617 ttys008    0:00.00 grep ssh-agent
+
+                          echo "[$SSH_AGENT_PID] [$SSH_AUTH_SOCK]"
+                            \___ [78770] [/var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-dNfeXFpDuNG2/agent.78769]
+
+
+                          ____________ start 2nd
+                          eval "$(ssh-agent)"
+                            \___ Agent pid 79701
+
+                          ps -u $(whoami) | grep ssh-agent
+                            \___ 504 78770 ??         0:00.00 ssh-agent
+                                 504 79701 ??         0:00.00 ssh-agent
+                                 504 79617 ttys008    0:00.00 grep ssh-agent
+
+                          echo "[$SSH_AGENT_PID] [$SSH_AUTH_SOCK]"  <-----------
+                            \___ [78770] [/var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-dNfeXFpDuNG2/agent.78769]
+                                  ^^^^                                                                             ^^^^^
+                                      \______________still the 1st is shown ________________________________________/
+
+                          ____________ default kill
+                          ssh-agent -k
+                            \___ unset SSH_AUTH_SOCK;
+                                 unset SSH_AGENT_PID;
+                                 echo Agent pid 78770 killed;                  <---- is terminated the 1st
+
+                          ps -u $(whoami) | grep ssh-agent
+                            \___ 504 79701 ??         0:00.00 ssh-agent        <---- yes, the 1st gone
+                                 504 79617 ttys008    0:00.00 grep ssh-agent
+
+                          echo "[$SSH_AGENT_PID] [$SSH_AUTH_SOCK]"  <-----------
+                            \___ [78770] [/var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-dNfeXFpDuNG2/agent.78769]
+                                  ^^^^                                                                             ^^^^^
+                                      \______________    STILL OLD VALUES   ________________________________________/
+
+                          ____________ default kill doesn't work
+                          ssh-agent -k
+                            \___ kill: No such process     <------ as the pid is not found (SSH_AGENT_PID=78770
+                                                                   still points to the old one) the 2nd is not killed.
+                                                                   I must close it with a manual kill:
+                                                                             kill -15 79701
+
+
+                     3.3  If different 'ssh-agent's are launched in different shells / terminals / sessions
+                          the shell variables are each relevant to every single shell so there is no way
+                          without hacks to share their values keeping it as single one.
+
+                     3.4  the result is that with a 'ps' I can see many ssh-agent instances in my system.
+                          Maybe the shells which launched them are already terminated, but their ssh-agent
+                          processes are still running.
+                          This can partially be kept under control, as I can execute the ssh-agent with
+                          the 'exec' modality, where the agent is killed when the command passed as argument
+                          is terminated. Ex:
+
+                                        exec ssh-agent /bin/bash <---- I end up in a shell where the agent is running.
+                                                                       when this shell is closed, that ssh-agent process
+                                                                       is also killed.
+
+                     3.5  Every ssh-agent contains its added keys:
+
+                            .--------------.              .--------------.             .--------------.
+                            |  key1.rsa    |              |  key2.dsa    |             |  key1.rsa    |
+                            |  key2.dsa    |              |              |             |              |
+                            |              |              |              |             |              |
+                            '--------------'              '--------------'             '--------------'
+                              ssh-agent                      ssh-agent                    ssh-agent
+
+                     3.6  It's possible with a shell script to extract the private keys
+                          from a ssh-agent, if a person has root access.
+                          Thus it could be good to
+                                . keep different keys in different agents
+                                  (ex work Github/.. vs private Github/...)
+                                . keep the list of keys in each ssh-agent < 4/5
+
+
+       4. ssh-agent forwarding.
+          It solves the problem of the following picture:
+
+                            .--------------.              .--------------.             .--------------.
+                            |              |   ssh(1)     |              |   ssh(2)    |              |
+                            |              | -----------> |              | --------->  |              |
+                            |              |              |              |             |              |
+                            '--------------'              '--------------'             '--------------'
+                              local client                     server(1)                  server(2)
+
+          4.1) I ssh into a server(1)
+          4.2) then from there I ssh into another server(2)
+               The server(1) has not my key there in any agent
+               so it asks me to type my password.
+               2 problems on this:
+                     a) I must type my password loosing the benefit of having a ssh-agent
+                     b) my typed password is
+                                   . typed in the local client
+                                   . sent encrypted over ssh(1) to the server(1)
+                                   . decrypted in server(1)
+                                   . sent to the console-driver which will feed the second ssh(2)
+                       a key-logger (listening the console driver) in server(1) can then intercept it
+
+          4.3) the SOLUTION is to open the ssh(1) with the ssh-agent forwarding option.
+               This is done in 2 ways
+                          1)  ssh -A ....                                # this will work only on this ssh
+                          2)  vim ~/.ssh/config   ---> ForwardAgent yes  # this will affect ALL the ssh
+
+               The second ssh(2), will not ask for a password.
+               It will detect the presence of a remote agent, and ask for no password.
+
+
+      ______________________________
 
     - Configure SSH server:  add a 'git' user shared among all the project developers:
                              sudo adduser git
