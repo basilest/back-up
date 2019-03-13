@@ -1,4 +1,13 @@
 
+   . logs in        /var/log/apache2/   error.log  access.log
+   . config in      /etc/apache2/apache2.conf
+   . script         /etc/init.d/apache2 | stop | start | restart
+
+
+
+
+-------------------------------------------------------
+
 
     dump all 'eval'uated entries of debugger internal table
             p join "\n", map { "$_   $#{$_}" } grep /_<\(/, keys %::

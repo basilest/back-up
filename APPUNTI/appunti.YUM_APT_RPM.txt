@@ -69,10 +69,10 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
          . the output from Ansible commands is JSON
 
          . The blocks are:
-               . Inventory:  a file with the list of servers to work on
-               . Playbooks:  the files (like makefiles) with the things to do
-               . Modules:    the set of commands that Ansible can perform (ex. copy, setup or whatever)
-                             are provided as a library of modules, so that each time a modules is chosen
+      YAML     . Inventory:  a file with the list of servers to work on
+      YAML     . Playbooks:  the files (like makefiles) with the things to do
+      PYTHON   . Modules:    the set of commands that Ansible can perform (ex. copy, setup or whatever)
+      (usually)              are provided as a library of modules, so that each time a modules is chosen
                              and called (like a script)
 
                          . Modules are  I D E M P O T E N T :
@@ -82,13 +82,19 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
 
 
          ansible comes with a list of executables: ie.
+
                                  ansible
+                                 ansible-config
+                                 ansible-connection
                                  ansible-console
                                  ansible-doc
                                  ansible-galaxy     to reuse roles from community (ansible-galaxy list: Show currently installed roles.)
+                                 ansible-inventory
+                                 ansible-mesos/
                                  ansible-playbook
                                  ansible-pull
                                  ansible-vault
+
 
 ansible $groupname -i $inventory -m $module -a '$module_arguments'
           |              |              |            |
@@ -161,7 +167,7 @@ PLAYBOOK FILES       the 'makefiles', (written in YAML):
     ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
     ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
 
-MODULES:  (to see the installed ones: ansible-doc -l)
+MODULES:  (to see the installed ones: ansible-doc -l)  <---- I have 2080
            the most used modules are:
 
   shell:   is not actually a module, it just allows to write directly bash commands to execute
@@ -200,7 +206,7 @@ ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the se
            - files                             |_   files                    "files" dir should be used to copy/download files (so here usually there is no "main.yml" file)
            - handlers                          |_   handlers / main.yml      "handlers" dir should be used to move into a "main.yml" the handler section of the big makefile
            - meta          --is suppsed this ->|_   meta / main.yml          "meta"           "                 "             "      meta info (mainly the "depencencies" section)
-           - templates                         |_   templates                "tenplates" dir (like "files") contains no "main.yml" but stores .j2 files
+           - templates                         |_   templates                "templates" dir (like "files") contains no "main.yml" but stores .j2 files
            - tasks                             |_   tasks / main.yml         "tasks" dir should contain the core section of the big makefile
            - vars                              |_   vars / main.yml          "vars" should contain the var section
 
@@ -212,7 +218,13 @@ ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the se
 
 
 TEMPLATES:  Are files with any name but normally xxxx.j2
-          (based on Python's Jinja2 template engine.).
+          (based on Python's Jinja template engine:
+           {% if %}
+           ({% for %},
+           ...
+           and filters that process variables
+           (e.g.{{ "hello"|upper }}
+           would print HELLO.
 
 
 FACTS:    "Fact" is the Ansible-word to identify the act of gathering info

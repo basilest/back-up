@@ -2,9 +2,20 @@ ________________________________________ COMMANDS
 
 start/stop
               vagrant up
-              vagrant halt
-              vagrant destroy
+              vagrant halt      (--force
+              vagrant destroy   (--force
               vagrant status
+              vagrant resume   after a suspend
+              vagrant suspend  (instead of halt.  pros: quick
+                                                  cons: It increased on disk the used space of the VM
+                                                        (it copies its RAM space / so if the VM had RAM of 1 GB,
+                                                        I'll have another copy od 1 GB)
+
+                               after a suspend both of the following can be used:
+
+                                                   vagrant up
+                                                   vagrant resume
+
 boxes
               vagrant box
               vagrant box add
@@ -21,12 +32,48 @@ ________________________________________
 
 
 
+________________________________________ vagrant COMMANDS
 
 
+                Usage: vagrant [options] <command> [<args>]
 
+                    -v, --version                    Print the version and exit.
+                    -h, --help                       Print this help.
 
+                Common commands:
+                     box             manages boxes: installation, removal, etc.
+                     destroy         stops and deletes all traces of the vagrant machine
+                     global-status   outputs status Vagrant environments for this user
+                     halt            stops the vagrant machine
+                     help            shows the help for a subcommand
+                     hostmanager     plugin: vagrant-hostmanager: manages the /etc/hosts file within a multi-machine environment
+                     init            initializes a new Vagrant environment by creating a Vagrantfile
+                     login           log in to HashiCorp's Vagrant Cloud
+                     package         packages a running vagrant environment into a box
+                     plugin          manages plugins: install, uninstall, update, etc.
+                     port            displays information about guest port mappings
+                     powershell      connects to machine via powershell remoting
+                     provision       provisions the vagrant machine
+                     push            deploys code in this environment to a configured destination
+                     rdp             connects to machine via RDP
+                     reload          restarts vagrant machine, loads new Vagrantfile configuration
+                     resume          resume a suspended vagrant machine
+                     snapshot        manages snapshots: saving, restoring, etc.
+                     ssh             connects to machine via SSH
+                     ssh-config      outputs OpenSSH valid configuration to connect to the machine
+                     status          outputs status of the vagrant machine
+                     suspend         suspends the machine
+                     up              starts and provisions the vagrant environment
+                     validate        validates the Vagrantfile
+                     version         prints current and latest Vagrant version
 
+                For help on any individual command run `vagrant COMMAND -h`
 
+                Additional subcommands are available, but are either more advanced
+                or not commonly used. To see all subcommands, run the command
+                `vagrant list-commands`.
+
+________________________________________
 
 
 
@@ -69,7 +116,7 @@ BASE IMAGES                 Vagrant uses normally base images (called BOX FILES)
                              command:
                                              vagrant box           creates a box (the url is usally in the Vagrantfile)
                                              vagrant box add       creates a box out of a project
-                                             vagrant list          lists the boxes
+                                             vagrant box list      lists the boxes
                                              vagrant box remove    removes a box:
                                                                                   . projects running have a cloned version of it
                                                                                     so are not affected
@@ -141,7 +188,9 @@ Vagrantfile                   . 1 file per project
 
                            example:
 
-                            Vagrant::Config.run do |config|
+                            Vagrant::Config.run do |config|   <------------------- this is the old syntax Vagrant-Version 1
+                                                                                   Version 2 is : Vagrant.configure("2") do |config|
+
                                   config.vm.box = "precise64"                    <---- BOX FILE  (config.vm.box)
                                   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
@@ -196,6 +245,406 @@ SHARED FOLDERS
 
                nb.   SHARED FOLDERS present a heavy performance penalty for IO
                      so keep them for source code only (i.e. not for compilation .obj )
+
+
+
+
+
+
+
+
+NETWORKING
+
+  Vagrant allows to configure the Networking with a call to the method (config.vm.network) :
+
+                         config.vm.network   "xxxxx", args
+
+  passing as 1st arg "xxxxx", the type of the network to create.
+  The types are:
+
+
+  1 "forwarded_port"    -  Forwarded PORT  maps a GUEST port onto a HOST port
+
+               ex.
+                  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+               I can see these PORT mappings during the vagrant-up:
+                    ....
+                        [default] Forwarding ports...
+                        [default] -- 22 => 2200 (adapter 1)
+                        [default] -- 80 => 8080 (adapter 1)
+
+               The general idea is that the GUEST has no external IP address
+               and shares the same IP of the HOST.
+               As by the normal Port forwarding in Networking (usually performed in a gateway / router)
+               here the same logic is acted in the HOST for the GUEST.
+               The GUEST can then interface with the outside.
+               The mapping defines the 2 numbers: HOST vs GUEST to be linked.
+               The 2 numbers can be anything. In the below picture is 80 on 80.
+               (actually Vagrant allows HOST ports to only be numbers > 1024
+                or lower if Vagarnt is executed as root that is not recommended)
+
+              .-----------------------------------------------------.
+              |                 H O S T     .-------------------.   |
+              |        .----.               |   .----.          |   |
+              |        | 80 | ----------------- | 80 |  GUEST   |   |
+              |        '----'               |   '----'          |   |
+              |                             '-------------------'   |
+              '-----------------------------------------------------'
+
+               If so, then an address IP:80 will be received by the HOST and
+               redirected to the GUEST on port 80. Being the usual httpd port, the Web Server
+               running on the GUEST will answer.
+
+
+               With the following mapping instead:
+              .-----------------------------------------------------.
+              |                 H O S T     .-------------------.   |
+              |        .------.             |   .----.          |   |
+              |        | 8011 |---------------- | 80 |  GUEST   |   |
+              |        '------'             |   '----'          |   |
+              |                             '-------------------'   |
+              '-----------------------------------------------------'
+
+               an address IP:8011 will be received by the HOST and
+               redirected to the GUEST on port 80.
+
+
+               As the mapping acts on 2 numbers:
+
+               HOST PORT <----------> GUEST PORT
+
+               if the HOST PORT was already used, then Vagrant is able to intercept and notify the clash
+
+               With the option "auto_correct: true
+                               config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+                                                                                          ^^^^^^^^^^^^^^^^^^
+               Vagrant can assign another one, usually in the range 2200-2250
+               but can be specified
+
+                               config.vm.usable_port_range = 8000..8999
+
+               TCP / UDP
+                         ports forward 1 protocol only at a time.
+                         Default TCP
+                         If instead I want UDP on the port, then:
+
+                               config.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "udp"
+
+                         If I need TCP and UDP both on the same port, then I must list it twice:
+
+                              config.vm.network "forwarded_port", guest: 2003, host: 12003, protocol: "tcp"
+                              config.vm.network "forwarded_port", guest: 2003, host: 12003, protocol: "udp"
+
+               host_ip / (guest_ip)
+                         The parameter host_ip:
+                         ex:
+                               config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+                                                                                           ^^^^^^^^^^^^^^^
+                         can be optionally used to restrict the mapping on
+                         only some interfaces of the HOST.
+                         When was said a packet is received to host as IP:8011 and redirected to GUEST on port 80
+                         actually the HOST has potentially many IPs for every of its interfaces (eth0 eth1 lo ..)
+                         I can then limit the mapping only to some of these.
+                         Skipping this value will enable the mapping on every interface/IP by default.
+
+                         For the same reason I can optionally specify a 'guest_ip'
+
+               Forwarded PORT
+                    CAN     . OUT   --> GUEST: access GUEST services from the outside
+                                              (ex a Web server running on a VM)
+                            . HOST  --> GUEST: allow communication HOST --> GUEST
+
+                    CAN NOT . HOST  <-- GUEST: allow communication HOST <-- GUEST
+                                              (so a service running on the HOST cannot be seen from the GUESTs)
+                            . GUEST <-> GUEST: allow direct communication between GUESTS
+
+  2 "private_network", ip: "192.168.50.4"    -  Static IP  - HOST ONLY (NETWORKING)
+
+                            config.vm.network "private_network", ip: "192.168.50.4"
+
+             .  HOST ONLY means the HOST and 1 (or more) GUEST(s) share a private network
+                and have private IPs on it.
+             .  Vagrant assigns these static IPs.  (ex. "192.168.33.*")   <----- Vagrant uses subnet mask 255.255.255.0
+             .  Vagrant assigns address .1 to HOST (ex. "192.168.33.1 )
+             .  In this scenario I don't have to enumerate (as before) ALL the GUEST ports
+                I want to access (and then do a Port forwarding).
+                I can in fact access directly all the GUEST ports.
+
+               HOST ONLY (NETWORKING)
+                    CAN     . HOST  <-- GUEST: allow communication HOST <-- GUEST
+                                              (so a service running on the HOST can be seen from the GUESTs)
+                            . GUEST <-> GUEST: allow direct communication between GUESTS
+
+                    CAN NOT . OUT   --> GUEST: access GUEST services from the outside
+                                              (ex a Web server running on a VM cannot be accessed)
+
+
+
+  3 "private_network", type: "dhcp"  - Bridged (Networking)
+
+                            config.vm.network "private_network", type: "dhcp"
+
+             .  GUESTs are connected to the same network of the HOST, receiving IPs via the usual DHCP
+                of the network.
+             .  Vagrant will then not assign static IPs to the GUESTs like in the HOST-ONLY way.
+                This means there is no way to know the IP of a GUEST if not 'ssh' into it an look (ifconfig).
+             .  Bridged Network are HOST ONLY without the CAN NOT. It means services on the GUEST can
+                be accessed from the outside.
+
+             .  NOTE that some networks (public, airports, hotels, ...) do not allow traffic between
+                     the different machines of that network but only between machines and router/switch.
+                     This means that if the GUESTs are bridged onto 1 of these nets they will not be able
+                     to communiacte between each other.
+
+
+PROXY
+
+               If my GUEST is behind a proxy, once I ssh into it
+               and I try to do an external network command (ex. sudo apt-get update)
+               It will not work.
+               The solution is:
+                      1. vagrant plugin install vagrant-proxyconf
+                      2. change the Vagrantfile with
+                                     config.proxy.http     = "http://wsproxy.internal.ch:8080"
+                                     config.proxy.https    = "https://wsproxy.internal.ch:8080"
+                                     config.proxy.no_proxy = "localhost,127.0.0.1"
+
+
+
+
+
+PROVISIONING
+               Vagrant supports the provisioning of software into the GUEST
+               with
+                      . shell scripts
+                      . Chef    [Chef Solo or Chef Client]
+                      . Puppet
+                      . ... (additional provisioners)  [remember Vagrant can be extended with plug-ins]
+
+               ex. shell:
+                      1. I write the code in a file (xxx.sh) in the HOST:
+                         ex:
+                          |  #!/usr/bin/env bash
+                          |
+                          |  echo "Installing Apache and setting it up..."
+                          |  apt-get update >/dev/null 2>&1
+                          |  apt-get install -y apache2 >/dev/null 2>&1        # -y as it will consider all questions answered YES
+
+                      2. In the Vagrantfile I add:
+
+                         config.vm.provision "shell", path: "xxx.sh"
+
+
+                      NOTE1 -- if the shell script should be run only once
+                               it's usually written with a file as flag:
+
+                         |  if [ -f "/var/vagrant_provision" ]; then exit 0
+                         |  fi
+                         |   .....  # Actual shell commands here.
+                         |  touch /var/vagrant_provision
+
+                      NOTE2 "inline:"    -- it's used when a script it's too much, because there is only 1 command:
+
+                         config.vm.provision "shell", inline: "apt-get install -y apache"
+                                                      ^^^^^^
+
+               ex. Chef:
+                      1. ├── Vagrantfile
+                         └── cookbooks
+                             └── xxx <--------- I create a cookbook xxx in the 'cookbooks' dir Chef expects
+                                 └── recipes
+                                     └── default.rb
+
+                      2. config.vm.provision "chef_solo", run_list: ["xxx"]
+
+
+               ex. Puppet:
+                      1. ├── Vagrantfile
+                         └── manifests
+                             └── default.pp
+
+                      2. config.vm.provision "puppet"
+
+               ___________________________________________________________
+               I can use many provision lines in the Vagrantfile.
+               They will be executed in that order
+
+                vagrant up --no-provision    # to skip all the lines
+
+
+
+
+
+
+MULTIMACHINE CLUSTERS
+               If my Vargantfile contains more machines
+               ex
+                           Vagrant.configure("2") do |config|
+                            config.vm.define "web" do |web|
+                                web.vm.forward_port 80, 8080
+                                web.vm.provision :shell, path: "provision.sh"
+                                # ...
+                            end
+                            config.vm.define "db" do |db|
+                                # ...
+                            end end
+
+
+               then the vagrant commands must address on which one they must act,
+               (otherwsie the will act on ALL)
+               so they change as for ex.
+
+                           vagrant reload web            ( vagrant reload   <--- means ALL)
+                           vagrant reload db1 db3 db4    <---- I can specify a list
+                           vagrant reload /db\d/         <---- I can specify a regex
+
+
+
+
+
+BOXES
+               I can create a snapshot once, and resuse to create other VMs
+               saving the time to create from scratch.
+
+               The other VMs can keep it as it is or furtherly build on top of it.
+
+               BOXES are portable (from Mac OSX to Windows Linux ...)
+
+
+               Box FORMAT:   The box file format is nothing more than a tar file,
+                             possibly gzip compressed. (even if the extension is .box)
+
+                             They are produced via the 'export' of Virtualbox
+
+                                  $ tree
+                                    .
+                                    ├── Vagrantfile
+                                    ├── box-disk1.vmdk   #  is the compressed hard drive
+                                    ├── box.ovf          #  is a description of the virtual hardware running the machine.
+                                    └── metadata.json    #  tells Vagrant what system the box works with (in this case VirtualBox).
+
+
+               Vagrant keeps ALL the BOXEs in the dir $VAGRANT_HOME
+               which is usually   ~/.vagrant.d:
+
+                              ~/.vagrant.d   <--- dir for ALL the VMs of every Vagrantfile all around
+                                    .
+                                    ├── boxes
+                                    ├── data
+                                    ├── gems
+                                    ├── insecure_private_key
+                                    ├── plugins.json
+                                    ├── rgloader
+                                    ├── setup_version
+                                    └── tmp
+
+               Boxes are used only when creating running instances of a VM.
+               While the VM is running (ie. vagrant up) the box can be even distroyed
+               without affecting the running VM (whihc anyhow will need it on the next vagrant up)
+
+               Box COMMANDS:  vagrant box <subcommand> [<args>]
+
+                    Available subcommands:
+
+                         list
+
+                         add
+                         remove
+                         update
+
+                         outdated
+                         prune
+                         repackage    # recreates a box from a running VM
+
+               CREATE A BOX
+                         As it's clear from the previous list there is no 'create' subcommand
+                         in the 'vagrant box'.
+                         This is because the command is 'vagrant package'.
+                         This command is usually executed as:
+
+                                  1. vagrant up           # make a VM running
+                                  2. ....                 # install in it any wanted package / SW
+                                  3. vagrant package      # create a snapshot / box of it
+                                                            (the output is a file package.box
+                                                             which can now be used to create other VMs
+                                                             on top of this)
+
+                        I can decide to package with a different Vagrntfile if that is different from
+                        the box original:
+
+                        vagrant package --base my_new_box --vagrantfile Vagrantfile
+
+
+
+
+
+
+PLUGINS
+               I can extend vagrant (even in its own core modules (i.e. vagrant up/...) writing
+               plugins.
+
+               Ex I can write something which can allow vagrant to retrieve the IP of the GUEST
+               via:   vagrant ip
+
+               (Anyone can write a plug-in. They are written in Ruby and packaged with RubyGems).
+
+               If
+                       $VAGRANT_NO_PLUGINS
+
+               is set to any value, then Vagrant will not load any plug-ins.
+
+
+               Plugin COMMANDS:  vagrant plugin <subcommand> [<args>]
+
+                    Available subcommands:
+
+                         list         # to see the installed ones
+
+                         install      # When installed by name, plug-ins are downloaded from the central, official RubyGems repository.
+                         uninstall
+                         update
+                         repair
+
+                         expunge
+
+                         license
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
