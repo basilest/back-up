@@ -66,7 +66,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
            mongod --dbpath mongo_test/        # or specify in which dir the DB is
 
    the above 2 ways keep that shell not usable
-   a way is to run as a daemon (param "--fork", having it running in background so a prompt is back in the same shell)
+   a way is to run as a daemon (param "--fork", having it running in background)
 
            mongod --fork --logpath /var/log/mongodb.log
 
@@ -87,7 +87,9 @@ db.getCollection('company_profile').update({"_id":comp_no},
 
    to see them all:
 
-   > db.help()
+   > db.help()  <--- good
+
+     db.listCommands();   <---- plenty of commands with examples
 
   _________________
   |
@@ -115,20 +117,22 @@ db.getCollection('company_profile').update({"_id":comp_no},
 
                 db.stats()
 
-           {
-				"db" : "test",
-				"collections" : 0,
-				"views" : 0,
-				"objects" : 0,
-				"avgObjSize" : 0,
-				"dataSize" : 0,
-				"storageSize" : 0,
-				"numExtents" : 0,
-				"indexes" : 0,
-				"indexSize" : 0,
-				"fileSize" : 0,
-				"ok" : 1
-           }
+           /* 1 */
+                    {
+                        "db" : "bris_messages",
+                        "collections" : 2,
+                        "views" : 0,
+                        "objects" : 50,
+                        "avgObjSize" : 167.9,
+                        "dataSize" : 8395.0,
+                        "storageSize" : 73728.0,
+                        "numExtents" : 0,
+                        "indexes" : 2,
+                        "indexSize" : 53248.0,
+                        "fsUsedSize" : 1238929408.0,
+                        "fsTotalSize" : 10430468096.0,
+                        "ok" : 1.0
+                    }
 
 ----------------------------------- see DB list
 
@@ -164,7 +168,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                                           If cccc is not already created, it creates it
                                                           (so another way to create)
 
-           db.cccc.insert({                                                  4         3           2          3
+           db.cccc.insert({                                                  4         3           2          1
                             _id: ObjectId(7df78ad8902c),  <-- 12 bytes  |timestamp| machine id |proc id| increment |
                             title: 'MongoDB Overview',
                             description: 'MongoDB is no sql database',
@@ -220,6 +224,10 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                         (This way it's possible to skip _id field
                                          because, by default, _id field is always returned)
 
+                                         db.getCollection('queue').find({},{"data" : 0})        will show ALL the fields "data"-excluded
+                                         db.getCollection('queue').find({},{"data" : 1})        will show "data"-only         (ALL other fields excluded)
+                                         db.getCollection('queue').find({},{"data" : 1, _id:1}) will show "data" & "_id" only (ALL other fields excluded)
+
            db.cccc.findOne()           # To query/select from cccc - ONLY 1 doc
 
            db.cccc.find({"kk":"vv"})   # add the WHERE clause key=val :
@@ -232,7 +240,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                              $gte   >=
                                              $ne    !=           ex. {"data.type" : {$ne : "publish_filing"}}
                                              $eq    ==
-                                             $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '*'
+                                             $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '.*'
                                                                 so it is ex           db.users.find({"name": /.*m.*/}
                                                                  or even shorter :    db.users.find({"name": /m/})
                                                                  or longer            db.users.find({"name": {$regex : /m/}}
@@ -255,7 +263,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                              { $op : "vv" }
                                             }
 
-                                        ex.   db.cccc.find({"price" : {$gt:50}i})
+                                        ex.   db.cccc.find({"price" : {$gt:50}})
 
                                         The AND - OR  are the operators $and $or
                                         with the syntax
@@ -270,6 +278,7 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                         The AND can be omitted as a simple list of values
                                         separated by commas is managed as an implicit AND
                                         ex.
+                                        db.getCollection('queue').find({$and : [{"attempt" : {$gt : 0}}, {"attempt" : {$lt : 10}}]})
                                         db.getCollection('queue').find({$and : [{"created" : {$gt : ISODate("2017-03-23")}}, {"created" : {$lt : ISODate("2017-03-24")}}]})
 
 
@@ -453,7 +462,7 @@ advantage:           docs can change in type and form at any time.
                      This indicates an advantage of the document-based model
 
 advantage:           Because optional values are not represented by placeholders as in most RDBs,
-                     key-value stores often use far less memory to store the same database,
+                     key-value stores often use far lss memory to store the same database,
                      which can lead to large performance gains in certain workloads.
 
 

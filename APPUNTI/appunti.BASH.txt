@@ -364,35 +364,41 @@ ____________________________________________________________
               'ignoreboth' is an alias for HISTCONTROL=ignorespace:ignoredups
 
    10. export HISTIGNORE="pwd:ls:ls -ltr:"   ignore (not remember) this list of cmds
+
    11.  vi !!:$  execute a cmd (here vi) taking the arg of the last cmd
         vi  !^      "                  "           1st  arg     "
         vi !cp:2    "                  "           2nd  arg     "     starting with cp
         vi !cp:$    "                  "           last arg     "     starting with cp
+
    12. fc   (stays for fix command) is the builtin command to recall the history opening into editor mode
        the editor opened is defined by the vars $FCEDIT  (ex FCEDIT=/usr/bin/vim) or then $EDITOR
        Once the editor is closed that command is executed.
-       fc -l     list last 15 cmd
-       fc -l 2023   edit cmd num 2023
-       fc -l  gcc   edit cmd starting with gcc
-       fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb
+       fc -l        list last 15 cmd
+       fc -l 2023   list from 2023 onward   (fc -l 1   lists ALL the history)
+       fc -l  gcc   list from LAST (1st going backward) cmd starting with gcc
+       fc -s aaa=bbb xxx   edit last xxx cmd changing string aaa with bbb     (zsh doesn't have a fc -s    but is has fc -e -
+                                                                               fc -e [edit-cmd] usually lets you edit the last command
+                                                                               with an editor. But if the [edit-cmd] equals -, no editor
+                                                                               is invoked and the command is executed immediately.
+                                                                               There is a bultin 'r' in zsh
+                                                                                             $ which r
+                                                                                             r: shell built-in command
 
+                                                                                             The zshbuiltins man page does know it:
 
+                                                                                                 r Same as fc -e -.
                       bash                        zsh
 
          history      all                         last 15
                          in bash history is           in zsh history is
                          its own command               an alias for 'fc -l'
 
-         history n    shows last n                shows all from n  <--- this search 'all from ..' is missing in bash history
+         history n    shows last n                shows all from n  <--- this searches 'all from ..' is missing in bash history
                                                                          which must use 'fc -l F [T]'  F: FROM    [T]: optional TO
 
     (ex  history 1    shows last                  shows ALL  (also 'fc -l 1' ))
          history -n       -                       shows last n
                                                   so 'history' = 'history -15'
-
-
-
-
 
 
 

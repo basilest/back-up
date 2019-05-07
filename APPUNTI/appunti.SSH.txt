@@ -94,14 +94,14 @@
                           -rw-r--r--  1 sbasile  staff   182 10 Jul  2015 config
                           -rw-------  1 sbasile  staff   668  2 Jul  2015 id_dsa <---- keys for SSH version 2 <--- DEFAULT
                           -rw-r--r--  1 sbasile  staff   626  2 Jul  2015 id_dsa.pub
-                          -rw-------  1 sbasile  staff  3243 29 Jun  2015 id_rsa <---- keys for SSH version 1
+                          -rw-------  1 sbasile  staff  3243 29 Jun  2015 id_rsa <---- keys for SSH version 1 / 2
                           -rw-r--r--  1 sbasile  staff   753 29 Jun  2015 id_rsa.pub
                           -rw-------  1 sbasile  staff  1468  6 Jan 13:00 known_hosts
                           -rw-r--r--  1 sbasile  staff    45  3 Jun  2015 ssh_config
 
                           the convention is
-                            |    ~/.ssh/identity     rsa  SSH ver. 1
-                       (D)  |    ~/.ssh/id_rsa       rsa  SSH ver.   2
+                            |    ~/.ssh/identity     rsa  SSH ver. 1     <---- this historical file explains the option -i (identity) where I
+                       (D)  |    ~/.ssh/id_rsa       rsa  SSH ver.   2         specify with which key I want to connect
                             |    ~/.ssh/id_dsa       dsa  SSH ver.   2
                             |    ~/.ssh/id_ecdsa   ecdsa  SSH ver.   2
 
@@ -113,7 +113,7 @@
                      - append in ~/.ssh/authorized_keys (or create if not present, with chmod 640)
                        the exact text of ~/.ssh/id_rsa.pub (with no new line)
                        (make it easy with  "ssh-copy-id -i ~/.ssh/id_rsa.pub user@host")
-                     - (some servers that the file is called with an ending 2: a authorized_keys2)
+                     - (some servers calls that file with an ending 2: authorized_keys2)
 
                    ______________________________________
                    | Most probably the above commands are executed directly onto server R
@@ -157,47 +157,47 @@
                                    no-x11-forwarding       Disable X11 forwarding
 
 
-                          config
-                               1	KeepAlive yes
-                               2	ServerAliveInterval 20
-
-                               3	Host github.com
-                               4	  User git
-                               5	  ProxyCommand /usr/local/bin/corkscrew wsproxy.internal.ch 8080 %h %p
-
-                               6	Host wswebdev1
-                               7	  HostName %h.orctel.internal
-                          id_dsa
-                               1	-----BEGIN DSA PRIVATE KEY-----    <--- this was without a passphrase
-                               2	MIIBugIBdAKBgQCpHnP/mm59BzhOKjelK+BqozuwK3Li804qXkOfW0PC1em2CXAn
-                               3	Al2AVYG/5ydl5uNuW1NEb+phcuLkhNhXYbf0fs7+q6Xbm/9Nt3I74Z4OFkSEUYfV
-                                                   ....
-                              10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
-                              11	v5Iq6mWKZqVm0sEniWY=
-                              12	-----END DSA PRIVATE KEY-----
-                                             id_dsa
-                                                  1	-----BEGIN DSA PRIVATE KEY-----    <--- this how it looks with a passphrase
-                                                  2	Proc-Type: 4,ENCRYPTED
-                                                  3	DEK-Info: AES-128-CBC,2DADDEF9CB50685509A1197A4D244772
-                                                                      ....
-                                                 10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
-                                                 11	v5Iq6mWKZqVm0sEniWY=
-                                                 12	-----END DSA PRIVATE KEY-----
-                          id_dsa.pub
-                               1	ssh-dss AAAAB3NzaC1kc3MAAACBAKkdc/+abn0HO....== sbasile@pd12682.companieshouse.local
-                          id_rsa
-                               1	-----BEGIN RSA PRIVATE KEY-----
-                               2	MIIJKQIBAAKCAgEA8zHExVpDqZNOBO38byaIrFZn1vaNRj+lAvkNEL6HZIZYaVyc
-                              50	            ....
-                              51	-----END RSA PRIVATE KEY-----
-                          id_rsa.pub
-                               1	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ....== sbasile@pd12682.internal.ch
-                          known_hosts   <--- stores the servers where I connected to
-                               1	wswebdev2.orctel.internal,192.168.60.202 ssh-rsa AAAAB3NzaC1yc2....
-                               2	wswebdev1.orctel.internal,192.168.60.201 ssh-rsa AAAAB3NzaC1yc2....
-                               3	github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDb....
-                               4	chl-dev,10.100.100.102 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwZak....
-                          ssh_config
+                   |_____  config
+                   |            1	KeepAlive yes
+                   |            2	ServerAliveInterval 20
+                   |
+                   |            3	Host github.com
+                   |            4	  User git
+                   |            5	  ProxyCommand /usr/local/bin/corkscrew wsproxy.internal.ch 8080 %h %p
+                   |
+                   |            6	Host wswebdev1
+                   |            7	  HostName %h.orctel.internal
+                   |_____  id_dsa
+                   |            1	-----BEGIN DSA PRIVATE KEY-----    <--- this was without a passphrase
+                   |            2	MIIBugIBdAKBgQCpHnP/mm59BzhOKjelK+BqozuwK3Li804qXkOfW0PC1em2CXAn
+                   |            3	Al2AVYG/5ydl5uNuW1NEb+phcuLkhNhXYbf0fs7+q6Xbm/9Nt3I74Z4OFkSEUYfV
+                   |                                ....
+                   |           10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
+                   |           11	v5Iq6mWKZqVm0sEniWY=
+                   |           12	-----END DSA PRIVATE KEY-----
+                   |                          id_dsa
+                   |                               1	-----BEGIN DSA PRIVATE KEY-----    <--- this how it looks with a passphrase
+                   |                               2	Proc-Type: 4,ENCRYPTED
+                   |                               3	DEK-Info: AES-128-CBC,2DADDEF9CB50685509A1197A4D244772
+                   |                                                   ....
+                   |                              10	3CKM0PWJEa4aFMC9qNRZoFhRVdTzpQlussZdunYlLOjGmwZlHnPTGgIULR79nL2p
+                   |                              11	v5Iq6mWKZqVm0sEniWY=
+                   |                              12	-----END DSA PRIVATE KEY-----
+                   |_____  id_dsa.pub
+                   |            1	ssh-dss AAAAB3NzaC1kc3MAAACBAKkdc/+abn0HO....== sbasile@pd12682.companieshouse.local
+                   |_____  id_rsa
+                   |            1	-----BEGIN RSA PRIVATE KEY-----
+                   |            2	MIIJKQIBAAKCAgEA8zHExVpDqZNOBO38byaIrFZn1vaNRj+lAvkNEL6HZIZYaVyc
+                   |           50	            ....
+                   |           51	-----END RSA PRIVATE KEY-----
+                   |_____  id_rsa.pub
+                   |            1	ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ....== sbasile@pd12682.internal.ch
+                   |_____  known_hosts   <--- stores the servers where I connected to
+                   |            1	wswebdev2.orctel.internal,192.168.60.202 ssh-rsa AAAAB3NzaC1yc2....
+                   |            2	wswebdev1.orctel.internal,192.168.60.201 ssh-rsa AAAAB3NzaC1yc2....
+                   |            3	github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDb....
+                   |            4	chl-dev,10.100.100.102 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwZak....
+                   |_____  ssh_config
                                1	ServerAliveInterval 15
                                2	ServerAliveCountMax 3
 
@@ -239,7 +239,7 @@
 
                  eval "$(ssh-agent -s)"  --> Agent pid 3319
                  echo $SSH_AGENT_PID     --> 3319
-                 lsof | grep -i 3318     --> ssh-agent 3319 sbasile    3u    unix 0x6b706d27656c46d7  0t0  /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
+                 lsof | grep -i 3319     --> ssh-agent 3319 sbasile    3u    unix 0x6b706d27656c46d7  0t0  /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
                  echo ${SSH_AUTH_SOCK}   --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T//ssh-9sXXPCGOd5l2/agent.3318
                                              the default values is $TMPDIR/ssh-XXXXXXXXXX/agent.<ppid>
                  echo $TMPDIR            --> /var/folders/6k/qfwxd7ln1tdg_6pw7s6c10k00000gr/T/
@@ -252,7 +252,9 @@
                        the agent interacts with the other utilities of the ssh- family:
 
                            ssh-add
+                           ssh-agent
                            ssh-keygen
+                           ssh-copy-id
                            ssh
                            sshd
 
@@ -273,7 +275,6 @@
     - The sequence is usually:
                                1. eval "$(ssh-agent -s)"       create a running instance of ssh-agent
                                2. ssh-add                      add any desired keys  (if keys have a passphrase I must enter it)
-                               3.
       ______________________________
       if an agent is not running, then a 'ssh-add'
       will give :
@@ -298,7 +299,7 @@
         .--------------.
         |  key1.rsa    |
         |  key2.dsa    |    <----- 2 keys added with ssh-add
-        |              |                   (these keys can be remove as
+        |              |                   (these keys can be removed as
         '--------------'                       . ssh-add -d
           ssh-agent                            . ssh-agent -t 3600  <--- launching the agent with an elapsing time in sec)
 

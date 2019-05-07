@@ -2313,6 +2313,9 @@ In addition, it's more flexible, allowing arbitrary address ranges and port rang
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress
               -sOutputFile=merged.pdf 10.Bristol.Londra 10.Londra.Stansted 16.Londra.Bristol
 
+-------------- to extract a range of pages:
+gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage=22 -dLastPage=36 -sOutputFile=outfileP22-36.pdf inputfile.pdf
+
 use gostrscript that is available everywhere.
 Other options are:
     pdftk:   also comes with Ghostrscipt but can be not installed

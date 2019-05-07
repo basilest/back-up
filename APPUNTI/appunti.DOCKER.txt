@@ -1,4 +1,40 @@
 
+  The term [Docker] can refer to 3 different things:
+
+             1  The "Docker Engine", the infrastructure plumbing software
+                       that runs and orchestrates containers.
+                       available in both:
+                              - Enterprise Edition (EE)  supported 12 months
+                              - Community  Edition (CE)  supported  4 months
+
+
+                              Starting from Q1 2017 Docker version numbers follow the
+                              YY.MM-xx versioning scheme, similar to Ubuntu and other projects.
+                              Ex. 18.06.0-ce = first release of the Community Edition in June 2018
+
+
+             2  Docker is part of a open-source project on GitHub (now called Moby: most written in Go)
+                       The goal of the Moby project is to break Docker down into more modular components.
+                       Being more and more modular, I can substitute some componenets (ex. networking)
+                       with 3rd-party, even if Docker-Inc having to turn it into profit
+                       makes native modules good enough to not require external plugins.
+
+             3  Docker, Inc. is the company (based out of San Francisco) which is Docker overall maintainer
+                             (and which offers commercial support)
+
+             Note:  “The Open Container Initiative (OCI)”
+                    is responsible for standardizing the most fundamental components
+                    of container infrastructure such as image format and container runtime.
+                    This was due as Docker was growing quick in many different directions, so the aim
+                    was to keep the free development among 3rd-parties under control.
+
+                    As of Docker 1.11, the Docker Engine architecture conforms to the OCI runtime spec.
+
+
+       https://play-with-docker.com/    <----- good to try online
+
+
+
        3 main pieces of DOCKER:
 
             1. engine      $ docker         --version
@@ -6,11 +42,45 @@
             3. machine     $ docker-machine --version
 
 
+__________________________________________________________________________________________________
+|     docker --version              ___
+|                                      \__Docker version 18.09.2, build 6247962
+|
+|     docker version                ___   nb. without --      it gives more info for Client and Sever
+|                                      \__
+|                                           Client: Docker Engine - Community
+|                                            Version:           18.09.2
+|                                            API version:       1.39
+|                                            Go version:        go1.10.8
+|                                            Git commit:        6247962
+|                                            Built:             Sun Feb 10 04:12:39 2019
+|                                            OS/Arch:           darwin/amd64
+|                                            Experimental:      false
+|
+|                                           Server: Docker Engine - Community
+|                                            Engine:
+|                                             Version:          18.09.2
+|                                             API version:      1.39 (minimum version 1.12)
+|                                             Go version:       go1.10.6
+|                                             Git commit:       6247962
+|                                             Built:            Sun Feb 10 04:13:06 2019
+|                                             OS/Arch:          linux/amd64
+|                                             Experimental:     true
+|
+|     docker info                       even more verbose
+|
+|     docker-compose --version      ___
+|                                      \__ docker-compose version 1.23.2, build 1110ad01
+|
+|     docker-machine --version      ___
+|                                      \__ docker-machine version 0.16.1, build cce350d7
+|__________________________________________________________________________________________________
 
 
 
-      image  :  is an EXEC package (including all what is required
-                                          - the application to tun
+
+      image  :  is an EXEC package (including all what is required (
+                                          - the application to run
                                                     +
                                           - required LIBRARIES
                                           - required ENV vars
@@ -18,11 +88,48 @@
                                           )
 
       container  :  it's a running instance of an image
-                    (it has a proc id)
+                    (it has a proc id:   docker ps    # to see all the containers)
 
-      docker --version
-      docker version                    nb. without --      it gives more info for Client and Sever
-      docker info                       even more verbose
+      diff with VM:  VM               any VM includes its own full-blown OS
+                     Containers       All containers on a single host share a single OS.
+                                      This would mean that a containerized app designed
+                                      to Windows host will not run on a Linux host.
+
+                                      Anyhow thanks to the effort of Microsoft and Docker
+                                      (Docker for Windows)
+                                      is possible the opposite: run Linux containers in Windows
+
+                                      Docker for Mac will not give you the Docker Engine
+                                      running natively on the Mac OS Darwin kernel.
+                                      Behind the scenes, the Docker daemon is running inside a
+                                      lightweight Linux VM which exposes the daemon and API to the
+                                      Mac environment, so I can open a terminal and
+                                      use the regular Docker commands.
+
+                                      So it’s Docker on Linux under the hood and it only works
+                                      with Linux-based containers.
+
+                                      The lightweight Linux VM is
+                                         Linux: a highly tuned Linux distro called Moby that is based on Alpine Linux.
+                                         VM: “  HyperKit for the lightweight hypervisor.
+                                                HyperKit is based on the xhive hypervisor.
+
+                                      $ docker version
+
+                                            Client:
+                                              .....
+                                             OS/Arch:      darwin/amd64    <--- Mac
+
+                                            Server:
+                                              .....
+                                             OS/Arch:      linux/amd64     <--- the Linux inside the VM
+
+                                      Client / Server on Mac and Linux
+                                      communicate between an IPC/Unix socket
+
+                                                /var/run/docker.sock
+
+|__________________________________________________________________________________________________
 
       docker image ls                   to see all the images
 
@@ -61,7 +168,7 @@
                                         b9254eb9b9c1
 
 
-      docker container stop             to stop a container giving th ID or the NAME
+      docker container stop             to stop a container giving the ID or the NAME
                                            docker container stop 7b7b15441b98
                                            docker container stop confluentinc/cp-kafka:5.0.0
 
@@ -86,13 +193,17 @@
 
       _______________________________________________ SCALE AN APP
   |                            terminology:
-  |                                     TASK: 1 single container running in a service.
-  |                                           Tasks are given unique IDs that numerically increment,
-  |                                           up to the number of replicas you defined in docker-compose.yml
+  |
+  |                                     TASK:  1 single container running in a service.
+  |                                            Tasks are given unique IDs that numerically increment,
+  |                                            up to the number of replicas you defined in docker-compose.yml
+  |
   |                                     SWARM: a group of machines that are running Docker and joined into a cluster.
   |                                            The normal Docker commands are executed on a cluster by a swarm manager.
+  |
   |                                     NODES: The machines in a swarm can be physical or virtual.
   |                                            After joining a swarm, they are referred to as nodes.
+  |
   |                                     WORKER: Swarm managers are the only machines in a swarm that can execute your commands,
   |                                            or authorize other machines to join the swarm as workers.
   |                                            Workers are just there to provide capacity and do not have the authority
@@ -421,5 +532,13 @@
 
 
 
+------------      docker  (engine)
 
 
+    docker system info
+    docker system df
+                                TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
+                                Images              6                   4                   824.2MB             622.4MB (75%)
+                                Containers          42                  8                   12.58MB             10.86MB (86%)
+                                Local Volumes       6                   6                   3.226GB             0B (0%)
+                                Build Cache         0                   0                   0B                  0B
