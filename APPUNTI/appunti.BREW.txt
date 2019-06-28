@@ -1,3 +1,10 @@
+with errors like this:
+    curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to example.com:443
+do this:
+    export HOMEBREW_FORCE_BREWED_CURL=1
+_______________________________________________
+
+
 brew ls                      see all packages
 brew ls --versions           see also the versions (nb. for a same package more versions can be installed, in the same time
                              ex          ansible  1.9.3  2.2.0.0_1  2.3.1.0

@@ -1,3 +1,47 @@
+
+     ------------------------------------- cd
+     to go from here:
+         /etc/application-2.0.1/options/default
+     to here:
+         /etc/application-1.0.8/options/default
+
+    cd 1.0.8 2.0.1
+     -------------------------------------   auto complete with smart TAB (according to command & context)
+        autoload -U compinit
+        compinit
+     ------------------------------------- setopt
+
+            alwaystoend
+            autocd                          to cd instead of "cd /aa/bb/"  just with "/aa/bb"
+            autopushd                       to have a cd with also a pushd. (I can go back with a popd)
+            completeinword
+            extendedhistory
+            noflowcontrol
+            histexpiredupsfirst
+            histignoredups
+            histignorespace
+            histverify
+            incappendhistory
+            interactive
+            interactivecomments
+            login
+            longlistjobs
+            monitor
+            promptsubst
+            pushdignoredups
+            pushdminus
+            sharehistory
+            shinstdin
+            zle
+     -------------------------------------
+
+
+it's like this in BASH: cd ${PWD/old/new}
+
+
+
+
+
 man zsh               <--- short (~   280 lines, because the manual has been split in many different)
 man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                   /usr/local/Cellar/zsh/5.4.2_1/share/man/man1/zsh.1

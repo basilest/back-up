@@ -420,6 +420,33 @@ NOTATIONS:
   |                                                            # They are collected as garbage by the git gc tool.
   |                                                            # Once a branch is merged, I can decide to delete it.
   |                                                            #
+  |                                                            # ------------------------------  UNDELETE (a deleted branch (e.g. feature/cross-browser-compatibility)
+  |                                                            #  A branch is just the 41 bytes of its latest commit (HEAD)
+  |                                                            #  When I delete a branch I'm just removing this association name --> commit
+  |                                                            #  The commit will not go (ex. 17529262c)
+  |                                                            #  So at any time I can do
+  |                                                            #         git checkout -b feature/cross-browser-compatibility 17529262c)
+  |                                                            #  and the branch is back like it was
+  |                                                            #  When I delete a branch I receive its last commit just for this reason
+  |                                                            #
+  |                                                            #  ex. g b -D  feature/cross-browser-compatibility
+  |                                                            #      Deleted branch feature/cross-browser-compatibility (was 17529262c).
+  |                                                            #
+  |                                                            #  Another way is to see its HEAD in the reflog:
+  |                                                            #
+  |                                                            #       git reflog | grep feature/cross-browser-compatibility
+  |                                                            #     17529262c HEAD@{0}: checkout: moving from develop to feature/cross-browser-compatibility    <------------ 17529262c
+  |                                                            #     c136f1cbf HEAD@{1}: checkout: moving from feature/cross-browser-compatibility to develop
+  |                                                            #     17529262c HEAD@{2}: checkout: moving from develop to feature/cross-browser-compatibility
+  |                                                            #     9483d74d1 HEAD@{4}: checkout: moving from feature/cross-browser-compatibility to develop
+  |                                                            #     17529262c HEAD@{5}: checkout: moving from chips_temporary_test_branch to feature/cross-browser-compatibility
+  |                                                            #     9483d74d1 HEAD@{7}: checkout: moving from feature/cross-browser-compatibility to develop
+  |                                                            #     17529262c HEAD@{8}: checkout: moving from develop to feature/cross-browser-compatibility
+  |                                                            #     17529262c HEAD@{10}: checkout: moving from develop to remotes/origin/feature/cross-browser-compatibility
+  |                                                            #     9483d74d1 HEAD@{26}: checkout: moving from feature/cross-browser-compatibility to develop
+  |                                                            #     17529262c HEAD@{27}: checkout: moving from develop to feature/cross-browser-compatibility
+  |                                                            #     17529262c HEAD@{29}: checkout: moving from develop to remotes/origin/feature/cross-browser-compatibility
+  |                                                            #
   | git branch -m xxxxxxxx                                     # to rename the branch I'm on. .... So to renamed <old> to <new>
   |                                                            #                                        1. git checkout <old>
   |                                                            #                                        2. git branch -m <new>
@@ -926,6 +953,7 @@ NOTATIONS:
   | git tag -d v1.4                                            # to delete a tag fromm the local repo
   |                                                            # (it removes in .git/refs/)
   | git push origin :refs/tags/v1.4                            # to delete on the remote repo
+  | git push --delete origin v1.4                              #  "   "    "         "
   |                                                            #
   | git tag -m "Tag version 1.0" V1.0 3ede462                  # to add tag ('V1.0') and message
   |                                                            # to the commit 3ede462
@@ -1263,6 +1291,9 @@ NOTATIONS:
   |                                             and available from very old ver of Git.
   |                                           - subtree does not add extra meta files (i.e. .gitmodule)
   |                                           - subtree does not require
+  |
+  |  git subtree add  --prefix auto_ssh https://github.com/sbasile-ch/auto_ssh.git master --squash     (add that remote & that branch squashing the history as 1 single 'merge' commit)
+  |  git subtree pull --prefix auto_ssh https://github.com/sbasile-ch/auto_ssh.git master --squash     (pull ....)
   |---------------------------------------------------------------
   |
   |                   _________________________________________

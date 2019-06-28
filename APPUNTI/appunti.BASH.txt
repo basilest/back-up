@@ -254,6 +254,10 @@ ____________________________________________________________
 ~+     $PWD      (current dir)
 ~-     $OLDPWD   (previous wd)
 
+Define a function to replace bultin 'cd' into aomething that changes
+the current dir with the 2nd arg:   ${PWD/$1/$2}
+
+function cd() { if [ $# -eq 2 ]; then builtin cd ${PWD/$1/$2}; else builtin cd $1; fi }
 ____________________________________________________________
   EMACS or VI editor mode
 

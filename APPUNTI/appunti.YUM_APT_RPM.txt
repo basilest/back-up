@@ -40,6 +40,67 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
         Ansible is a free SW platform for configuring and managing computers (nodes)
         over SSH or PowerShell and requires Python (2.4 or later) to be installed on them.
 
+
+                     Ansible                           Python > 2.6
+                     -------     ------------------->  -----------
+                    (client)                           TARGET HOSTS
+
+
+        Actually now it requires Python 2.6
+        The logic of ansible is to 'inject' Python modules
+        into the remote HOST via the SSH channel.
+        Thus, the only requirement is to have Python in there.
+        If Python is < 2.6 most of the modules executed will give the error on "AnsiballZ_command.py":
+
+            "module_stdout": "  File \"/home/ewfltest/.ansible/tmp/ansible-tmp-1559722022.568987-202165508282610/AnsiballZ_command.py\", line 40\r\n
+                                with open(module, 'wb') as f:\r\n            ^\r\nSyntaxError: invalid syntax\r\n",
+            "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error",
+
+
+        If Python is not present ?
+        I can install it with the 'raw' module.
+
+              hosts: development
+              become: yes
+              gather_facts: no   <---- turn off the gathering facts (which relies already on Python and its cote modules)
+              pre_tasks:         <---- not only 'tasks' because it must be executed before any tasks (*1)
+              - name: 'install python'
+                raw: 'sudo apt-get -y install python'
+
+
+                 (*1)   The pre_task is even more important because if I use Ansible roles
+                        any tasks defined in the role will be executed first before Ansible examines
+                        the tasks in the playbook.
+
+                 (*2)   The above playbook is not idempotent so better to keep it separate
+                        as a one-only playbook.
+
+        __________________________ simple example: perform "ls -lrt > aaa.txt"
+                                   on a group of hosts
+                                   where I specify user and password to ssh
+                                           . no default behaviour is used (ssh key)
+                                             but user/password :
+                                                  user : passed on the command
+                                           .
+                __________________
+
+                   I N V E N T O R Y                        P L A Y B O O K
+
+                  1 [mailleg]                            1 ---
+                  2 ws-mail1.orctel.internal             2
+                  3 ws-mail2.orctel.internal             3 - hosts: mailleg
+                  4                                      4   become: false
+                  5 [preprod]                            5   gather_facts: no
+                  6 wswebtest2.orctel.internal           6
+                  7        ^                             7   tasks:
+                           |                             8   - name: ls files
+                        (hosts)  (preprod.yml) --------> 9     shell: ls -lrt > aaa.txt
+                           |                |           10     args:
+                           .                .           11       executable: /bin/bash
+                            \___________     \_________________________________
+                                         \                                     \
+                ansible-playbook  -vvv -i hosts -b -c paramiko -u webapps  -k preprod.yml
+        __________________________
         Modules work over JSON and standard output and can be written in any programming language.
 
         The system uses YAML to express reusable descriptions of systems.
@@ -61,27 +122,16 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
          . is "just SSH"; It uses SSH to connect to servers and run the configured TASKS
            If I'm running Ansible as user vagrant, it will attempt to connect as user vagrant.
 
-         . -k  Ask for a password rather than use key-based authentication:
-               ansible all -m ping -k -u vagrant
+         . -u  ( --user)      specify user
+         . -k  ( --ask-pass)  ask for a password rather than use key-based authentication:
+                              ansible all -m ping -k         -u     stef
+                              ansible all -m ping --ask-pass --user stef
 
          . is "agentless" - no central agent(s) is running.
 
          . the output from Ansible commands is JSON
 
-         . The blocks are:
-      YAML     . Inventory:  a file with the list of servers to work on
-      YAML     . Playbooks:  the files (like makefiles) with the things to do
-      PYTHON   . Modules:    the set of commands that Ansible can perform (ex. copy, setup or whatever)
-      (usually)              are provided as a library of modules, so that each time a modules is chosen
-                             and called (like a script)
-
-                         . Modules are  I D E M P O T E N T :
-                           it's safe to run over and over again.
-
-         . Playbooks / Roles in Ansible are instead in YAML.
-
-
-         ansible comes with a list of executables: ie.
+         . ansible comes with a list of executables: ie.
 
                                  ansible
                                  ansible-config
@@ -93,7 +143,8 @@ _________________________ ( 6- Config. Manag)   ANSIBLE  (1.9)
                                  ansible-mesos/
                                  ansible-playbook
                                  ansible-pull
-                                 ansible-vault
+                                 ansible-vault   <----  to encrypt passwords
+
 
 
 ansible $groupname -i $inventory -m $module -a '$module_arguments'
@@ -105,22 +156,40 @@ ansible $groupname -i $inventory -m $module -a '$module_arguments'
 
     (the -s flag runs via sudo):
 
-INVENTORY FILES      are used to group servers,
-                     to then identify all that group with its name.
-                      ex:
-                           [zookeepers]          <-- this is the name of the group
-                            zk1
-                            zk2
-                            zk3
+    ansible all        -i production/hosts -m yum      -s -a "name=* state=latest"                  # upgrade all packages on all production servers
+    ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
+    ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
 
-                           [webservers]          <-- group name
-                            apache1
-                            apache2
+    ansible-playbook install.yml --syntax-check           like a Make dry-run
+    ansible-playbook install.yml --list-hosts             to see the hosts affected
+    ansible-doc -l
+    ansible-doc yum
 
-                           [databases]           <-- group name
-                             db1
 
-PLAYBOOK FILES       the 'makefiles', (written in YAML):
+    . The blocks are:
+    _______________________________
+      YAML     . Inventory:         a file with the list of servers to work on    (-i or --inventory)   ansible-playbook  -i hosts  preprod.yml
+                 INVENTORY FILES      are used to group servers,
+                                      to then identify all that group with its name.
+                                       n.b. playbooks refer ro group-names, which means the commands
+                                            will be executed on ALL ! the servers at once.
+
+                                       ex:
+                                            [zookeepers]          <-- this is the name of the group
+                                             zk1
+                                             zk2
+                                             zk3
+
+                                            [webservers]          <-- group name
+                                             apache1
+                                             apache2
+
+                                            [databases]           <-- group name
+                                              db1
+
+    _______________________________
+      YAML     . Playbooks/Roles:  the files (like makefiles) with the things to do
+               PLAYBOOK FILES       the 'makefiles', (written in YAML):
                      the structure is:
 
                           - hosts: xxxx     <--- I use one of the group name (taken from the INVENTORY list)
@@ -130,7 +199,7 @@ PLAYBOOK FILES       the 'makefiles', (written in YAML):
                                    notify: hhhh hh hh          <-- the name of the handler I want to trigger
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
                             handlers:                          <-- handlers are executed only if some 'task' calls them explicitly with a 'notify'
-                                 - name: hhhh hh hh
+                                 - name: hhhh hh hh                and ire executed only once even if more tasks call them
                                    mmmm: aaa=vv aaa=vv aaa=vv  <-- the name of the module and its args
                      ________________________ ex:
                           ---
@@ -162,32 +231,67 @@ PLAYBOOK FILES       the 'makefiles', (written in YAML):
                               same options (-k -u -s applies:)
                               > ansible-playbook -s -k -u vagrant nginx.yml
 
-
-    ansible all        -i production/hosts -m yum      -s -a "name=* state=latest"                  # upgrade all packages on all production servers
-    ansible all        -i preprod/hosts    -m wait_for    -a 'host=logserver port=1337 timeout=5'   # check that all preprod hosts can connect to 'logserver' on port 1337
-    ansible webservers -i hopefullynotproduction/hosts -s -a 'reboot'                               # using default module 'command'
-
-MODULES:  (to see the installed ones: ansible-doc -l)  <---- I have 2080
-           the most used modules are:
-
-  shell:   is not actually a module, it just allows to write directly bash commands to execute
-           ansible all -s -m shell -a 'apt-get install nginx'
-            n.b. the above will execute the bash commands on ALL ! the servers at once.
-
-  setup:   to gather information from all the servers:
-           ansible jmaster -i vagrant/ -m setup           this will retrieve tons of data (ex. kernel version,
-                                                          architecture, all interfaces, ip address, subnet masks,
-                                                          disk mounts, free space, ...)
-
-           ansible jmaster -i vagrant/ -m setup -a 'filter=*mb*'    # arg to grep out only something
+                                -v[vvv]    verbose                                   |
+                                -C         dry run  (CHECK mode only, no changes)    | so usually I run > ansible-playbook -vCD
+                                -D         diff changed files                        |
 
 
-  service:   to start / stop services
-           Usually it's something like:
-              service: name=nginx state=started    <---- the "state" is the important arg:
-                                                         it is  the state you wish the service to be in,
-                                                         You do not define the 'change' you want.
-                                                         Ansible will decide if a change is needed.
+    _______________________________
+      PYTHON   . Modules:          the set of commands that Ansible can perform (ex. copy, setup or whatever)
+      (usually)                    are provided as a library of modules, so that each time a modules is chosen
+                                   and called (like a script)
+
+                         . Modules are  I D E M P O T E N T :
+                           it's safe to run over and over again.
+                         MODULES:  (to see the installed ones: ansible-doc -l)  <---- I have 2080
+                                    the most used modules are:
+
+                           command: is the default module, (which means these are the same:
+                                                                 ansible my_host_group -a "ls -l"             (implicit)
+                                                                 ansible my_host_group -m command -a "ls -l"  (explicit)
+                                                                 )
+                                    It can execute any 'binary' present onto the remote
+                                    but cannot use shell features (pipe / redirection / env vars)
+                                    because it doesn't pass trough the shell.
+
+                           shell:   Performs shell commands (with all the features:  |  >  <   $HOME ...)
+                                    The default shell is considered
+                                                        /bin/sh
+                                    (but I can use the shell of my choice:
+
+                                    _________________________________________________________
+                                   |shell: ls -lrt > temp.txt
+                                   |args:
+                                   |  chdir: /root/ansible/shell_chdir_example
+                                   |  executable: /bin/bash                               <---- bash specified in the playbook
+                                   |
+                                   |_________________________________________________________
+                                   |ansible -m shell -a "/bin/bash | ls -lrt > temp.txt"  <---- bash specified on the command line
+                                   |_________________________________________________________
+
+
+                                    ansible all -s -m shell -a '/apt-get install nginx'
+                                    ansible all -s -m shell -a 'apt-get install nginx'
+
+
+
+                           setup:   to gather information from all the servers:
+                                    ansible jmaster -i vagrant/ -m setup           this will retrieve tons of data (ex. kernel version,
+                                                                                   architecture, all interfaces, ip address, subnet masks,
+                                                                                   disk mounts, free space, ...)
+
+                                    ansible jmaster -i vagrant/ -m setup -a 'filter=*mb*'    # arg to grep out only something
+
+
+                           service:   to start / stop services
+                                    Usually it's something like:
+                                       service: name=nginx state=started    <---- the "state" is the important arg:
+                                                                                  it is  the state you wish the service to be in,
+                                                                                  You do not define the 'change' you want.
+                                                                                  Ansible will decide if a change is needed.
+
+
+    _______________________________
 
 
 ROLES:    Instead of having a single big 'makefile' (or Playbook) usually the sections are moved into
@@ -236,13 +340,31 @@ VAULTs:   They are the solution to store sensible info (like passwords) ant make
                   Usage: ansible-vault [create|decrypt|edit|encrypt|rekey] \
                         [--help] [options] file_name
 
+                  ex:
+                     1.  vi my_passwords.txt
+                     2.  ansible-vault encrypt group_vars/vars.yml --vault-password-file my_passwords.txt
+                     3.  ansible-vault decrypt group_vars/vars.yml --vault-password-file my_passwords.txt
 
 
+become: false
+
+_______________________________________ EXAMPLES
+
+    [preprod]                                                    ---
+    wswebtest2.orctel.internal                                   - hosts: preprod
+                                                                   tasks:
+                                                                   - name: ls files
+        (hosts) file                (preprod.yml) file ---->         command: /bin/ls
 
 
-_______________________________________ ANSIBLE
+    ansible-playbook -i hosts --extra-vars "ansible_user=ewfltest anisble_password=b4b00np1g" preprod.yml
+                        ^^^^^                                                                 ^^^^^^^^^^^
+    __________________
 
-       ansible-playbook install.yml --syntax-check           like a Make dry-run
-       ansible-playbook install.yml --list-hosts             to see the hosts affected
-       ansible-doc -l
-       ansible-doc yum
+    export ANSIBLE_HOST_KEY_CHECKING=false
+    ansible-playbook -i hosts --extra-vars "ansible_user=ewfltest" --ask-pass preprod.yml_
+    __________________
+
+    export ANSIBLE_HOST_KEY_CHECKING=false
+    ansible-playbook -i hosts --user ewfltest --ask-pass preprod.yml_
+                              ^^^^^^^^^^^^^^^

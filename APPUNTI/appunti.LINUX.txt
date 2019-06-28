@@ -1846,22 +1846,23 @@ __  find
         -exec              to execute a command on what is found.
                            {} is the alias for the current item found
                            and it can be used as the variable in the command
+                           It's also better to write it as "{}" or '{}'
 
                            ex, .... -exec rm -f {} \;
                                     find . -iname '*.sh' -exec echo {} \; -exec diff {} ~/.fonts/ \;  <--- 2 -exec (each closed by its own \; )
 
                               \;   <--- this close the command
-                              +    <--- this close the command in case
+                              \+   <--- this close the command in case
                                         it's possible to collapse more conceptual {} for
                                         the same command execution (that makes it faster)
 
-                                        ex -exec chmod 755 {} +
+                                        ex -exec chmod 755 {} \+
 
                                             will be translated into chmod 775 f1 f2 f3 f4
-                                            instead the slower chmod 775 f1
-                                                               chmod 775 f2
-                                                               chmod 775 f3
-                                                              ....
+                                            instead of the slower chmod 775 f1
+                                                                  chmod 775 f2
+                                                                  chmod 775 f3
+                                                                  ....
         find . -regex '.*\.\(tmpl\|json\)'            <---- don't need a '-name' flag  and  .*  instead of * only
 
 
@@ -1913,6 +1914,23 @@ __  lsof
                                              lsof -i :19500  <-- port
                                              lsof -i :ftp    <-- for port i can use string defined (as usual)
                                                                  in /etc/services
+____________________
+__  find  and xargs
+                           . we have seen -print0 ... | xargs 0     (the advised way, as it manages well filenames with spaces)
+                           . we have also seen  ....-exec \; (many forks of the command) vs -exec \+   (1 cmd)
+                           . the | xargs has the options
+                                                               -exec \;    <---->   | xargs
+                                                               -exec \+    <---->   | xargs  -n1     # executes the command 1 for each 'line'
+                                                               | xargs -P8  ...                      # executes the cmd in parallel if I have 8 cores
+                                                               | xargs -t                            # print the cmd before execution
+                                                               | xargs -p                            # same as -t but ask confirm before execution
+                                                               | xargs -x                            # quit if the nummber of args > command line length
+                                                                                                       (default 5000)
+                                                               | xargs -n 500                        # I needed to remove 1.2 million files in a directory older than 30 days,
+                                                                                                       and of course rm won’t take the full argument list,
+                                                                                                       but calling rm separately on every single file is not optimal either.
+                                                                                                       So.  find . -name \*.log -mtime +30 | xargs -n 500 rm
+                                                                                                       Feeds 500 files to rm at a time.
 ____________________
 __  ps
 

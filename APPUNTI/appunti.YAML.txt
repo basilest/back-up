@@ -2,9 +2,11 @@
                    It's a superset of JSON
                                       allows
                                          - comments
+                                         - variables
                                          - quotation is optional
                                          - quotation can use " or '
-                                         - variables
+                                            (The difference between ' and " is that in " you can use escapes:
+                                                foo: "a \t TAB and a \n NEWLINE" )
       API:         available in most languages (to manage YAML files)
 
 ---       starts a doc (3 dashes)  the section before --- can be used to write YAML 'directives'
@@ -25,7 +27,7 @@
                           - Strawberry
                           - Mango
 
-          compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango]      <-- in 1 line among '[' ']' separated by ','
+          compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango']      <-- in 1 line among '[' ']' separated by ','
 
 
 
@@ -35,89 +37,90 @@
   the HASH (so key / value pairs) can be in the usual 'implicit' syntax or 'explicit'
 
 
-  IMPLICiT SYNTAX
-  __________________
-
-
-  key: value        NB. a ' ' (space) must follow the ':'
-                        Quote if there is a :
-                        foo: "somebody said I should put a colon here: so I did"
-                                                                     ^
-          compact forms:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line among '{' '}' separated by ','
-                                         ^                     ^                 ^
-
-  |  >              to wrap long lines  (the > NOT include \n)
-
-                    include_newlines: |
-                                exactly as you see
-                                will appear these three
-                                lines of poetry
-
-                    ignore_newlines: >
-                                this is really a
-                                single line of text
-                                despite appearances
-
-
-
-  EXPLICIT SYNTAX
-  __________________
-
-  It is useful when keys and/or values are 'complex'
-  In this case I identify a key prepending it with a '?'
-  and a value, prepending it with a ':'
-
- Then a key and/or a value can be any type:
-
-
-                             # Use a sequence as a key
-                             ? - foo
-                               - bar
-                             : 1
-
-                             # Use a (implicit) hash as a key
-                             ? baz: qux
-                             : 2
-
-                             # I can skip the value, which implies `null`
-                             ? quux
-
-                             # I can leave the key blank, which implies a `null` key
-                             ?
-                             : 3
-
-                             # I can even skip both the key and value, so both will be `null`
-                             ?
-
-                             # Or even long scalar as a key
-                             ? |
-                               We the People of the United States, in Order to form a more
-                               perfect Union, establish Justice, insure domestic Tranquility,
-                               provide for the common defence, promote the general Welfare,
-                               and secure the Blessings of Liberty to ourselves and our
-                               Posterity, do ordain and establish this Constitution for the
-                               United States of America.
-                             : 3
-
-
-                             other examples:
-
-                             ? - Detroit Tigers
-                               - Chicago cubs
-                             :
-                               - 2001-07-23
-
-                             ? [ New York Yankees,
-                                 Atlanta Braves ]
-                             : [ 2001-07-02, 2001-08-12,
-                                 2001-08-14 ]
-
+  |    IMPLICiT SYNTAX
+  |    __________________
+  |
+  |
+  |    key: value        NB. a ' ' (space) must follow the ':'
+  |                          Quote if there is a :
+  |                          foo: "somebody said I should put a colon here: so I did"
+  |                                                                       ^
+  |            compact forms:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line among '{' '}' separated by ','
+  |                                           ^                     ^                 ^
+  |
+  |    |  >              to wrap long lines  (the > NOT include \n)
+  |
+  |                      include_newlines: |
+  |                                  exactly as you see
+  |                                  will appear these three
+  |                                  lines of poetry
+  |
+  |                      ignore_newlines: >
+  |                                  this is really a
+  |                                  single line of text
+  |                                  despite appearances
+  |
+  |
+  |
+  |    EXPLICIT SYNTAX
+  |    __________________
+  |
+  |    It is useful when keys and/or values are 'complex'
+  |    In this case I identify a key prepending it with a '?'
+  |    and a value, prepending it with a ':'
+  |
+  |   Then a key and/or a value can be any type:
+  |
+  |
+  |                               # Use a sequence as a key
+  |                               ? - foo
+  |                                 - bar
+  |                               : 1
+  |
+  |                               # Use a (implicit) hash as a key
+  |                               ? baz: qux
+  |                               : 2
+  |
+  |                               # I can skip the value, which implies `null`
+  |                               ? quux
+  |
+  |                               # I can leave the key blank, which implies a `null` key
+  |                               ?
+  |                               : 3
+  |
+  |                               # I can even skip both the key and value, so both will be `null`
+  |                               ?
+  |
+  |                               # Or even long scalar as a key
+  |                               ? |
+  |                                 We the People of the United States, in Order to form a more
+  |                                 perfect Union, establish Justice, insure domestic Tranquility,
+  |                                 provide for the common defence, promote the general Welfare,
+  |                                 and secure the Blessings of Liberty to ourselves and our
+  |                                 Posterity, do ordain and establish this Constitution for the
+  |                                 United States of America.
+  |                               : 3
+  |
+  |
+  |                               other examples:
+  |
+  |                               ? - Detroit Tigers
+  |                                 - Chicago cubs
+  |                               :
+  |                                 - 2001-07-23
+  |
+  |                               ? [ New York Yankees,
+  |                                   Atlanta Braves ]
+  |                               : [ 2001-07-02, 2001-08-12,
+  |                                   2001-08-14 ]
+  |
 
 
 
   {{  }}            As the single { } means a list (see above)
                     the VALUE of a VAR is written as {{ var }}
-
+                    ex.
+                           foo: "{{ variable }}"
 
 
   TYPES:

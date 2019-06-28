@@ -1,5 +1,52 @@
+AWS CLI
+
+             install            pip3 install awscli --upgrade --user
+
+             upgrade            (same of install)
+
+             uninstall          pip3 uninstall awscli
+----------------------------------------------------------
+AWS CLI configure
+                           . aws configure      <--- this will create a default entry to use
+                                                     aws configure --profile user2   <--- this instead will add a specific user2 entry
+
+
+                            AWS Access Key ID [****************EPKQ]: AKIATU4B3DTQIYZRRPH2
+                            AWS Secret Access Key [****************Y92B]: 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
+                            Default region name [eu-west-1]: eu-west-2
+                            Default output format [json]: json
+
+                            aws sts get-session-token --duration-seconds 3600 --serial-number arn:aws:iam::250991044064:mfa/Stefano_Basile_Preprod --token-code 351747
+                            {
+                                "Credentials": {
+                                    "AccessKeyId": "ASIATU4B3MXQFXJIYAHM",
+                                    "SecretAccessKey": "I3otrXC4WSTkFmU9Tx8MRMb7sAeDrzxhJ4yvEM8B",
+                                    "SessionToken": "FQoGZXIvYXdzENz//////////wEaDC/zrNSZVRgMp7O7MyKvAc5rbrx+9/itszJk0RsvM49LjX5P8U9nGFTbpMOYhgCjS9iKqqHF6PK5zJMposTJJgJbUKIp4nos/Yyzh5u0Wh5wPdPXw3PlabjhNqU2kHB/oGXO9gy3q58hVdZK8Dkafsn0ZQQtXQchdsROm74JV//x92NRyiR6VCBNkJATT1YH/CFY1Vo4/Np5xUQcxVZVxEVfz24Rlkqi3SPnooi8PGz/21ReIXbkjRELuS8JbMEo+PTH6AU=",
+                                    "Expiration": "2019-06-25T11:42:00Z"
+                                }
+                            }
+
+----------------------------------------------------------
+MFA token  &  AWS CLI
+
+                 - must create a temporary SESSION token
+
+                    values similar to
+                           . GAHT12345678                                                 (on hardware devices)
+                           . the value is similar to arn:aws:iam::123456789012:mfa/user.  (on virtual MFA)
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------
 Why AWF:  It is the FASTEST growing cloud computing platform
-          
+
 
 
 AWS  SERVICES    2011:     82
@@ -16,7 +63,7 @@ AWS  SERVICES    2011:     82
 |________________________________________________________|
 |                                                        |
 |
-      To be a PARTNER  a company 
+      To be a PARTNER  a company
       must have a proper number of CERTIFIED EMPLOYEE
 
 
@@ -31,7 +78,7 @@ AWS  SERVICES    2011:     82
 
 
 
-      
+
      . AWS  FUNDAMENTALS
      . DESIGN  & DEVELOP
      . DEPLOYM & SECURITY
@@ -59,17 +106,17 @@ AWS  SERVICES    2011:     82
                                                               is actually transferred across.
                                                               A 2nd NEW YORK user will find it cached)
                                        Said otherwise EDGE LOC are
-                                       Content-Delivery-Network (CDN)  End Point for CloudFront    
+                                       Content-Delivery-Network (CDN)  End Point for CloudFront
 
                            . EDGE LOCs >> REGIONs
                            . Not all REGIONs have ALL the services
-                                  
-             6. Networking & Content Delivery: 
-                                                . VPC: Virtual Private Cloud 
+
+             6. Networking & Content Delivery:
+                                                . VPC: Virtual Private Cloud
                                                   (think of it as a Virtual DATA CENTER)
 
                                                   They can be >1 in a REGION
- 
+
 
                                                 . Route53: Amazon DNS service
                                                            (nb. 53 is DNS standard port)
@@ -85,7 +132,7 @@ AWS  SERVICES    2011:     82
                                                 . EC2: they are the VM (like Virtualbox)
                                                        So think of EC2 as the service for Virtualization
 
-                                                       It's implemented by Docker container called: 
+                                                       It's implemented by Docker container called:
                                                      - EC2 Container service
 
                                                      - Elastic Beanstalk: when uploading to it any piece of code
@@ -97,7 +144,7 @@ AWS  SERVICES    2011:     82
              4. Storage
                                                 4 components:
 
-                                                1 S3 (old as AWS, it stays for 3 S: Simple Storage Service)  
+                                                1 S3 (old as AWS, it stays for 3 S: Simple Storage Service)
                                                                    think of it as a VIRTUAL DISK (DropBox)
                                                                    in the cloud to store OBJECTS
                                                                    (any file / format [not DB])
@@ -112,15 +159,15 @@ AWS  SERVICES    2011:     82
                                                   in my Company's premises to connect to S3.
 
 
-                                                 
+
              5. Databases
                                                 . RDS (Relational DB Service) includes all the main ones
                                                   Oracle, MySQL, ...     <--- the relational ones
 
                                                 . DynamoDB (for the NON-Relational DB, or No-SQL)
                                                   very scalable (& high performance)
-                                                  
-                                                . Redshift (Amazon warehousing) where to store copies 
+
+                                                . Redshift (Amazon warehousing) where to store copies
                                                   of my Production DB, to perform calculation, statistics, measures
                                                   OUT-FROM my production env (whose perform. would otherwise suffer)
 
@@ -143,13 +190,13 @@ AWS  SERVICES    2011:     82
 
                                                 . SMS (Server Migration S.) to migrate a VM (ex VMware)
                                                   to the Cloud.
-                                                
+
 
 
              1. Analytics
                                                 . Athena: new service (2017) to run SQL query on S3
 
-                                                . EMR  (Elastich 
+                                                . EMR  (Elastich
 
                                                 . Cloud   Search  : they do the same just Elast. S is an
                                                 . Elastic Search  : (open source) framework
@@ -158,7 +205,7 @@ AWS  SERVICES    2011:     82
                                                            it's a stream monitor
 
                                                 . Data pipeline (like the UNIC pipe) moves data from one
-                                                  service to another 
+                                                  service to another
 
                                                 . Quick Sight: Buiseness analytic tool, with visualisation
                                                                and a dashboard
@@ -166,17 +213,17 @@ AWS  SERVICES    2011:     82
 
              2. Security & Identity
                                                 . IAM: fondamental component of AWS (present anywhere)
-                                                       
+
                                                 . Inspector: a Service to install in my VMs to scan and
                                                              monitor what's going on.
 
                                                 . Directory Service: to use active directories (connect
                                                   Microsoft to AWS)
 
-                                                . WAF (Web Application Firewall) 
+                                                . WAF (Web Application Firewall)
 
                                                 . Artifacts: to manage certifications (ISO....) docs
-             
+
 
 
              3. Management Tools
@@ -186,7 +233,7 @@ AWS  SERVICES    2011:     82
                                                   my AWS env designing my virtual devices (routers, firewalls...)
                                                   with writing some TEMPLATES or even 1 SINGLE LINE of CODE.
 
-                                                . Cloud Trail: 
+                                                . Cloud Trail:
 
                                                 . Opsworks: to automated deployment
 
@@ -221,7 +268,7 @@ AWS  SERVICES    2011:     82
 
                                                 . Code Build: to compile my code in different env (cross compile)
 
-                                                . Code Deploy: to deploy code to my EC2 
+                                                . Code Deploy: to deploy code to my EC2
 
                                                 . Code Pipeline: to keep trac of different version of code
                                                                  (testing, live, preprod, ...)
@@ -232,7 +279,7 @@ AWS  SERVICES    2011:     82
                                                               (Backend, data storage, user auth, ...)
                                                               It has an own Console, not the AWS common one.
 
-                                                . Cognito: to log into my App through social id 
+                                                . Cognito: to log into my App through social id
                                                            (facebook, google, ...)
 
                                                 . Device Farm: to test my App on hundreds of different HW-OS
@@ -253,7 +300,7 @@ AWS  SERVICES    2011:     82
 
 
              1. Internet of Things
-                                                . iOT: new (2017) probably a self Certification 
+                                                . iOT: new (2017) probably a self Certification
 
 
              1. Desktop - App streaming
@@ -272,7 +319,7 @@ AWS  SERVICES    2011:     82
                                                 . Alexa
                                                        use 'lex' driver
                                                        use 'Polly' translates text into mp3 audio
-                                                       'Machine learning' to predict data according to 
+                                                       'Machine learning' to predict data according to
                                                                           an input data-set
                                                        'Rekognition' understand what is present in a picture
 
@@ -313,12 +360,12 @@ _________________________________________________________ Identity Access Manage
                            NEW Users have NO premission when first created
                            NEW Users when first created receive: ACCESS Key +            <--- they are not the user+password pair
                                                                  SECRET ACCESS Key            but are the tokens that can be used
-                                                                 to log into the CONSOLE      when accessing (programmatically) 
-                                                                                              using the 
+                                                                 to log into the CONSOLE      when accessing (programmatically)
+                                                                                              using the
                                                           they can be seen                              . APIs
                                                           only the first time                           . command line
                                                           (that is so the time to download/save them)
-                                                          because otherwsie you need to 
+                                                          because otherwsie you need to
                                                           create them again
 
 
@@ -385,7 +432,7 @@ _________________________________________________________ S3 - EC2   (Elastic Co
              I can provision my virtual server with what I need
              and the scale with ease (if I need more capacity)
              I pay EC2 according to how many resources I ask
-                   
+
                      I can pay:
                          - ON DEMAND:  counting how many hours
                          - RESERVED:   I pay for 1 or 3 years (discount)
@@ -404,7 +451,7 @@ _________________________________________________________ S3 - EC2   (Elastic Co
                            (ex on a black Friday I need more resources
                             I pay just for that day my required extra
                             than I turn back to normal 'RESERVED')
-                           
+
              Families (
                          T2       General Purpose (cheap)     webser/small DB
                          M4, M3    "                          Application server
@@ -414,7 +461,7 @@ _________________________________________________________ S3 - EC2   (Elastic Co
                          I2       High Speed                  (NOSQL DB)
                          D2       Dense Storage               Files server
                       )
-                            
+
              EBS : is like a HARD-DISK (a block device) in the cloud (so replicated from failure)
                    It allow me to create virtual 'storage volumes' and attach to 1 EC2  (to mount to >1EC2 --> use EF)
                    then:
@@ -422,7 +469,7 @@ _________________________________________________________ S3 - EC2   (Elastic Co
                            . run a DB
              Families (
                          SSD (GP2)  99.9999% availability
-                                    <= 10.000 IOPS     
+                                    <= 10.000 IOPS
 
                          IOPS SDD (IO1)  IOPS (Iput-Output.Per-Second)
                                     if I need > 10000 IOPS  (ex. NOSQL DB)
@@ -431,10 +478,10 @@ _________________________________________________________ S3 - EC2   (Elastic Co
                                     lowest cost per Giga
                       )
 
-                  
+
 _________________________________________________________ EC2
 
-             . Log into Console 
+             . Log into Console
              . Choose EC2
              . I can Choose my best region
              . I can see the status of Region and Availability Zones
@@ -442,7 +489,7 @@ _________________________________________________________ EC2
                                                           and a Linux version from Amazon.)
 
              . Some EC2 are HVM (Hardware Virtual Machine)
-                 others are PV  (Para Virtual) 
+                 others are PV  (Para Virtual)
 
              . EC2 are presented with the family id. (T2, M4, C4, ...)
                how much RAM and how many CPUs
@@ -450,7 +497,7 @@ _________________________________________________________ EC2
                and If I want to open/attach a SPOT account
 
              . In the advanced section I can enter in a text-box some config script commnds
-               ex. 
+               ex.
                     #!/bin/bash
                     yum update -y
 
@@ -458,7 +505,7 @@ _________________________________________________________ EC2
              . The defaults of the ROOT Volume (where the OS is stored) are:
                                - "Delete on Termination" flag = ON, so the FREE EC2 by default are deleted on close.
                                - Encryption is OFF (and it grayed so it CANNOT be set ON) there are 3rd party tools
-                                 to add the Encryption tough 
+                                 to add the Encryption tough
 
              . I can add other volumes (not only the ROOT). Ex 1 EBS
                These volumes have the flag to Encrypt that is available
@@ -481,7 +528,7 @@ _________________________________________________________ EC2
 
                      1. chmod 600 xxxxx.pub
                      2. ssh basilest-amazon@52.48..78.87 -i xxxxx.pub
- 
+
 
 
 
@@ -490,15 +537,15 @@ _________________________________________________________ Windows users (configu
                                 Putty.exe       +
                                 Puttygen.exe
 
-                   
 
-                   AWS lets you 
+
+                   AWS lets you
                      .  create  a SSH key pair (private & public)
                      .  download the public as a file  xxxxxx.pem
 
                    Putty is not able to manage the .pem format so that
                    there is the Puttygen.exe to convert in a xxxxx.ppk
-                  
+
 
 
 
@@ -507,7 +554,7 @@ _________________________________________________________ Windows users (configu
 _________________________________________________________ Configure AWS command line
 
 
-                  to use "User-Credentials" to log  
+                  to use "User-Credentials" to log
                   With ROLEs is more secure.
 
             1. Create a Amazon-Linux-EC2   (becasue the AWS-command-line-tool is already included)
@@ -531,7 +578,7 @@ _________________________________________________________ Configure AWS command 
 _________________________________________________________ AWS commands
 
 
-            They all 
+            They all
                  .  start as 'aws'
                  .  the 'service' follows (ex s3
                  .  1 of the many comanfds availabke for that 'service'
@@ -564,7 +611,7 @@ _________________________________________________________ AWS commands
 
 _________________________________________________________ ACCESS WITH ROLE SETTINGS
 
-               ROLES can be attached 
+               ROLES can be attached
                    O N L Y
                when the EC2 is   C R E A T E D (or provisioned)
 
@@ -583,7 +630,7 @@ _________________________________________________________ ACCESS WITH ROLE SETTI
 
                     The EC2 created in that way
                     DO NOT STORE the credentials!! (So there are no files in .aws dir)
-                  
+
 
 _________________________________________________________ PHP - SDK
 
@@ -612,7 +659,7 @@ _________________________________________________________ PHP - SDK
                         the previous cmd creates some dirs (ex. /var/www/html/ vendor/
                             cd vendor
                             run (each time you want to open the Php-SDK),
-                            the file 
+                            the file
                                        autoload.php
 
 
@@ -641,7 +688,7 @@ _________________________________________________________ Interacting with S3  (
                             'version' => 'latest'one
                             'eersion' => 'up-east-1'
                      ]);
-                                                                     
+
 
                                    The bucket, once created, can be seen
                                    in the browser if at the console chosing 'S3'

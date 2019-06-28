@@ -339,10 +339,17 @@ old commands:
 
 
 
+_____________________________________________________________
+DNS LOOKUP
+_____________________________________________________________
 -------------------------------
-     nslookup                 (it uses /etc/resolv.conf)
+       nslookup          the old original one
+       dig               produces many lines of output for every record (more difficult to parse)
+       host                  "     1   line  "    "     "   "       "   (easier to parse)
 -------------------------------
-
+     nslookup              DNS lookup    (it uses /etc/resolv.conf)
+-------------------------------           It doesn't use the OS's DNS-resolver-library to perform its queries,
+                                          and thus may behave differently from dig  which does.
 nslookup google.com
 
        Server:    127.0.1.1

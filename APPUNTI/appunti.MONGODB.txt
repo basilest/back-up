@@ -65,6 +65,13 @@ db.getCollection('company_profile').update({"_id":comp_no},
            mongod                             # with no params
            mongod --dbpath mongo_test/        # or specify in which dir the DB is
 
+           if with just "mongod" I receive a
+               exception in initAndListen: NonExistentPath: Data directory /data/db not found., terminating
+               shutdown: going to close listening sockets...
+               ....
+           then specify the "db" dir (or create it empty somewhere)
+           which will be used later on.
+
    the above 2 ways keep that shell not usable
    a way is to run as a daemon (param "--fork", having it running in background)
 
@@ -106,6 +113,10 @@ db.getCollection('company_profile').update({"_id":comp_no},
   |                                                                    It populates (restores) a db from ./dump
   |
   |  ex. mongorestore -h envb.mongo.ch.gov.uk --port 27018 -d account -c company_auth_codes dump/account/company_auth_codes.bson
+  |_________________
+  |
+  |  mongoimport -h envb.mongo.ch.gov.uk:47307 -d account -c company_profile -u u123 -p p123 --file export.json
+  |
   |_________________
 
   to save interactive command output into a file:
