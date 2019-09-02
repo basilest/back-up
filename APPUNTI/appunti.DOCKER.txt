@@ -48,7 +48,7 @@ ________________________________________________________________________________
 |
 |     docker version                ___   nb. without --      it gives more info for Client and Sever
 |                                      \__
-|                                           Client: Docker Engine - Community
+|                                           Client: Docker Engine - Community   <---------------------- the CLIENT
 |                                            Version:           18.09.2
 |                                            API version:       1.39
 |                                            Go version:        go1.10.8
@@ -57,7 +57,7 @@ ________________________________________________________________________________
 |                                            OS/Arch:           darwin/amd64
 |                                            Experimental:      false
 |
-|                                           Server: Docker Engine - Community
+|                                           Server: Docker Engine - Community   <---------------------- the SERVER
 |                                            Engine:
 |                                             Version:          18.09.2
 |                                             API version:      1.39 (minimum version 1.12)
@@ -72,8 +72,43 @@ ________________________________________________________________________________
 |     docker-compose --version      ___
 |                                      \__ docker-compose version 1.23.2, build 1110ad01
 |
+|     docker-compose version
+|                                       docker-compose version 1.23.2, build 1110ad01
+|                                       docker-py version: 3.6.0
+|                                       CPython version: 3.6.6
+|                                       OpenSSL version: OpenSSL 1.1.0h  27 Mar 2018
+|
+|                                 . Commands:
+|                                 .   build              Build or rebuild services
+|                                 .   bundle             Generate a Docker bundle from the Compose file
+|                                 .   config             Validate and view the Compose file
+|                                 .   create             Create services
+|                                 .   down               Stop and remove containers, networks, images, and volumes
+|                                 .   events             Receive real time events from containers
+|                                 .   exec               Execute a command in a running container
+|            docker-compose       .   help               Get help on a command
+|                                 .   images             List images
+|                                 .   kill               Kill containers
+|                                 .   logs               View output from containers
+|                                 .   pause              Pause services
+|                                 .   port               Print the public port for a port binding
+|                                 .   ps                 List containers
+|                                 .   pull               Pull service images
+|                                 .   push               Push service images
+|                                 .   restart            Restart services
+|                                 .   rm                 Remove stopped containers
+|                                 .   run                Run a one-off command
+|                                 .   scale              Set number of containers for a service
+|                                 .   start              Start services
+|                                 .   stop               Stop services
+|                                 .   top                Display the running processes
+|                                 .   unpause            Unpause services
+|                                 .   up                 Create and start containers
+|                                 .   version            Show the Docker-Compose version information
+|
 |     docker-machine --version      ___
 |                                      \__ docker-machine version 0.16.1, build cce350d7
+|
 |__________________________________________________________________________________________________
 
 
@@ -86,9 +121,17 @@ ________________________________________________________________________________
                                           - required ENV vars
                                           - required CONFIG file
                                           )
+                Said otherwise an image contains enough of an operating system (OS),
+                as well as all the code and dependencies to run whatever application it’s designed for.
+                An image is a stopped container. It's the build static output
+                Like with a "git pull"  images are pulled down with "docker pull"
+                from an image registry. The most popular registry is Docker Hub.
+
 
       container  :  it's a running instance of an image
                     (it has a proc id:   docker ps    # to see all the containers)
+                    I cannot delete an image till some of its containers
+                    are still running
 
       diff with VM:  VM               any VM includes its own full-blown OS
                      Containers       All containers on a single host share a single OS.
@@ -132,6 +175,7 @@ ________________________________________________________________________________
 |__________________________________________________________________________________________________
 
       docker image ls                   to see all the images
+      docker images                     (<--  same)
 
                                         REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
                                         friendlyhello               latest              af97d893c91f        3 months ago        131MB
@@ -144,8 +188,142 @@ ________________________________________________________________________________
                                         create the output not in the same dir: ./xxxxx but in my machine’s Docker image registry
                                         so that I can see the image xxxx with 'docker image ls'
 
-      docker image rm <image id>        to Remove specified image from this machine
+      docker image ls --digests
+                                        REPOSITORY                  TAG         DIGEST                                                                    IMAGE ID      CREATED        SIZE
+                                        test                        latest      <none>                                                                    063f1b91a843  3 hours ago    71.5MB
+                                        alpine                      latest      sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb   961769676411  9 days ago     5.58MB
+                                        basilest/get-started        part2       sha256:4ee440ad1f9f9c56ede69b01c4fa95c764eb1d2045892bb1f33756e0a41db2d2   612cc1b42bc6  6 months ago   131MB
+                                        friendlyhello               latest      <none>                                                                    612cc1b42bc6  6 months ago   131MB
+                                        <none>                      <none>      <none>                                                                    af97d893c91f  9 months ago   131MB
+                                        python                      2.7-slim    sha256:f82db224fbc9ff3309b7b62496e19d673738a568891604a12312e237e01ef147   0dc3d8d47241  9 months ago   120MB
+                                        portainer/portainer         latest      sha256:07c0e19e28e18414dd02c313c36b293758acf197d5af45077e3dd69c630e25cc   00ead811e8ae  11 months ago  58.7MB
+                                        confluentinc/cp-kafka       5.0.0       sha256:9bc4b7a7234338cae2eaf5da6b2e563668f6ca6cd3544bde009029517035168b   373a4e31e02e  12 months ago  558MB
+                                        confluentinc/cp-zookeeper   5.0.0       sha256:384924ef3ac598973cf15abbface4b05dcbeff7894188ccb255a46e53b7043c4   3cab14034c43  12 months ago  558MB
+
+
+      docker image ls --filter dangling=true      shows dangling images   (the ones with    REPOSITORY & TAG = <none>  <none>)
+                                                  They occur when building a new image and tagging it with an existing tag.
+                                                  Docker will remove the tag from the existing image, which becomes 'dangling'
+                                                  (values:  --filter dangling=true   or --filter dangling=false)
+
+                                                  Other: --filter
+
+                                                     --filter before  nnnnn/iiiii : returns images created before the specified image (by name or ID)
+                                                     --filter since   nnnnn/iiiii : ....................... after
+                                                     --filter label   lllll/ll=vv : returns  images based on the presence of
+                                                                                    a label or label and value.
+                                                                                    The docker image ls command does not display labels in its output.
+                                                     --filter=reference="*:latest"  all the ones tagged with latest
+
+
+      docker image ls --format "{{.Size}}"                              99.3MB
+                                                                        111MB
+                                                                        82.6MB
+                                                                        88.8MB
+                                                                        4.15MB
+                                                                        108MB
+
+
+      docker image ls --format "{{.Repository}}: {{.Tag}}: {{.Size}}
+                                                                        dodge:  challenger: 99.3MB
+                                                                        ubuntu: latest:     111MB
+                                                                        python: 3.4-alpine: 82.6MB
+                                                                        python: 3.5-alpine: 88.8MB
+                                                                        alpine: latest:     4.15MB
+                                                                        nginx:  latest:     108MB”
+
+
+
+
+
+
+
+      docker image prune                removes dangling images
+      docker image prune -a             removes dangling images AND all unused images (the ones with no running containers)
+
+
+      docker image rm <image id>        to Remove specified image from this machine  (it removes all the internal layers that are not shared
+                                                                                      by other images. The shared ones are kept as blob in the repo)
       docker image rm $(docker image ls -a -q)           to Remove all images
+
+      docker image build -t test:latest .      reads in the current dir the 'Dockerfile' and creates a container called 'test' and tagged 'latest'
+      docker image pull alpine:latest          it pulls from Docker Hub the repo alpine image 'latest'
+                                               alpine is a light Linux distro (about 4MB) perfect for containers and its quick boot time.
+
+                                               :latest    is optional. The version-tag if missing is by default :latest
+                                               so docker image pull alpine:latest    is the same as
+                                                  docker image pull alpine
+
+                                               Be carefull anyhow: latest is an arbitrary tag and is not guaranteed to point to the newest image in a repository!
+
+      docker image pull -a alpine       pulls all images
+      docker image pull alpine@sha256:c0537...7c0a7726c88e2bb7584dc96     to pull specifying the digest
+      docker image pull ubuntu:latest   a pull produces this output:
+
+                                        latest: Pulling from library/ubuntu
+                                        952132ac251a: Pull complete             <------ 1
+                                        82659f8f1b76: Pull complete                     2    I see the num of layers
+                                        c19118ca682d: Pull complete                     3    which build the image: here 5
+                                        8296858250fe: Pull complete                     4
+                                        24e0251a0e2c: Pull complete                     5
+                                        Digest: sha256:f4691c96e6bbaa99d...28ae95a60369c506dd6e6f6ab”
+
+
+      docker image inspect ubuntu:latest         the inspect command is the proper one to see the layers:
+                                                 [
+                                                     {
+                                                         "Id": "sha256:bd3d4369ae.......fa2645f5699037d7d8c6b415a10",
+                                                         "RepoTags": [
+                                                             "ubuntu:latest"
+
+                                                         <Snip>
+
+                                                         "RootFS": {
+                                                             "Type": "layers",
+                                                             "Layers": [
+                                                                 "sha256:c8a75145fc...894129005e461a43875a094b93412",
+                                                                 "sha256:c6f2b330b6...7214ed6aac305dd03f70b95cdc610",
+                                                                 "sha256:055757a193...3a9565d78962c7f368d5ac5984998",
+                                                                 "sha256:4837348061...12695f548406ea77feb5074e195e3",
+                                                                 "sha256:0cad5e07ba...4bae4cfc66b376265e16c32a0aae9"
+                                                             ]
+                                                         }
+                                                     }
+                                                 ]
+
+                                          S H A R I N G   L A Y E R S     Docker is able to understand if it already has 1 layer
+                                                                          for an image and it doesn't pull that again
+
+                                                                          docker image pull -a nigelpoulton/tu-demo    <----------- -a : all images
+
+                                                                           latest: Pulling from nigelpoulton/tu-demo
+                                                                           237d5fcd25cf: Pull complete       <--- download
+                                                                           a3ed95caeb02: Pull complete       <--- download
+                                                                           <Snip>
+                                                                           Digest: sha256:42e34e546cee61adb100...a0c5b53f324a9e1c1aae451e9
+
+                                                                           v1: Pulling from nigelpoulton/tu-demo
+                                                                           237d5fcd25cf: Already exists      <----no download
+                                                                           a3ed95caeb02: Already exists      <----no download
+                                                                           <Snip>
+                                                                           Digest: sha256:9ccc0c67e5c5eaae4beb...24c1d5c80f2c9623cbcc9b59a
+
+                                                                           v2: Pulling from nigelpoulton/tu-demo
+                                                                           237d5fcd25cf: Already exists      <----no download
+                                                                           a3ed95caeb02: Already exists      <----no download
+                                                                           <Snip>
+                                                                           eab5aaac65de: Pull complete       <---- download
+
+
+
+
+
+
+
+
+      docker search xxxx                                   searches in Docker Hub for every repo containing xxxx in the NAME
+      docker search alpine --filter "is-official=true"     gives only official repos
+      docker search alpine --filter "is-automated=true"    gives only repo with automated builds
 
       docker ps                         to see all the containers
 
@@ -168,14 +346,23 @@ ________________________________________________________________________________
                                         b9254eb9b9c1
 
 
+
       docker container stop             to stop a container giving the ID or the NAME
                                            docker container stop 7b7b15441b98
                                            docker container stop confluentinc/cp-kafka:5.0.0
 
       docker container kill <id>        to Force shutdown
+      Control-pq                        to exit from the container keeping it running (....like sending in bg)
+      docker container exec -it nnnnn/iiiiii   bash       to attach back (-it interactively) to the container named nnnnnn or with id iiiiii
 
       docker container rm <hash>                         # Remove specified container from this machine
       docker container rm $(docker container ls -a -q)   # Remove all containers
+
+      docker container run -d  --name web1  --publish 8080:8080  test:latest       creates (-d detached or in bg) a running instance (named 'web1') of the container 'test' tagged 'latest'
+      docker container run     --name ctr1 -it alpine:latest sh                    creates (-it interactively on fg) a running instance (named 'ctrl') of the container 'alpine' tagged 'latest'
+                                                                                   and inside it executes 'sh'
+
+
 
       docker login                      to Log in this CLI session using your Docker credentials  (this will allow to push and pull to dockerhub)
                                         note the terminology:
@@ -221,7 +408,7 @@ ________________________________________________________________________________
   |   docker service ls                               List running services associated with an app
   |   docker service ps <service>                     List tasks associated with an app
   |
-  |   docker inspect <task or container>              Inspect task or container
+  |   docker inspect <task or container>              Inspect task or container  (it returns a big json)    ex.  docker inspect e3b416239775
   |
   |   docker-machine create --driver virtualbox myvm1
   |
@@ -316,10 +503,9 @@ ________________________________________________________________________________
 
                                           |    ENV http_proxy  host:port
                                           |    ENV https_proxy host:port
-      .
 ------------      DNS issues
       Besides the 'ENV ...proxy' settings
-      also the DNS could require to be set:
+      also the DNS could need to be set:
 
         /etc/docker/daemon.json   ---->  {
                                              "dns": ["your_dns_address", "8.8.8.8"]
@@ -361,17 +547,6 @@ ________________________________________________________________________________
               |       - webnet  <--------------------------------- 6) share port 80 for web-container via a load-balanced network called webnet.
               | networks:                                            (Internally, the containers themselves publish to web’s port 80 at an ephemeral port)
               |   webnet:
-
-
-
-------------      docker-compose
-      docker-compose --version
-
-
-
-
-------------      docker-machine
-      docker-machine --version
 
 
 
@@ -542,3 +717,57 @@ ________________________________________________________________________________
                                 Containers          42                  8                   12.58MB             10.86MB (86%)
                                 Local Volumes       6                   6                   3.226GB             0B (0%)
                                 Build Cache         0                   0                   0B                  0B
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+docker search zookeeper
+docker search mesosphere/marathon
+
+docker pull zookeeper
+docker pull mesosphere/marathon
+docker pull mesosphere/mesos-slave:1.4.2    # I specify a version
+
+docker run -d -p 2181:2181 --name zookeeper zookeeper:3.4.11                       ZOOKEEPER
+docker run -it -d --name mesos-master -p 172.16.121.1:5050:5050                    MESOS_MASTER
+                  --link zookeeper
+                    -e MESOS_ZK=zk://zookeeper:2181/mesos
+                    -e MESOS_QUORUM=1
+                    -e MESOS_CLUSTER=docker-compose
+                    -e MESOS_HOSTNAME=172.16.121.1
+                    -e MESOS_WORK_DIR=/var/tmp/mesos
+                    -e MESOS_LOG_DIR=/var/log/mesos
+                    mesososphere/mesos-master:1.4.1
+
+docker run -it -d --name mesos-slave -p 172.16.121.1:5051:5051                     MESOS_SLAVE
+                  --link zookeeper:zookeeper
+                  --link mesos-master:mesos-master
+                    -e MESOS_MASTER=zk://zookeeper:2181/mesos
+                    -e MESOS_CONTAINERIZERS=docker
+                    -e MESOS_PORT=5051
+                    -e MESOS_RESOURCES=ports[11000-11999]
+                    -e MESOS_HOSTNAME=172.16.121.1
+                    -e MESOS_WORK_DIR=/var/tmp/mesos
+                    -e MESOS_LOG_DIR=/var/log/mesos
+                    -e MESOS_SYSTEMD_ENABLE_SUPPORT="false" --
+                    mesososphere/mesos-slave:1.4.1
+
+docker run -it -d --name marathon -p 8080:8080                                     MESOS_MARATHON
+                  --link zookeeper:zookeeper
+                  --link mesos-master:mesos-master
+                  --entry-point ./bin/start
+                    -e MARATHON_ZK=zk://zookeeper:2181/marathon
+                    -e MARATHON_MASTER=zk://zookeeper:2181/mesos
+                    mesososphere/marathon:v1.5.6
+

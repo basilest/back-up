@@ -2,7 +2,7 @@
 
 
 
-             |  Usage: terraform [--version] [--help] <command> [args]
+             |  Usage: terraform [-version] [-help] <command> [args]
              |
              |  The available commands for execution are listed below.
              |  The most common, useful commands are shown first, followed by
@@ -14,23 +14,26 @@
            1 |      apply              Builds or changes infrastructure
            2 |      console            Interactive console for Terraform interpolations
            3 |      destroy            Destroy Terraform-managed infrastructure
-           4 |      fmt                Rewrites config files to canonical format
-           5 |      get                Download and install modules for the configuration
-           6 |      graph              Create a visual graph of Terraform resources
-           7 |      import             Import existing infrastructure into Terraform
-           8 |      init               Initializes Terraform configuration from a module
-           9 |      output             Read an output from a state file
-          10 |      plan               Generate and show an execution plan
-          11 |      push               Upload this Terraform module to Atlas to run
-          12 |      refresh            Update local state file against real resources
-          13 |      remote             Configure remote state storage
+           4 |      env                Workspace management
+           5 |      fmt                Rewrites config files to canonical format
+           6 |      get                Download and install modules for the configuration
+           7 |      graph              Create a visual graph of Terraform resources
+           8 |      import             Import existing infrastructure into Terraform
+           9 |      init               Initialize a Terraform working directory
+          10 |      output             Read an output from a state file
+          11 |      plan               Generate and show an execution plan
+          12 |      providers          Prints a tree of the providers used in the configuration
+          13 |      refresh            Update local state file against real resources
           14 |      show               Inspect Terraform state or plan
           15 |      taint              Manually mark a resource for recreation
           16 |      untaint            Manually unmark a resource as tainted
           17 |      validate           Validates the Terraform files
           18 |      version            Prints the Terraform version
+          19 |      workspace          Workspace management
              |
              |  All other commands:
+             |      0.12upgrade        Rewrites pre-0.12 module source code for v0.12
              |      debug              Debug output management (experimental)
+             |      force-unlock       Manually unlock the terraform state
+             |      push               Obsolete command for Terraform Enterprise legacy (v1)
              |      state              Advanced state management
-

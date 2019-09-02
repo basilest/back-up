@@ -633,3 +633,19 @@ VIEWS:
 
 
 -------------------------------------------
+
+
+
+useful queries:
+
+
+________________ 1   (select all the forms webfiled by a certain email)
+
+
+select H.CONUMB as Company_Number, H.CONAME as Company_Name, H.formtype, V.VALUE, H.orddtetme from FORMHEADER H
+join CUSTOMER C on H.CUSTID = C.CUSTOMERID and H.CUSTVERSION = C.CUSTOMERVERSION
+join FORMDETAIL D on H.SUBMISSIONNUMBER = D.SUBMISSIONNUMBER
+join CVVALUE V on (V.CVCLASS='45' and V.CVID = H.formtype and V.LANGUAGE='en')
+where lower(C.EMAIL) = 'admin@dawerandco.com'
+and D.STATUS = '25'
+order by H.orddtetme

@@ -1,4 +1,5 @@
 export TERM="xterm-256color"      # sbasile: added as warned by zsh itslef at login
+setopt HIST_FIND_NO_DUPS          # sbasile: imported the BASH equivalent (export HISTCONTROL=ignoredups)
 
 # sbasile: the following 2 bindkey are used to have ^R seraching reverse in history
 bindkey -v

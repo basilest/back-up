@@ -1,5 +1,11 @@
+#!/usr/bin/env bash
 
+BASEDIR=$(dirname "$0")
+echo "$BASEDIR"
 
+In bash it is safer to use $BASH_SOURCE in lieu of $0, because $0 doesn't always contain the path of the script being invoked, such as when 'sourcing' a script.
+
+bash <nameOfScriptInPath>     Bash and Ksh support this method of invocation, Dash and Zsh do not)
 
 write my own built-in and keep into the running shell
 
@@ -423,7 +429,7 @@ ____________________________________________________________
                  vi              off
                  emacs           off
                  noclobber       off    <--- .. > a.txt do not overwrite if a.txt is present
-                 allexport       off              can be anyhow overwritten with  >| a.txt
+                 allexport       off              can be anyhow overwritten with  >| a.txt   (in zsh >| and >! are the same)
                  notify          off
                  nounset         off
                  priv            off

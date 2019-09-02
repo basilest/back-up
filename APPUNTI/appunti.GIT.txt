@@ -779,6 +779,12 @@ NOTATIONS:
   |                                                            #             xxdiff
   |                                                            #
   | git blame -L 35, init/version.c                            # to tell who changed a specified line (here 35) of a specified file (here version.c)
+  |                                                            #                      35            will log all the lines from line 35 to the end of the file
+  |                                                            #                      35,           same
+  |                                                            #                      35,40         from 35 to 40
+  |                                                            #                      35,35         ONLY 35
+  |                                                            # NOTE that it shows the blame on the current version, not all the history
+  |                                                            #      To see the history on that line , use git log -L 35,35:init/version.c  <---- note that wrt to git blame git log wants a ':'
   |                                                            #
   | git log                                                    # shows commits history (from most recent back)
   |                                                            # ex:
@@ -822,6 +828,9 @@ NOTATIONS:
   |                                                            #  the file has the same number of lines again with that string, this comand gets no output
   |                                                            #
   |                                                            #  git log -Sinclude --pretty=oneline --abbrev-commit init/version.c
+  |                                                            #
+  | git log  -L 35,35:init/version.c                           #  To see the history on that line. Like git blame -L, but wrt to git blame git log wants a ':'
+  |                  ^                                         #
   |                                                            #
   | git log <path>                                             #  the last arg is for an optional path (file or dir) and limits
   |                                                            #  to only commits where that path was touched
@@ -1057,7 +1066,7 @@ NOTATIONS:
   |                                                            #
   | git cherry-pick 62ecb3                                     # allows to pick up 1 commit (from another branch) and insert
   | git cherry-pick --continue                                 # the change after the HEAD of the branch checked-out.
-  | git cherry-pick --abort§                                   # A commit usually is a diff + other info (ex. references to ancestor). cherry-pick removes
+  | git cherry-pick --abort                                    # A commit usually is a diff + other info (ex. references to ancestor). cherry-pick removes
   |                                                            # the 'admin' info and keeping only the 'diff' section applies that to my HEAD.
   |                                                            #
   |                                                            # If there are no conflicts, everything is done automatically

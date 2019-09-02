@@ -215,7 +215,10 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                 23   nobgnice              off  emacs                 off  histexpiredupsfirst   off  kshoptionprint        off  numericglobsort       off  pushdtohome           off  verbose               off
                 24   braceccl              off  noequals              off  histfcntllock         off  kshtypeset            off  octalzeroes           off  rcexpandparam         off  vi                    off
                 25   bsdecho               off  errexit               off  histfindnodups        off  kshzerosubscript      off  overstrike            off  rcquotes              off  warncreateglobal      off
-
+                                                                                 ^
+                                                                   |             |
+                                                                   |    setopt HIST_FIND_NO_DUPS    <---- it's the equivalent of the BASH: export HISTCONTROL=ignoredups
+                                                                   |
  2.4: Parameters                                                   |
                                                                    | like bash:
                                                                    |             var=value

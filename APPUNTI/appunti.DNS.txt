@@ -2,7 +2,7 @@
      DNS
 -------------------------------
 
-      DNS :   Domain Name System
+      DNS :   Domain Name System      ("It's the phone book of the Web")
 
 
       DOMAIN NAME: ___________________________
@@ -10,7 +10,7 @@
                                                \
           ex:                               |----------------------|
           wiki.mediatemple.net                xxxxx . yyyyy . zzzzz
-                                                            ^_________________ the dot '.' is the domani labels SEPARATOR
+                                                            ^_________________ the dot '.' is the domain labels SEPARATOR
                                                                 ^_____________ the rightmost is the TOP-level domain (TLD) (here zzzzz)
                                                         ^_____________________ each is a SUB-DOMAIN of the previous
                                                                                (xxxxx SUB-D of yyyyy
@@ -40,7 +40,7 @@
       RECORDS :
 
 
-       A Record                "Address record":
+       "A" Record              "Address record":
                                gives the IP address of a domain.
                                It maps a hostname to a 32-bit IPv4 address.
                                users that try to go to www.example.com will get the right IP address.
@@ -56,17 +56,19 @@
 
                                The '*' allows to match multiple domain names to have the same IP
                                This way, if someone mistakenly types subdomains of domain.com
-                               he will still domain.com
+                               he will still get domain.com
 
 
 
       MX Record:               "Mail Exchange Record":
                                        maps      [Domain name] <-- --> to a list of mail exchange servers.
-                               A zone can have 1 or + (MX) records.
+                               A zone can have 1 or + (MX) records  (each MX Rec defined with a different priority -
+                               If mail can't be delivered using the highest priority record, the second priority record is used,
+                               and so on.)
                                These records point to hosts that accept mail messages on behalf of the host.
-                               A host can be an 'MX' for itself.
-                               MX records need not point to a host in the same zone.
-                               An 'MX' record takes this format:
+                               A host can be a 'MX' for itself.
+                               MX records need to not point to a host in the same zone.
+                               A 'MX' record takes this format:
 
                                          host.domain.name       IN     MX      10 otherhost.domain.name.
                                                                 IN     MX      20 otherhost2.domain.name.

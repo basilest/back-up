@@ -473,6 +473,14 @@ help()        enter from python shell the interactive help
               instead of 1+2 I can directly do  help(xxx)   ex help(str) I've ALL the
               list of functions on strings
 
+pip:       it's the package manager for python modules. (Go to the pip part of this document)
+
+yolk       list all the modules installed
+           yolk -l
+
+________________________________________ pip
+
+
 pip:       modules (external) are usually managed by 'pip' which recursively means (pip install python)
            sudo apt-get install python-pip
 
@@ -498,8 +506,11 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
                2.1  At this point is better to tidy up the system wrt python.
 
                Like perlenv there is
-                           . virtualenv
+                           . virtualenv          https://virtualenv.pypa.io/en/stable/userguide/
                            . virtualenvwrapper   is a set of extensions to virtualenv.
+                                                 https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html  <--- cmd reference
+                                                 which makes the usage of virtualenv
+                                                 easier with shortcuts (e.g. workon)
 
 
                      1   pip uninstall virtualenvwrapper
@@ -508,35 +519,123 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
                      4.  pip install virtualenvwrapper
 
                          this will install a shell script (virtualenvwrapper.sh) somewhere
-                         (on the Mac: /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh)
-                     5.  source ....../virtualenvwrapper.sh
-                         (add this also in the .bashrc)
+                         (on the Mac in 1 of these possible places:
+                                         /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh)
+                                         /usr/local/bin/virtualenvwrapper.sh                   ^^^^^^^^^^^^^^^^^^^^
+                                         ...)           ^^^^^^^^^^^^^^^^^^^^
+                     5.  source ....../virtualenvwrapper.sh (add this also in the .bashrc)
+                                       ^^^^^^^^^^^^^^^^^^^^
                      6.  WORKON_HOME=~/PYTHON_ENVS (or any wanted dirname)
-                     7.  mkvirtualenv env1  this will install a new python in a dir $WORKON_HOME/env1
-                     8.  lssitepackages     to see the packages
-                     9.  mkvirtualenv env2  this will install another python in a dir $WORKON_HOME/env2
-                    10.  workon env1        sets the env. (here back to env1)
-                    11.  deactivate      Switch from a virtual environment to the system-installed version of Python.
+                     7.  workon             without args just list the virtual envs (they are the dirs inside $WORKON_HOME)
+                     8.  mkvirtualenv env1  this will install a new python in a dir $WORKON_HOME/env1
+                                            This env1 env2 ... envn dirs
+                                            have the same structure:
+                                                     these 3 dirs
+                                                      ls ~/PYTHON_ENVS/2.5.2
+                                                                          |_/bin
+                                                                          |_/lib
+                                                                          |_/include
+
+                                                      in the "bin" directory the modules are then installed
+                                                      every time I do "pip install xxxx"
+
+                                                      ls ~/PYTHON_ENVS/2.5.2
+                                                                          |_/bin
+                                                                          |      activate
+                                                                          |      activate.csh
+                                                                          |      activate.fish
+                                                                          |      activate.ps1
+                                                                          |      activate_this.py
+                                                                          |      ansible
+                                                                          |      ansible-config
+                                                                          |      ansible-connection
+                                                                          |      ansible-console
+                                                                          |      ansible-doc
+                                                                          |      ansible-galaxy
+                                                                          |      ansible-inventory
+                                                                          |      ansible-playbook
+                                                                          |      ansible-pull
+                                                                          |      ansible-vault
+                                                                          |      easy_install
+                                                                          |      easy_install-2.7
+                                                                          |      get_env_details
+                                                                          |      pip
+                                                                          |      pip2
+                                                                          |      pip2.7
+                                                                          |      postactivate
+                                                                          |      postdeactivate
+                                                                          |      preactivate
+                                                                          |      predeactivate
+                                                                          |      python
+                                                                          |      python-config
+                                                                          |      python2
+                                                                          |      python2.7
+                                                                          |      wheel
+                                                                          |_/lib
+                                                                          |      python2.7
+                                                                          |
+                                                                          |_/include
+                                                                                 python2.7
+
+                                            7.1 example then to install python modules with pip (ex. ansible)
+                                            pip install ansible==2.5.2
+                                            pip install redis
+
+                     9.  lssitepackages     to see the packages
+                    10.  mkvirtualenv env2  this will install another python in a dir $WORKON_HOME/env2
+                    11.  workon env1        sets the env. (here back to env1)
+                    12.  deactivate         Switch from a virtual environment to the system-installed version of Python.
+
+                    virtualenvwrapper (other commands) :
+                                       . lsvirtualenv     -b (brief)   -l (long/verbose)   -h (help)
+                                       . rmvirtualenv     ex. rmvirtualenv env1    (<---- NB. better to run after a deactivate (of env1))
+                    ex. lsvirtualenv    gives
+
+                        env_ansible.2.3.1.0
+                        ===================
+
+                        env_ansible.2.5.2           <----------- I then can do    workon env_ansible.2.5.2
+                        ===================
+
+                        env_ansible.2.6.2
+                        ===================
+
+________________________________________ MORE PYTHONS
 
 
-yolk       list all the modules installed
-           yolk -l
+        there are "different" (not "many", as these solution do not always overlap and do different things)
+        solutions to have more PYTHON versions and switch between them
+        This creates confusion and goes against the Python Zen:
 
-virtualenv   sudo pip install virtualenv
-           allow to create a clean environment where I can develop (install new modules,
-           without dirty the system Python installation).
-           Create many env with virtualenv as many as are you developing projects.
-
-           1. virtualenv basilest_test1  --> this creates a dir basilest_test1
-                                             with inside all the hierarchy
-           2. source basilest_test1/bin/activate
-           3. ........    develop
-                          pip install bla bla bla
-           4. deactivate            to exit
+            “There should be one – and preferably only one – obvious way to do it.”
 
 
+        venv                          is builtin with Python 3, which you can run using
+                                                 python3 -m venv
+                                      It serves a similar purpose to virtualenv, and works in a very similar way,
+                                      but it doesn't need to copy Python binaries around (except on Windows).
+                                      Use this if you don't need to support Python 2.
 
+        virtualenv / virtualwrapper : they copy the full python executable binary file in their env directories.
+                                      >>>>> As Python looks for its LIBRARIES starting relative to its path first <<<<<<
+                                      avery Python will use theirown env libraries
 
+        pyenv / pyenv-virtualenv / pyenv-virtualwrapper : they copy the full python executable binary file in their env directories.
+                                      it isolates Python versions (ex. Python 2.6, 2.7, 3.3, 3.4 and 3.5) and switches between them.
+                                      It prefixes PATH with
+                                                       ~/.pyenv/shims,
+                                      which contains special files matching commands (python & pip).
+                                      These are not copies of the binaries like in virtualenv / virtualwrapper
+                                      but special scripts that decide on the fly which version of Python to run based on
+                                               PYENV_VERSION    env var
+                                               .python-version  file,
+                                               ~/.pyenv/version file.
+
+                                       pyenv also makes the process of downloading and installing multiple Python versions easier, i
+                                       using the command pyenv install.
+
+                                       pyenv-virtualenv:     plugin to use both pyenv & virtualenv
+                                       pyenv-virtualwrapper: plugin to use both pyenv & virtualwrapper
 
 
 ________________________________________ os

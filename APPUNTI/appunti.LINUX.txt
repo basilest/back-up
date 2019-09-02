@@ -972,6 +972,11 @@ LOGIN
                                            a bin in the current dir, a (cd bin) goes there.
                                            Otherwise goes in $HOME/bin
 
+                                       BEAWARE: CDPATH is intended only for interactive SHELLS
+                                                because when executed for example in a script a cd can move
+                                                to an expected other place.
+                                                So if CDPATH is set in a shell config file (ex ~/.bashrc ~/.zshrc)
+                                                it can cause troubles.
 
                               +---------------+
                               |    ENV v.     |
@@ -1171,12 +1176,18 @@ stty              s[peed]-Terminal
 
 
 --------------------------------
-|       BASH PROMPT - PS1
+|       SHELL PROMPTS - PS1  (it's not bash specific it's a posix var)
 ------------------------
-PS1                 is the BASH prompt
-                    (the format is store into the var $PS1
-                    ex.
-                       echo $PS1       ---> \h:\W \u\$
+PS1                 ex.
+                       echo $PS1       ---> \h:\W \u\$     <---- default value for a SHELL
+
+                    BASH is the only shell (a bug in the opinion of Stephane Chazelas)
+                    to UNSET PS1 when in a script (not interactive SHELL).
+                    so in some BASH scripts to know if the shell is interactive or not
+                    it's written something like  [ -n "$PS1" ] && ......       (ex. ...&& source ~/.bash_profile);
+                    even though a better way is to use the special var (minus) $-
+                    which if contains an 'i' means interactive
+                    [[ $- = *i* ]] && source ~/.bash_profile)
 
 ~/.bashrc           best place where setting it
                     ex
