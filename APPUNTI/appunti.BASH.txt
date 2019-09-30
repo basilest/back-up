@@ -439,8 +439,20 @@ ____________________________________________________________
     To set an option off: set +o    (ex set +o vi)
 
 
+    set -e     stops a script on any errors (errors on any command or the LAST command of a pipeline))
+               I can append a  || true for those rare cases where you don't want a failing command to exit.
+               ex
+               foo || true            # this will cause a --> foo: command not found (and $? 127)
+               echo "bar"             # I will see the "bar"  (the previous line didn't exit the script)
+
+    set -o pipefail     the $? of the pipeline is not the default exit code of the LAST
+                        but it will be the $? of the rightmost failed command
+
+    set -u     treat unset var as error and the exit the script
+
+
     shopt    is a new builtin to set/unset even more options.
-             shopt -p      to see the full list statuso
+             shopt -p      to see the full list status
              shopt -s      to set
              shopt -u      to unset
 

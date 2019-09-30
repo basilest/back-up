@@ -37,3 +37,215 @@
              |      force-unlock       Manually unlock the terraform state
              |      push               Obsolete command for Terraform Enterprise legacy (v1)
              |      state              Advanced state management
+
+
+  chtf                               (Homebrew Casks) Terraform version switcher
+                                     to install/switch multiple Terraform versions (since 0.6.6) at the same time,
+                                     [chtf installs the specified version automatically if needed].
+
+                                     chtf                 with no args shows all the versions
+                                     chtf -V --version
+                                     chtf system          switch to OS versio (no
+
+  execution plan
+  Infrastructure as code             high-level configuration syntax
+  graph                              Terraform builds a graph of all your resources
+                                     This means that when running 'terraform apply'
+                                     terraform takes care of usual problem of finding the
+
+                                             1. dependencies between resources
+                                             2. order to execute
+
+
+  automates changes                  avoiding many possible human errors.
+
+
+  Configuration files                extension: *.tf   (or .tf.json when using JSON)
+                                     structure: tree of modules.
+                                                A root module, where evaluation begins,
+                                                Child modules created when one module calls another.
+
+                                          - module: ALL .tf/.tf.json files in a dir
+                                          - a ROOT module: all .tf/.tf.json files in the CURRENT dir
+
+                                          SIMPLEST CONFIG: 1 .tf file in cur dir
+
+                                     format: its own configuration language (default)  or JSON.
+                                             (Infrastructure as code: the proprietary language
+                                                                      is then more powerful than JSON)
+                                     format specs:
+
+                                       <BLOCK TYPE> "<BLOCK LABEL>"... "<BLOCK LABEL>" {    like     int i  <--"TYPE" & "name" var
+                                         # Block body
+                                         <IDENTIFIER> = <EXPRESSION> # Argument
+                                       }
+                                                        _________________________________________.
+                                     example:          /                                         |
+                                            provider "aws" {                                     |
+             ~/.aws/credentials  ------->     profile    = "default"              # BLOCK 1      |
+                                              region     = "us-east-1"                           |
+                                            }                                                    |
+                                                        ____ format xxx _ nnnn  (xxx name of provider)
+                                                       /
+                                            resource "aws_instance" "example" {   # BLOCK 2
+                                              ami           = "ami-2757f631"
+                                              instance_type = "t2.micro"
+                                            }
+
+
+                                            The "name" is used to refer to this resource from elsewhere in the same Terraform module,
+                                            but has no significance outside of the module.
+
+
+terraform init                       the 1st command to run
+                                     . will automatically download and install all the required providers.
+
+
+
+
+
+terraform.tfstate                   This state file is extremely important;
+                                    it keeps track of the IDs of created resources so that
+                                    Terraform knows.
+                                    This file must be saved and distributed to anyone who might run Terraform.
+
+
+terraform show                      to see current state.
+
+
+terraform apply                     to apply changes   (I must type 'yes') so if I don't type yes
+                                    the apply doesn't change
+
+terraform destroy
+
+
+PROVIDER "aws"
+                      . ~/.aws/credentials          stores the profiles
+
+                      . aws cli                     (needs Python)
+
+                      . aws configure
+
+
+Provisioners
+                      resource "aws_instance" "example" {
+                          ami           = "ami-b374d5a5"
+                          instance_type = "t2.micro"
+
+                          provisioner "local-exec" {   # local-exec  is the provisioner to run cmds on local host
+                            command = "echo ${aws_instance.example.public_ip} > ip_address.txt"
+                          }
+                      }
+
+
+                      Provisioners are mainly run when a resource is CREATED.
+                      They are not a replacement for configuration management
+                      and are instead just meant as a way to bootstrap a server.
+
+                      Other Provisioners are run when a resource is DESTROYED
+                      to clean up.
+
+
+
+TAINTED resources     Are the resources failed during the provisioning.
+                      Terraform detroys/removes these resources
+                      but it doesn't rollback (as it will be against the PLAN
+                      where there isn't written anything about DESTROYing)
+
+
+VARIABLES                 ________ 'variable' is a keyword
+                         /
+                      variable "region" {
+                         default = "us-east-1"                file  variables.tf
+                      }
+
+                      ------------------------------
+                      provider "aws" {
+                         region     = var.region       <--- usage
+                      }
+
+
+
+          - file terraform.tfvars      ex. region = "us-east-2"
+                 (default name)
+
+          - Command-line flags         ex. terraform apply  -var 'region=us-east-2'
+                                                            ^^^^
+                                       ex. terraform apply  -var-file=dddd/dddd/fff.tf
+                                                            ^^^^^^^^^
+                                                                    (when using not a default terraform.tfvars)
+
+          - ENV vars                   ex. TF_VAR_nnnnn   TF_VAR_ +  name of the ENV var
+                                           (ex. TF_VAR_HOME)
+
+
+          - UI on apply                exuting 'apply' with missing variables, they will be asked intercatively.
+
+                                       Only supported for STRING variables.
+                                       LIST and MAP vars must be populated via one of the other mechanisms.
+
+
+          LIST VARs                    variable "cidrs" { default = [] }     # implicit assign.  ex   cidrs = [ "10.0.0.0/16", "10.1.0.0/16" ]
+                                       variable "cidrs" { type = list }      # explicit
+
+
+          MAP VARs                     hash (like a normal json)
+                                       variable "amis" {                                resource "aws_instance" "example" {
+                                          type = "map"                                    ami        = var.amis[var.region]
+                                          default = {                                     inst_type  = "t2.micro" ^^^^^^^^
+                                            "us-east-1" = "ami-b374d5a5"                }
+                                            "us-west-2" = "ami-4b32be2b"
+                                          }
+                                       }
+
+                                      I can use MAP also on the command line style:
+                                      ex.    terraform apply -var 'amis={ us-east-1 = "foo", us-west-2 = "bar" }'
+
+
+
+
+          OUTPUT VARs                  I can decide what to log (OUTPUT vars) of the hundreds I have.
+                                       These values are logged when running "terraform apply"
+
+                                       They can also be QUERIED with the command
+
+                                       "terraform output"
+
+                                       they are defined in the shape:
+
+                                                    ______ "output" is a keyword
+                                                   /
+                                                output "ip" {
+                                                  value = aws_eip.ip.public_ip     # also "value" is expected.
+                                                }                                    which is usually in the 'interpolation' format
+                                                                                     being a value known at runtime
+
+
+
+
+
+Terraform Cloud           Is the commercial solution to store my 'Terraform state' file in a remote space (called "backend")
+                          sharable with other team's members. (to do, versioning, audit, peer review....)
+
+
+                          terraform {                                        when running  "terraform init"
+                                  backend "remote" {                ----->   and answering "yes"
+                                    organization = "Cloud-Org"               the state is copied to Terraform Cloud
+
+                                    workspaces {                             "terraform apply"  will check (like git pull)
+                                      name = "Dev-QA"                        the remote and if there is nothing to do
+                                    }                                        will output
+                                  }                                              No changes. Infrastructure is up-to-date.
+                                }
+                                }                                            REMOVING THE "backend" BLOCK FROM THE CONFIG FILE
+                                                                             AND RUNNING "terraform init" IT WILL BE
+                                                                             MOVED BACK LOCALLY FROM Terraform Cloud
+
+
+
+
+
+
+
+
+

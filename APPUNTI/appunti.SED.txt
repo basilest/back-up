@@ -1,0 +1,14 @@
+Alternation      a|b|c
+
+
+
+     By default sed uses POSIX Basic Regular Expressions,
+     which don't include | .
+
+     OS X and GNU includes it but with different options
+
+          -r     GNU
+          -E     OS X
+
+     echo 'cat dog pear banana cat dog' | sed -r    's/cat|dog/Bear/g'      GNU
+     echo 'cat dog pear banana cat dog' | sed -E -e 's/cat|dog/Bear/g'      OS X

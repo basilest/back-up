@@ -1481,30 +1481,40 @@ __  .Xauthority
                This is the reason why gui commands must not be started with sudo but with gksudo
                that copies /.Xauthority in a temp dir
 ____________________
-__  sudo
-               sudo allows you to run commands with the rights of another user (root or anyother ex amanda)
-               ex
-                  sudo /etc/init.d/networking restart
+__  sudo  & su
 
-               sudo commands always requires YOUR user password (so there is never another to remember)
-                    a 15 minutes default period allows to run other sudo without asking again the password.
-                    This timer can be changed (with 'sudo visudo')
-                    -k         # sudo -k  closes the timer (whatever it is) so next sudo command for sure
-                                                                           asks the password again.
+               su    super user                   nb. not only root.    "su smith"   I become user "smith"
+                                                                        "su"         (su alone is by default user: ROOT) (deprecated)
+                                                                        "su -l"      (login normally as root)            (deprecated)
+               sudo  super user do (command)      I don't become another user, but instead I run a specific command
+                                                  with that privileges.
 
-    /var/log/auth.log         sudo commands are logged in:  /var/log/auth.log
+               sudo allows you to run commands with the rights of another user
+               When I want to run a command that requires another user's rights,
+               Linux checks my username against the sudoers file.   (/etc/sudoers)
 
-               user amanda can run sudo if someone with rights on command 'adduser' did:
-                   sudo adduser amanda sudo
+               su        requires to specify the OTHER user (e.g. root or smith) password
+                         so note this diff
+                                  su smith -c xxxx             # run command xxxx as user smith (smith's password is asked)
+                                  sudo -i -u smith xxxx        #  ..............................( my password is asked)
 
-               -i   instead of running a command I can log-in as another user as
-                    sudo -i -u amanda
+               sudo      requires MY user password (so there is never another to remember)
+                         a 15 minutes default period allows to run other sudo without asking again the password.
+                         This timer can be changed (with 'sudo visudo')
+
+
+    sudo -k    asks the password (regardless of any timer)
+
+    sudo -i -u      instead of running a command I can log-in as another user as
+                    sudo -i -u amanda    (with "su" instead of sudo is "su amanda")
                     that gives all the 'env' vars of amanda (so a consistent state)
 
-                    su -i      # without a -u it's intended root  (deprecated)
+    sudo -i         without -u it's intended root  (deprecated)
 
-               -s   means shell. Is the same as running 'sudo bash' In this case a complete shell
+    sudo -s         means shell. Is the same as running 'sudo bash' In this case a complete shell
                     is opened with root rights (deprecated)
+
+
 
                shell root    there are 3 ways (all deprecated) they differ in the value of var $PATH
                              (and the other 'env' vars) so also $HOME
@@ -1545,17 +1555,106 @@ __  sudo
                           :/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
 
 
+    /etc/sudoers     is the config file.
+
+               visudo   to edit.
+                        It performs syntax checks on the changes (to verify it's valid)
+                        so don't change with a normal 'vi /etc/sudoers')
+
+                        sudo visudo -f /etc/sudoers
+
+                                           in sudoers I can source other files
+                                           ex files in dir /etc/sudoers.d
+                                           (this is done with the directive
+                                                #includedir  /etc/sudoers.d)
+                                           I can the create small files here with the usual way
+
+                                              sudo vimsudo -f /etc/sudoers.d/students
 
 
+                        visudo is not a vim session. It can be emacs, nano, or whatever
+                        is the editor defined in $EDITOR.
+
+               the groups in the sudoers are taken from /etc/group
+               ex.
+                    grep "admin" /etc/group
+                                              admin:*:80:root
+                                              _lpadmin:*:98:
+
+               In linux to add a user to a group  (ex "smith" to group "admin")
+
+                    sudo adduser smith admin    (I can remove as
+                    sudo deluser smith admin
+                    )
+
+               Now smith is in the admin group so a
+
+                    su smith
+
+               allows to run command with the "admin" group privileges, ex.
+
+                  sudo ls /.....
+                  sudo /etc/init.d/networking restart
 
 
+        groups       command "group" list the groups I'm part of
+
+        passwd user1      sets the password for user user1
 
 
-    /etc/sudoers              Is the file where users and rghts are configured.
-              "sudo visudo"    opens it with your $EDITOR
+    /var/log/auth.log       where sudo commands are logged
+
+
+   SYNTAX OF /etc/sudoers
+
+              Tipycal line
+                                 ____ the user (here root)
+                                /         ____ Optionally the list (comma separated) of users, he/she can act as
+                               /         /
+                              root ALL=(ALL) ALL  <------ the list (comma separated) of COMMANDS he can run
+                                    \
+                                     \_____ from where (here any terminal)
+
+
+              another ex.
+                            operator ALL= /sbin/poweroff       (user "operator" can shut down from any terminal)
+
+
+                 example of /etc/sudoers
+              -----------------------------------------------------------------
+              | User_Alias     OPERATORS = joe, mike, jude                    |
+              | Runas_Alias    OP = root, operator                            |
+              | Host_Alias     OFNET = 10.1.2.0/255.255.255.0                 |
+              | Cmnd_Alias     PRINTING = /usr/sbin/lpc, /usr/bin/lprm        |
+              |                                                               |
+              |OPERATORS ALL=ALL                                              |# users in OPERATORS group can run any command from any terminal.
+              |                                                               |
+              |                                                               |
+              |linus ALL=(OP) ALL                                             |# user linus can run any command from any terminal as any user in the OP group (root or operator).
+              |                                                               |
+              |                                                               |
+              |user2 OFNET=(ALL) ALL                                          |
+              |                                                               |
+              |# user user2 may run any command from any machine in the       |
+              |OFNET network, as any user.                                    |
+              |                                                               |
+              |user3 ALL= PRINTING                                            |
+              |                                                               |
+              |# user user3 may run lpc and lprm from any machine.            |
+              -----------------------------------------------------------------
+
+
               As usual, there are first some sections to define some vars (called ALIAS) then
               they are mixed together to define who can do what, with the format
+
+
+                                                          NOPASSWD:  no password is required (ex to print)
+                                                          NOEXEC:    no shell can be executed as a child (as it will be a su shell
+                                                            |                                             then bypassing all sudo settings)
+                                                            |
               <user list> <host list> = <operator list> <tag list> <command list>
+
+
               ex
               USERS WORKSTATIONS=(ADMINS) ADMIN_CMDS
               myuser ALL = (root) NOPASSWD:NOEXEC: /usr/bin/vim
@@ -1575,9 +1674,6 @@ __  sudo
               ALL     builtin alias which matches everything
                       ALL ALL=(ALL) NOPASSWD: PRINTING_CMDS
 
-              <tag list>    NOPASSWD:  no password is required (ex to print)
-                            NOEXEC:    no shell can be executed as a child (as it will be a su shell
-                                                                            then bypassing all sudo settings)
 ____________________
 __  w
 
