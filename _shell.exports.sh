@@ -227,5 +227,5 @@ export FESS_REPO_DIR="${HOME}/SUP/fes-administration-scripts"
 export TUX_SHUTTLES_DIR="${FESS_REPO_DIR}/TUX_STUFF/shuttles"
 
 # slack curl
-export FESS_SLACK_TOKEN='xoxp-23551602947-27039433235-840481341669-c02463b0abf50270313893db7509de0d'
-export FESS_SLACK_WEBHOOK='https://hooks.slack.com/services/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'
+export FESS_SLACK_TK='xoxp-23551602947-27039433235-840481341669-c0246'
+export FESS_SLACK_WHOK='https://hooks.slack.com/services/T0PG7HQTV/BQBL54DFU/lg1hFo'
