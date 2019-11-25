@@ -41,6 +41,9 @@ awsenv1 () {
    export AWS_ENVIRONMENT_TAG=${env}
 }
 
+function top_sort_cpu {
+     ${HOME}/SUP/fes-administration-scripts/restart-apps-on-high-cpu-slaves/restart-apps-on-high-cpu-slaves.pl
+}
 #________________________ </new settings for CHS on AWS>
 #______________________________________
 function ch_g {
@@ -250,20 +253,6 @@ function set_CH_context {
     fi
 }
 #______________________________________
-function set_AWS_context {
-    AWS_ENV_TYPE=$1
-    if [[ $1 == "l" ]]
-    then
-        AWS_ENV_TYPE="live"
-    elif [[ $1 == "s" ]]
-    then
-        AWS_ENV_TYPE="staging"
-    elif [[ $1 == "i" ]]
-    then
-        AWS_ENV_TYPE="integration"
-    fi
-}
-#______________________________________
 function ch_v {
     cd $CH_CONTEXT_VAGRANT_DIR
     vagrant "${@}"
@@ -386,9 +375,12 @@ function ch {
     elif [[ $2 == "cut" ]] # cut a release
     then
         ch_cut "${@:3}"
-    elif [[ $2 == "rel" ]] # cut a release
+    elif [[ $2 == "rel" ]] # release CHL
     then
         ch_release "${@:3}"
+    elif [[ $2 == "relcmd" ]] # release CMD
+    then
+        ch_legacySystems_cmd "${@:3}"
     fi
 }
 
@@ -444,6 +436,12 @@ function reset_proxy {
      env | grep -i proxy | awk 'BEGIN{FS="="; l="export "} {l=l $1 "= "} END{print l}'
 }
 #______________________________________
+function auto_help {
+    local function_name="$1"
+    local test_var="$2"
+    cat ${HOME}/_shell.functions.sh | sed -n -E -e "/function[ \t]*${function_name}/,/^[ \t]*}[ \t]*$/ { s/.*${test_var}[ \t]*==[ \t]*\"([^\"]*).*/\1/ p;}"
+}
+#______________________________________
 function as {
     local as_dir=${HOME}/auto_ssh
     if [[ -z $1  ]]
@@ -461,6 +459,9 @@ function as {
     elif [[ $1 == "x" ]] # extract the password for the specified key
     then
         ${as_dir}/auto_ssh.tcl -- -env -x $2
+    elif [[ $1 == "h" || $1 == "-h" || $1 == "--help" || $1 == "-help" ]]
+    then
+        ${as_dir}/auto_ssh.tcl -- -h
     else
         cd ${as_dir}
     fi
@@ -468,66 +469,370 @@ function as {
 #______________________________________
 #  START OF AWS BLOCK
 #______________________________________
-function aws_slave_info {
-    local start=${1:-1}
-    local end=${2:-`echo $start`}
-    echo "${HOME}/.ssh/ch-aws-${AWS_ENV_TYPE}.pem"
+#______________________________________
+function set_AWS_context {
+    AWS_ENV_TYPE=$1
+    AWS_LOCAL_DIR_CONFIG="${HOME}/SUP/AWS_CONFIGS"
+    if [[ $1 == "l" ]]
+    then
+        AWS_ENV_TYPE="live"
+        AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/live/"
+        AWS_MONGO_PASS=m0ng0pr0dadm1n
+    elif [[ $1 == "s" ]]
+    then
+        AWS_ENV_TYPE="staging"
+        AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/staging/"
+        AWS_MONGO_PASS=m0ng0adm1n
+    elif [[ $1 == "i" ]]
+    then
+        AWS_ENV_TYPE="integration"
+        AWS_S3_DIR_RELEASE=""
+        AWS_S3_DIR_CONFIG=""
+    elif [[ $1 == "d" ]]
+    then
+        AWS_ENV_TYPE="development"
+        AWS_S3_DIR_RELEASE="release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG=""
+    fi
+    AWS_ENV_KEY="${HOME}/.ssh/ch-aws-${AWS_ENV_TYPE}.pem"
+}
+#______________________________________
+function aws_boxes_ips {
+    local box_name=${1}
+    local start=${2}
+    local end=${3}
     for s in `seq $start $end`
     do
-      local slave="mesos-slave${s}.${AWS_ENV_TYPE}.aws.internal"
-      local slave_ip=$( nslookup ${slave} | sed -n '/ddress/ {s/[^0-9\.]*//;h;}; $ {x;p;}' )
-      echo "${slave}|${slave_ip}"
+      local box="mesos-${box_name}${s}.${AWS_ENV_TYPE}.aws.internal"
+      local box_ip=$( nslookup ${box} | tail -2 | sed -n '/ddress/ {s/[^0-9\.]*//;h;}; $ {x;p;}' )
+      echo "${box}|${box_ip}"
     done
+}
+#______________________________________
+function aws_box_info {
+    local start=${1:-1}
+    #local end=${2:-`echo $start`}
+    local end=${2:-18}
+    aws_boxes_ips 'master' 1 3
+    aws_boxes_ips 'slave'  $start $end
 }
 #______________________________________
 function aws_ssh {
     #local slaves_info=($( aws_slave_info "${@:1}" | tr '|' '\n' ) )
-    local slaves_info=($( aws_slave_info "${@:1}" ) )
-    select slave in ${slaves_info[@]:1}
+    local boxes_info=($( aws_box_info "${@:1}" ) )
+    select box in ${boxes_info[@]}
     do
-        ip=$(echo $slave | sed -e 's/[^|]*|//' )
-        ssh -i $slaves_info[1] -o "StrictHostKeyChecking no" ec2-user@$ip
+        ip=$(echo $box | sed -e 's/[^|]*|//' )
+        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no ec2-user@$ip
         break;
     done
 }
 #______________________________________
-function saws {   # support aws  (aws alone is already the https://aws.amazon.com/cli/)
-    local help=
-    set_AWS_context $1
-    if [[ -z $1 ]]
+function aws_rcmd {
+    local cmd="$1"
+    local boxes_info=($( aws_box_info "${@:2}" ) )
+    local col_start=${F_FG_GREEN}
+    local col_end=${F_RESET}
+    for box in ${boxes_info[@]}
+    do
+        ip=$(echo $box | sed -e 's/[^|]*|//' )
+        echo "${col_start}-------------------------[$box]${col_end}"
+        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no ec2-user@$ip "$cmd"
+    done
+}
+#______________________________________
+function aws_output_rcmd {
+    local cmd_output="$1"
+    local cmd="$2"
+    local boxes_info=($( aws_box_info "${@:3}" ) )
+    local col_start=${F_FG_GREEN}
+    local col_end=${F_RESET}
+    for box in ${boxes_info[@]}
+    do
+        ip=$(echo $box | sed -e 's/[^|]*|//' )
+        echo "${col_start}-------------------------[$box]${col_end}"
+        local output=$( ssh -i ${AWS_ENV_KEY} -o "StrictHostKeyChecking no" ec2-user@$ip "$cmd_output" )
+        echo $output | top_sort_cpu
+    done
+}
+#______________________________________
+function aws_s3 {
+    local dir=$AWS_S3_DIR_RELEASE
+    local global_env="global_env"
+    if [[ -z $1  || $1 == "release" ]]
     then
-        help=1
-    else
-        if [[ $2 == "ip" ]]
+        :
+    elif [[ $1 == "config" ]]
+    then
+        dir=$AWS_S3_DIR_CONFIG
+    elif [[ $1 == "gup" ]]
+    then
+         aws --profile $AWS_ENV_TYPE s3 cp $global_env s3://$AWS_S3_DIR_CONFIG
+    elif [[ $1 == "gdown" ]]
+    then
+        if [[ -f $global_env ]]
         then
-            aws_slave_info  "${@:3}" | nl -v 0 -n rn
-        elif [[ $2 == "ssh" ]]
+            cp $global_env ${global_env}.bak
+        fi
+        aws --profile $AWS_ENV_TYPE s3 cp s3://${AWS_S3_DIR_CONFIG}$global_env ${global_env}.ori
+        cp ${global_env}.ori $global_env
+        if [[ $2 == "-e" ]]
         then
-            aws_ssh "${@:3}"
-        else
-        help=1
+            vi $global_env
+            vimdiff $global_env ${global_env}.ori
         fi
     fi
-    if [[ $help ]]
+
+    if [[ $2 == "cp" ]]
     then
-        echo "\tsaws [l,i,s] [ip,ssh] [start[1]] [end[start]]"
+        echo "aws --profile $AWS_ENV_TYPE s3 cp ./ s3://$dir --exclude '*' --include '*.zip' --recursive"
+    elif [[ $2 == "ls" ]]
+    then
+        if [[ -z $3 ]]
+        then
+            aws --profile $AWS_ENV_TYPE s3 ls s3://$dir
+        else
+            aws --profile $AWS_ENV_TYPE s3 ls s3://$dir | grep -i $3
+        fi
+        echo "aws --profile $AWS_ENV_TYPE s3 cp s3://$dir ."
+
+    elif [[ $2 == "pull" || $2 == "push" ]]
+    then
+        cd $AWS_LOCAL_DIR_CONFIG
+        if [[ $2 == "pull" ]]
+        then
+            aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG $AWS_ENV_TYPE/ --recursive
+            cd $AWS_ENV_TYPE
+            git status
+        else
+            cd $AWS_ENV_TYPE
+            local files_changed=$(git status --porcelain)
+            echo "files changed:\n$files_changed"
+            if [[ $files_changed ]]
+            then
+                echo  "push [y/n]? "
+                read  ok_to_push
+                if [[ "$ok_to_push" = "y" ]]
+                then
+                    for f in $( echo $files_changed| awk '{print $2}')
+                    do
+                        aws --profile $AWS_ENV_TYPE s3 cp $f s3://${AWS_S3_DIR_CONFIG}${f}
+                    done
+                fi
+            fi
+
+        fi
+    fi
+    echo "_______________________"
+    echo "DIR_RELEASE=s3://$AWS_S3_DIR_RELEASE"
+    echo "DIR_CONFIG=s3://$AWS_S3_DIR_CONFIG"
+}
+#______________________________________
+function aws_restart_Mesos_Marathon {
+    local ok=
+    if [[ ${AWS_ENV_TYPE} != 'staging' ]]
+    then
+        for i in 1 2
+        do
+            echo "Restarting on ${AWS_ENV_TYPE} ??? Are you sure ???  [yes/-]  (remind $i of 2)"
+            read  ok
+            if [[ $ok != 'yes' ]]
+            then
+                return
+            fi
+        done
+    fi
+    for i in 1 2 3
+    do
+        ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}.${AWS_ENV_TYPE}.aws.internal 'sudo stop mesos-master;sudo stop marathon;sudo start mesos-master;sudo start marathon'
+    done
+}
+#______________________________________
+function aws_marathon_rest_api_old {
+    if [[ -z $1  || $1 == "ls" ]]
+    then
+        local perl_script='$s; $l=$ARGV[0]; %k=map{$_ => 1} (split (/ /,$ARGV[0])); while (<STDIN>) { (($l eq "ALL") && (print)) || (/"id"[^:]*:(.*)/ && (print "$s\n") && ($s=" $1")) || ($_ =~ /"([^"]+)"[^:]*:(.*)/ && (exists $k{$1}) && ($s.=" [$1] $2") ); } print "$s\n";'
+        curl -X GET --netrc-file ${HOME}/_shell.curl.sh http://mesos-master1.${AWS_ENV_TYPE}.aws.internal:8080/v2/apps | jq '.' | perl -e "$perl_script" "$2" | sort | nl
+    fi
+}
+#______________________________________
+function aws_marathon_rest_api {
+    ${HOME}/SUP/fes-administration-scripts/restart-app/restart-app.pl -e ${AWS_ENV_TYPE} "$@"
+}
+#______________________________________
+function aws_trans_processing_find {
+    echo "...querying MONGO for $3"
+    ssh -i $AWS_ENV_KEY  $1  "$2" | sed -ne '/_id/ {s/[^:]*:// p;}' | sort > $3
+}
+#______________________________________
+function aws_trans_processing {
+  local MONGO_HOST=mongo-db1.${AWS_ENV_TYPE}.aws.internal:27017
+  local SLAVE=ec2-user@mesos-slave2.${AWS_ENV_TYPE}.aws.internal
+
+  local CMD="mongo  --host $MONGO_HOST --authenticationDatabase admin -u admin -p $AWS_MONGO_PASS --eval 'db=db.getSiblingDB(\"transactions\"); printjson(db.getCollection(\"transactions\").find({ \$and : [{\"data.filings\": { \$exists: true}},{ \$where : function() { return (this.data.filings[this._id + \"-1\"].status == \"processing\") }}] },{_id:1}).toArray())'"
+
+  local SLEEP=20
+  aws_trans_processing_find  "$SLAVE" "$CMD" stuck1
+  echo "...sleeping for $SLEEP"
+  sleep $SLEEP
+  aws_trans_processing_find  "$SLAVE" "$CMD" stuck2
+
+  comm -12 stuck1 stuck2
+}
+#______________________________________
+function myaws {   # support aws  (aws alone is already the https://aws.amazon.com/cli/)
+    set_AWS_context $1
+    if [[ -z $2  ]]
+    then
+        auto_help myaws 2
+        return
+    elif [[ $2 == "ip" ]]
+    then
+        echo "______ [start[1]] [end[18]]"
+        aws_box_info  "${@:3}" | nl -v 0 -n rn
+    elif [[ $2 == "ssh" ]]
+    then
+        echo "______ [start[1]] [end[18]]"
+        aws_ssh "${@:3}"
+    elif [[ $2 == "s3" ]]
+    then
+        aws_s3 "${@:3}"
+    elif [[ $2 == "cmd" ]]
+    then
+        aws_rcmd "${@:3}"
+    elif [[ $2 == "cmdspace" ]]
+    then
+        aws_rcmd 'df -hT' "${@:3}"
+    elif [[ $2 == "cmdcpu" ]]
+    then
+        aws_rcmd 'iostat -y -h -c' "${@:3}"
+    elif [[ $2 == "cmdapps" ]]
+    then
+        aws_rcmd "ps -ef | grep executors | grep -v mesos-logrotate-logger | sed -n -e '/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}' | sort | nl" "${@:3}"
+    elif [[ $2 == "xxx" ]]
+    then
+        aws_output_rcmd "top -b -n 1 -c" "${@:3}"
+    elif [[ $2 == "restartMM" ]]
+    then
+        aws_restart_Mesos_Marathon
+    elif [[ $2 == "restartApps" ]]  # (Mesos) Marathon REST API
+    then
+        aws_marathon_rest_api "${@:3}"
+    elif [[ $2 == "trans_processing" ]]  # find stuck 'processing' transactions
+    then
+        aws_trans_processing "${@:3}"
     fi
 }
 
 #______________________________________
 #  END OF AWS BLOCK
 #______________________________________
+#______________________________________
+#  START OF ONCALL BLOCK
+#______________________________________
+#______________________________________
+# verify BRIS disk space is not full
+function oncall_bris {
+    local col_start=${F_FG_GREEN}
+    local col_end=${F_RESET}
+    local MAX=70
 
+    local str=$( ssh -i $AWS_ENV_KEY centos@bris-domibus1.live.aws.internal 'sudo df -hT' )
+    local avail_space=$( echo "$str" | sed -E -n -e 's/.*[ \t]([0-9]*)%[ \t]*\/$/\1/p')
+
+    if [ "$avail_space" -gt "$MAX" ]
+    then
+        col_start=${F_FG_RED}
+    fi
+
+    echo "$str"
+    echo "${col_start}avail space: ${avail_space}${col_end}"
+}
+#______________________________________
+function oncall {
+    set_AWS_context 'l'
+    oncall_bris
+}
+#______________________________________
+#  END OF ONCALL BLOCK
+#______________________________________
+#______________________________________
+#  START OF LEGACY PROCEDURES
+#______________________________________
+
+function get_connection_param_value {
+    echo $1| grep -w $2 | awk '{print $2}'
+}
+#______________________________________
+function ch_legacySystems_cmd {
+    local tag=$1
+    local system=$2
+    local sub_sys=$3
+    local start_num=$4
+    local end_num=$5
+    local cmd=$6
+
+    if [[ "$end_num" = "-" ]]
+    then
+        local info=$(get_connection_info.pl $tag $system $sub_sys 1)
+        end_num=$(get_connection_param_value $info 'tot_instances')
+    fi
+
+    if [[ "$cmd" = "cronout" ]]
+    then
+        cmd='STR="sb"; crontab -l | sed -e "s/^/#$STR/" > crontab.bk; crontab crontab.bk;'
+    elif [[ "$cmd" = "cronin" ]]
+    then
+        cmd='STR="sb"; crontab -l | sed -e "s/^#$STR//" > crontab.bk; crontab crontab.bk;'
+    fi
+        echo "$end_num $tag $system $sub_sys $start_num $end_num $cmd"
+
+    for i in $( seq $start_num $end_num)
+    do
+        local info=$(get_connection_info.pl $tag $system $sub_sys $i)
+        local pass_k=$(get_connection_param_value $info 'password_key')
+        if [[ ! -z "${pass_k}" ]]
+        then
+            local pass=$(as x $pass_k | tail -1)
+            local host=$(get_connection_param_value $info 'host')
+            local user=$(get_connection_param_value $info 'user')
+            echo "-----------[$i]--------- $user@$host [$cmd]"
+            sshpass -p $pass ssh -oStrictHostKeyChecking=no  $user@$host "$cmd"
+        fi
+    done
+}
+#______________________________________
+function ch_tux_send {
+    local tag=$1              #ex. live
+    local system=$2           #ex. ewf
+    local start_num=$3        #ex. 1
+    local end_num=$4          #ex. -  (for all)
+    local remote_cmd=$5       #ex. 35 (for shuttle 35)
+    local xml_params=$6       #ex. SC059189  (company num to substitute in template)
+    local xml_template="$TUX_SHUTTLES_DIR/shuttle$remote_cmd.template.xml"
+
+    local remote_dir='uddir'
+    local remote_temp_file="$remote_dir/xml_temp_tux_msg.xml"
+    local xml_content=$( cat "$xml_template" | sed "s/\"/\\\\\"/g; s/COMP_NUM/$xml_params/" )
+    local cmd="echo \"$xml_content\" > $remote_temp_file ; source .bash_profile; appdir/xmltuxc shuttle$remote_cmd $remote_temp_file"
+
+    ch_legacySystems_cmd $1 $2 'tux' $3 $4 "$cmd"
+}
+#______________________________________
+#  END OF LEGACY PROCEDURES
+#______________________________________
 #______________________________________
 #  START TMUX SCRIPTS
 #______________________________________
 
 #___________________
 # array acting like a hash table fo envs
-TMUX_RELEASE_ENVS=('ewffe:2 5 " as p 2 5 1 XXX1")'  # the starting space is to not log in the history
-                   'ewfbe:2 2 " as p 2 5 2 XXX1")'
-                   'xmlfe:2 3 " as p 2 7 1 XXX1")'
-                   'xmlbe:1 2 " as p 2 7 2 XXX1")'
+TMUX_RELEASE_ENVS=('ewffe:2 5 " as p 2 6 1 XXX1")'  # the starting space is to not log in the history
+                   'ewfbe:2 2 " as p 2 6 2 XXX1")'
+                   'xmlfe:2 3 " as p 2 8 1 XXX1")'
+                   'xmlbe:1 2 " as p 2 8 2 XXX1")'
                    );
 # Bash 3 has no hashes and Bash 4 / Zsh are bit different so hacking here
 function tmux_getEnv_info {
@@ -631,7 +936,7 @@ function tmux_create_env_panels {
 
     elif [[ $action == "send" ]]
     then
-        tmux select-window -t "$env"                # 1. select the window
+        tmux select-window -t "$env"               # 1. select the window
         tmux_sendAllPanels_cmd $ROWS $COLS "$cmd"  # 2. send cmd to all panels
     fi
 }

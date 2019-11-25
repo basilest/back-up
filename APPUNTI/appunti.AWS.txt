@@ -43,6 +43,124 @@ MFA token  &  AWS CLI
 
 
 
+----------------------------------------------------------
+aws-cli for S3
+
+                 these commands assume the wanted  AWS_PROFILE  (i.e. export AWS_PROFILE=staging)
+                 addresses a profile (i.e. staging) actually listed in both
+
+                           1 ~/.aws/config
+                           2 ~/.aws/credentials
+
+								 If the AWS_PROFILE var is not defined or if I want to run a command with a profile
+								 different from AWS_PROFILE I can use the --profile ....
+											 ex.   aws ec2 describe-instances --profile user1
+
+                 ~/.aws/config
+                                        [profile development]
+                                        output = json
+                                        region = eu-west-1
+
+                                        [default]
+                                        region = eu-west-2
+                                        output = json
+
+                                        [profile default]
+                                        output = json
+                                        region =  eu-west-1
+
+                                        [profile preprod]
+                                        output = json
+                                        region = eu-west-2
+
+                                        [profile staging]   <------------- STAGING
+                                        output = json
+                                        region = eu-west-2
+
+                                        [profile live]
+                                        output = json
+                                        region = eu-west-2
+                 ~/.aws/credentials
+                                        [sandbox]
+                                        aws_access_key_id = IDAK..........ADUQFRIA
+                                        aws_secret_access_key = 1eBYUXIdA....................xDD5JY29ndb
+
+                                        [development]
+                                        aws_access_key_id = AKIA..........D2EPKQ
+                                        aws_secret_access_key = pGgzZvOn....................WbTpBCrgY92B
+
+                                        [default]
+                                        aws_access_key_id = AKIA..........C73QUS
+                                        aws_secret_access_key = 4GlqV....................w3u/DrDlTFULdji
+
+                                        [preprod]
+                                        aws_access_key_id = AKIA..........C73QUS
+                                        aws_secret_access_key = 4GlqV....................w3u/DrDlTFULdji
+
+                                        [staging]                                                          <------------- STAGING
+                                        aws_access_key_id = AKIA..........C73QUS
+                                        aws_secret_access_key = 4Glq....................Ow3u/DrDlTFULdji
+
+                                        [live]
+                                        aws_access_key_id = AKIA..........4JL74A
+                                        aws_secret_access_key = njNvl....................IUNNT569V/jbsbC
+
+
+
+        aws s3 ls                            list   (note in aws terminology a 'dir' is a 'PREFIX', shortened as 'PRE')
+        aws s3 ls help                       see the (few) options
+
+                                                 ex. aws s3 ls s3://ch-service-staging-config.ch.gov.uk/staging/             <---- for a dir ending '/'  !!!
+                                                 ex. aws s3 ls s3://ch-service-staging-config.ch.gov.uk/staging/global_env   <---- a file
+
+        aws s3 mb s3://bucket-name           create a bucket    N.B. BUCKET NAMES MUST BE GLOBALLY UNIQUE AND SHOULD BE DNS COMPLIANT.
+
+        aws s3 rb s3://bucket-name           delete a bucket     (it must be EMPTY)
+        aws s3 rb s3://bucket-name --force   delete a bucket (content and subdirs)
+
+        aws s3 rm                            as in unix   \
+        aws s3 cp                                   "      |  they all come with the option '--grants'
+        aws s3 sync                                 "     /   --grants Permission=Grantee_Type=Grantee_ID
+                                                                            \           \          \_____________      <the value>
+                                                                             \           \______________________    [uri emailaddress id]
+                                                                              \_________________________________ [readacl writeacl full]
+
+                ex.
+                   aws s3 cp file.txt s3://my-bucket/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=emailaddress=user@example.com
+                                                               ^^^^                                                     ^^^^    ^^^^^          ^^^^
+                                                                                                                          1       2              3
+       FILTERING:              --exclude  "<value>"         1 or + times (the last have precedence)
+    (only  rm cp sync)         --include  "<value>"
+
+					   *: Matches everything
+
+					   ?: Matches any single character
+
+					   [sequence]: Matches any character in sequence
+
+					   [!sequence]: Matches any character not in sequence
+
+				   ex:
+					  --exclude  "*"      --include "*.txt"       All files excluded except .txt
+					  --include  "*.txt"  --exclude "*"           All files excluded (even *.txt, so be careful in the order)
+
+
+
+		   By default, ALL FILES ARE INCLUDED.
+
+					   This means that an --include alone has no meaning.
+					   --include has a meaning only when re-including files after a --exclude
+
+					   so it's normally seen as
+
+						  --exclude "*" --include "*.jpg" --include "*.txt"
+
+
+
+       RECURSIVE:   --recursive
+
+				   ex:
+					  aws s3  cp  /tmp/foo/  s3://bucket/  --recursive
 
 ----------------------------------------------------------
 Why AWF:  It is the FASTEST growing cloud computing platform

@@ -249,6 +249,13 @@ NOTATIONS:
   | git ls-files -s |  --stage                                 # to see all  files with STAGE NUMBERS (0,   1,2,3)   default: 0: no merge ongoing
   | git ls-files -u                                            # to see only file  under conflict  (during an ongoing merge)
   |                                                            #
+  |                                                            # small shell script to search a file under any branch:
+  |                                                            #
+  |                                                            #       for branch in `git for-each-ref --format="%(refname)" refs`; do
+  |                                                            #             echo "===================================================== $branch" :;
+  |                                                            #             git ls-tree -r --name-only $branch | grep -i 'ConfirmationStatement-v1-2-rc1.xsd'
+  |                                                            #       done
+  |                                                            #
   |                                                            #
   | git fsck                                                   # to check integrity (of the pack)
   |                                                            #
@@ -1278,15 +1285,19 @@ NOTATIONS:
   |
   |      after changing the original repo  (so change & add & commit & push)
   |      to change ALL the other repos that use it, as a submodule do this for each of them:
-  |
-  |
-  |         for i in all the repo
-  |
-  |              cd i
-  |              git submodule init                 <---- do this in root repo dir
-  |              git checkout -b feature/<name>     <---- create a branch in root repo dir
-  |              cd api-enumerations                <---- cd into the dir of the submdoule
-  |              git checkout develop
+  |                                                                                                                       | [submodule "vendor/api.ch.gov.uk-specifications"]
+  |                                                                                                                       |         path = vendor/api.ch.gov.uk-specifications
+  |                                                                                                                       |         url = git@github.com:companieshouse/api.ch.gov.uk-specifications.git
+  |         for i in all the repo                                                                                         |
+  |                                                                                                                       | [submodule "vendor/account.ch.gov.uk-specifications"]
+  |              cd i                                                                                                     |         path = vendor/account.ch.gov.uk-specifications
+  |              git submodule init              <- do this in root repo dir (creates a .gitmodules if not present) --->  |         url = git@github.com:companieshouse/account.ch.gov.uk-specifications.git
+  |              git submodule update            <- this pulls the latest changes of the repos                            |
+  |              git checkout -b feature/<name>  <- create a branch in root repo dir                                      | [submodule "vendor/document.api.ch.gov.uk-specifications"]
+  |              cd api-enumerations             <- cd into the dir of the submdoule                                      |         path = vendor/document.api.ch.gov.uk-specifications
+  |                                                 the repo is not automatically in a stable branch                      |         url = git@github.com:companieshouse/document.api.ch.gov.uk-specifications.git
+  |                                                 so explicitly checkout develop or master pull
+  |              git checkout develop               then checkout the wanted branch
   |              git pull
   |              git checkout <branch where the changes were made on the repo>
   |              git pull (probably wont need this as it will be the first time you checkout this branch in the submodule, but you can do it for safety/sanity)

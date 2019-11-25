@@ -12,3 +12,12 @@ Alternation      a|b|c
 
      echo 'cat dog pear banana cat dog' | sed -r    's/cat|dog/Bear/g'      GNU
      echo 'cat dog pear banana cat dog' | sed -E -e 's/cat|dog/Bear/g'      OS X
+
+
+
+Grouping
+           \( \)     to catch              in OS X is \{ \}
+           \1        to use
+
+          sed  's/^([A-Za-z]+-[0-9]+).*$/\1/'
+

@@ -22,7 +22,7 @@ export http_proxy=http://$PROXY
 export HTTP_PROXY=http://$PROXY
 export https_proxy=http://$PROXY
 export HTTPS_PROXY=http://$PROXY
-export no_proxy=localhost,chs-dev,chs-kafka,chs-mongo,chs-logs,chs-metrics,chs-dev.internal,*.chs-dev.internal
+export no_proxy=localhost,chs-dev,chs-kafka,chs-mongo,chs-logs,chs-metrics,chs-dev.internal,*.chs-dev.internal,*aws.chdev.org
 export NO_PROXY=${no_proxy}
 
 
@@ -183,6 +183,8 @@ PATH="/usr/local/opt/openssl/bin:$PATH"
 
 
 #echo "----------8---------------- $PATH"
+PATH="${HOME}/auto_ssh":$PATH
+
 export PATH
 
 
@@ -192,3 +194,38 @@ export AUTO_SSH_CONFIG_MP=U2FsdGVkX19en7cv1Mv/0E1xaFgM4lvLt1Hg+o69Le8=
 #source /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
 source /usr/local/bin/virtualenvwrapper.sh
 export WORKON_HOME=~/PYTHON_ENVS
+workon aws-cli-on.python.3
+
+export CURL_HJ='"Content-Type: text/xml"'
+export CURL_HX='"Content-Type: application/json"'
+
+#_______________ Using fd with fzf
+export FZF_DEFAULT_COMMAND='fd --type file --color=always'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+
+
+#<FZF>
+# Setup fzf
+# ---------
+if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
+fi
+
+# Auto-completion
+# ---------------
+[[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
+
+# Key bindings
+# ------------
+source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+#</FZF>
+
+
+# TUX STUFF
+export FESS_REPO_DIR="${HOME}/SUP/fes-administration-scripts"
+export TUX_SHUTTLES_DIR="${FESS_REPO_DIR}/TUX_STUFF/shuttles"
+
+# slack curl
+export FESS_SLACK_TOKEN='xoxp-23551602947-27039433235-840481341669-c02463b0abf50270313893db7509de0d'
+export FESS_SLACK_WEBHOOK='https://hooks.slack.com/services/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'

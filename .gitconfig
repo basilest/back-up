@@ -33,9 +33,9 @@
 	default = simple
 [remote "origin"]
 	prune = true
-[url "https://sbasile-ch:9cdd3..................................3@github.com/"]
+[url "https://sbasile-ch:9cdd3b981596fdaca390c5021e068a091aaee4d3@github.com/"]
 	insteadOf = https://github.com/
-[url "https://sbasile-ch:9cdd3..................................3@github.com/"]
+[url "https://sbasile-ch:9cdd3b981596fdaca390c5021e068a091aaee4d3@github.com/"]
 	insteadOf = git@github.com:
 [url "git@github.com:"]
 	insteadOf = https://github.com/

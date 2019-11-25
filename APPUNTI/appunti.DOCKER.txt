@@ -188,6 +188,13 @@ ________________________________________________________________________________
                                         create the output not in the same dir: ./xxxxx but in my machine’s Docker image registry
                                         so that I can see the image xxxx with 'docker image ls'
 
+
+                                      1 An Image is retrieved from a Registry (like GitHub, but for docker is: docker.io which is the DEFAULT value if omitted)
+                                      2 Inside a REPOSITORY (no DEFAULT value, if not explicitly set, docker looks
+                                        if it's present a var REPOSITORY in the image (the Dockerfile file used when the image was created)
+                                      3 a tag is like a branch for GitHub. The image retrieved is identified by a specific tag among all
+                                        (DEFAULT 'latest' ... like for git 'master')
+
       docker image ls --digests
                                         REPOSITORY                  TAG         DIGEST                                                                    IMAGE ID      CREATED        SIZE
                                         test                        latest      <none>                                                                    063f1b91a843  3 hours ago    71.5MB
@@ -224,7 +231,7 @@ ________________________________________________________________________________
                                                                         108MB
 
 
-      docker image ls --format "{{.Repository}}: {{.Tag}}: {{.Size}}
+      docker image ls --format "{{.Repository}}: {{.Tag}}: {{.Size}}"
                                                                         dodge:  challenger: 99.3MB
                                                                         ubuntu: latest:     111MB
                                                                         python: 3.4-alpine: 82.6MB
@@ -245,6 +252,7 @@ ________________________________________________________________________________
       docker image rm <image id>        to Remove specified image from this machine  (it removes all the internal layers that are not shared
                                                                                       by other images. The shared ones are kept as blob in the repo)
       docker image rm $(docker image ls -a -q)           to Remove all images
+      docker image rm --force                  to remove even with running containers
 
       docker image build -t test:latest .      reads in the current dir the 'Dockerfile' and creates a container called 'test' and tagged 'latest'
       docker image pull alpine:latest          it pulls from Docker Hub the repo alpine image 'latest'
@@ -254,7 +262,7 @@ ________________________________________________________________________________
                                                so docker image pull alpine:latest    is the same as
                                                   docker image pull alpine
 
-                                               Be carefull anyhow: latest is an arbitrary tag and is not guaranteed to point to the newest image in a repository!
+                                               Be carefull anyhow: latest is an arbitrary tag and is not guaranteed to point to the newest image in a repository
 
       docker image pull -a alpine       pulls all images
       docker image pull alpine@sha256:c0537...7c0a7726c88e2bb7584dc96     to pull specifying the digest
@@ -267,6 +275,11 @@ ________________________________________________________________________________
                                         8296858250fe: Pull complete                     4
                                         24e0251a0e2c: Pull complete                     5
                                         Digest: sha256:f4691c96e6bbaa99d...28ae95a60369c506dd6e6f6ab”
+      /*----------- check this syntax
+                docker pull zookeeper
+                docker pull mesosphere/marathon
+                docker pull mesosphere/mesos-slave:1.4.2    # I specify a version
+      ----------- */
 
 
       docker image inspect ubuntu:latest         the inspect command is the proper one to see the layers:
@@ -322,24 +335,30 @@ ________________________________________________________________________________
 
 
       docker search xxxx                                   searches in Docker Hub for every repo containing xxxx in the NAME
+                                                           ex:
+                                                                docker search zookeeper
+                                                                docker search mesosphere/marathon
       docker search alpine --filter "is-official=true"     gives only official repos
       docker search alpine --filter "is-automated=true"    gives only repo with automated builds
 
+
       docker ps                         to see all the containers
+      docker ps -a                      "   "   "   "      "
 
                                         CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                                NAMES
                                         7b7b15441b98        portainer/portainer               "/portainer"             2 months ago        Up 10 minutes       0.0.0.0:9000->9000/tcp               portainer
                                         f00d1e12d7ff        confluentinc/cp-kafka:5.0.0       "/etc/confluent/dock…"   3 months ago        Up 9 minutes        9092/tcp, 0.0.0.0:29093->29093/tcp   kafka
                                         b9254eb9b9c1        confluentinc/cp-zookeeper:5.0.0   "/etc/confluent/dock…"   3 months ago        Up 10 minutes       2181/tcp, 2888/tcp, 3888/tcp         zookeeper
 
-      docker container ls --all         to see all the containers
+      docker container ls               to see UP (running) containers
+      docker container ls --all         to see all the containers (UP and also STOPPED/Exited)
 
                                         CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                                NAMES
                                         7b7b15441b98        portainer/portainer               "/portainer"             2 months ago        Up 8 minutes        0.0.0.0:9000->9000/tcp               portainer
                                         f00d1e12d7ff        confluentinc/cp-kafka:5.0.0       "/etc/confluent/dock…"   3 months ago        Up 8 minutes        9092/tcp, 0.0.0.0:29093->29093/tcp   kafka
                                         b9254eb9b9c1        confluentinc/cp-zookeeper:5.0.0   "/etc/confluent/dock…"   3 months ago        Up 8 minutes        2181/tcp, 2888/tcp, 3888/tcp         zookeeper
 
-      docker container ls -aq           to see only containes_id (note -aq not --aq)
+      docker container ls -aq           to see only container_id (note -aq not --aq)
 
                                         7b7b15441b98
                                         f00d1e12d7ff
@@ -351,15 +370,27 @@ ________________________________________________________________________________
                                            docker container stop 7b7b15441b98
                                            docker container stop confluentinc/cp-kafka:5.0.0
 
+      docker container start            to restart a stopped(exited) container with all its previous changes intact
+      docker container exec             to run a command in an existing container
+                                        ex
+                                            “docker container exec -it <container-name or container-id> bash”
+      docker container inspect <N/ID>   it gives detailed configuration and runtime information.
+                                        It accepts container names or IDs
+
+
+
+
       docker container kill <id>        to Force shutdown
-      Control-pq                        to exit from the container keeping it running (....like sending in bg)
+      Control-PQ                        to exit from the container keeping it running (....like sending in bg)
       docker container exec -it nnnnn/iiiiii   bash       to attach back (-it interactively) to the container named nnnnnn or with id iiiiii
 
       docker container rm <hash>                         # Remove specified container from this machine
-      docker container rm $(docker container ls -a -q)   # Remove all containers
+      docker container rm    $(docker container ls -a -q)   # Remove all containers
+      docker container rm    $(docker container ls -a | grep -i 'get-started' | awk '{print $1}')     # remove all containers with with 'get-started' in the name
+      docker container rm -f $(docker container ls -a | grep -i 'get-started' | awk '{print $1}')     # forced remove all containers with with 'get-started' in the name
 
       docker container run -d  --name web1  --publish 8080:8080  test:latest       creates (-d detached or in bg) a running instance (named 'web1') of the container 'test' tagged 'latest'
-      docker container run     --name ctr1 -it alpine:latest sh                    creates (-it interactively on fg) a running instance (named 'ctrl') of the container 'alpine' tagged 'latest'
+      docker container run -it --name ctr1  alpine:latest sh                       creates (-it interactively on fg) a running instance (named 'ctrl') of the container 'alpine' tagged 'latest'
                                                                                    and inside it executes 'sh'
 
 
@@ -373,9 +404,74 @@ ________________________________________________________________________________
                                              a docker image is in the form:
                                                           username / repository : tag
 
-      docker tag <image> username/repository:tag         # Tag <image> for upload to registry
-      docker push username/repository:tag     to Upload tagged image to registry
-      docker run username/repository:tag      to Run image from a registry
+      docker tag <image> username/repository:tag           Tag <image> for upload to registry
+      docker push username/repository:tag                  to Upload tagged image to registry
+      docker run  username/repository:tag                  to Run image from a repository
+      docker image tag <old> <new>                         to change a tag  ex.  docker image tag web:latest nigelpoulton/web:latest
+
+      docker run
+                            --name           assign a name to the container:                            ex.  --name my_container
+                            -d  (--detach)   runs the container in the background of the terminal.      ex.  -d
+                            -e  (--env)      sets an ENV var using a KEY=VALUE pair.                    ex.  -e KEY=VALUE    (I can add many -e flags in the cmd line)
+                            --env-file       if ENV vars are in file, I can pass the full path here     ex. -env-file ./env.list
+                            --ip             declare an IP address.                                     ex. --ip=10.10.9.75
+                            --rm             automatically removes the container when it exits          ex. --rm
+                            -v  (--volume)   mount host's filesystem into the docker's one.             ex. -v "/ssl-cert.pem:/etc/nginx/certs/ssl-cert.pem"
+                            -w  (--workdir)  sets the working dir in the docker  (useful for example
+                                             if I have to then copy files to this dir).
+                            -p  (--publish)
+                            -P  (--publish-all)  port mappings between the container and host
+                                                (ports defined in an image’s Dockerfile or by using option, --expose)
+                                                . The option --publish, -p publishes a container’s port(s) to the host, while --publish-all , -P publishes all exposed ports.
+                            -t  (--tty)      runs the container in the background of the terminal.
+                            --entrypoint     specifies an executable to run when the container starts      ex. --entrypoint "/bin/ls -al /root"
+                                             nb. any args to this executable must be added after
+                                                 the container name                                                        container name
+                                                                                                                          /
+                                                                      ex.   docker run --entrypoint "/bin/ls -al /root" debian     (wrong)
+                                                                      ex.   docker run --entrypoint "/bin/ls" debian -al /root     (good)
+
+                                    docker run -d -p 2181:2181 --name zookeeper zookeeper:3.4.11                       ZOOKEEPER
+                                    docker run -it -d --name mesos-master -p 172.16.121.1:5050:5050                    MESOS_MASTER
+                                                      --link zookeeper
+                                                        -e MESOS_ZK=zk://zookeeper:2181/mesos
+                                                        -e MESOS_QUORUM=1
+                                                        -e MESOS_CLUSTER=docker-compose
+                                                        -e MESOS_HOSTNAME=172.16.121.1
+                                                        -e MESOS_WORK_DIR=/var/tmp/mesos
+                                                        -e MESOS_LOG_DIR=/var/log/mesos
+                                                        mesososphere/mesos-master:1.4.1
+
+                                    docker run -it -d --name mesos-slave -p 172.16.121.1:5051:5051                     MESOS_SLAVE
+                                                      --link zookeeper:zookeeper
+                                                      --link mesos-master:mesos-master
+                                                        -e MESOS_MASTER=zk://zookeeper:2181/mesos
+                                                        -e MESOS_CONTAINERIZERS=docker
+                                                        -e MESOS_PORT=5051
+                                                        -e MESOS_RESOURCES=ports[11000-11999]
+                                                        -e MESOS_HOSTNAME=172.16.121.1
+                                                        -e MESOS_WORK_DIR=/var/tmp/mesos
+                                                        -e MESOS_LOG_DIR=/var/log/mesos
+                                                        -e MESOS_SYSTEMD_ENABLE_SUPPORT="false" --
+                                                        mesososphere/mesos-slave:1.4.1
+
+                                    docker run -it -d --name marathon -p 8080:8080                                     MESOS_MARATHON
+                                                      --link zookeeper:zookeeper
+                                                      --link mesos-master:mesos-master
+                                                      --entry-point ./bin/start
+                                                        -e MARATHON_ZK=zk://zookeeper:2181/marathon
+                                                        -e MARATHON_MASTER=zk://zookeeper:2181/mesos
+                                                        mesososphere/marathon:v1.5.6
+
+
+
+      docker system info
+      docker system df
+                                TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
+                                Images              6                   4                   824.2MB             622.4MB (75%)
+                                Containers          42                  8                   12.58MB             10.86MB (86%)
+                                Local Volumes       6                   6                   3.226GB             0B (0%)
+                                Build Cache         0                   0                   0B                  0B
 
 
       _______________________________________________ SCALE AN APP
@@ -467,7 +563,136 @@ ________________________________________________________________________________
 
 ------------      Dockerfile
 
+                  it cannot have other names
+                  ("dockerfile" and "Docker file")
+                  it can only with the flag -f :
+                       docker build -f ../example/my_docfile
+
+
       . it's like a Makefile. It's used to builld an image (which I can then see with 'docker image ls')
+
+         Some instructions add a LAYER in the Image, others only METADATA (not Layers) to the Image
+         I highlight this with an L here
+         |
+         |                                                  FROM        FROM+LABEL     FROM+LABEL+RUN   FROM+LABEL+RUN+COPY    FROM+LABEL+RUN+COPY+RUN
+         L  FROM alpine                                   .--------.   .--------.     .--------.       .--------.             .--------.
+            LABEL maintainer="nigelpoulton@hotmail.com"   '.__F___.'   '._F_L__.'     '.__R___.'       '.__C___.'             '.__R___.'
+         L  RUN apk add --update nodejs nodejs-npm                                    .--------.       .--------.             .--------.
+         L  COPY . /src                                                               '._F_L__.'       '.__R___.'             '.__C___.'
+            WORKDIR /src         <---- set a DIR inside the image                                      .--------.             .--------.
+         L  RUN npm install            (following cmds will be relative to this)                       '._F_L__.'             '.__R___.'
+            EXPOSE 8080          <---- the internal image port.                                                               .--------.
+            ENTRYPOINT ["node", "./app.js"]   <----  sets the main application that the image should run                      '._F_L__.'
+
+
+            Note:  8080  is the internal image port.
+                   It is mapped during the docker run command
+                       docker run -p 80:8080   ....
+                   which maps the host-docker-local 80 port onto the image 8080
+                   If 80 is taken I can us any other available port
+
+
+            comments:          a line with #
+            syntax:            INSTRUCTION arguments     (ex   COPY . /src)      INSTRUCTIONs names are case-insensitive but usually UPPERCASED.
+
+                               Some INSTRUCTIONs add layers.
+                               The more the layers the slower the app ==>  group many instructions in 1
+                                                                           ex a RUN with (&&) or line breaks (\)
+                                                                           like in a normal unix shell
+                               Layers are cached (like artefacts)
+                               this means that a
+                                       $docker build
+                               will create a layer only if it's not found in the cache
+                               When a layer is not found in the cache (cache miss) since then
+                               the cache is no more searched.
+                               So leave the possible different layers at the end of a Docker file
+                               and all the possible common layers at the top, so that they are (cache hits)
+
+                               to not use the cache:
+                               $docker image bulld --no-cache=true
+                               $docker image bulld --squashed      #it collapses all the layers into 1
+                                                                    The image will become a single block
+                                                                    so every push/pull will move ALL (negative thing)
+                                                                    but it can be positive when I want to use that
+                                                                    as a basic image for different projects.
+
+
+
+                               MULTI_STAGE:
+
+                             |   FROM node:latest AS storefront              <----- 1 FROM so 1 Stage (this by default is numbered 0) (aliased as storefront)
+                             |   WORKDIR /usr/src/atsea/app/react-app
+                             |   COPY react-app .
+                             |   RUN npm install
+                             |   RUN npm run build
+                             |
+                             |   FROM maven:latest AS appserver             <----- 1 FROM so a 2nd Stage (this by default is numbered 1) (aliased as appserver)
+                             |   WORKDIR /usr/src/atsea
+                             |   COPY pom.xml .
+                             |   RUN mvn -B -f pom.xml -s /usr/share/maven/ref/settings-docker.xml dependency\
+                             |   :resolve
+                             |   COPY . .
+                             |   RUN mvn -B -s /usr/share/maven/ref/settings-docker.xml package -DskipTests
+                             |
+                             |   FROM java:8-jdk-alpine AS production       <----- 1 FROM so a 3rd Stage (by default numbered 2) (aliased as production)
+                             |   RUN adduser -Dh /home/gordon gordon
+                             |   WORKDIR /static
+                             |   COPY --from=storefront /usr/src/atsea/app/react-app/build/ .
+                             |   WORKDIR /app
+                             |   COPY --from=appserver /usr/src/atsea/target/AtSea-0.0.1-SNAPSHOT.jar .  <-- NOTE: I can use the previous STAGES (by their aliases) (here it's used to get/copy from)
+                             |   ENTRYPOINT ["java", "-jar", "/app/AtSea-0.0.1-SNAPSHOT.jar"]
+                             |   CMD ["--spring.profiles.active=postgres"]”
+                             |
+                             |   Excerpt From: Nigel Poulton. “Docker Deep Dive”. Apple Books.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      . docker image build  -t web:latest .                 it creates the image (put in my local (ex Mac) registry place
+                                                            reading the Docker file in the cur dir '.'
+
+
+
+
+
+      . docker image history   web:latest                   It shows the steps of the original Docker file used.
+                                                            NOTE:
+                                                                  1. the listed instructions are in reverse order from the last to the first
+                                                                  2. the instructions creating a layer are the ones with a SIZE value > 0
+                                                                     layers can also with showed with a   $docker image inspect web:latest
+
+                                 ex:   docker image history python:2.7-slim
+
+                                    IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+                                    0dc3d8d47241        11 months ago       /bin/sh -c #(nop)  CMD ["python2"]              0B
+                                    <missing>           11 months ago       /bin/sh -c set -ex;   savedAptMark="$(apt-ma…   7.12MB
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_PIP_VERSION=18…   0B
+                                    <missing>           11 months ago       /bin/sh -c set -ex   && savedAptMark="$(apt-…   51.4MB
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_VERSION=2.7.15    0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV GPG_KEY=C01E1CAD5EA2C…   0B
+                                    <missing>           11 months ago       /bin/sh -c apt-get update && apt-get install…   6.45MB
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHONIOENCODING=UTF-8   0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PATH=/usr/local/bin:/…   0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  CMD ["bash"]                 0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop) ADD file:dab9baf938799c515…   55.3MB
+
+
+
+
 
       . docker build --tag=xxxx .              <--- it will give the default value 'latest' to the TAG column in 'docker image ls'
       . docker build --tag=xxxx:v0.0.1 .       <--- it gives a value for the TAG column
@@ -674,100 +899,4 @@ ________________________________________________________________________________
                         }
                     }
 
-
-
-------------      docker  (engine)
-    docker ps -a        to show all containers
-    docker run
-                            --name           assign a name to the container:                            ex.  --name my_container
-                            -d  (--detach)   runs the container in the background of the terminal.      ex.  -d
-                            -e  (--env)      sets an ENV var using a KEY=VALUE pair.                    ex.  -e KEY=VALUE    (I can add many -e flags in the cmd line)
-                            --env-file       if ENV vars are in file, I can pass the full path here     ex. -env-file ./env.list
-                            --ip             declare an IP address.                                     ex. --ip=10.10.9.75
-                            --rm             automatically removes the container when it exits          ex. --rm
-                            -v  (--volume)   mount host's filesystem into the docker's one.             ex. -v "/ssl-cert.pem:/etc/nginx/certs/ssl-cert.pem"
-                            -w  (--workdir)  sets the working dir in the docker  (useful for example
-                                             if I have to then copy files to this dir).
-                            -p  (--publish)
-                            -P  (--publish-all)  port mappings between the container and host
-                                                (ports defined in an image’s Dockerfile or by using option, --expose)
-                                                . The option --publish, -p publishes a container’s port(s) to the host, while --publish-all , -P publishes all exposed ports.
-                            -t  (--tty)      runs the container in the background of the terminal.
-                            --entrypoint     specifies an executable to run when the container starts      ex. --entrypoint "/bin/ls -al /root"
-                                             nb. any args to this executable must be added after
-                                                 the container name                                                        container name
-                                                                                                                          /
-                                                                      ex.   docker run --entrypoint "/bin/ls -al /root" debian     (wrong)
-                                                                      ex.   docker run --entrypoint "/bin/ls" debian -al /root     (good)
-
-    docker exec         to run a command in an existing container
-    docker start        to restart a stopped container with all its previous changes intact
-
-
-
-
-
-------------      docker  (engine)
-
-
-    docker system info
-    docker system df
-                                TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
-                                Images              6                   4                   824.2MB             622.4MB (75%)
-                                Containers          42                  8                   12.58MB             10.86MB (86%)
-                                Local Volumes       6                   6                   3.226GB             0B (0%)
-                                Build Cache         0                   0                   0B                  0B
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-docker search zookeeper
-docker search mesosphere/marathon
-
-docker pull zookeeper
-docker pull mesosphere/marathon
-docker pull mesosphere/mesos-slave:1.4.2    # I specify a version
-
-docker run -d -p 2181:2181 --name zookeeper zookeeper:3.4.11                       ZOOKEEPER
-docker run -it -d --name mesos-master -p 172.16.121.1:5050:5050                    MESOS_MASTER
-                  --link zookeeper
-                    -e MESOS_ZK=zk://zookeeper:2181/mesos
-                    -e MESOS_QUORUM=1
-                    -e MESOS_CLUSTER=docker-compose
-                    -e MESOS_HOSTNAME=172.16.121.1
-                    -e MESOS_WORK_DIR=/var/tmp/mesos
-                    -e MESOS_LOG_DIR=/var/log/mesos
-                    mesososphere/mesos-master:1.4.1
-
-docker run -it -d --name mesos-slave -p 172.16.121.1:5051:5051                     MESOS_SLAVE
-                  --link zookeeper:zookeeper
-                  --link mesos-master:mesos-master
-                    -e MESOS_MASTER=zk://zookeeper:2181/mesos
-                    -e MESOS_CONTAINERIZERS=docker
-                    -e MESOS_PORT=5051
-                    -e MESOS_RESOURCES=ports[11000-11999]
-                    -e MESOS_HOSTNAME=172.16.121.1
-                    -e MESOS_WORK_DIR=/var/tmp/mesos
-                    -e MESOS_LOG_DIR=/var/log/mesos
-                    -e MESOS_SYSTEMD_ENABLE_SUPPORT="false" --
-                    mesososphere/mesos-slave:1.4.1
-
-docker run -it -d --name marathon -p 8080:8080                                     MESOS_MARATHON
-                  --link zookeeper:zookeeper
-                  --link mesos-master:mesos-master
-                  --entry-point ./bin/start
-                    -e MARATHON_ZK=zk://zookeeper:2181/marathon
-                    -e MARATHON_MASTER=zk://zookeeper:2181/mesos
-                    mesososphere/marathon:v1.5.6
 

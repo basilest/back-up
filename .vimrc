@@ -35,7 +35,6 @@ call plug#begin('~/.vim/plugged')        " call plug#end() will end at the end o
 "/<VIM_PLUG>
 
 
-
 " <VUNDLE> I added .vimrc modification to use vundle
 set nocompatible
 "filetype off
@@ -70,6 +69,17 @@ let g:airline#extensions#tabline#enabled = 1
 
 "</AIRLINE>
 
+"<FZF>
+" use fzf installed via homebrew
+Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf.vim'
+
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-h': 'split',
+  \ 'ctrl-v': 'vsplit' }
+"</FZF>
+
 
 "<LIGHTLINE>
 "         Plugin 'itchyny/lightline.vim'
@@ -101,7 +111,7 @@ Plug 'tpope/vim-fugitive'
 " it requires vim compiled with +ruby:   vim --version | grep -i ruby
 "  make distclean &&  ./configure --enable-rubyinterp=yes && make
 "           OLD VUNDLE CONFIG:    Plugin 'wincent/command-t'
-Plug 'wincent/command-t'
+"Plug 'wincent/command-t'
 " command-t commands:
 "                        <leader>t  (i.e. in my case ",t") to open the panel
 "                        Ctrl-s to open selected as H-split
@@ -382,6 +392,7 @@ endif
 if has('mouse_sgr')   "to have mouse on extra cols in large window (vim --version  or :version to see if +mouse_sgr)
     set ttymouse=sgr
 endif
+set ttymouse=xterm2      " to have mouse-resizing-windows even in tmux
 "<ch>set relativenumber
 set ic
 set hlsearch

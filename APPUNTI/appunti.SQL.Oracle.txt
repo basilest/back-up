@@ -90,6 +90,13 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |                        a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
   |                        a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
   |
+  |                           Note that if some columns on the left are not present in the right GROUP BY
+  |                           then this will work ONLY IF they are using any of these: AVG, COUNT, MAX, MIN, SUM, STDDEV, and VARIANCE.
+  |
+  |                           ex. a
+  |                                   select submissionnumber,     formtype from FORMDETAIL group by formtype;         <---- will NOT work
+  |                                   select MAX(submissionnumber),formtype from FORMDETAIL group by formtype;    <---- OK
+  |
   |
   |        - SELECT c1 from T1 GROUP BY c1;  Without a GROUP BY a select returns all the rows (ex. 1000 rows with duplicated the col City)
   |                                          With    a GROUP BY it returns rows grouped by that col (ex. City, so only 3 rows 'Milan' 'Rome' 'Venice')

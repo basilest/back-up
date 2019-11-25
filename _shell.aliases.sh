@@ -1,6 +1,8 @@
 alias a='alias'
 a ll='ls -al -G'
-a h='history'
+a h='fc -l 1'
+a hf='fc -l 1 | fzf'
+a ff='fd | fzf'
 a g='git'
 a tl='tmux new-session -s mymain -n start -d; tmux source-file ~/tmux.script.start.chl.conf ; tmux attach'
 a ts='tmux new-session -s mymain -n start -d; tmux source-file ~/tmux.script.start.chs.conf ; tmux attach'
@@ -33,3 +35,4 @@ export JAVA_HOME=$JAVA_8_HOME  # default java8
 #alias asx='${HOME}/auto_ssh/auto_ssh.tcl -- -env -x'
 alias fes='cd ${HOME}/bin/fes'
 
+alias vi=/usr/local/bin/vim

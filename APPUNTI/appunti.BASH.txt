@@ -316,6 +316,7 @@ ____________________________________________________________
 14 HISTORY TRICKS
 
         1. The history is saved in the file $HISTFILE (default: ~/.bash_history)
+           to not leave any history in a session:    export HISTFILE=
         2. The num of lines of this file is  $HISTFILESIZE
         3. The file is only used on the START & END of the session
            while during the session the history is a list in memory whose len is $HISTSIZE

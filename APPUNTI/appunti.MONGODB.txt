@@ -369,9 +369,32 @@ db.getCollection('company_profile').update({"_id":comp_no},
 
 
 
-           db                          # To see the DB list
+         _______________________________________________________________________________________
+         |
+         |     Mongo Shell                       Javascript equivalent
+         |______________________________________________________________________________________
+         | show dbs, show databases 	db.adminCommand('listDatabases')
+         |
+         | use <db>                     db = db.getSiblingDB('<db>')
+         |
+         | show collections             db.getCollectionNames()
+         |
+         | show users                   db.getUsers()
+         |
+         | show roles                   db.getRoles({showBuiltinRoles: true})
+         |
+         | show log <logname>           db.adminCommand({ 'getLog' : '<logname>' })
+         |
+         | show logs                    db.adminCommand({ 'getLog' : '*' })
+         |
+         | it
+         |                             cursor = db.collection.find()
+         |                             if ( cursor.hasNext() ){
+         |                                cursor.next();
+         |                             }
+         _______________________________________________________________________________________
 
-           db                          # To see the DB list
+
 -----------------------------------
            REPLICA SET     (is the SET of PRIMARY + SECONDARY nodes
                             to manage data redunandy/crash recovery)
@@ -566,6 +589,10 @@ find()   remove()   count()    both these 3 cmd, use selectors:
                     $or
 
                     db.unicorns.find ({gender: 'f', $or: [{loves: 'apple'}, {weight: {$lt: 500}}]})
+
+                    $not
+
+                    db.inventory.find( { price: { $not: { $gt: 1.99 } } } )
 
 
 
