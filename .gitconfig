@@ -1,6 +1,8 @@
 [user]
 	#name = Liam Hutton
 	#email = lhutton@companieshouse.gov.uk
+	#name = Simon Readman
+	#email = sreadman@companieshouse.gov.uk
     name = sbasile-ch
 	email = sbasile@companieshouse.gov.uk
 [core]
@@ -17,6 +19,7 @@
     l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
 	s = status
 	d = diff
+	c = commands           # use git-command https://github.com/hankchanocd/git-commands
 	co = checkout
 	cd = checkout develop
 	cm = checkout master
@@ -33,9 +36,9 @@
 	default = simple
 [remote "origin"]
 	prune = true
-[url "https://sbasile-ch:9cdd3b981596fdaca390c5021e068a091aaee4d3@github.com/"]
+[url "https://sbasile-ch:72427e03c7348a2f11ae32ad5d10e9e830fcf4b7@github.com/"]
 	insteadOf = https://github.com/
-[url "https://sbasile-ch:9cdd3b981596fdaca390c5021e068a091aaee4d3@github.com/"]
+[url "https://sbasile-ch:72427e03c7348a2f11ae32ad5d10e9e830fcf4b7@github.com/"]
 	insteadOf = git@github.com:
 [url "git@github.com:"]
 	insteadOf = https://github.com/

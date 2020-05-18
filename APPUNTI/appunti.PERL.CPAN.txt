@@ -1,0 +1,40 @@
+https://mcpan.org/      --> redirect -->   https://metacpan.org/
+
+From a CPAN search to MCPAN .... just add 1 'm'
+            http://search.cpan.org/~capttofu/DBD-mysql-4.027/lib/DBD/mysql.pm
+            http://search.mcpan.org/~capttofu/DBD-mysql-4.027/lib/DBD/mysql.pm
+                         ^^^
+
+__________________________________________
+                 MCAPAN    search args:
+
+                 ex:
+                        author:RJBS version:0.0*
+                        module:Dancer author:TLINDEN.
+
+
+       module: (filter by module name):
+                    module:Plack::Middleware           list all the modules in the given namespace.
+                    module:Plack::Middleware Oauth     search for Oauth in the given namespace.
+                    module:Middleware                  search for all the Middleware.
+                    module:Dancer auth                 search for auth in the modules with Dancer in their name.
+                    module:Dancer::Plugin auth         search in all the modules in the Dancer::Plugins namespace.
+
+       distribution: (filter by distribution):
+                    distribution:Dancer auth                    search for auth in the Dancer distribution.
+                    distribution:Dancer-Plugin-Auth-CAS auth    search in the Dancer-Plugin-Auth-CAS distribution.
+
+       author: (filter by author):
+                    author:SONGMU          All the "modules" by author SONGMU.
+                    author:SONGMU Redis    All the Redis related "modules" by author SONGMU.
+
+       version: (filter by version number):
+                    version:0.01         All distributions with version 0.01.
+
+                        Some wildcards can be also used:
+                    version:5.*
+                    version:5*
+                    version:5.?
+
+
+

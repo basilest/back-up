@@ -1,3 +1,5 @@
+             INFRASTRUCTE AS CODE = IAC
+
              binary: $ terraform        it comes as a single zip (to put in a dir found by $PATH)
 
 
@@ -244,6 +246,142 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 
 
 
+
+
+
+
+
+-------------------------------------------------------------------
+
+      PROVISION INFRASTRUCTURE THROUGH CODE
+
+                       - benefit:
+                                 . predictable envs
+                                   (they are PREDICTABLE on what I'll get)
+                                 . automate deployment  (manual processes are the enemy)
+                                 . repeatable process
+                                 . reusable components (don't repeat yourself)
+                                 . document architecture
+
+
+
+      CORE CONCEPTS:
+                        1. Deefined in CODE
+                        2. Stored in Source Code:   (gitHub) / contribute in parallel
+                        3. Declarative (not  Imperative)
+
+
+          Imperative:                                  Declarative
+
+          #make me a taco                               #make me a taco
+
+          #retrieve 1st what you need                   I case use a CONFIGURATION language
+             get shell
+             get beans                                     ____ of type 'food'____ I give the name "bean-taco"
+             get chees                                    /                  /
+             get lettuce                                food  taco  "bean-taco"    {
+             get salsa                                          \___ of subtype taco
+
+          #2nd instruct how to proceed                       ingredients = [
+                                                                "beans", "cheese", "lettuce", "salsa"
+             put beans in shell                              ]
+             put cheese on beans
+             put lettuce on cheese                      }
+             put salsa on lettuce
+
+                                                                In the Declarative I don't specify
+                                                                the procedures to
+                                                                           - get
+                                                                           - and assemble
+                                                                because I rely on a provisioner
+                                                                which knows how to do through a default way.
+                                                                I can change/customise the default
+                                                                adding more parameters in the configuration
+
+                        4. Idempotent + Consistent : Idempotent: every time I do something the result will be the same
+                                                     Consistent: if I already have what I wanted Terraform to do
+                                                                 then Terraform will not change/do
+
+                                                                 ex. I ask "make me a taco" a 2nd time
+                                                                     Terraform will answer: no change you already have 1.
+
+
+
+                        5. Push vs Pull  :
+                                           - Terraform is a PUSH type: I push the configuration down to the target
+
+                                           - PULL ways: the target pulls down from me the configuration
+                                             (ex. an agent on a server pulls down the configuration on a regular basis)
+-------------------------------------------------------------------
+
+
+   4 componenets of terraform
+
+       - terraform is an exacutable (written in go). 1 single file with no other libraries to put around
+
+       - terraform files (.cfg) they contain the variables/configuration to deploy
+
+       - terraform providers/plugins: they extend/implement the different features of terraform
+
+       - terraform state: it contains the current state of my target
+
+
+
+-------------------------------------------------------------------
+    1  variables
+                             variable "aws_access_key" {}
+                             variable "aws_access_key" {}       ___________________.
+                                                                                   |
+                             variable "aws_region" {                               |
+                                     default = "us-east-1"                         |
+                             }                                                     |
+                                                                                   |
+-------------------------------------------------------------------                |
+    2  providers/plugins                                                           |
+                             provider "aws" {                                      |
+                                   access_key = "var.access_key"   <---------I use them here
+                                   access_key = "var.secret_key"
+                                   region = "var.aws_region"
+                             }
+
+
+             . here I'm using the provider/plugin "aws"
+             . to use a certain provider/plugin  I must set its parameters
+
+-------------------------------------------------------------------
+    3  Data source                                          I retrieved data out of my module (?)
+                             data "aws_ami" "alx"  {                                   target (?)
+                                most_recent = true
+                                owners = ["amazon"]
+                                filter  {
+                                         name = "name"
+                                         values = ["amzn-ami-hvm*"]
+                                }
+
+                                filter  {
+                                         name = "virtualization-type"
+                                         values = ["hvm"]
+                                }
+                             }
+
+
+-------------------------------------------------------------------
+    4  Resource
+                             resource "aws_instance" "ex" {
+                                ami = "data.aws_ami.alx.id"
+                                instance_type = "t2.micro"
+                             }
+
+-------------------------------------------------------------------
+    5  Output
+                             output "aws_public_ip" {
+                                value =
+                                "aws_instance.ex.public_dns"
+                             }
+
+
+
+-------------------------------------------------------------------
 
 
 

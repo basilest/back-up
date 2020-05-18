@@ -124,6 +124,10 @@ _____________________________________________________________________________
                | $^T   $BASETIME                        The time at which the script began running, in seconds since the epoch.
                | $^W   $WARNING                         The current value of the warning switch, either true or false.
                | $^X   $EXECUTABLE_NAME                 The name that the Perl binary itself was executed as.
+               |                                        The location of your current perl interpreter can be found in the special variable $^X.
+               |                                        This is important if perl is not in your path, or if you have multiple perl versions available
+               |                                        but which to make sure you're using the same one across the board.
+               |
                | $ARGV                                  Contains the name of the current file when reading from <ARGV>.
                |
                |
@@ -196,6 +200,16 @@ _____________________________________________________________________________
                | $+   $LAST_PAREN_MATCH    The last bracket matched by the last search pattern.
                |                           This is useful if you don't know which of a set of alternative patterns was matched.
                |                           For example: /Version: (.*)|Revision: (.*)/ && ($rev = $+);
+               |
+               |  my $A = 'a';
+               |  sub _log  { print 2, "[$A][$B]"; }
+               |  my $B = 'b';
+               |  print 1, "[$A][$B]";    # 1[a][b]
+               |  _log();                 # 2[a][]     <--- log will not 'see' $B as it was defined AFTER it
+               |                                            solutions:
+               |                                                        1. remove my (but with 'use strict' it will complain for no package name)
+               |                                                        2. move my $B BEFORE function _log
+               |                                                        3. change 'my' with 'our'
                |
                |
   .---------------------------
@@ -1923,7 +1937,7 @@ _____________________________________________________________________________
              | REGEX
              '---------------------------
                |         <STRING>  =~   <PATTERN>       the =~ operator returns
-               |                                          'true'  if <PATTERN> mathes <STRING>
+               |                                          'true'  if <PATTERN> matches <STRING>
                |                                          'false' otherwise
                |                                        Said otherwise, it evaluates a <PATTERN> in SCALAR context
                |                                        (see below what happens when a <PATTERN> is evaluated in LIST context)
@@ -1937,13 +1951,18 @@ _____________________________________________________________________________
                |                     s/x*//;                      it will have absolutely no effect!
                |                                                  because the x* will match the “nothing” at the beginning of the string.
                |
-               |                  2) matches as many as possible char. (greedy (avido))
+               |                  2) matches as many as possible char. (greedy)
                |                     In Modern Perl you can use ? to switch to nongreedy (as few characters as possible)
                |                     /.*?/
+               |
+               |         use re 'strict' (new in v5.22)     applies stricter rules than otherwise when compiling regex.
+               |                                            It can find things that, while legal, may not be what you intended.
                |
                |         !~              reverses =~     if ("Hello World" !~ /World/) { ...
                |
                |         m<C> ... <C>    to use another char <C> as delimiter instead of //   ex. "Hello World" =~ m!World!
+               |                          1.  <C> can be any char repeated (ex. | ... |)
+               |                          2.  <C> can be any mirrored char too.  ex [..]  (..)  {..}  <..>
                |                         Useful when there are a lot of slashes, (to avoid to escape each).
                |                         ex. =~ m{///}              matches three literal forward slashes,
                |                             =~ s{^https?://}{}     removes the protocol part of a URL.
@@ -2737,3 +2756,171 @@ _____________________________________________________________________________
                |
                |
                | ---------- Perl 4ed Oreilly Ch2
+               | ---------- pack & unpack
+               |
+               |    in C it's possible to get the the memory ADDRESS of a var
+               |    its SIZEOF (how many bytes) and change there at will.
+               |
+               |    In Perl it's not possible.
+               |
+               |    pack & unpack are an alternative.
+               |
+               |    pack :  a list becomes a STRING (better, a SEQUENCE of BYTES, (with binary values))
+               |            according to a TEMPLATE arg passed.
+               |
+               |
+               |                          1         2         3         4         5
+               |                 1234567890123456789012345678901234567890123456789012345678
+               |                 Date      |Description                | Income|Expenditure
+               |                 01/28/2001 Flea spray                                24.99
+               |                 01/29/2001 Camel rides to tourists      235.00
+               |                 |-- A10 --|---        A27          ---|-  A7 -|-- A*
+               |
+               |
+               |                  my ($date, $description, $income, $expend) =  unpack("A10xA27xA7xA*", $_);
+               |                                                                            ^
+               |                                                                        template arg (can also be written with spaces: "A10 x A27 x A7 x A")
+               |
+               |                  unpack: splits (according to the template) a sequence of bytes into Perl vars
+               |
+               |                           A:  interpret as ASCII char     A10  do for the next 10 bytes      A* do for all the remaining
+               |                           x:  skip 1 byte                 x10  skip next 10 bytes            x* skip till the end
+               |
+               |
+               |
+               |
+               |
+               |                  print pack("A11 A28 A8 A*", $date, "Totals", $tot_income, $tot_expend);  ---. to print the totals
+               |                                                                                              |
+               |                        01/24/2001 Zed's Camel Emporium                     1147.99           |
+               |                        01/28/2001 Flea spray                                 24.99           |
+               |                        01/29/2001 Camel rides to tourists     1235.00                        |
+               |                        03/23/2001 Totals                      1235.00 1172.98   <------------'
+               |
+               |                                                                      ^
+               |                                                                      not, right justify
+               |
+               |                           A:  put a char           A10  puts 10 char (if the var has less, pack will pad with SPACES)
+               |                           x:  put a null (0)
+               |                                          n.b. not a space (20)
+               |
+               |
+               |
+               |                  Note the A8 to add 1 space.
+               |                  Anyhow the right justify is difficult to implement with pack
+               |                  so it's used first the sprintf on the var
+               |                  to achieve that:
+               |                                              $tot_income = sprintf("%.2f",   $tot_income);
+               |                                              $tot_expend = sprintf("%12.2f", $tot_expend);
+               |
+               |
+               |
+               |      _____________________________________________________________________________
+               |                               Tamplates params
+               |      _____________________________________________________________________________
+               |      a     A string with arbitrary binary data, will be null padded.
+               |      A     A text (ASCII) string, will be space padded.
+               |      Z     A null terminated (ASCIZ) string, will be null padded.
+               |      b     A bit string (ascending bit order inside each byte, like vec()).
+               |      B     A bit string (descending bit order inside each byte).
+               |      h     A hex string (low nibble first).
+               |      H     A hex string (high nibble first).
+               |      c     A signed char value.
+               |      C     An unsigned char value.  Only does bytes.  See U for Unicode.
+               |      s     signed 16 bit (short) int
+               |      S     unsigned 16 bit (This 'short' is _exactly_ 16 bits, which may differ from what a local C compiler calls 'short'.
+               |                             If you want native-length shorts, use the '!' suffix.)
+               |      i     A signed int. (>= 32 bit. at least 32 bits. It takes up as many bytes as a local C compiler returns for sizeof(int))
+               |      I     An unsigned integer value. (This 'integer' is _at_least_ 32 bits wide. Its exact size depends on what a local C compiler calls 'int',
+               |                                        and may even be larger than the 'long' described in the next item.)
+               |      l     signed 32 bit (long) int
+               |      L     unsigned long. (This 'long' is _exactly_ 32 bits, which may differ from what a local C compiler calls 'long'.
+               |                            If you want native-length longs, use the '!' suffix.)
+               |      n     An unsigned short in "network" (big-endian) order.
+               |      N     An unsigned long in "network" (big-endian) order.
+               |      v     An unsigned short in "VAX" (little-endian) order.
+               |      V     An unsigned long in "VAX" (little-endian) order. (These 'shorts' and 'longs' are _exactly_ 16 bits and _exactly_ 32 bits, respectively.)
+               |      q     signed 64 bit (quad) int
+               |      Q     unsigned 64 bit int. quad value. (Quads are available only if your system supports 64-bit integer values _and_
+               |                                    if Perl has been compiled to support those. Causes a fatal error otherwise.)
+               |      j     A signed integer value (a Perl internal integer, IV).
+               |      J     An unsigned integer value (a Perl internal unsigned integer, UV).
+               |      f     A single-precision float in the native format.
+               |      d     A double-precision float in the native format.
+               |      F     A floating point value in the native native format. (a Perl internal floating point value, NV).
+               |      D     A long double-precision float in the native format. (Long doubles are available only if your system supports long double values _and_
+               |                                                                 if Perl has been compiled to support those. Causes a fatal error otherwise.)
+               |      p     A pointer to a null-terminated string.
+               |      P     A pointer to a structure (fixed-length string).
+               |      u     A uuencoded string. ("uu" is short for Unix-to-Unix, old stuff)
+               |      U     A Unicode character number. Encodes to UTF-8 internally (or UTF-EBCDIC in EBCDIC platforms).
+               |      w     A BER compressed integer (not an ASN.1 BER, see perlpacktut for details). Its bytes represent an unsigned integer in base 128,
+               |                                      most significant digit first, with as few digits as possible. Bit eight
+               |                                      (the high bit) is set on each byte except the last.
+               |      x     A null byte.
+               |      X     Back up a byte.
+               |      @     Null fill to absolute position, counted from the start of the innermost ()-group.
+               |      (     Start of a ()-group
+               |      _____________________________________________________________________________
+               |
+               |
+               |             NOTE: the sizes are accessible via the 'Config' module:  ise Config;
+               |
+               |                 signed  unsigned   byte length in C        byte length in Perl
+               |             -------------------------------------------------------------------
+               |              |       s!    S!      sizeof(short)      $Config{shortsize}
+               |              |       i!    I!      sizeof(int)        $Config{intsize}
+               |              |       l!    L!      sizeof(long)       $Config{longsize}
+               |              |       !     Q!      sizeof(long long)  $Config{longlongsize}
+               |
+               |     The i! and I! codes aren't different from i and I ; they are tolerated for completeness' sake.
+               |
+               |
+               |
+               |                       7 6 5 4 3 2 1 0
+               |                     +-----------------+              $byte = pack( 'B8', '10001100' ); # start with MSB
+               |                     | 1 0 0 0 1 1 0 0 |              $byte = pack( 'b8', '00110001' ); # start with LSB
+               |                     +-----------------+
+               |                      MSB           LSB
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |

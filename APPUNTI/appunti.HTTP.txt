@@ -1,8 +1,72 @@
+HTTP   Hypertext Transfer Protocol
 
+
+       -------------------------------
+  T      HTTP/1.0         Tim Berners Lee (CERN)          1989
+  C                                                               . A 'connection' (3 handshake) is performed for every URL
+  P                                                                 (very expensive)
+
+  T                                                               . only method GET (case sensitive!)
+  C
+  P                                                               . the resource was always 1 HTML file
+
+  T                                                               . the server app was a text web server
+  C      HTTP/0.9          1st document HTTP WG           1991
+  P                           (Working Group)
+
+  T
+  C      HTTP/1.0        . RFC 1945                       1996
+  P                                                               . 2 additional Methods: HEAD / POST  (still case sensitive!)
+
+  T                                                               . Header fields
+  C
+  P      HTTP/1.1
+                         .                                1996    RFC 2068 was still working in progress but browser companies started
+  T                                                               to implement the soon to come HTTP/1.1 defined there
+  C                      .                                1996 March 40% of people browsing had browsers with HTTP/1.1 supported
+  P                      .                                1996 June  65% of people browsing had browsers with HTTP/1.1 supported
+
+  T                      . RFC 2068  (HTTP-NG)            1997  (obsoleted by next)
+  C                      . RFC 2616                       1999  (obsoleted by next)
+  P                      . RFC 7230 (a family)            2014
+
+  T                             RFC 7230, HTTP/1.1: Message Syntax and Routing
+  C                             RFC 7231, HTTP/1.1: Semantics and Content
+  P                             RFC 7232, HTTP/1.1: Conditional Requests
+                                RFC 7233, HTTP/1.1: Range Requests
+  T                             RFC 7234, HTTP/1.1: Caching
+  C                             RFC 7235, HTTP/1.1: Authentication
+  P                                                               . HTTP/1.1 add 5 Methods: OPTIONS, PUT, DELETE, TRACE and CONNECT.
+                                                                             (still case sensitive!)
+
+                                                                  . HTTP/1.1 adds a KEEP-ALIVE mechanism to reuse the connections. (persistent connections)
+
+                                                                  . HTTP/1.1 adds "CHUNKED TRANSFER ENCODING" to allow content on
+                                                                             (persistent) connections to be streamed rather than buffered.
+
+                                                                  . HTTP/1.1 adds "HTTP PIPELINING"  allowing clients to send multiple requests before
+                                                                             waiting for each response.
+                                                                             (persistent) connections to be streamed rather than buffered.
+
+                                                                  . HTTP/1.1 adds "BYTE SERVING", where a server transmits just the portion of a resource
+                                                                             explicitly requested by a client.
+
+  T      HTTP/2
+  C                      . RFC 7540                       2015
+  P                                                               . A
+
+       -------------------------------
+  U      HTTP/3
+  D                      .
+  P                                                               . A
+
+
+
+---------------------------------------------------------------------------------------
 
 
         Client                                     Server
-                           HTTP-header
+       (browser)           HTTP-header           (ex. Apache)
                            -----
                             TCP
                   ------------------>  Port:80
@@ -14,23 +78,40 @@
                             TCP
 
 
+  HTTP is
+           . a protocol at the APPLICATION layer
+           . on TCP  (HTTP 1 & 2)      port 80 (default (occasionally 8080), but can be any)
+           . on UDP  (HTTP 3)
+           . STATELESS:                servers do not store requests info among more request.
+                                       However, some web applications implement states or server side sessions
+                                       using for instance HTTP cookies or hidden variables within web forms
+           . allows AUTHENTICATION     (more authentication schemes,
+                                        . basic  access authentication
+                                        . digest access authentication )
+
+           . identies RESOURCES with URLs  (Uniform Resource Locators)
+
+
+            userinfo          host        port
+        ┌───────┴───────┐ ┌────┴────────┐ ┌┴┐
+ http://john.doe:password@www.example.com:123/forum/questions/?tag=networking&order=newest#top
+ └─┬─┘ └───────────┬────────────────────────┘└─┬─────────────┘└────────┬──────────────────┘└┬─┘
+ scheme         authority                      path                  query             fragment
 
 
 
-HTTP                  Hypertext Transfer Protocol
-                      The network protocol ((relying on TCP) and then IP)
-                      used to deliver files/data
-                      (called "RESOURCES")
 
 
-HTTP Client           a browser
-HTTP Server           called WEB Server  (ex. Apache)
+MESSAGE FORMATS
 
+         both requests
+                       Client ---------> Server
 
-TCP, port 80          is the default, but can be any
+         than answers
+                       Client <--------- Server
 
-StateLess             Normally the protocol does not maintain infos on the
-                      connections, between transactions.
+   have a general scruture like the following where Request and Answers can slightly change.
+
 
 HTTP-header           Client and Server communicate via TCP messages
                       containing as Data a HTTP-header with this structure:
@@ -38,12 +119,12 @@ HTTP-header           Client and Server communicate via TCP messages
 
 
                           | ----------------------
-                        1 | <a starting line>    <--  differ for request & response>
+                        1 | <a starting line>    <--  differ for request & response
                           | ----------------------
                           |
                           | Header1: value1
-                        2 | Header2: value2      <-- HEADER lines  (OPTIONAL)
-                          | Header3: value3
+                        2 | Header2: value2      <-- HEADER lines  (OPTIONAL)  In HTTP/1.1 "Host: ..." is MANDATORY
+                          | Header3: value3                                    ex. Host: www.example.com
                           | ----------------------
                         3 |
                           |  \r\n                <-- 1 blank line (only 1 CR+LF)
@@ -58,7 +139,7 @@ HTTP-header           Client and Server communicate via TCP messages
 
                     for a   REQUEST:
 
-                                   GET /path/to/file/index.html HTTP/1.0     1- a method (GET,POST,HEAD)
+                                   GET /path/to/file/index.html HTTP/1.0     1- a method (GET,HEAD,POST,OPTIONS,PUT,DELETE,TRACE,CONNECT (case senst.)
                                      ^               ^             ^         2- Resources PATH / URL
                                      1               2             3         3- HTTP version to use
                                                                                      with the form HTTP:/x.x
@@ -73,8 +154,8 @@ HTTP-header           Client and Server communicate via TCP messages
                                                           1xx informational message only
                                                           2xx success of some kind
                                                           3xx redirects the client to another URL
-                                                          4xx error on the client's part
-                                                          5xx error on the server's part
+                                                          4xx Client side err
+                                                          5xx Server side err
 
                                                                 The most common:
                                                                              200 OK
@@ -85,6 +166,41 @@ HTTP-header           Client and Server communicate via TCP messages
                                                                                  (URL given by the Location: response header),
                                                                                  so the client can automatically retrieve it.
                                                                              500 Server Error (most common cause: server script syntax err)
+
+                NOTE:  A REQUEST message with ONLY this 1st line in accepted by the servers
+                       to be backward compatible with versions < HTTP/1.0
+
+                REQUEST METHODS:
+
+         RFC 7231_______:
+                            GET      by spec if should have no other effect than retreive data (idempotent)
+
+                            HEAD     like a GET but the server will answer with same HEADER (of a GET) but without the BODY
+                                     (useful when I only need the metainfo in the header.
+
+                            POST     usually has a body
+
+                            PUT      .
+
+                            DELETE   delete that RESOURCE
+
+                            OPTIONS  the server will answer with the Methods it supports for the sent URL.
+                                     (useful when I only need the metainfo in the header.
+
+                            CONNECT  .
+
+                            TRACE    The server will echo the REQUEST so that a client can see what (if any)
+                                     changes or additions have been made by intermediate servers.
+                                     It can be used as part of a class of attacks known as cross-site tracing;
+                                     for that reason is usually disabled.
+
+         RFC 5789_______:
+                            PATCH    applies partial modifications to a resource.
+
+
+
+
+
                 ______________________________________________
                 2. HEADERs lines
                    1 line per header with the form
@@ -107,20 +223,30 @@ HTTP-header           Client and Server communicate via TCP messages
 
                                   Most Common:
 
-                                     for a REQUEST      "From:"        gives an email address
+                                     for a REQUEST:     "From:"        gives an email address
                                                         "User-Agent:"  identifies the program with the form
                                                                             "Program-name/x.xx",
 
                                                                           ex "User-agent: Mozilla/3.0Gold".
 
-                                     for a RESPONSE     "Server:"         ex "Server: Apache/1.2b3-dev"
-                                                        "Last-Modified:"  ex "Last-Modified: Fri, 31 Dec 1999 23:59:59 GMT"
+                                     for a RESPONSE:
+                                                        Content-Type: text/html; charset=UTF-8       specifies  MIME Type
+                                                        Content-Length: 138                          specifies  size in BYTES
+                                                                                                     if missing the len is determined in other ways.
+                                                        Etag: "3f80f-1b6-3e1cb03b"                   used to determine if a cached version
+                                                                                                     is up-to-date (same version of the server).
+                                                        Server: Apache/1.2b3-dev"
+                                                        Last-Modified: Fri, 31 Dec 1999 23:59:59 GMT"
+                                                        Accept-Ranges: bytes                          used in "BYTE SERVING" when the client needs to have
+                                                                                                      only certain portions of a resource,
+                                                        Connection: close                             the server will close the TCP connection
+                                                                                                      immediately after the transfer of this response.
                 ______________________________________________
                 3. new line
                            even not-standard, some implementations allow only LF instead of the mandatory CRLF
                 ______________________________________________
                 4. Optional Body
-                           If an HTTP message includes a body, there are usually header lines to describe it.
+                           If a HTTP message includes a body, there are usually header lines to describe it.
 
                                "Content-Type:"    MIME-type of the data, ex text/html or image/gif.
                                "Content-Length:"  body len in bytes
@@ -128,7 +254,7 @@ HTTP-header           Client and Server communicate via TCP messages
 
 
 
-3 STEPS       the most basic message flow is a 3 steps
+3 STEPS       the most basic message flow is a 3-ways-handshake
 
                   ex on http://www.somehost.com/path/file.html
 
@@ -234,6 +360,128 @@ HTTP/2
                  So many connections simultaneously breaks a lot of the assumptions that TCP was built upon.
 
                  HTTP/2 acts multiplexing, allowing multiple request and response messages to be in flight at the same time.
+
+______________________________________
+WebSocket
+                 It's an evoluton of HTTP(S) so instead of http://  https:// the url
+                 are of type                               ws://    wss://
+
+                 It's:
+                   - based on TCP     (the protocol is defined in RFC 6455)
+                   - at Developer level API's are standardized by W3C HTML5
+                   - of course both server and client must implement it.
+                     In the specific the handshake start as an HTTP\HTTPs and
+                     then switch into the new protocol.
+
+                     In the specific, client request and server response are as follows:
+
+                                                             GET /chat HTTP/1.1
+                                                             Host: server.example.com
+                                                             Upgrade: websocket <---- this is the new HTTP header to switch into websocket
+                                                             Connection: Upgrade
+                                  request <-------------     Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==  <---  key
+                                                             Sec-WebSocket-Protocol: chat, superchat
+                                                             Sec-WebSocket-Version: 13
+                                                             Origin: http://example.com                   <---  Origin
+
+                                                             1. the new HTTP header is Upgrade: websockt
+                                                             2. a random base64 key is added
+                                                             3. a normal HTTP header, Origin is usually present (to identify the client)
+
+       code 101 --> HTTP/1.1 101 Switching Protocols
+                    Upgrade: websockete             ------------>   response
+                    Connection: Upgrade
+                    Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
+                    Sec-WebSocket-Protocol: chat
+
+
+                    1. Server response has a code 101
+                    2. performs some SHA1 on client key and returns a new base64 code ...-Accept
+                    3. The Origin infomation can be used on Server side to improve security checks
+
+
+______________________________________
+HTTP is defined by RFCs
+
+     retrieving the FULL RFC db, and sorting them out as
+
+     perl -e 'while (<>) {if ($_=~/^RFC[^ ]* /) {$line=$_;} else {if($_ =~/^[ ]*$/) {$line =~ s/\n//g; print "$line\n"} else {$line .= $_}};}' \
+          | grep -i -v  obsoleted | grep -i http
+
+
+
+1945    Hypertext Transfer Protocol -- HTTP/1.0.                           T. Berners-Lee, R.   (Status:     INFORMATIONAL)
+2169    A Trivial Convention for using HTTP in URN Resolution.                                                             June      1997.(Status: EXPERIMENTAL)
+2227    Simple Hit-Metering and Usage-Limiting for HTTP.                                                                   October   1997.(Status: PROPOSED STANDARD)
+2295    Transparent Content Negotiation in HTTP.                                                                           March     1998.(Status: EXPERIMENTAL)
+2296    HTTP Remote Variant Selection Algorithm -- RVSA/1.0.                                                               March     1998.(Status: EXPERIMENTAL)
+2585    Internet X.509 Public Key Infrastructure Operational Protocols: FTP and HTTP.                                      May       1999.(Status: PROPOSED STANDARD)
+2774    An HTTP Extension Framework.                                                                                       February  2000.(Status: EXPERIMENTAL)
+2817    Upgrading to TLS Within HTTP/1.1.                                                                                  May       2000.(Updates RFC2616) (Updated by RFC7230, RFC7231) (Status: PROPOSED STANDARD)
+2818    HTTP Over TLS.                                                                                                     May       2000.(Updated by RFC5785, RFC7230) (Status: INFORMATIONAL)
+2935    Internet Open Trading Protocol (IOTP) HTTP Supplement.                                                             September 2000.(Status: PROPOSED STANDARD)
+2936    HTTP MIME Type Handler Detection.                                                                                  September 2000.(Status: INFORMATIONAL)
+2964    Use of HTTP State Management.                                                                                      October   2000.(Status: BEST CURRENT PRACTICE)
+3143    Known HTTP Proxy/Caching Problems.                                                                                 June      2001.(Status: INFORMATIONAL)
+3205    On the use of HTTP as a Substrate.                                                                                 February  2002.(Status: BEST CURRENT PRACTICE)
+3229    Delta encoding in HTTP.                                                                                            January   2002.(Status: PROPOSED STANDARD)
+3230    Instance Digests in HTTP.                                                                                          January   2002.(Status: PROPOSED STANDARD)
+3310    Hypertext Transfer Protocol (HTTP) Digest Authentication Using  Authentication and Key Agreement (AKA).            September 2002.(Status: INFORMATIONAL)
+4130    MIME-Based Secure Peer-to-Peer Business Data Interchange Using HTTP, Applicability Statement 2 (AS2).              July      2005.(Status: PROPOSED STANDARD)
+4169    Hypertext Transfer Protocol (HTTP) Digest Authentication Using  Authentication and Key Agreement (AKA) Version-2.  November  2005.(Status: INFORMATIONAL)
+4229    HTTP Header Field Registrations.                                                                                   December  2005.(Status: INFORMATIONAL)
+4236    HTTP Adaptation with Open Pluggable Edge Services (OPES).                                                          November  2005.(Status: PROPOSED STANDARD)
+4387    Internet X.509 Public Key Infrastructure Operational Protocols: Certificate Store Access via HTTP.                 February  2006.(Status: PROPOSED STANDARD)
+4559    SPNEGO-based Kerberos and NTLM HTTP Authentication in Microsoft Windows.                                           June      2006.(Status: INFORMATIONAL)
+4918    HTTP Extensions for Web Distributed Authoring and Versioning (WebDAV).                                             June      2007.(Obsoletes RFC2518) (Updated by RFC5689) (Status: PROPOSED STANDARD)
+5789    PATCH Method for HTTP.                                                                                             March     2010.(Status: PROPOSED STANDARD)
+5843    Additional Hash Algorithms for HTTP Instance Digests.                                                              April     2010.(Status: INFORMATIONAL)
+5861    HTTP Cache-Control Extensions for Stale Content.                                                                   May       2010.(Status: INFORMATIONAL)
+5985    HTTP-Enabled Location Delivery (HELD).                                                                             September 2010.(Updated by RFC7840) (Status: PROPOSED STANDARD)
+5987    Character Set and Language Encoding for Hypertext Transfer Protocol (HTTP) Header Field Parameters.                August    2010.(Status: PROPOSED STANDARD)
+5989    A SIP Event Package for Subscribing to Changes to an HTTP Resource.                                                October   2010.(Status: PROPOSED STANDARD)
+6155    Use of Device Identity in HTTP-Enabled Location Delivery (HELD).                                                   March     2011.(Updated by RFC6915) (Status: PROPOSED STANDARD)
+6202    Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP.                   April     2011.(Status: INFORMATIONAL)
+6249    Metalink/HTTP: Mirrors and Hashes.                                                                                 June      2011.(Status: PROPOSED STANDARD)
+6265    HTTP State Management Mechanism.                                                                                   April     2011.(Obsoletes RFC2965) (Status: PROPOSED STANDARD)
+6266    Use of the Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP).                             June      2011.(Updates RFC2616) (Status: PROPOSED STANDARD)
+6546    Transport of Real-time Inter-network Defense (RID) Messages over HTTP/TLS.                                         April     2012.(Obsoletes RFC6046) (Status: PROPOSED STANDARD)
+6585    Additional HTTP Status Codes.                                                                                      April     2012.(Updates RFC2616) (Status: PROPOSED STANDARD)
+6712    Internet X.509 Public Key Infrastructure -- HTTP Transfer for the Certificate Management Protocol (CMP).           September 2012.(Updates RFC4210) (Status: PROPOSED STANDARD)
+6753    A Location Dereference Protocol Using HTTP-Enabled Location Delivery (HELD).                                       October   2012.(Status: PROPOSED STANDARD)
+6797    HTTP Strict Transport Security (HSTS).                                                                             November  2012.(Status: PROPOSED STANDARD)
+6896    SCS: KoanLogic's Secure Cookie Sessions for HTTP.                                                                  March     2013.(Status: INFORMATIONAL)
+6915    Flow Identity Extension for HTTP-Enabled Location Delivery (HELD).                                                 April     2013.(Updates RFC6155)     (Status: PROPOSED STANDARD)
+6983    Models for HTTP-Adaptive-Streaming-Aware Content Distribution Network Interconnection (CDNI).                      July      2013.(Status: INFORMATIONAL)
+7034    HTTP Header Field X-Frame-Options.                                                                                 October   2013.(Status: INFORMATIONAL)
+7089    HTTP Framework for Time-Based Access to Resource States -- Memento.                                                December  2013.(Status: INFORMATIONAL)
+7230    Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing.                                                June      2014.(Obsoletes RFC2145, RFC2616) (Updates RFC2817, RFC2818) (Status: PROPOSED STANDARD)
+7231    Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content.                                                     June      2014.(Obsoletes RFC2616) (Updates RFC2817) (Status: PROPOSED STANDARD)
+7232    Hypertext Transfer Protocol (HTTP/1.1): Conditional Requests.                                                      June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
+7233    Hypertext Transfer Protocol (HTTP/1.1): Range Requests.                                                            June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
+7234    Hypertext Transfer Protocol (HTTP/1.1): Caching.                                                                   June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
+7235    Hypertext Transfer Protocol (HTTP/1.1): Authentication.                                                            June      2014.(Obsoletes RFC2616, RFC2617) (Status: PROPOSED STANDARD)
+7236    Initial Hypertext Transfer Protocol (HTTP) Authentication Scheme Registrations.                                    June      2014.(Status: INFORMATIONAL)
+7237    Initial Hypertext Transfer Protocol (HTTP) Method Registrations.                                                   June      2014.(Status: INFORMATIONAL)
+7239    Forwarded HTTP Extension.                                                                                          June      2014.(Status: PROPOSED STANDARD)
+7240    Prefer Header for HTTP.                                                                                            June      2014.(Status: PROPOSED STANDARD)
+7469    Public Key Pinning Extension for HTTP.                                                                             April     2015.(Status: PROPOSED STANDARD)
+7472    Internet Printing Protocol (IPP) over HTTPS Transport Binding and the 'ipps' URI Scheme.                           March     2015.(Updates RFC2910, RFC2911) (Status: PROPOSED STANDARD)
+7480    HTTP Usage in the Registration Data Access Protocol (RDAP).                                                        March     2015.(Status: PROPOSED STANDARD)
+7486    HTTP Origin-Bound Authentication (HOBA).                                                                           March     2015.(Status: EXPERIMENTAL)
+7540    Hypertext Transfer Protocol Version 2 (HTTP/2).                                                                    May       2015.(Status: PROPOSED STANDARD)
+7541    HPACK: Header Compression for HTTP/2.                                                                              May       2015.(Status: PROPOSED STANDARD)
+7615    HTTP Authentication-Info and Proxy-Authentication-Info Response Header Fields.                                     September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
+7616    HTTP Digest Access Authentication.                                                                                 September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
+7617    The 'Basic' HTTP Authentication Scheme.                                                                            September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
+7639    The ALPN HTTP Header Field.                                                                                        August    2015.(Status: PROPOSED STANDARD)
+7694    Hypertext Transfer Protocol (HTTP) Client-Initiated Content-Encoding.                                              November  2015.(Status: PROPOSED STANDARD)
+7711    PKIX over Secure HTTP (POSH).                                                                                      November  2015.(Status: PROPOSED STANDARD)
+7725    An HTTP Status Code to Report Legal Obstacles.                                                                     February  2016.(Status: PROPOSED STANDARD)
+7804    Salted Challenge Response HTTP Authentication Mechanism.                                                           March     2016.(Status: EXPERIMENTAL)
+7807    Problem Details for HTTP APIs.                                                                                     March     2016.(Status: PROPOSED STANDARD)
+7838    HTTP Alternative Services.                                                                                         April     2016.(Status: PROPOSED STANDARD)
+7840    A Routing Request Extension for the HTTP-Enabled Location Delivery (HELD) Protocol.                                May       2016.(Updates RFC5985, RFC6881) (Status: PROPOSED STANDARD)
 
 ______________________________________
 Revese HTTP Proxy  & Load Balancer    (Pound a free open source, not using hard disk)
@@ -381,126 +629,4 @@ Sessions and Stateless solution with Pound
                         HeadDeny X-SSL-serial ".*"
                         HeadDeny X-SSL-cipher ".*"
 
-
-______________________________________
-WebSocket
-                 It's an evoluton of HTTP(S) so instead of http://  https:// the url
-                 are of type                               ws://    wss://
-
-                 It's:
-                   - based on TCP     (the protocol is defined in RFC 6455)
-                   - at Developer level API's are standardized by W3C HTML5
-                   - of course both server and client must implement it.
-                     In the specific the handshake start as an HTTP\HTTPs and
-                     then switch into the new protocol.
-
-                     In the specific, client request and server response are as follows:
-
-                                                             GET /chat HTTP/1.1
-                                                             Host: server.example.com
-                                                             Upgrade: websocket <---- this is the new HTTP header to switch into websocket
-                                                             Connection: Upgrade
-                                  request <-------------     Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==  <---  key
-                                                             Sec-WebSocket-Protocol: chat, superchat
-                                                             Sec-WebSocket-Version: 13
-                                                             Origin: http://example.com                   <---  Origin
-
-                                                             1. the new HTTP header is Upgrade: websockt
-                                                             2. a random base64 key is added
-                                                             3. a normal HTTP header, Origin is usually present (to identify the client)
-
-       code 101 --> HTTP/1.1 101 Switching Protocols
-                    Upgrade: websockete             ------------>   response
-                    Connection: Upgrade
-                    Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
-                    Sec-WebSocket-Protocol: chat
-
-
-                    1. Server response has a code 101
-                    2. performs some SHA1 on client key and returns a new base64 code ...-Accept
-                    3. The Origin infomation can be used on Server side to improve security checks
-
-
-______________________________________
-HTTP is defined by RFCs
-
-     retrieving the FULL RFC db, and sorting them out as
-
-     perl -e 'while (<>) {if ($_=~/^RFC[^ ]* /) {$line=$_;} else {if($_ =~/^[ ]*$/) {$line =~ s/\n//g; print "$line\n"} else {$line .= $_}};}' \
-          | grep -i -v  obsoleted | grep -i http
-
-
-
-1945    Hypertext Transfer Protocol -- HTTP/1.0.                           T. Berners-Lee, R.   (Status:     INFORMATIONAL)
-2169    A Trivial Convention for using HTTP in URN Resolution.                                                             June      1997.(Status: EXPERIMENTAL)
-2227    Simple Hit-Metering and Usage-Limiting for HTTP.                                                                   October   1997.(Status: PROPOSED STANDARD)
-2295    Transparent Content Negotiation in HTTP.                                                                           March     1998.(Status: EXPERIMENTAL)
-2296    HTTP Remote Variant Selection Algorithm -- RVSA/1.0.                                                               March     1998.(Status: EXPERIMENTAL)
-2585    Internet X.509 Public Key Infrastructure Operational Protocols: FTP and HTTP.                                      May       1999.(Status: PROPOSED STANDARD)
-2774    An HTTP Extension Framework.                                                                                       February  2000.(Status: EXPERIMENTAL)
-2817    Upgrading to TLS Within HTTP/1.1.                                                                                  May       2000.(Updates RFC2616) (Updated by RFC7230, RFC7231) (Status: PROPOSED STANDARD)
-2818    HTTP Over TLS.                                                                                                     May       2000.(Updated by RFC5785, RFC7230) (Status: INFORMATIONAL)
-2935    Internet Open Trading Protocol (IOTP) HTTP Supplement.                                                             September 2000.(Status: PROPOSED STANDARD)
-2936    HTTP MIME Type Handler Detection.                                                                                  September 2000.(Status: INFORMATIONAL)
-2964    Use of HTTP State Management.                                                                                      October   2000.(Status: BEST CURRENT PRACTICE)
-3143    Known HTTP Proxy/Caching Problems.                                                                                 June      2001.(Status: INFORMATIONAL)
-3205    On the use of HTTP as a Substrate.                                                                                 February  2002.(Status: BEST CURRENT PRACTICE)
-3229    Delta encoding in HTTP.                                                                                            January   2002.(Status: PROPOSED STANDARD)
-3230    Instance Digests in HTTP.                                                                                          January   2002.(Status: PROPOSED STANDARD)
-3310    Hypertext Transfer Protocol (HTTP) Digest Authentication Using  Authentication and Key Agreement (AKA).            September 2002.(Status: INFORMATIONAL)
-4130    MIME-Based Secure Peer-to-Peer Business Data Interchange Using HTTP, Applicability Statement 2 (AS2).              July      2005.(Status: PROPOSED STANDARD)
-4169    Hypertext Transfer Protocol (HTTP) Digest Authentication Using  Authentication and Key Agreement (AKA) Version-2.  November  2005.(Status: INFORMATIONAL)
-4229    HTTP Header Field Registrations.                                                                                   December  2005.(Status: INFORMATIONAL)
-4236    HTTP Adaptation with Open Pluggable Edge Services (OPES).                                                          November  2005.(Status: PROPOSED STANDARD)
-4387    Internet X.509 Public Key Infrastructure Operational Protocols: Certificate Store Access via HTTP.                 February  2006.(Status: PROPOSED STANDARD)
-4559    SPNEGO-based Kerberos and NTLM HTTP Authentication in Microsoft Windows.                                           June      2006.(Status: INFORMATIONAL)
-4918    HTTP Extensions for Web Distributed Authoring and Versioning (WebDAV).                                             June      2007.(Obsoletes RFC2518) (Updated by RFC5689) (Status: PROPOSED STANDARD)
-5789    PATCH Method for HTTP.                                                                                             March     2010.(Status: PROPOSED STANDARD)
-5843    Additional Hash Algorithms for HTTP Instance Digests.                                                              April     2010.(Status: INFORMATIONAL)
-5861    HTTP Cache-Control Extensions for Stale Content.                                                                   May       2010.(Status: INFORMATIONAL)
-5985    HTTP-Enabled Location Delivery (HELD).                                                                             September 2010.(Updated by RFC7840) (Status: PROPOSED STANDARD)
-5987    Character Set and Language Encoding for Hypertext Transfer Protocol (HTTP) Header Field Parameters.                August    2010.(Status: PROPOSED STANDARD)
-5989    A SIP Event Package for Subscribing to Changes to an HTTP Resource.                                                October   2010.(Status: PROPOSED STANDARD)
-6155    Use of Device Identity in HTTP-Enabled Location Delivery (HELD).                                                   March     2011.(Updated by RFC6915) (Status: PROPOSED STANDARD)
-6202    Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP.                   April     2011.(Status: INFORMATIONAL)
-6249    Metalink/HTTP: Mirrors and Hashes.                                                                                 June      2011.(Status: PROPOSED STANDARD)
-6265    HTTP State Management Mechanism.                                                                                   April     2011.(Obsoletes RFC2965) (Status: PROPOSED STANDARD)
-6266    Use of the Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP).                             June      2011.(Updates RFC2616) (Status: PROPOSED STANDARD)
-6546    Transport of Real-time Inter-network Defense (RID) Messages over HTTP/TLS.                                         April     2012.(Obsoletes RFC6046) (Status: PROPOSED STANDARD)
-6585    Additional HTTP Status Codes.                                                                                      April     2012.(Updates RFC2616) (Status: PROPOSED STANDARD)
-6712    Internet X.509 Public Key Infrastructure -- HTTP Transfer for the Certificate Management Protocol (CMP).           September 2012.(Updates RFC4210) (Status: PROPOSED STANDARD)
-6753    A Location Dereference Protocol Using HTTP-Enabled Location Delivery (HELD).                                       October   2012.(Status: PROPOSED STANDARD)
-6797    HTTP Strict Transport Security (HSTS).                                                                             November  2012.(Status: PROPOSED STANDARD)
-6896    SCS: KoanLogic's Secure Cookie Sessions for HTTP.                                                                  March     2013.(Status: INFORMATIONAL)
-6915    Flow Identity Extension for HTTP-Enabled Location Delivery (HELD).                                                 April     2013.(Updates RFC6155)     (Status: PROPOSED STANDARD)
-6983    Models for HTTP-Adaptive-Streaming-Aware Content Distribution Network Interconnection (CDNI).                      July      2013.(Status: INFORMATIONAL)
-7034    HTTP Header Field X-Frame-Options.                                                                                 October   2013.(Status: INFORMATIONAL)
-7089    HTTP Framework for Time-Based Access to Resource States -- Memento.                                                December  2013.(Status: INFORMATIONAL)
-7230    Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing.                                                June      2014.(Obsoletes RFC2145, RFC2616) (Updates RFC2817, RFC2818) (Status: PROPOSED STANDARD)
-7231    Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content.                                                     June      2014.(Obsoletes RFC2616) (Updates RFC2817) (Status: PROPOSED STANDARD)
-7232    Hypertext Transfer Protocol (HTTP/1.1): Conditional Requests.                                                      June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
-7233    Hypertext Transfer Protocol (HTTP/1.1): Range Requests.                                                            June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
-7234    Hypertext Transfer Protocol (HTTP/1.1): Caching.                                                                   June      2014.(Obsoletes RFC2616) (Status: PROPOSED STANDARD)
-7235    Hypertext Transfer Protocol (HTTP/1.1): Authentication.                                                            June      2014.(Obsoletes RFC2616, RFC2617) (Status: PROPOSED STANDARD)
-7236    Initial Hypertext Transfer Protocol (HTTP) Authentication Scheme Registrations.                                    June      2014.(Status: INFORMATIONAL)
-7237    Initial Hypertext Transfer Protocol (HTTP) Method Registrations.                                                   June      2014.(Status: INFORMATIONAL)
-7239    Forwarded HTTP Extension.                                                                                          June      2014.(Status: PROPOSED STANDARD)
-7240    Prefer Header for HTTP.                                                                                            June      2014.(Status: PROPOSED STANDARD)
-7469    Public Key Pinning Extension for HTTP.                                                                             April     2015.(Status: PROPOSED STANDARD)
-7472    Internet Printing Protocol (IPP) over HTTPS Transport Binding and the 'ipps' URI Scheme.                           March     2015.(Updates RFC2910, RFC2911) (Status: PROPOSED STANDARD)
-7480    HTTP Usage in the Registration Data Access Protocol (RDAP).                                                        March     2015.(Status: PROPOSED STANDARD)
-7486    HTTP Origin-Bound Authentication (HOBA).                                                                           March     2015.(Status: EXPERIMENTAL)
-7540    Hypertext Transfer Protocol Version 2 (HTTP/2).                                                                    May       2015.(Status: PROPOSED STANDARD)
-7541    HPACK: Header Compression for HTTP/2.                                                                              May       2015.(Status: PROPOSED STANDARD)
-7615    HTTP Authentication-Info and Proxy-Authentication-Info Response Header Fields.                                     September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
-7616    HTTP Digest Access Authentication.                                                                                 September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
-7617    The 'Basic' HTTP Authentication Scheme.                                                                            September 2015.(Obsoletes RFC2617) (Status: PROPOSED STANDARD)
-7639    The ALPN HTTP Header Field.                                                                                        August    2015.(Status: PROPOSED STANDARD)
-7694    Hypertext Transfer Protocol (HTTP) Client-Initiated Content-Encoding.                                              November  2015.(Status: PROPOSED STANDARD)
-7711    PKIX over Secure HTTP (POSH).                                                                                      November  2015.(Status: PROPOSED STANDARD)
-7725    An HTTP Status Code to Report Legal Obstacles.                                                                     February  2016.(Status: PROPOSED STANDARD)
-7804    Salted Challenge Response HTTP Authentication Mechanism.                                                           March     2016.(Status: EXPERIMENTAL)
-7807    Problem Details for HTTP APIs.                                                                                     March     2016.(Status: PROPOSED STANDARD)
-7838    HTTP Alternative Services.                                                                                         April     2016.(Status: PROPOSED STANDARD)
-7840    A Routing Request Extension for the HTTP-Enabled Location Delivery (HELD) Protocol.                                May       2016.(Updates RFC5985, RFC6881) (Status: PROPOSED STANDARD)
 

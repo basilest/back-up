@@ -1,0 +1,181 @@
+perluniintro
+
+
+                  . 2 coordinated standars:
+                           - Unicode
+                           - ISO/IEC 10646
+
+                  . Unicode 1.0 was released in October 1991
+                  . Unicode 6.0 in October 2010
+
+
+                  . A Unicode "character" is an abstract entity.
+                    It is not bound to any particular integer width.
+                    (ex. not 2 bytes (16 bits))
+
+   CODE POINTS:
+
+                  . Examples:
+                           LATIN CAPITAL LETTER A    <----> unique number:  0x0041      unique numbers  are called 'CODE POINTS'
+                           GREEK SMALL LETTER ALPHA  <----> unique number:  0x03B1
+
+                    Unicode standard writes the 2 info together
+
+                             U+0041 LATIN CAPITAL LETTER A
+
+                  . 'CODE POINTS' are the index in the Unicode full list
+                    (so Perl calls them even ORDINALS)
+
+   PLANES         The first Unicode thought all the world's characters could be represented using 16-bit. (0x0000 - 0xFFFF)  (Plane 0)
+                  This soon proved to be wrong.
+
+                  Unicode 2.0 (July 1996), defined Plane 1 (0xFFFF-0x10FFFF)  (fills 5 more bits: up to 21 bits),
+                  Unicode 3.1 (March 2001) defined 17 Planes.
+
+                  Not All Planes are full. So not all 'Code points' have a real symbol associated.
+                  These Planes are first created from empty 'blocks' (usually divisible by 16)
+                  Empty elements are left for future extensions.
+                  Sometimes the future extensions need more than the available-empty elements
+                  so they go in a not adjacent block.
+                  To manage this the
+
+                             . Script
+                             . Script_Extensions  (later)
+
+                  properties were added.
+
+
+   PROPERTIES:    Unicode also defines various properties for the characters
+
+                  . "uppercase"
+                  . "lowercase"
+                  . "decimal digit"
+                  . "punctuation"
+                  . ...
+
+
+   LOGICAL CHARACTERS:  A Unicode "logical" char is a sequence.
+                  There are different kinds of sequence:
+
+                  . combining character sequence:  in this case the logical char is
+                          base character (like LATIN CAPITAL LETTER A ) followed by 1 or + modifiers (like COMBINING ACUTE ACCENT ).
+
+                          [LATIN CAPITAL LETTER A] - [COMBINING ACUTE ACCENT]
+                                   1                           2
+
+
+                  . extended grapheme cluster:
+                          a Korean Hangul syllable is considered for example
+                          [a leading consonant] -  followed by an   [interior vowel]  -  followed by a [trailing consonant]
+                                   1                                       2                                   3
+
+                  The sequence idea, allows to build/code for many chars
+                  without requiring to give Code Points (numbers) to all the symbols.
+
+
+
+   PRECOMPOSED CHARACTERS:  only available for some combinations, they 'merge'
+                  a sequence into a standalone char
+                  Ex.
+                  [LATIN CAPITAL LETTER A] -  [COMBINING ACUTE ACCENT] ---->  [LATIN CAPITAL LETTER A WITH ACUTE]
+                   --------------------------------------------------         ----------------------------------
+                                      NFD                                                   NFC
+
+                  For a PRECOMPOSED CHARACTER, the single char is called "Normalization Form Composed" (abbreviated NFC)
+                  while the original sequnece is called  "Normalization Form Decomposed" (NFD))
+
+
+
+   UTF-8:
+                  Code points are just abstract numbers.
+                  To input and output these abstract numbers, the numbers must be encoded or serialised somehow.
+
+                  Unicode defines several character encoding forms,
+                  of which UTF-8 is the most popular.
+
+                  UTF-8 is a variable length encoding that encodes characters as 1 to 4 bytes.
+                   (UTF-8 is byte-order independent).
+
+                  UTF-16 and UTF-32 are alternatives, but they are byte-order dependent
+                  so there are the 2 variantes big- and little-endian
+
+                  The ISO/IEC 10646 defines the UCS-2 and UCS-4 encoding forms.
+
+   PERL SUPPORT FOR UNICODE:
+                 . 5.6   starts but even with 5.6.1 fixes is still not the best
+                 . 5.8   is the real first almost stable
+                 . 5.14  good improvements
+                 . 5.16  some fixes for 'quotemeta EXPR'
+                 . 5.26  some fixes for 'range' operator
+                 . 5.28  some fixes for 'split'
+
+                 use feature 'unicode_strings'      # use this   not    use utf8
+
+                 use 5.012 (or higher) is also ok for Unicode
+
+                 All features that combine Unicode and I/O also require using the new PerlIO feature.
+                 Almost all Perl 5.8 platforms are ok.
+                 To check: "perl -V" and looking for useperlio=define .
+
+
+
+perlunicode
+================================================================================
+
+Encode::encode_utf8()
+
+
+
+open my $fh, '<', $filename;
+binmode $fh, ':raw';
+$dom = XML::LibXML->load_xml(IO => $fh);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 BASEDIR=$(dirname "$0")
 echo "$BASEDIR"
 
-In bash it is safer to use $BASH_SOURCE in lieu of $0, because $0 doesn't always contain the path of the script being invoked, such as when 'sourcing' a script.
+In bash it is safer to use $BASH_SOURCE in lieu of $0, because $0 doesn not always contain the path of the script being invoked, such as when 'sourcing' a script.
 
 bash <nameOfScriptInPath>     Bash and Ksh support this method of invocation, Dash and Zsh do not)
 
@@ -19,7 +19,7 @@ write my own built-in and keep into the running shell
  $*              string with ALL args (seen as a single word)
                  more exactly  "$*" is the IFS expansion of all positional parameters, $1 $2 $3 ....
  $@              same as $* but each arg is quoted
-                 more exactly it's an array-like construct of all positional parameters, {$1, $2, $3 ...}
+                 more exactly it is an array-like construct of all positional parameters, {$1, $2, $3 ...}
 
  $?              EXIT STATUS of most recent foreground pipeline
 
@@ -29,7 +29,7 @@ write my own built-in and keep into the running shell
  $_              last cmd name or if it had options last option  (ex du >/dev/null   $_:du    ls -al  $_:-al)
                  (or at startup, the abs path of the command to start the current shell immediately after startup).
  $-              Flags passed to script (ex in a shell the flags passed ex --> himBH)
-                 but actually doesn't work well in bash (it comes from ksh)
+                 but actually doesn not work well in bash (it comes from ksh)
 
 
 $a               better to use ${a}
@@ -40,7 +40,55 @@ ${#a}            len of char of a (as a string)
 ${#array[*]}     len of array $a
 ${#array[@]}          idem
 
+                 ----------------------- ARRAY:
+                  arr=()          Create an empty array
+                  arr=(1 2 3)     Initialize array
+                  ${arr[2]}       Retrieve third element
+                  ${arr[@]}       Retrieve all elements
+                  ${!arr[@]}      Retrieve array indices
+                  ${#arr[@]}      Calculate array size
+                  arr[0]=3        Overwrite 1st element
+                  arr+=(4)        Append value(s)
+                  str=$(ls)       Save ls output as a string
+                  arr=( $(ls) )   Save ls output as an array of files
+                  ${arr[@]:s:n}   Retrieve n elements starting at index s
 
+-----------------------------------------------
+OPTIONS
+-----------------------------------------------
+
+  bash has 3 kinds of options
+
+  1. its own of 1-char  (ex. -c)
+  2. its own of + chars (ex --version)   (these must be put always BEFORE any 1-char options)
+  3. ALL 'set' 1 char options (ex. -e)
+          All of the single-character options used with the 'set' builtin
+          can be used as options when the shell is invoked.
+          ex.
+               #!/bin/bash -e       <-- same as -->   #!/bin/bash
+                                                      set -e
+-------------------
+EX OF bash OPTIONS:
+-------------------
+
+-c            bash -c ' ....  '  aa bb cc               # -c executes the command in the string
+                                                        # args after the string are assigned to positional args
+                                                        # (starting from $0)
+
+              ex.
+                   bash -c 'echo 1$1 2$2 3$3' aa bb cc
+                   1bb 2cc 3
+
+                   bash -c 'echo 1$0 2$1 3$3' aa bb cc
+                   1aa 2bb 3cc
+
+-------------------
+EX OF set OPTIONS:
+-------------------
+-e            Exit immediately if a pipeline returns a non-zero status.
+
+
+-f            Disable filename expansion (globbing).
 ____________________________________________________________
 	 ( )     [ ]      { }
 ____________________________________________________________
@@ -1226,6 +1274,17 @@ readarray   . it loads all the lines of a file into an array
                  echo "${var[@]}"  1 2 3
                                    4 5 6
                                    7 8 9
+
+____________________________________________________________
+UUoC        USELESS USE OF CAT
+____________________________________________________________
+
+   normal 'mistake'                  #  BETTER SOLUTION
+
+  . cat file | command                   # command < file       or even    <file command
+  . for word in $(cat somefile);         # for word in $(<somefile); … (or better yet, while read < somefile)
+  . grep something | awk stuff;          # awk '/something/ stuff' (similar for sed)
+  . echo something | command;            # command <<< something (although echo would be necessary for pure POSIX)
 ____________________________________________________________
 VARIABLES
 ____________________________________________________________

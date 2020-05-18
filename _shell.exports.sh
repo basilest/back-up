@@ -154,12 +154,13 @@ export CHL_CHDATA_DATABASE=chdatadevstb
 
 # Setting PATH for Python 3.6
 # The original version is saved in .bash_profile.pysave
-PATH="/Library/Frameworks/Python.framework/Versions/3.6/bin:${PATH}"
+#PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
+PATH=" /usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
 #echo "----------7---------------- $PATH"
 
 # Setting PATH for Python 2.7
 # The original version is saved in .bash_profile.pysave
-PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+#PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 #echo "----------8---------------- $PATH"
 
 
@@ -175,7 +176,7 @@ PATH="/usr/local/opt/curl/bin:$PATH"
 #PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 PATH="/usr/local/opt/openssl/bin:$PATH"
 
-#------------- SET FOR AWS CLI (installed lpcally with pip3 install awscli --upgrade --user
+#------------- SET FOR AWS CLI (installed locally with pip3 install awscli --upgrade --user
 #PATH="$PATH:${HOME}/Library/Python/3.7/bin"
 #PATH="/usr/local/opt/python/libexec/bin:$PATH"
 
@@ -188,7 +189,8 @@ PATH="${HOME}/auto_ssh":$PATH
 export PATH
 
 
-export AUTO_SSH_CONFIG_MP=U2FsdGVkX19en7cv1Mv/0E1xaFgM4lvLt1Hg+o69Le8=
+#export AUTO_SSH_CONFIG_MP=U2FsdGVkX19en7cv1Mv/0E1xaFgM4lvLt1Hg+o69Le8=       openssl 1.1.0
+export AUTO_SSH_CONFIG_MP=U2FsdGVkX194+LgmFDgz+0l1ttFDdfzCl6XYyyG/U4w=
 
 #______________________________________ PYTHON SETTINGS (virtualenv / virtualenvwrapper )
 #source /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
@@ -200,9 +202,9 @@ export CURL_HJ='"Content-Type: text/xml"'
 export CURL_HX='"Content-Type: application/json"'
 
 #_______________ Using fd with fzf
-export FZF_DEFAULT_COMMAND='fd --type file --color=always'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+#export FZF_DEFAULT_COMMAND='fd --type file --color=always'
+#export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+#export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
 
 
 #<FZF>
@@ -227,5 +229,8 @@ export FESS_REPO_DIR="${HOME}/SUP/fes-administration-scripts"
 export TUX_SHUTTLES_DIR="${FESS_REPO_DIR}/TUX_STUFF/shuttles"
 
 # slack curl
-export FESS_SLACK_TK='xoxp-23551602947-27039433235-840481341669-c0246'
-export FESS_SLACK_WHOK='https://hooks.slack.com/services/T0PG7HQTV/BQBL54DFU/lg1hFo'
+export FESS_SLACK_TOKEN=$(cat .slack/FESS_SLACK_WEBHOOK)
+export FESS_SLACK_WEBHOOK=$(cat .slack/FESS_SLACK_TOKEN)
+
+# RUST (PACKAGE MANAGER: CARGO)
+export PATH="$HOME/.cargo/bin:$PATH"

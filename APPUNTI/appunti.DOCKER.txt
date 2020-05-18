@@ -31,9 +31,6 @@
                     As of Docker 1.11, the Docker Engine architecture conforms to the OCI runtime spec.
 
 
-       https://play-with-docker.com/    <----- good to try online
-
-
 
        3 main pieces of DOCKER:
 
@@ -67,7 +64,19 @@ ________________________________________________________________________________
 |                                             OS/Arch:          linux/amd64
 |                                             Experimental:     true
 |
-|     docker info                       even more verbose
+|     docker info                       even more verbose:   (note that it lists info on images and containers)
+|                                                               Client:
+|                                                                Debug Mode: false
+|
+|                                                               Server:
+|                                                                Containers: 15             <------------
+|                                                                 Running: 5                <------------
+|                                                                 Paused: 0                 <------------
+|                                                                 Stopped: 10               <------------
+|                                                                Images: 4                  <------------
+|                                                                Server Version: 19.03.5
+|                                                                ....
+|     docker info
 |
 |     docker-compose --version      ___
 |                                      \__ docker-compose version 1.23.2, build 1110ad01
@@ -110,6 +119,34 @@ ________________________________________________________________________________
 |                                      \__ docker-machine version 0.16.1, build cce350d7
 |
 |__________________________________________________________________________________________________
+
+
+
+           Dokerfile
+             |                                       .-------------.
+             |                                       |             |
+             '----------->  .-------------.          |  Dock. Hub  |
+                 build      |             |  push -->|             |
+                            |   Images    |<-- pull  |_____________|
+                        .-->|             |
+                        |   |_____________|--.
+                 commit |                    |
+                        |   .-------------.  |  run                 docker commit <container-id> username/imagename
+                        '___|             |  |                               |
+                            | Containers  |<-'                               ' -m 'commit message'      is also possible
+                            |             |
+                            |_____________|
+                         (stop/ start/ restart)
+
+
+                          with a container cstef I can do this:
+
+      save / export / load:
+             docker save   cstef > cstef_save.tar
+             docker export cstef > cstef_export.tar
+
+             docker load  < ....tar             1. _save.tar    will not keep mods to the file system (ex. directories/files)
+                                                2. _export.tar  keeps the changes
 
 
 
@@ -171,6 +208,30 @@ ________________________________________________________________________________
                                       communicate between an IPC/Unix socket
 
                                                 /var/run/docker.sock
+
+|__________________________________________________________________________________________________
+
+      Any filesystem change inside a container is loast when the container restarts from its clean image
+
+      VOLUME: is an internal private space for the container to save data for future runs.
+              This place is not accessibile from the host.
+              So there is no easy way to retrieve if not from inside the container.
+
+              A given volume can be mounted into multiple containers simultaneously.
+
+           CREATE    I can let Docker create volumes during container creation
+                     or I can create explictly:
+
+                    docker volume create
+
+                    If I don't give a name (named volumes) a volume receives a random (unique) name
+                    from docker (anonymous volumes) but apart from these they behave the same.
+
+           DELETE    Volumes are not removed automatically. I can remove unused volumes:
+
+                    docker volume prune
+
+      BIND MOUNT: I can expose (both in read and/or write) the local host filesystem to the container.
 
 |__________________________________________________________________________________________________
 
@@ -386,7 +447,7 @@ ________________________________________________________________________________
 
       docker container rm <hash>                         # Remove specified container from this machine
       docker container rm    $(docker container ls -a -q)   # Remove all containers
-      docker container rm    $(docker container ls -a | grep -i 'get-started' | awk '{print $1}')     # remove all containers with with 'get-started' in the name
+      docker container rm    $(docker container ls -a | grep -i 'get-started' | awk '{print $1}')     # remove all containers with 'get-started' in the name
       docker container rm -f $(docker container ls -a | grep -i 'get-started' | awk '{print $1}')     # forced remove all containers with with 'get-started' in the name
 
       docker container run -d  --name web1  --publish 8080:8080  test:latest       creates (-d detached or in bg) a running instance (named 'web1') of the container 'test' tagged 'latest'
@@ -672,7 +733,7 @@ ________________________________________________________________________________
                                                             NOTE:
                                                                   1. the listed instructions are in reverse order from the last to the first
                                                                   2. the instructions creating a layer are the ones with a SIZE value > 0
-                                                                     layers can also with showed with a   $docker image inspect web:latest
+                                                                     layers can also been showed with a   $docker image inspect web:latest
 
                                  ex:   docker image history python:2.7-slim
 

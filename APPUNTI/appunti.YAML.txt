@@ -1,9 +1,9 @@
       EASIER:      than XML and JSON
                    It's a superset of JSON
                                       allows
-                                         - comments
-                                         - variables
-                                         - quotation is optional
+                                         - comments    #
+                                         - variables   {{ }}
+                                         - quotation is optional  ' "
                                          - quotation can use " or '
                                             (The difference between ' and " is that in " you can use escapes:
                                                 foo: "a \t TAB and a \n NEWLINE" )
@@ -27,7 +27,7 @@
                           - Strawberry
                           - Mango
 
-          compact forms:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango']      <-- in 1 line among '[' ']' separated by ','
+          compact form:    fruits: ['Apple', 'Orange', 'Strawberry', 'Mango']      <-- in 1 line between '[' ']' separated by ','
 
 
 
@@ -37,7 +37,7 @@
   the HASH (so key / value pairs) can be in the usual 'implicit' syntax or 'explicit'
 
 
-  |    IMPLICiT SYNTAX
+  |    IMPLICIT SYNTAX
   |    __________________
   |
   |
@@ -45,7 +45,7 @@
   |                          Quote if there is a :
   |                          foo: "somebody said I should put a colon here: so I did"
   |                                                                       ^
-  |            compact forms:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line among '{' '}' separated by ','
+  |            compact form:    martin: {name: Martin D'vloper, job: Developer, skill: Elite}   <-- in 1 line between '{' '}' separated by ','
   |                                           ^                     ^                 ^
   |
   |    |  >              to wrap long lines  (the > NOT include \n)
@@ -160,7 +160,7 @@
            - step: *id002
 
            nb.2 << for hash merge do not go down on levels (it's not recursive) it means
-                   that if an hash is more structured (ex
+                   that if a hash is more structured (ex
 
                                     defaults: &defaults                             |  this is the block
                                         input_location: common_input                |  I'd like to reuse
@@ -180,26 +180,26 @@
                                         mail:                                       |
                                           sender_name: sender_prod                  |
 
-                                                        common_settings: &common_settings        |_____ the solution is the add a reference for each section (1 here)
-                                                           input_location: common_input          |
-                                                           output_location: dev_location         |
-                                                           mail_defaults: &mail_defaults         | ____ (1 here)
-                                                             sender_name: sender                 |
-                                                             smtp_server: your_server            |
-                                                             login: your_login                   |
-                                                             password: top_secret                |
-                                                                                                 | ____ (1 here)
-                                                           defaults: &defaults                   |
-                                                             <<: *common_settings                |
-                                                             mail:                               |
-                                                               <<: *mail_defaults                |
-                                                           development:                          |
-                                                             <<: *defaults                       |
-                                                           production:                           |
-                                                             <<: *defaults                       |
-                                                             mail:                               |
-                                                               <<: *mail_defaults                |
-                                                               sender_name: sender_prod          |
+                                      common_settings: &common_settings        |_____ the solution is the add a reference for each section (1 here)
+                                         input_location: common_input          |
+                                         output_location: dev_location         |
+                                         mail_defaults: &mail_defaults         | ____ (1 here)
+                                           sender_name: sender                 |
+                                           smtp_server: your_server            |
+                                           login: your_login                   |
+                                           password: top_secret                |
+                                                                               | ____ (1 here)
+                                         defaults: &defaults                   |
+                                           <<: *common_settings                |
+                                           mail:                               |
+                                             <<: *mail_defaults                |
+                                         development:                          |
+                                           <<: *defaults                       |
+                                         production:                           |
+                                           <<: *defaults                       |
+                                           mail:                               |
+                                             <<: *mail_defaults                |
+                                             sender_name: sender_prod          |
 
                                 ________________________________________________________
                                  The solution becomes a mess if the are more levels !  <------ N.B.

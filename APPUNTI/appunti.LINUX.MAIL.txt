@@ -1,0 +1,51 @@
+SMTP        Simple Mail Transfer Protocol
+
+            . RFC  821  (1982) First defined
+            . RFC 5321  (2008) last updated - which is the protocol in widespread use today.
+
+            Usually
+                   . mail servers use SMTP to send and receive mail messages,
+                   . user mail applications
+                                     . use SMTP only for sending --> messages to a mail server for relaying.
+                                     . For retrieving messages <---, use either IMAP or POP3.
+
+            mail servers use TCP / port:25
+
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+            Simple Mail Transfer Protocol
+
+
+
+
+MTA         Mail Transfer Agent (MTA)
+            routes/delivers mails
+
+postfix      . a MTA alternative to the widely-used sendmail
+             . default MTA for Ubuntu - OS X - NetBSD
+             . written by Wietse Venema at IBM (so also known as:
+                           . VMailer
+                           . IBM Secure Mailer)
+
+             . 33% (March 2017) of the publicly reachable mail-servers run postfix.
+
+                  . fast
+                  . easy to administer
+                  . secure.
+mailq
+sendmail
+mail

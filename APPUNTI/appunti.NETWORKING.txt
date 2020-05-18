@@ -1,0 +1,49 @@
+
+
+
+
+---------------------------------------------
+                   NAT
+---------------------------------------------
+
+         1. Network ADDRESS Transaltion
+         2. The ADDRESSES are IPs  (Source and/or Destination)
+         3. In the communication:
+
+                       Me ------>   S1 -----> S2 ......      www.xxxx.com
+
+            between Me and www.xxxx.com
+            Many servers are passed. Some of these can act NAT
+            changing the Source/Destination IP in one direction and
+            changing back when the answer comes back.
+
+            The reason are mainly:
+
+            1. Many computers connecting through the same exiting S1.
+
+               All computers have many != IPs, while S1 has 1 in output.
+               So S1 will take care of transforming in 1 direction and reassemble when back.
+
+               We can think of this NAT as 'SNAT' (changing SOURCE)
+               as I allow more SOURCE host to go out.
+
+               SNAT is done BEFORE pkts go out onto the wire.
+
+
+            2. Multiple Servers behind the same S1.
+               In these cases still Many Servers with != IPs are behind 1 S1,
+               and it's single incoming public IP.
+
+               S1 will redirect the incoming requests to the proper Server
+               according to any kind of logic (ex. 1 Web server, 1 FTP server ...)
+
+               This type of NAT is also referred as   'PORT FORWARDING'
+               if I want to highlight that the logic to distinguish the
+               service to forward to is based on the port.
+
+            3. S1 is acting as a PROXY, so implementing a layer of transparency
+               to the HOST behing it.
+
+
+            2 & 3 are both examles of DNAT (changing DESTINATION) as they
+            act the change AFTER the pkts come off the wire.

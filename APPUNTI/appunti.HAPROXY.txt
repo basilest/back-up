@@ -1,0 +1,193 @@
+
+
+-----------------------------------------------
+HAPROXY : High
+          Availability
+          Proxy
+
+
+
+
+   client1                                              server1
+                                 HAPROXY
+                                                                            DB
+   client2                frontend     backend          server2            -----
+                           side         side                               -----
+
+   client3                                              server3
+
+
+   clientN
+
+
+             . it's a load balancer
+             . it distributes traffic among the available servers
+             . the frontend side:
+                              . listens ex on HTTPS:443
+                              . I can configure a client TIMEOUT
+                                     (if the client doesn't interact I kill the connection)
+                              . I can configure ACLs
+                                     (ex I don't allow connections to .../admin for IPs from China)
+
+             . the backend side:
+                              . choses the servers via different configurable algorithms:
+                                     (round-robin
+                                      less busy
+                                      source
+                                     )
+                              . I can configure a connection TIMEOUT
+                                     (stop trying to connect after proper time
+                                      ex. -m with curl)
+                              . I can configure a Server TIMEOUT
+                                     (kill the connection if the backend server
+                                      doesn't complete its task in a proper time
+                                      ex. the DB query is long)
+
+             . It's a L4 proxy: I can configure the level 4 (TCP)/
+                                                                 IP addresses and ports
+             . It's a L7 proxy: I can configure the level 7 (HTTP)/
+                                                                 how to manage incoming requests
+                                                                 to different entry-points
+                                                                 (ex. ..../admin
+                                                                      ..../pictures
+                                                                 )
+-----------------------------------------------
+        a config file 'stef.cfg':
+
+
+          frontend  xxxxx   <-------------  #  any name I give is ok (ex 'http80)
+               bind *:80                    #  for any IP on port 80
+               timeout client  60s          #  stop client connection if inactive for 60s
+               mode http                    # can be http | tcp <--default
+               default_backend  allservers  <-----------------------------.
+                                                                           \
+          backend   xxxxx   <-------------  #  any name I give is ok (ex 'allservers')
+               timeout connect 10s
+               timeout server  80s
+               mode http                    # same value of frontend (don't mix modes)
+               server    server2222 127.0.0.1:2222
+               server    server3333 127.0.0.1:3333
+               server    server4444 127.0.0.1:4444
+               server    server5555 127.0.0.1:5555
+
+
+       note:  . mode tcp    : the round robin doesn't properly cycle because
+                              TCP once a connection is established keeps that
+                              'stateful'
+                              (ex. refreshing the page in the a browser
+                               I'm going to hit the same server again, not
+                               the next one in the round robin cycle)
+
+              . mode http   : here the round robin is followed to the letter
+                              'stateless connection'
+
+
+
+-----------------------------------------------
+        I can now run as
+
+        > haproxy -f ./stef.cfg
+
+-----------------------------------------------
+          ADD MORE BACKENDS
+
+
+          backend   block1             <----------------- # I add a new backend
+               timeout connect 10s
+               timeout server  10s
+               mode http
+               server    server2222 127.0.0.1:2222
+               server    server3333 127.0.0.1:3333
+
+          backend   block2             <----------------- # I add a new backend
+               timeout connect 10s
+               timeout server  50s
+               mode http
+               server    server4444 127.0.0.1:4444
+               server    server5555 127.0.0.1:5555
+
+          backend   allservers
+               timeout connect 10s
+               timeout server  80s
+               mode http
+               server    server2222 127.0.0.1:2222
+               server    server3333 127.0.0.1:3333
+               server    server4444 127.0.0.1:4444
+               server    server5555 127.0.0.1:5555
+
+          frontend  xxxxx
+               bind *:80
+               timeout client  60s
+               mode http
+               default_backend  allservers
+
+               acl r1   path_end -i /admin          # I create an ACL called r1 for entry points ending in /admin
+               acl r2   path_end -i /pictures       # another ACL r2
+
+               use_backend  block1 if r1            # use backend block1 if r1
+               use_backend  block2 if r2            # use backend block2 if r2
+
+
+-----------------------------------------------
+          SPECIFY THE ALGORITHM
+
+
+          backend   block2
+               timeout connect 10s
+               timeout server  50s
+               balance source          <----------------- # I specify in the backend section
+               mode http
+               server    server4444 127.0.0.1:4444
+               server    server5555 127.0.0.1:5555
+
+
+
+-----------------------------------------------
+          DENY ACL
+
+          frontend  xxxxx
+               bind *:80
+               timeout client  60s
+               mode http
+               default_backend  allservers
+
+               acl r1   path_end -i /admin
+               acl r2   path_end -i /pictures
+               http-request deny if {path -i -m beg /admin}   # deny access to http request beginning with /admin
+
+               use_backend  block1 if r1
+               use_backend  block2 if r2
+
+
+
+-----------------------------------------------
+          ADD A CERTIFICATE
+
+
+          frontend  xxxxx
+               bind *:80
+               bind *:443 ssl crt /path/to/pem      # the certificate file pathname
+               timeout client  60s
+               mode http
+               default_backend  allservers
+
+               acl r1   path_end -i /admin
+               acl r2   path_end -i /pictures
+               http-request deny if {path -i -m beg /admin}
+
+               use_backend  block1 if r1
+               use_backend  block2 if r2
+
+
+
+-----------------------------------------------
+          ADD A CERTIFICATE AND HTTPS (TLS)
+
+               ....
+               bind *:443 ssl crt /path/to/pem alpn h2,http/1.1  # (application layer protocl negotiation)
+               ....                            ^^^^                 http2 and http
+
+
+
+
+

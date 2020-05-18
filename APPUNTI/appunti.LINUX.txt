@@ -1361,6 +1361,7 @@ __  id
        id -un     stiv       (gives the uid - text    format)
        id -gn     stiv       (gives the gid - text    format)
        id -Gn     stiv adm cdrom sudo dip plugdev lpadmin sambashare      (gives all groups - text    format)
+                  N.B. the same output given by 'groups'
 
 
        nb.  3 possible ways to have user name:
@@ -1387,8 +1388,8 @@ __  chmod
                  ||||_ o: other
                  |||__ g: group  chmod g+w  (add write to  group)  chmod g=u  (set group same as user value)
                  ||___ u: user   chmod u+w  ("   "     "   user)   chmod u-x  (remove exec)
-                 |_____4: user  ID
-                       2: group ID
+                 |_____4: SUID (user  ID)
+                       2: SGID (group ID)
                        1: sticky bit
 
     to remember        a: all (u/g/o)  chmod a+wx  give w & x  to all 3 u,g,o
@@ -1404,6 +1405,7 @@ __  chmod
      _____________________________________________________________________________
      N.B. I can have more at the same time:    chmod uo+rw  <------------ N.B.
                                                      ^  ^
+     N.B. I can skip u     chmod u+x   is the same as  chmod +x
      _____________________________________________________________________________
 
 
@@ -1481,6 +1483,39 @@ __  .Xauthority
                This is the reason why gui commands must not be started with sudo but with gksudo
                that copies /.Xauthority in a temp dir
 ____________________
+__  user & groups
+
+     /etc/passwd                 all users info (home, ...)      are in this TEXT file
+     /etc/group                  all groups info (list of users) are in this TEXT file
+
+     passwd user1                sets the password for user user1
+
+
+     -------------- GROUP
+
+               sudo groupadd ggg
+                          +
+
+               sudo groupdel ggg
+                          -
+
+
+               groups                      list the groups I'm part of
+
+
+     -------------- USER   (note userdel vs deluser)
+
+               sudo adduser smith          add user smith to /etc/passwd
+                    + ^^^^
+               sudo userdel smith          remove from /etc/passwd.    note it is userdel and not deluser
+                    ^^^^ -                                                        ^^^^ -           - ^^^^
+
+
+               sudo adduser smith admin    add smith to group admin
+               sudo deluser smith admin    this is deluser
+                     - ^^^^                         -^^^^
+
+____________________
 __  sudo  & su
 
                su    super user                   nb. not only root.    "su smith"   I become user "smith"
@@ -1534,21 +1569,21 @@ __  sudo  & su
                                /usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:
                                ~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
                 ---------------------------------------------
-                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -i
+   sudo -i      sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -i
                 Password:
                 pd13121:~ root#  echo $HOME $PATH
                 /var/root /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:
                           /usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
                 pd13121:~ root# logout
                 ---------------------------------------------
-                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -s
+   sudo -s      sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo -s
                 bash-3.2#  echo $HOME $PATH
                 /Users/sbasile /opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:
                                /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.
                                :/usr/local/bin/:/Users/sbasile/bin/:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development
                 bash-3.2# exit
                 ---------------------------------------------
-                sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo su
+   sudo su      sbasile@pd13121  (master) ~/CHIPS-SHARE/Scrum_Dev $  sudo su
                 sh-3.2#  echo $HOME $PATH
                 /var/root /opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.:/usr/local/bin/:/Users/sbasile/bin/:
                           /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/opt/local/bin:/opt/local/sbin:/usr/lib/oracle/11.2/client64:.
@@ -1558,8 +1593,9 @@ __  sudo  & su
     /etc/sudoers     is the config file.
 
                visudo   to edit.
-                        It performs syntax checks on the changes (to verify it's valid)
-                        so don't change with a normal 'vi /etc/sudoers')
+                        It performs syntax checks before saving the changes (to verify it's valid)
+                        so don't change with a normal 'sudo vi /etc/sudoers'
+                        as a corrupted /etc/sudoers could cause to not be able to change it again with sudo visudo
 
                         sudo visudo -f /etc/sudoers
 
@@ -1581,25 +1617,13 @@ __  sudo  & su
                                               admin:*:80:root
                                               _lpadmin:*:98:
 
-               In linux to add a user to a group  (ex "smith" to group "admin")
+                    sudo adduser smith admin     Now smith is in the admin group so a
 
-                    sudo adduser smith admin    (I can remove as
-                    sudo deluser smith admin
-                    )
+                    su smith                     allows to run command with the "admin" group privileges, ex.
 
-               Now smith is in the admin group so a
+                                                  sudo ls /.....
+                                                  sudo /etc/init.d/networking restart
 
-                    su smith
-
-               allows to run command with the "admin" group privileges, ex.
-
-                  sudo ls /.....
-                  sudo /etc/init.d/networking restart
-
-
-        groups       command "group" list the groups I'm part of
-
-        passwd user1      sets the password for user user1
 
 
     /var/log/auth.log       where sudo commands are logged
@@ -1608,7 +1632,7 @@ __  sudo  & su
    SYNTAX OF /etc/sudoers
 
               Tipycal line
-                                 ____ the user (here root)
+                                 ____ the user (here root) '%' to identify a group (ex. %sudo : the group of users belonging to group 'sudo')
                                 /         ____ Optionally the list (comma separated) of users, he/she can act as
                                /         /
                               root ALL=(ALL) ALL  <------ the list (comma separated) of COMMANDS he can run
@@ -1618,6 +1642,8 @@ __  sudo  & su
 
               another ex.
                             operator ALL= /sbin/poweroff       (user "operator" can shut down from any terminal)
+                            %dev ALL= /path/to/some/bins       (any user belonging to group 'dev'  can run from everywhere the /path/to/some/bins)
+                            %sudo ALL=(ALL) ALL                (any user belonging to group 'sudo' can run from everywhere any command as any user)
 
 
                  example of /etc/sudoers
@@ -1627,20 +1653,15 @@ __  sudo  & su
               | Host_Alias     OFNET = 10.1.2.0/255.255.255.0                 |
               | Cmnd_Alias     PRINTING = /usr/sbin/lpc, /usr/bin/lprm        |
               |                                                               |
-              |OPERATORS ALL=ALL                                              |# users in OPERATORS group can run any command from any terminal.
+              |OPERATORS ALL=ALL        # users in OPERATORS group can run any command from any terminal.
               |                                                               |
               |                                                               |
-              |linus ALL=(OP) ALL                                             |# user linus can run any command from any terminal as any user in the OP group (root or operator).
+              |linus ALL=(OP) ALL       # user linus can run any command from any terminal as any user in the OP group (root or operator).
               |                                                               |
               |                                                               |
-              |user2 OFNET=(ALL) ALL                                          |
+              |user2 OFNET=(ALL) ALL    # user2 may run any command from any machine in the OFNET network, as any user.
               |                                                               |
-              |# user user2 may run any command from any machine in the       |
-              |OFNET network, as any user.                                    |
-              |                                                               |
-              |user3 ALL= PRINTING                                            |
-              |                                                               |
-              |# user user3 may run lpc and lprm from any machine.            |
+              |user3 ALL= PRINTING      # user3 may run lpc and lprm from any machine.
               -----------------------------------------------------------------
 
 
@@ -1673,6 +1694,28 @@ __  sudo  & su
 
               ALL     builtin alias which matches everything
                       ALL ALL=(ALL) NOPASSWD: PRINTING_CMDS
+
+              #include    /some/file           I can source /some/file
+              #includedir /etc/sudoers.d       I can source any file present in this dir
+                                               ex I can define a file for network admin called for example /etc/sudoers.d/netamin
+
+                           (note the # : it's not a comment it's really #include #includedir)
+
+                            .---------------------/etc/sudoers.d/netamin--------------------------------
+                           |   Cmnd_Alias   AIRCRACK = /usr/sbin/airdriver-ng, /usr/sbin,airep
+                           |   Cmnd_Alias   CAPTURE  = /usr/sbin/tcpdump
+                           |   Cmnd_Alias   NETWORK  = /sbin/ifconfig, /sbin/ifdown, /sbin/ifup
+                           |   Cmnd_Alias   WLAN     = /usr/sbin/iwconfig, /sbin/iwevent
+                           |   Cmnd_Alias   IPTABLES = /sbin/iptables, /sbin/iptables-restore, ...
+                           |   Cmnd_Alias   SERVERS  = /usr/sbin/apache2ctl, /usr/bin/htpasswd
+                           |   Cmnd_Alias   KERNEL   = /sbin/systctl net.ipv4.ip_forward=1, ...     <------ note I can specify args
+                           |
+                           |   Cmnd_Alias   NETALL   = AIRCRACK, CAPTURE, NETWORK, WLAN, IPTABLES, SERVERS, KERNEL
+                           |
+                           |   %netadmin ALL=NETALL              <-------- every time I add a user to group netadmin he will be able to run all these net progs.
+                           |                                               sudo adduser xxxx netadmin
+                            ---------------------------------------------------------------------------
+
 
 ____________________
 __  w
@@ -3211,5 +3254,46 @@ MODULES:       cat -n /proc/modules     to see which is running
                                         taking care of dependency.
                                         So modprobe add mods
                         -r              modprobe -r remove mods
+
+
+____________________________________________________________
+
+parse JSON on command line:
+
+      | jq .
+                                 - must be installed
+                                 + There is also --sort-keys
+                                 + colours (default or with explicit 'jq -C') or no colour 'jq -M' (Monochrome)
+                                 - up to and including jq version 1.5) will alter the values of
+                                   very large and very small numbers because it parses numeric
+                                   values as IEEE 754 64-bit values.
+                                   To check whether your favorite pretty-printer has the same issue,
+                                   try this value: 1e1000.
+
+      | json_xs                  - _xs  (uses external C library)
+      | json_pp                  - _pp  (pure perl)
+
+                                 + they both should be available
+                                 - neither preserve key order nor sort the keys.
+
+      | python -m json.tool
+                                 + it should be installed already
+                                 - seems to escape Unicode into \uXXXX, which might be a disadvantage.
+                                 - for the big numbers it fails this test badly in that
+                                   it produces Infinity, which is not even JSON.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

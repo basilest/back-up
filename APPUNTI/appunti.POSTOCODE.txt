@@ -1,0 +1,182 @@
+
+        PAF®  =  Postcode Address File
+
+        1.75 million Postcodes.
+        28 million addresses    (address text on PAF® is always in UPPER CASE)
+
+        programmers_guide_edition_7_v5.pdf
+        Edition 7, version 2.3 (2010)
+        Edition 6, version 2.3 (2003)
+
+
+
+
+        Section 1 - General information
+
+        Section 2 - PAF products in a RELATIONAL format
+        Section 3 - PAF products in a TEXT BASED format
+        Section 4 – other products
+
+
+
+
+        SURNAME:    Can stay in
+                                - Sub Building   field
+                                - Building       field
+
+
+        ‘Multi-occupancy’:      like 'Flat 1, 13 Lily St'
+                                      ^^^^^^
+        Organisations      Max len:  60
+
+                           small:  company which share same Postcaode
+                           large:  companies big to have their own Postocde
+                                   (thousand of mails per day)
+
+
+        ADDRESS STRUCTURE:  (4 parts)
+
+                   . Premises
+                   . Thoroughfare
+                   . Locality
+                   . Postcode
+
+        which have the following subparts (with len in bytes)
+
+                Premises elements
+                    30    Sub Building Name                   (e.g. ‘Flat 1’)
+                    50    Building Name                       (e.g. ‘Rose Cottage’) or range (110-114)
+                     4    Building Number                     (e.g. ‘22’)
+                    60    Organisation Name                   (e.g. ‘Cath’s Cakes’)
+                     6    PO Box number
+
+                Thoroughfare elements
+                    60    Dependent Thoroughfare Name         (e.g. ‘Cheshunt’)
+                    20    Dependent Thoroughfare Descriptor   (e.g. ‘Mews’ or ‘Court’)
+                    60    Thoroughfare Name                   (e.g. ‘Cypress’)
+                    20    Thoroughfare Descriptor             (e.g. ‘Road’ or ‘Street’)
+
+                Locality elements
+                    35    Double Dependent Locality           (e.g. ‘Tyre Industrial Estate’)
+                    35    Dependent Locality                  (e.g. ‘Blantyre’)
+                    30    Post Town                           (e.g. ‘GLASGOW’)
+                    30    County                              (e.g. ‘Surrey)
+
+                Postcode
+                    7                                         (e.g. SW1P 3UX’)
+                           PostCode type:   S    small user
+                                            L    large user
+
+
+
+        Post Towns:   There are 1661 post towns
+
+
+        POSTCODE:
+                     Each Postcode consists of 2 parts (separated by 1 space),
+                     called the
+
+                             Outward Code (e.g. ‘PO1’) up to 4 bytes: represents AREA and the DISTRICT
+                                    . 1st letter           not( Q V X )
+                                    . 2nd letter/number    not( I J Z )
+                                    . 3rd letter/number    (A B C D E F G H J K P R S T U W)
+                                    . 4th letter/number
+
+                                           A N              M1
+                                           A N N            M60
+                                           A A N            CR2
+                                           A A N N          DN55
+                                           A N A            W1P
+                                           A A N A          EC1A
+
+
+                             Inward  Code (e.g. ‘1AF’) represents the sort inside the AREA
+                                    . 1st number
+                                    . 2nd letter    not( C I K M O V )
+                                    . 3rd letter     "      "    "
+
+                                           N A A            1PT
+
+
+        KEYS:
+                   Each Address        is uniquely identified by a numeric key   (8-digit number [1 (first) ...+1.... 9999 9999 (last)]
+                                                                                 When a Small User Address is deleted the Address Key is deleted;
+                                                                                 it cannot be reused for a different address.
+                                                                                 ----------------^--------------------------------------------
+                   Each Organisation   is uniquely identified by a numeric key,  " " ............|
+                                                                                                 | .......... all the same for Organisations)
+                   Each Delivery Point is identified by the combination of the
+                                               Address      Key,
+                                               Organisation Key    <---- if none, default is 0000 0000
+                                               Postcode     Type   (S L)
+
+
+
+        FILES STRUCTURE:
+
+                     fixed length (different for each file type)
+
+                     header record
+                     data     "
+                     trailer  "
+
+
+                     Numeric fields -   are held right justified zero  padded,
+                     non-numeric fields are held left  justified space padded.
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+        .
+
+
+        programmers_guide_edition_7_v5.pdf

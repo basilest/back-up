@@ -571,6 +571,11 @@ nslookup gives information from a hostname
        echo server:
                        nc -l -p 12345 -c 'while true; do read i && echo [echo] $i; done'
 -------------------------------
+     ss
+-------------------------------
+
+    -nat      to show the connections   (e.x. ss -nat|grep 5555   to check if port 5555 is open)
+-------------------------------
      ethtool
 -------------------------------
 
@@ -605,15 +610,67 @@ ethtool eth0
 -------------------------------
 
 
-iptables :    set of utilities in user-space
-              process packets a Lev3.
-              Others (ex ebtables)
-              process Ethernet-Bridge Lev2.
+Netfilter:    firewall built-in in the linux kernel           www.netfilter.org
+              (process packets at Lev3, so IP).
 
-Netfilter:   framework in the kernel,
-             tightly coupled with iptables set
+iptables :    admin interface to Netfilter.
+
+ebtables:     process Ethernet-Bridge Lev2.
 
 
+iptables works on LV3 (IP) LV4 (TCP/UDP).
+Possible very basic filtering in Application and Network layers, but not designed for this.
+
+For example, match a specific string inside the packet, (ex /index.html) Will that work? Normally, yes.
+However, if the packet size is very small/split, iptables will not see that string.
+Much better using a proxy.
+
+    ______________________________________________________
+    POLICIES OF FIREWALL (they can be opposite):
+
+      POLICY  DEFAULT=DENY  (the risk if to have false positive, deny useful packets)
+
+         1. by default DENY all IP packets
+         2. check if there are any configured RULES.
+            Probably some of these will allow some IP packets to be ACCEPT-ed
+
+      POLICY  DEFAULT=ACCEPT   (more risky ... I need to configure a lot to avoid malicious packets)
+
+         1. by default ACCEPT all IP packets
+         2. check if there are any configured RULES.
+            Probably some of these will deby some IP packets
+
+
+      Note: Policies are defined per INPUT / FORWARD / ....
+            ex.
+                    iptables --policy INPUT DROP         # DEFAULT=DENY
+
+                    iptables --policy OUTPUT DROP
+
+                    iptables --policy FORWARD DROP
+
+
+    ______________________________________________________
+
+
+
+    ______________________________________________________
+    FIREWALL /FILTER BENFITS
+
+    Inspecting IP packets means not only to look at 1 single packet
+    but to collect statistics/ trend so that I can intercept
+        - port scans
+        - address spoofing
+        - malformed broadcast to identify UNIX systems
+        - any form of network mapping
+        - DOS attacks
+        - ....
+
+
+
+
+
+    ______________________________________________________
 
 
 iptables -t nat   -A PREROUTING   -i eth1   -p tcp  --dport 80
@@ -639,8 +696,8 @@ ______________________________________________________ config
 ______________________________________________________
                                defined in /usr/include/linux/netfilter_ipv4.h
 5 hooks          1. PREROUTING
-                 2. INPUT
-                 3. FORWARD
+                 2. INPUT        (input pkts)
+                 3. FORWARD      (I have 2 network cards (a router) and these are the pkts routed from 1 to 2)
                  4. OUTPUT
                  5. POSTROUTING
 
@@ -666,7 +723,7 @@ ______________________________________________________ rule
                     -num of bytes         idem            := + pckt bytes
 
 
-              if the match-part  is missing, all pckts are sent to target
+              if the match-part  is missing, all pkts are sent to target
               if the target-part is missing, none is done on pckt, anyhow
                                              the above counts are incremented.
 
@@ -679,14 +736,36 @@ ______________________________________________________ target
 
   ACCEPT: stop processing current chain
           go to next rule
-  DROP:   discard the pckt
-  QUEUE:  queue pckt in user-space queue (man libipq)
+  DROP:   discard the pkt
+  QUEUE:  queue pkt in user-space queue (man libipq)
   RETURN: for user specific chain, added.
 
 
 
 
+INPUT:  is the CHAIN of pkts entering into the interface
 
+INTERFACE:   can be many. Ex
+                 lo =  loop back
+                 eth0
+                 eth1
+
+TARGET:      I specify where to go. They are 3:
+                              -j ACCEPT
+                              -j DROP         drop the pkt quietly
+                              -j REJECT       return icmp-port unreachable error
+
+1. # remove all CHAINS
+                   iptables --flush
+
+2. # add rules to quickly allow unlimited traffic on loopback interface
+                   iptables -A INPUT  -i lo -j ACCEPT     # -A:  Append
+                   iptables -A OUTPUT -o lo -j ACCEPT
+
+3. # set defualt policy to DROP
+                    iptables --policy INPUT DROP
+                    iptables --policy OUTPUT DROP
+                    iptables --policy FORWARD DROP
 
 
 

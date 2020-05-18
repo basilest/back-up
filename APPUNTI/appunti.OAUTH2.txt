@@ -1,0 +1,509 @@
+
+
+
+   OAUTH2        is aimed to give AUTHORIZATION-(SCOPED)-access to a web data of a Resource-Owner
+                 to a 3rd Client.
+
+                   - AUTHORIZATION: it grants access to a resource (ex. my Gmail contacts),
+                                    providing an ACCESS-TOKEN to a 3rd party
+
+                   - SCOPED         the access to the data is not 100%, but has
+                                    a certain SCOPE
+                                    ex. only my Gmail contacts,
+                                        no Drive docs or location history ...
+
+                   - RESOURCE-OWNER:is the owner of the data (Me, for my Gmail)
+
+                   - WEB (DATA)     it's a protocol over HTTP
+
+                   - CLIENT:        Is the 3rd party wanting access.
+
+                   - RESOURCE SERVER  is the web place where the data is hold
+
+                   - AUTHORIZATION SERVER  is the web place implementing the AUTHORIZATION decision
+                                      to give (and then giving) the ACCESS TOKEN.
+
+
+AUTHORIZATION:    is the process to say yes or no to an access request
+
+
+
+AUTHENTICATION:   is the process to check that a user is authentic (ex. via password)
+
+
+--------------------------------------------
+OAUTH2 is only AUTHORIZATION
+--------------------------------------------
+OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
+--------------------------------------------
+
+
+
+
+
+
+                       .-------------------------------.
+                       |           O p e n I D         |   AUTHENTICATION
+                       `-------------------------------'
+                       .-------------------------------.
+                       |                               |
+                       |                               |
+                       |           O A U T H 2         |   AUTHORIZATION
+                       |                               |
+                       |                               |
+                       `-------------------------------'
+                       .-------------------------------.
+                       |           H T T P             |
+                       `-------------------------------'
+
+
+
+
+--------------------------------------------
+
+   OAUTH LOGIC/FLOW
+
+
+   1. A Client (ex. yelp.com) wants to have access to a certain API/Resource
+      (i.e. the contacts of Gmail  accounts.google.com ).
+
+
+   2. It registers on accounts.google.com to have the pair
+                     (client_id + secret_id)
+
+
+   3. A new customer X of yelp.com can now access yelp.com
+      clicking 'access with Google'
+
+    .-----------------.
+    |   yelp.com      |
+    |                 |
+    |                 |
+    |   log with G    |
+    |                 |
+    `-----------------'
+
+
+
+
+
+
+
+   4. the yelp.com (FRONTEND/browser) redirects X to the HTTP address
+      of the google AUTHORIZATION SERVER (accounts.google.com)
+
+      the request is an OAUTH2 msg containing some protocol information
+      like:
+             . the /callback (the entry point to call when the user
+                              accepts/rejects to grant access to his data
+                              clicking Yes/No)
+             . the 'scope' (ex. 'contacts') of the access to data (google will show this
+                              scope to X, so that X knows the request is to access
+                              his 'contacts' and not more)
+             . the 'client_id' of yelp.com
+             . the 'type' of access (ex. code/token/...) the /callback will be
+                              with this value
+                              (ex. if the type was 'code'
+                                   the callback will be:
+                                                   /callback?code='87Fg5...'
+                                                             ^^^^
+                              )
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect URI: "yelp.com/callback"                |   user:______   |
+    |   log with G    |        scope: "profile" "contacts"                      |   password:__   |
+    |                 |        response type: "code"                            |                 |
+    `-----------------'                                                         `-----------------'
+
+                               note. scope is a space-separated list of 'scope' values
+                                     defined by the AUTHORIZATION SERVER, and which the Client
+                                     is aware when decided to register.
+                                     So Facebbok list of scopes are defined by Facebook
+                                     Google defines its own. ......
+
+                                     OpenID will be implemented adding the scope: 'openid'
+
+
+
+   5. X logs now normally on his own google account on the google server.
+      this is a legacy AUTHENTICATION process on google itself with X's password.
+
+
+
+
+
+
+
+
+   6. the google server knows that it was an OAUTH2 request from
+      yelp.com, and prompts the custom/scoped question to X:
+
+                "Do you want to give yelp.com access to your 'contacts' ?"
+                 Yes/No
+
+                    X knows then what is what.
+                    If X denys, then google will redirect the URL to yelp.com/callback with
+                    something like:
+
+                    if X accepts, then google will redirect the URL to yelp.com/callback
+                    with an AUTHORIZATION-CODE. This is not yet the ACCESS TOKEN.
+                    Yelp will have to exchange the CODE for the TOKEN
+
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=profile+contacts&                          |   password:__   |
+    |                 |        response_type=code&                              |                 |
+    `-----------------'        client_id=abc123&                                `-----------------'
+                               state=foobar         <--- just a flag to send             |
+                                                         and received back in the        |
+                                                         answer                          |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                NO    https://yelp.com/callback?                         |
+                                           error=access_denied&                          V
+    .-----------------.                    error_desc='user did not conset'     .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 | <------------------------------------------------------ |                 |
+    |                 |                                                         | yelp.com access |
+    |                 |         YES   https://yelp.com/callback?                | your 'profile'  |
+    |                 |                    code=oMsCeLvIaQm6bTrgtp7&            | & 'contacts' ?  |
+    `-----------------'                    state=foobar    <--- flag returned   |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+
+
+
+
+
+
+
+   7. The steps so far where all HTTP redirects on the FRONTEND channels
+      of the X browser so not 100% secure.
+      This is the reason why the ACCESS-TOKEN was not transmitted at previous steps.
+
+
+
+
+
+
+
+
+   8. Now on yelp.com BACKEND SERVER (containing the secret_id of yelp.com)
+      yelp.com can contact again the AUTHORIZATION SERVER of google asking to change the AUTHORIZATION-CODE
+      for a scoped-ACCESS-TOKEN.
+
+      These last messages of the AOUTH2 protocol are exchanged between the back-end servers
+      which are considered secure channels. On these channels are transmitted both the secret-id
+      and the ACCESS-TOKEN. These form the back-cahnnel (more secure) wrt to the previous front-channel.
+
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=profile contacts&                          |   password:__   |
+    |                 |        response_type=code&                              .                 |
+    `-----------------'        client_id=abc123&                           .    `-----------------'
+                               state=foobar                           .                  |
+                                                                 .                       |
+                                                            .                            |
+                                                       .                                 |
+                                                  .                                      |
+                                             .                                           |
+                                        .|POST www.googleapis.com/oauth2/v4/token        |
+                                   .     |Content-Type: application/x-www-form-urlencoded|
+                              .  .......{                                                |
+                         .               |code=oMsCeLvIaQm6bTrgtp7                       V
+    .-----------------.                  |client_id=abc123&                     .-----------------.
+    |   yelp.com      |                  |client_secret=secret123&              accounts.google.com
+    |                 |                  |grant_type=authorization_code         |                 |
+    |                 | <------------------------------------------------------ | yelp.com access |
+    |                 |                                                         | your 'profile'  |
+    |                 |                                                         | & 'contacts' ?  |
+    `-----------------'                                                         |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+
+
+
+
+
+   9. The AUTHORIZATION SERVER of google checks the request and if accepted,
+      sends back the scoped-ACCESS-TOKEN (with likely an expire time)
+
+
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=profile contacts&                          |   password:__   |
+    |                 |        response_type=code&                              .                 |
+    `-----------------'        client_id=abc123&                           .    `-----------------'
+                               state=foobar                           .                  |
+                                                                 .                       |
+                                                            .                            |
+                                     {                 .                                 |
+                                       "access_token": "fFAGRNJru1FTz70BzhT3Zg",         |
+                                       "expires_in": 3920,                               |
+                                       "token_type": "Bearer",                           |
+                                   . }                                                   |
+                              .                                                          |
+                         .                                                               V
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 |                                                         |                 |
+    |                 | <------------------------------------------------------ | yelp.com access |
+    |                 |                                                         | your 'profile'  |
+    |                 |                                                         | & 'contacts' ?  |
+    `-----------------'                                                         |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+
+
+
+
+
+  10. yelp.com BACKEND SERVER can finally contact the RESOURCE SERVER,
+      providing its scoped-ACCESS-TOKEN and asking to access the 'contacts' of X
+
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=profile contacts&                          |   password:__   |
+    |                 |        response_type=code&                              .                 |
+    `-----------------'        client_id=abc123&                           .    `-----------------'
+                               state=foobar                           .                  |
+                            .-----------------.                  .                       |
+                            |   api.google/   |             .                            |
+                            |   contacts      |                                          |
+                         - >|                 |                                          |
+                      -     | RESOURCE SERVER |                                          |
+                   -        |                 |                                          |
+                -           `-----------------'                                          |
+       GET api.google.com/contacts                                                       |
+       Authorization header: Bearer "fFAGRNJru1FTz70BzhT3Zg"                             V
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 |                                                         |                 |
+    |                 | <------------------------------------------------------ | yelp.com access |
+    |                 |                                                         | your 'profile'  |
+    |                 |                                                         | & 'contacts' ?  |
+    `-----------------'                                                         |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+
+
+
+
+
+
+  11. If the requested data are inside the scope, then the RESOURCE SERVER
+      will send them to yelp.com
+
+
+
+
+
+
+
+  12. SIMPLIFIED USE CASES
+
+      There are simplified use cases, ex:
+                   no backend: react/angular/JS applications (all exchanged on the front-channel)
+                   no frontend: machine-machine              (all exchanged on the  back-channel)
+      where the flow is bit different and the ACCESS-TOKEN is exchanged directly without
+      the intermediate step of the AUTHORIZATION-CODE
+
+      ex. of no backend, all in the browser/app
+
+      Client                                                                   AUTHORIZATION SERVER
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=profile+contacts&                          |   password:__   |
+    |                 |        response_type=tocken&  <---- here the difference |                 |
+    `-----------------'        client_id=abc123&                                `-----------------'
+                               state=foobar                                              |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+                                                                                         V
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 | <------------------------------------------------------ |                 |
+    |                 |                                                         | yelp.com access |
+    |                 |         YES   https://yelp.com/callback?                | your 'profile'  |
+    |                 |                "access_token": "fFAGRNJru1FTz70BzhT3Zg" |   'contacts' ?  |
+    `-----------------'                 state=foobar                            |                 |
+                                                                                |     Yes/No      |
+
+
+                    note that the "access_token": "fFAGRNJru1FTz70BzhT3Zg" is then visible
+                    being sent on the front-channel
+
+--------------------------------------------
+OpenID Connect is implemented adding to the starting HTTP request:
+                           + the ID_token    <--- an ID (in JSON-WEB-TOKEN format) with user info
+                           + UserInfo endpoint for getting more user info
+                           + standard set of scopes (ex. 'openid')
+
+
+
+
+                                                                               AUTHORIZATION SERVER
+      Client                                                                 (WHICH UNDERSTANDS OpenID Connect)
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=openid+profile+contacts&   <--- here       |   password:__   |
+    |                 |        response_type=id_token&          <--- here       |                 |
+    `-----------------'        response_mode=fragment&          <--- here       `-----------------'
+                               client_id=abc123&                                         |
+                               state=foobar                                              |
+                                                                                         |
+                                                                                         |
+                                                                                         |
+
+                      HERE ALL WILL BE THE SAME TILL N. 9
+                      WHICH WILL BE SOMETHING LIKE:
+
+
+
+
+                                                                               AUTHORIZATION SERVER
+      Client                                                                 (WHICH UNDERSTANDS OpenID Connect)
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |      http://accounts.google.com/o/oauth2/v2/auth?       accounts.google.com
+    |                 | ------------------------------------------------------> |                 |
+    |                 |        redirect_uri=https://yelp.com/callback&          |   user:______   |
+    |   log with G    |        scope=openid+profile+contacts&                   |   password:__   |
+    |                 |        response_type=id_token                           .                 |
+    `-----------------'        response_mode=fragment&                     .    `-----------------'
+                               client_id=abc123&                      .                  |
+                               state=foobar                      .                       |
+                                                            .                            |
+                                     {                 .                                 |
+                                       "access_token": "fFAGRNJru1FTz70BzhT3Zg",         |
+                                       "id_token": "(*)"              <---------- here   |
+                                       "expires_in": 3920,                               |
+                                       "token_type": "Bearer",                           |
+                                   . }                                                   |
+                              .                                                          |
+                         .                                                               V
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 |                                                         |                 |
+    |                 | <------------------------------------------------------ | yelp.com access |
+    |                 |                                                         | your 'profile'  |
+    |                 |                                                         | & 'contacts' ?  |
+    `-----------------'                                                         |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+                            (*) the "id_token" is a very long string
+                                in JSON WEB TOKEN format (like base64)
+                                called also JWT (pronunced JAT)
+                                which is the format to transmit a JSON
+                                compressed over the internet.
+
+                                go for i.e. in www.jsonwebtoken.io
+                                to encode/decode online
+                                I'll see a HEADER + PAYLOAD + SIGNATURE
+
+
+
+
+
+      I CAN USE AS NORMAL THE ACCESS-TOKEN TO CALL THE ENTRY POIN OF /userinfo TO GET MORE INFO
+
+
+
+                            .-----------------.                  .                       |
+                            |   api.google/   |             .                            |
+                            |   contacts      |                                          |
+                         - >|                 |                                          |
+                      -     | RESOURCE SERVER |                                          |
+                   -        |                 |                                          |
+                -           `-----------------'                                          |
+       GET api.google.com/oauth2/v4/userinfo                                             |
+       Authorization header: Bearer "fFAGRNJru1FTz70BzhT3Zg"                             V
+    .-----------------.                                                         .-----------------.
+    |   yelp.com      |                                                         accounts.google.com
+    |                 |                                                         |                 |
+    |                 | <------------------------------------------------------ | yelp.com access |
+    |                 |                                                         | your 'profile'  |
+    |                 |                                                         | & 'contacts' ?  |
+    `-----------------'                                                         |                 |
+                                                                                |     Yes/No      |
+                                                                                `-----------------'
+
+      I will received back something like
+                                200 OK
+                                Content-Type: application/json
+
+                                {
+                                     "sub": "you@gmail.com",
+                                     "name": "My Name",
+                                     "profile_picture": "http://plus.g.co/123",
+                                     ......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

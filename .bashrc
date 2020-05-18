@@ -1,15 +1,14 @@
 stty start undef stop undef     #  In most terminals, Vim cannot distinguish between Enter and its combinations with Ctrl or Shift
                                 #  The terminal's flow control commands may interfere with Ctrl-S and Ctrl-Q
 export TOPIC="PA_STREAMING_1"
-#------------- GENERAL ALIAS
-source ${HOME}/_shell.aliases.sh
-source ${HOME}/_shell.exports.sh
-source ${HOME}/_shell.functions.sh
-
 
 export HISTSIZE=100000
 export HISTFILESIZE=100000
 export HISTCONTROL=ignoreboth
+
+source ${HOME}/_shell.aliases.sh
+source ${HOME}/_shell.exports.sh
+source ${HOME}/_shell.functions.sh
 
 #______________________________________
 cb () {
@@ -154,3 +153,4 @@ L() {
 
 
 #______________________________________
+#

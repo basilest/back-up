@@ -25,20 +25,54 @@ if [[ -f /usr/local/share/chtf/chtf.sh ]]; then
     source "/usr/local/share/chtf/chtf.sh"
 fi
 
+function ffh  { print -z $( fc -l 1 | awk '{$1=""}1' |fzf  ) }
+function ffv  { vi -o $( fzf -m ) }
+function ffga { git add $( git status -s | fzf -m | sed 's/^...//' ) }
 
-awsenv () {
+
+function awsenv () {
+   local env=$1
+   export AWS_PROFILE=${env}
+   ssh-add ~/.ssh/ch-aws-${env}.pem
+   export AWS_ENVIRONMENT_TAG=${env}
+}
+
+function awsenv0 () {
    local env=$1
    tfenv use 0.8.8      # uncomment when you need
    export AWS_PROFILE=development
    ssh-add ~/.ssh/chs-${env}.pem
    export AWS_ENVIRONMENT_TAG=${env}
 }
+#______________________________________
+# to rebuild virtual envs after brew crashed them
+function rebuild_python_virt_envs () {
+    local VENV=''
+    echo 'lsvirtualenv'
 
-awsenv1 () {
-   local env=$1
-   export AWS_PROFILE=live
-   ssh-add ~/.ssh/ch-aws-live.pem
-   export AWS_ENVIRONMENT_TAG=${env}
+    VENV='python.2.7.17.boto.boto3.ansible.2.7.9'
+    echo 'deactivate'
+    echo 'rmvirtualenv' "$VENV"
+    echo 'mkvirtualenv' "$VENV"
+    echo 'pip install boto'
+    echo 'pip install boto3'
+    echo 'pip install ansible==2.7.9'
+
+    VENV='aws-cli-on.python.2.7.17'
+    echo 'deactivate'
+    echo 'rmvirtualenv' "$VENV"
+    echo 'mkvirtualenv' "$VENV"
+    echo 'pip3 install awscli --upgrade'
+    echo 'pip3 install boto3'
+
+    VENV='aws-cli-on.python.3'
+    echo 'deactivate'
+    echo 'rmvirtualenv' "$VENV"
+    echo '/usr/local/bin/python3 --version'         # Python 3.7.6
+    echo 'mkvirtualenv --python=/usr/local/bin/python3' "$VENV"
+    echo 'pip3 install awscli --upgrade'
+    echo 'pip3 install boto3'
+
 }
 
 function top_sort_cpu {
@@ -197,8 +231,8 @@ function ch_ssh {
     cd $CH_CONTEXT_VAGRANT_DIR
     pwd
     echo $env
-    #vagrant ssh $env --
-    vagrant ssh -c "bash" $env -- -t "export KAFKA_BROKER_ADDR=$(ifconfig en0 | grep -w inet |cut -d ' ' -f 2):29093 SERVER_PORT=8081;"
+    vagrant ssh $env --
+    #vagrant ssh -c "bash" $env -- -t "export KAFKA_BROKER_ADDR=$(ifconfig en0 | grep -w inet |cut -d ' ' -f 2):29093 SERVER_PORT=8081;"
 }
 #______________________________________
 function ch_curl {
@@ -378,7 +412,7 @@ function ch {
     elif [[ $2 == "rel" ]] # release CHL
     then
         ch_release "${@:3}"
-    elif [[ $2 == "relcmd" ]] # release CMD
+    elif [[ $2 == "remcmd" ]] # release CMD
     then
         ch_legacySystems_cmd "${@:3}"
     fi
@@ -434,6 +468,8 @@ function SQL_chips {
 
 function reset_proxy {
      env | grep -i proxy | awk 'BEGIN{FS="="; l="export "} {l=l $1 "= "} END{print l}'
+     local cmd=$(env | grep -i proxy | awk 'BEGIN{FS="="; l="export "} {l=l $1 "= "} END{print l}')
+     eval "$cmd"
 }
 #______________________________________
 function auto_help {
@@ -485,6 +521,11 @@ function set_AWS_context {
         AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/staging/"
         AWS_MONGO_PASS=m0ng0adm1n
+    elif [[ $1 == "b" ]]
+    then
+        AWS_ENV_TYPE="bulk-live"
+        AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/bulk_live/"
     elif [[ $1 == "i" ]]
     then
         AWS_ENV_TYPE="integration"
@@ -525,7 +566,7 @@ function aws_ssh {
     select box in ${boxes_info[@]}
     do
         ip=$(echo $box | sed -e 's/[^|]*|//' )
-        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no ec2-user@$ip
+        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@$ip
         break;
     done
 }
@@ -539,7 +580,7 @@ function aws_rcmd {
     do
         ip=$(echo $box | sed -e 's/[^|]*|//' )
         echo "${col_start}-------------------------[$box]${col_end}"
-        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no ec2-user@$ip "$cmd"
+        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@$ip "$cmd"
     done
 }
 #______________________________________
@@ -598,16 +639,16 @@ function aws_s3 {
         fi
         echo "aws --profile $AWS_ENV_TYPE s3 cp s3://$dir ."
 
-    elif [[ $2 == "pull" || $2 == "push" ]]
+    elif [[ $1 == "config" ]]
     then
-        cd $AWS_LOCAL_DIR_CONFIG
+        cd $AWS_LOCAL_DIR_CONFIG/$AWS_ENV_TYPE
         if [[ $2 == "pull" ]]
         then
-            aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG $AWS_ENV_TYPE/ --recursive
+            aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG . --recursive
             cd $AWS_ENV_TYPE
             git status
-        else
-            cd $AWS_ENV_TYPE
+        elif [[ $2 == "push" ]]
+        then
             local files_changed=$(git status --porcelain)
             echo "files changed:\n$files_changed"
             if [[ $files_changed ]]
@@ -622,7 +663,6 @@ function aws_s3 {
                     done
                 fi
             fi
-
         fi
     fi
     echo "_______________________"
@@ -711,6 +751,11 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
     elif [[ $2 == "cmdapps" ]]
     then
         aws_rcmd "ps -ef | grep executors | grep -v mesos-logrotate-logger | sed -n -e '/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}' | sort | nl" "${@:3}"
+    elif [[ $2 == "cmddir" ]]
+    then
+        cmd='for L in $(ps -ef | grep executors | grep -v mesos-logrotate-logger | sed -n -e "s|.*\(/var/mesos/slaves/[^ ]*\) .*|\1|p;" ); do d=$(echo $L | sed -n -e "s|\(.*/runs/[^/]*/\).*|\1|p;"); f=$( echo $d | sed -n -e "/\/executors\// {s|.*/executors/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*/.*|\1|; p;}"); printf "\n-----------$f:\n\n"; out=$(cd $d;'"$3"'); printf "$out\n"; done'
+
+        aws_rcmd "$cmd"  "${@:4}"
     elif [[ $2 == "xxx" ]]
     then
         aws_output_rcmd "top -b -n 1 -c" "${@:3}"
@@ -725,7 +770,6 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
         aws_trans_processing "${@:3}"
     fi
 }
-
 #______________________________________
 #  END OF AWS BLOCK
 #______________________________________
@@ -968,3 +1012,32 @@ function ch_release {
 #______________________________________
 #  END TMUX SCRIPTS
 #______________________________________
+#______________________________________
+#  START EDIT BANNERS
+#______________________________________
+
+function update_banner {
+    local address_part1="$1"
+    local address_part2="$2"
+    local tot=$3
+    local pswd="$4"
+    local path="$5"
+    local file="$6"
+    local local=${file}.$(/bin/date | /usr/bin/sed -e 's/ /./g') # not overwrite another eventual file
+    echo "$pswd"
+    /usr/bin/scp "${address_part1}1${address_part2}:$path$file" "$local"
+    vi $file
+    #for i in $(seq 1 $tot); do /usr/bin/scp
+    for i in $(/usr/bin/seq $tot); do echo "\"$local\" ${address_part1}${i}${address_part2}:$path$file"; done
+}
+
+function banner_chd {
+    update_banner 'chd3live@chdweb' 'v4.orctel.internal' 4 $(as x chd | tail -1) 'htdocs/chd3/templates/en/stdchd/' 'login.tmpl'
+}
+function banner_ewf {
+    update_banner 'ewflive@ewfweb' 'v4.orctel.internal' 10 $(as x ewf | tail -1) 'htdocs/efiling/static/banner/en/' 'ef_welcome_banner.txt'
+}
+#______________________________________
+#  END EDIT BANNERS
+#______________________________________
+

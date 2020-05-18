@@ -1,0 +1,19 @@
+
+
+    in:[channel]             to search only for messages and files in a specific channel
+    in:[@name]               to search only your direct messages with a particular person
+    to:me                    to search only direct messages sent to you
+    from:[@name]             to search only messages sent from a particular person
+    from:me                  to search only messages sent by you
+    has:link                 to search only messages that include a URL
+    has:reaction             to search only messages that have received reactions
+
+    before:[date]
+    after:[date]
+    on:[date/month/year]
+    during:[month/year] to look for messages from a specific timeframe
+
+
+    Together is something like:
+
+

@@ -71,6 +71,7 @@ let g:airline#extensions#tabline#enabled = 1
 
 "<FZF>
 " use fzf installed via homebrew
+set rtp+=/usr/local/opt/fzf
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 
@@ -78,6 +79,8 @@ let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-h': 'split',
   \ 'ctrl-v': 'vsplit' }
+"        :Files
+"        :Rg
 "</FZF>
 
 

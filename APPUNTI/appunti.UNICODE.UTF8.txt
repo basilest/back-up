@@ -1,0 +1,182 @@
+
+  plain text = ASCII = characters are 8 bits
+
+     NOW IS WRONG
+
+  .-------------------------------------------------------------------
+  |
+  | If you have a string, in memory, in a file, or in an email message,
+  | you have to know what ENCODING it is in or
+  | you cannot interpret / display correctly.
+  | There are over a hundred encodings and above code point 127 (ASCII), all bets are off.
+  |
+  '-------------------------------------------------------------------
+
+
+   1. Unix / K&R / The C Programming Language : everything was very simple.
+
+      - The only characters that mattered were good old unaccented English letters:
+          .coded in ASCII:
+                  - able to represent every character using
+                    a number between 32 and 127 (7 bits)
+                  - Space was 32, the letter "A" was 65
+                  - Codes below 32 were called unprintable and were used for control characters:
+                    ex 7 computer beep
+                       12 page of paper to go flying out of the printer and a new one to be fed in.
+
+   2. 1byte = 7bits + 1
+      many ideas how to use the remaining bit
+      space (128 to 255)
+
+         - IBM-PC had something that came to be known as the OEM character set
+           which provided
+                . a bunch of line drawing characters
+                . accented characters for European languages (but different
+                  for PC sold in different Countries. Ex accented-e in France (code 130)
+                  was a different symbol in Israel or Russia)
+
+
+   3. ANSI. Standardised the OEM
+            0-127  OK
+            128-255: groupped in CODE-PAGES
+                     (Israel DOS used a code page called 862,
+                      while Greek users used 737)
+
+                      MS-DOS had dozens of these code pages.
+                      (But getting, say, Hebrew and Greek on the same computer was impossibile)
+
+   4. Internet: it became quite commonplace to move strings from one computer to another.
+
+   5. UNICODE
+               - every symbol (ex. 'A') is defined by a CODE POINT
+                 (ex. U+0041   (hex))
+                 There is no real limit on the number of letters that Unicode can define
+                 and in fact they have gone beyond 65,536 (so UNICODE IS NOT 2 BYTES, 16 bit)
+                 The bits/bytes representation refers to the ENCODING concept. UNICODE
+                 remains a theoretical concept.
+
+   6. ENCODING
+               - specify how the CODE POINTS are represented in the computer bytes.
+                 ex.
+                        Hello
+                        U+0048 U+0065 U+006C U+006C U+006F
+
+                        1 way:  00 48 00 65 00 6C 00 6C 00 6F  (high-endian)
+                        2 way:  48 00 65 00 6C 00 6C 00 6F 00  (low-endian)
+
+                 So the people were forced to come up with the bizarre convention of storing a FE FF
+                 at the beginning of every Unicode string; this is called a
+                           Unicode Byte Order Mark
+                 and if you are swapping your high and low bytes it will look like a FF FE and
+                 the person reading your string will know that they have to swap every other byte.
+
+       6.1. UTF-16 / UCS-2
+                 The above 2 traditional store-it-in-two-byte methods
+                 are called UCS-2 (because it has two bytes)
+                 or UTF-16 (because it has 16 bits), and you still have to figure out if
+                 it’s high-endian UCS-2 or low-endian UCS-2.
+
+
+       6.2. UTF-8
+               - every code point from 0-127 is stored in a single byte.
+               - only code points 128 and above are stored using 2, 3, in fact, up to 6 bytes.
+
+               This has the neat side effect that English text looks exactly the same
+               in UTF-8 as it did in ASCII.
+               Hello, will be stored as 48 65 6C 6C 6F.
+
+       6.3. UTF-7, UTF-4,....
+               There are actually a bunch of other ways of encoding (correctly) Unicode
+               UTF-7, which is a lot like UTF-8 but guarantees that the high bit will always be zero.
+               UCS-4 (UTF-32), which stores each code point in 4 bytes,
+               which has the nice property that every single code point can be stored
+               in the same number of bytes, but it's a waste of memory.
+
+       6.4. '?'
+            Other encodings (ex.
+                - Windows-1252 (the Windows 9x standard for Western European languages)
+                - ISO-8859-1   (Latin-1 (also useful for any Western European language))
+                ....)
+            fail to represent some Unicode CODE-POINTS.
+            These encodings when failing produce a '?' instead of the correct Unicode symbol.
+
+
+  AGAIN:
+
+  .-------------------------------------------------------------------
+  |
+  | If you have a string, in memory, in a file, or in an email message,
+  | you have to know what ENCODING it is in or
+  | you cannot interpret / display correctly.
+  | There are over a hundred encodings and above code point 127 (ASCII), all bets are off.
+  |
+  '-------------------------------------------------------------------
+
+   How do we preserve this information about what encoding a string uses?
+
+   Luckily, almost every encoding in common use does the same thing with characters between 32 and 127.
+   This means I can specify with basic ASCII some info that instructs how to decode the
+   remaining part
+
+
+   1.  For an email message, you are expected to have a string in the header of the form
+
+            Content-Type: text/plain; charset="UTF-8"
+
+
+   2.  For a HTML page
+           <html>
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
