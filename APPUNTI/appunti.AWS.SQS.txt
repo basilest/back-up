@@ -1,0 +1,70 @@
+
+     1. messages in the queue are processed by consumers
+     2. they are removed only by the consumer, which must explicitly DELETE them
+        otherwise they stay in the queue
+     3. they have a visibility timeout (in seconds) from 0 to 12 hours (default: 30 sec)
+        during which other consumers cannot access the message.
+        If a message must be received only once, the consumer should delete it within
+        the duration of the visibility timeout.
+
+     4. A message has 3 basic states:
+
+          . (stored)   Sent to a queue by a producer.
+          . (inflight) Received from the queue by a consumer.
+          . (Deleted)  from the queue.
+
+
+           there can be a MAX of approximately 120,000 inflight messages
+           (received but not yet deleted).
+           To avoid reaching the quota, you should delete messages
+
+
+------------------------------------------------  from dead -->
+
+works OK
+
+sqsmover --profile live --source efs-document-processor-live-dead-letter-queue.fifo --destination efs-document-processor-live-queue.fifo
+------------------------------------------------   1 --> to dead
+
+doesn't seem to move
+
+sqsmover --profile live --limit=1 --source efs-document-processor-live-queue.fifo --destination efs-document-processor-live-dead-letter-queue.fifo
+------------------------------------------------
+aws --profile live
+sqs receive-message
+--queue-url https://eu-west-2.queue.amazonaws.com/449229032822/efs-document-processor-live-dead-letter-queue.fifo
+--attribute-names All
+--message-attribute-names All
+--max-number-of-messages 1
+{
+    "Messages": [
+        {
+            "MessageId": "82163954-6c31-49eb-bece-eb72c2c4f1fb",
+            "ReceiptHandle": "AQEB4r0ncQGlyuxxyBw2dmxbjG+bQLDBqGdHz6c/d8fHpYMwI9JrjBO2aqMhGZYe/RRKLv1lQ56Hio/m0IcpeRvBRYV9elnMryD7C1/FQq5PznrW0JU1XOAbldcJObsN6o++K72iYF3aRUvDpg8ggi5TSIUHgCBQymacC88Pgk13HuV5H9FVE1ulaWrnXLS/xWxHzFBVb1cvUhtGPXgW3KgiXDUe2j9pjWmFubnK6x1ViwdudcdhH18APQZx9kPI0Iqhm16rb84b03/oFel2zq7JZHuorVtNU4zOqCSMXfWyf33E4C14Guy56piPD6DoKNvXsBosRO1h5Ln27p8tdGHwPg==",
+            "MD5OfBody": "9384e784efa3782fd42a88616f31df80",
+            "Body": "efs-submission-api",
+            "Attributes": {
+                "SenderId": "AIDAWRGBDBV3CPGCVOWMJ",
+                "ApproximateFirstReceiveTimestamp": "1596624967400",
+                "ApproximateReceiveCount": "5",
+                "SentTimestamp": "1596624967400",
+                "SequenceNumber": "18855487438197999616",
+                "MessageDeduplicationId": "82163954-6c31-49eb-bece-eb72c2c4f1fb",
+                "MessageGroupId": "efs-submission-api"
+            },
+            "MD5OfMessageAttributes": "630d6bdf20a892e860406ed03478a306",
+            "MessageAttributes": {
+                "fileId": {
+                    "StringValue": "fbe68d26-2da4-47c2-b372-f57653a62555",
+                    "DataType": "String"
+                },
+                "submissionId": {
+                    "StringValue": "5f2817d72dbc630f233a4cfa",
+                    "DataType": "String"
+                }
+            }
+        }
+    ]
+}
+
+

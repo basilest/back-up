@@ -1,4 +1,64 @@
 
+     D                      .--------------------.
+                            |  Docker client     |      Docker CLI
+     O                      |                    |          ex. docker container run ....
+                            |  >                 |
+     C                      '--------------------'
+                                     |
+     K                               |
+                            .--------------------.
+     E                      |  Docker daemon     |      The REST CRUD API (over gRPC)
+                            |                    |          ex. it's on listening and receives the instructions
+     R                      '--------------------'              which are routed to containerd
+                                     |
+                                     |
+                            .--------------------.
+                            |  containerd        |     supervisor of the containers
+     E                      |                    |     Manages their lifecycle:
+                            '--------------------'     (start | stop | pause | .. )  (*1)
+     N              ___________/  |   . . .  \__________     ex. prepare the image to give to runc (which will CREATE the container)
+                   /              |                     \
+     G            /               |                      \
+            .----------.     .----------.            .----------.
+     I      |  shim    |     |  shim    |  . . .     |  shim    | enable daemonless containers
+            |          |     |          |            |          |
+     N      '----------'     '----------'            '----------'
+            .----------.     .----------.            .----------.
+     E      |  runc    |     |  runc    |  . . .     |  runc    | runtime code (of the container)  (*2)
+            |          |     |          |            |          | (interface to kernel primitives)
+            '----------'     '----------'            '----------'
+
+            .----------.     .----------.            .----------.
+            |          |     |          |  . . .     |          |   CONTAINERS (RUNNING)
+            |          |     |          |            |          |
+            '----------'     '----------'            '----------'
+
+
+        NOTE. The modular diagram of the DOCKER ENGINE allows to upgrade parts indipendently.
+              Eg. I can update the Docker daemon without stopping the running containers.
+
+
+
+
+         (*1)  containerd is light and small. I has basic functionalities to start / stop / pause
+               containers. Anyhow it's extensible, which means I can use it alone (light and reusable
+               for example in Kubernetes) or I can add features to manage more esaily images
+               management like push and pull.
+               It doesn't CREATE containers. This task is in runc.
+               containerd forks 1 runc at every container CREATION.
+
+
+         (*2)  runc is the implementation of Docker Inc of the 'Container runtime spec'
+               which is the spec defined by OCI  (so runc is also called OCI layer)
+               It CREATEs containers (like child of itself, then it exits)
+               When it exits the shim process becomes the parent of the container
+
+         (*3)  As parent of the container, it can keep for example the STDIN / OUT opened even
+               if the Docker daemon is upgraded. So pipes in the container are not affected.
+               It also report back to the Docker daemon the exit status of the container.
+
+
+--------------------------------------------------------------------------------
   The term [Docker] can refer to 3 different things:
 
              1  The "Docker Engine", the infrastructure plumbing software
@@ -76,7 +136,14 @@ ________________________________________________________________________________
 |                                                                Images: 4                  <------------
 |                                                                Server Version: 19.03.5
 |                                                                ....
-|     docker info
+|     docker system info       (same of docker info)
+|     docker system df
+|                               TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
+|                               Images              6                   4                   824.2MB             622.4MB (75%)
+|                               Containers          42                  8                   12.58MB             10.86MB (86%)
+|                               Local Volumes       6                   6                   3.226GB             0B (0%)
+|                               Build Cache         0                   0                   0B                  0B
+|
 |
 |     docker-compose --version      ___
 |                                      \__ docker-compose version 1.23.2, build 1110ad01
@@ -211,7 +278,7 @@ ________________________________________________________________________________
 
 |__________________________________________________________________________________________________
 
-      Any filesystem change inside a container is loast when the container restarts from its clean image
+      Any filesystem change inside a container is lost when the container restarts from its clean image
 
       VOLUME: is an internal private space for the container to save data for future runs.
               This place is not accessibile from the host.
@@ -233,7 +300,68 @@ ________________________________________________________________________________
 
       BIND MOUNT: I can expose (both in read and/or write) the local host filesystem to the container.
 
+         - docker volume
+
+                Commands:
+                  create      Create a volume
+                  inspect     Display detailed information on one or more volumes
+                  ls          List volumes
+                  prune       Remove all unused local volumes
+                  rm          Remove one or more volumes
+
+                Run 'docker volume COMMAND --help' for more information on a command.
+
+         - docker volume ls
+                DRIVER              VOLUME NAME
+                local               6debad22422316e3fceb85087722e0251f83cc97f4a8409c406e809be01a42c8
+                local               16cd3aa0f1084761621a74226f2a0e3e4cbef7052226c9a69d9ba6911bd21f7e
+                local               65bec217f2f6d4dcb865779ef26cffddc3438bedadc4a04f2e2aa58710d7aa08
+                local               a1a73ed852451596dfd9cce7291ee8d13fcc9eb21f9bf97d57265c74ebb3ed55
+                local               b92a3eb392b476b17378bd439809cea50b8c3ef173ade3d1bd2ef63dbe628e37
+                local               fes-administration-scripts
+                local               portainer_data
 |__________________________________________________________________________________________________
+----------------------------------------- STORAGE DRIVER
+
+           Docker can manage the file systems of a container
+           with a STORAGE DRIVER.
+           There are differnt in Linux (for Windoes only 1: windowsfilter)
+               . aufs             (the original and oldest)
+               . overlay2         (the best choice)
+               . devicemapper
+               . btrfs
+               . zfs
+
+           When Docker is started it looks what to use
+           reading
+                /etc/docker/daemon.json
+           where there is a config block like this:
+                   {
+                      "storage-driver": "overlay2"
+                   }
+           till Docker is not restarted I cannot use
+           a different STORAGE DRIVER, but all the images and containers are
+           managed by this.
+           They are stored in
+                “/var/lib/docker/<storage-driver>/...”
+           so if I change the STORAGE DRIVER I change the place
+           where Docker looks, and I see nomore my previous images.
+           To change the STORAGE DRIVER means doing a
+                   docker save                    # save locally
+                   docker push                    # to save remotely
+                   change STORAGE DRIVER          # vi /etc/docker/daemon.json
+                   start docker
+                   docker pull                    # retrieve locally
+
+           To see the running STORAGE DRIVER just
+                   docker info
+
+                          ...
+                          Storage Driver: overlay2
+                          ...
+
+|__________________________________________________________________________________________________
+-----------------------------------------
 
       docker image ls                   to see all the images
       docker images                     (<--  same)
@@ -257,17 +385,20 @@ ________________________________________________________________________________
                                         (DEFAULT 'latest' ... like for git 'master')
 
       docker image ls --digests
-                                        REPOSITORY                  TAG         DIGEST                                                                    IMAGE ID      CREATED        SIZE
-                                        test                        latest      <none>                                                                    063f1b91a843  3 hours ago    71.5MB
-                                        alpine                      latest      sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb   961769676411  9 days ago     5.58MB
-                                        basilest/get-started        part2       sha256:4ee440ad1f9f9c56ede69b01c4fa95c764eb1d2045892bb1f33756e0a41db2d2   612cc1b42bc6  6 months ago   131MB
-                                        friendlyhello               latest      <none>                                                                    612cc1b42bc6  6 months ago   131MB
-                                        <none>                      <none>      <none>                                                                    af97d893c91f  9 months ago   131MB
-                                        python                      2.7-slim    sha256:f82db224fbc9ff3309b7b62496e19d673738a568891604a12312e237e01ef147   0dc3d8d47241  9 months ago   120MB
-                                        portainer/portainer         latest      sha256:07c0e19e28e18414dd02c313c36b293758acf197d5af45077e3dd69c630e25cc   00ead811e8ae  11 months ago  58.7MB
-                                        confluentinc/cp-kafka       5.0.0       sha256:9bc4b7a7234338cae2eaf5da6b2e563668f6ca6cd3544bde009029517035168b   373a4e31e02e  12 months ago  558MB
-                                        confluentinc/cp-zookeeper   5.0.0       sha256:384924ef3ac598973cf15abbface4b05dcbeff7894188ccb255a46e53b7043c4   3cab14034c43  12 months ago  558MB
+                                                                                           |
+                             REPOSITORY                  TAG         DIGEST                |                       IMAGE ID      CREATED        SIZE
+                             test                        latest      <none>                V                       063f1b91a843  3 hours ago    71.5MB
+                             alpine                      latest      sha256:72c42ed48c3a2db31b7dafe17d275b6301fb   961769676411  9 days ago     5.58MB
+                             basilest/get-started        part2       sha256:4ee440ad1f9f9c56ede69b01c4fa95c7b2d2   612cc1b42bc6  6 months ago   131MB
+                             friendlyhello               latest      <none>                                        612cc1b42bc6  6 months ago   131MB
+                             <none>                      <none>      <none>                                        af97d893c91f  9 months ago   131MB
+                             python                      2.7-slim    sha256:f82db224fbc9ff3309b7b62496e19d67f147   0dc3d8d47241  9 months ago   120MB
+                             portainer/portainer         latest      sha256:07c0e19e28e18414dd02c313c36b293725cc   00ead811e8ae  11 months ago  58.7MB
+                             confluentinc/cp-kafka       5.0.0       sha256:9bc4b7a7234338cae2eaf5da6b2e5636168b   373a4e31e02e  12 months ago  558MB
+                             confluentinc/cp-zookeeper   5.0.0       sha256:384924ef3ac598973cf15abbface4b0543c4   3cab14034c43  12 months ago  558MB
 
+
+      docker image ls  -f | --filter              Filter output based on conditions provide
 
       docker image ls --filter dangling=true      shows dangling images   (the ones with    REPOSITORY & TAG = <none>  <none>)
                                                   They occur when building a new image and tagging it with an existing tag.
@@ -283,6 +414,8 @@ ________________________________________________________________________________
                                                                                     The docker image ls command does not display labels in its output.
                                                      --filter=reference="*:latest"  all the ones tagged with latest
 
+
+      docker image ls --format string             Pretty-print images using a Go template
 
       docker image ls --format "{{.Size}}"                              99.3MB
                                                                         111MB
@@ -306,16 +439,25 @@ ________________________________________________________________________________
 
 
 
-      docker image prune                removes dangling images
-      docker image prune -a             removes dangling images AND all unused images (the ones with no running containers)
+      docker image prune                       removes dangling images
+      docker image prune -a                    removes dangling images AND all unused images (the ones with no running containers)
 
 
-      docker image rm <image id>        to Remove specified image from this machine  (it removes all the internal layers that are not shared
-                                                                                      by other images. The shared ones are kept as blob in the repo)
-      docker image rm $(docker image ls -a -q)           to Remove all images
+      docker image rm <image id>               to Remove specified image from this machine  (it removes all the internal layers that are not shared
+                                               by other images. The shared ones are kept as blob in the repo)
+      docker image rm $(docker image ls -a -q) to Remove all images
       docker image rm --force                  to remove even with running containers
 
+
+      docker search xxxx                                   searches in Docker Hub for every repo containing xxxx in the NAME
+                                                           ex:
+                                                                docker search zookeeper
+                                                                docker search mesosphere/marathon
+      docker search alpine --filter "is-official=true"     gives only official repos
+      docker search alpine --filter "is-automated=true"    gives only repo with automated builds
+
       docker image build -t test:latest .      reads in the current dir the 'Dockerfile' and creates a container called 'test' and tagged 'latest'
+
       docker image pull alpine:latest          it pulls from Docker Hub the repo alpine image 'latest'
                                                alpine is a light Linux distro (about 4MB) perfect for containers and its quick boot time.
 
@@ -345,13 +487,13 @@ ________________________________________________________________________________
 
       docker image inspect ubuntu:latest         the inspect command is the proper one to see the layers:
                                                  [
-                                                     {
-                                                         "Id": "sha256:bd3d4369ae.......fa2645f5699037d7d8c6b415a10",
-                                                         "RepoTags": [
-                                                             "ubuntu:latest"
-
-                                                         <Snip>
-
+                         __________________________ .{ ..________________V
+                        /                                "Id": "sha256:bd3d4369ae.......fa2645f5699037d7d8c6b415a10",
+                       /                                 "RepoTags": [
+   docker images:     /                                      "ubuntu:latest"
+   REPOSITORY TAG IMAGE ID  CREATED  SIZE
+   ubuntu  latest bd3d4369ae                             <Snip>
+                  ^^^^^^^^^
                                                          "RootFS": {
                                                              "Type": "layers",
                                                              "Layers": [
@@ -365,7 +507,7 @@ ________________________________________________________________________________
                                                      }
                                                  ]
 
-                                          S H A R I N G   L A Y E R S     Docker is able to understand if it already has 1 layer
+                                          S H A R I N G   L A Y E R S     Docker is able to understand if it has already 1 layer
                                                                           for an image and it doesn't pull that again
 
                                                                           docker image pull -a nigelpoulton/tu-demo    <----------- -a : all images
@@ -390,19 +532,6 @@ ________________________________________________________________________________
 
 
 
-
-
-
-
-
-      docker search xxxx                                   searches in Docker Hub for every repo containing xxxx in the NAME
-                                                           ex:
-                                                                docker search zookeeper
-                                                                docker search mesosphere/marathon
-      docker search alpine --filter "is-official=true"     gives only official repos
-      docker search alpine --filter "is-automated=true"    gives only repo with automated builds
-
-
       docker ps                         to see all the containers
       docker ps -a                      "   "   "   "      "
 
@@ -419,11 +548,16 @@ ________________________________________________________________________________
                                         f00d1e12d7ff        confluentinc/cp-kafka:5.0.0       "/etc/confluent/dock…"   3 months ago        Up 8 minutes        9092/tcp, 0.0.0.0:29093->29093/tcp   kafka
                                         b9254eb9b9c1        confluentinc/cp-zookeeper:5.0.0   "/etc/confluent/dock…"   3 months ago        Up 8 minutes        2181/tcp, 2888/tcp, 3888/tcp         zookeeper
 
-      docker container ls -aq           to see only container_id (note -aq not --aq)
+      docker container ls -q            to see only container_id
 
                                         7b7b15441b98
                                         f00d1e12d7ff
                                         b9254eb9b9c1
+
+      docker container ls -a -q
+      docker container ls -q -a
+      docker container ls -aq
+      docker container ls -qa
 
 
 
@@ -525,14 +659,6 @@ ________________________________________________________________________________
                                                         mesososphere/marathon:v1.5.6
 
 
-
-      docker system info
-      docker system df
-                                TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
-                                Images              6                   4                   824.2MB             622.4MB (75%)
-                                Containers          42                  8                   12.58MB             10.86MB (86%)
-                                Local Volumes       6                   6                   3.226GB             0B (0%)
-                                Build Cache         0                   0                   0B                  0B
 
 
       _______________________________________________ SCALE AN APP
@@ -665,7 +791,7 @@ ________________________________________________________________________________
                                        $docker build
                                will create a layer only if it's not found in the cache
                                When a layer is not found in the cache (cache miss) since then
-                               the cache is no more searched.
+                     NOTE----->THE CACHE IS NO MORE SEARCHED.
                                So leave the possible different layers at the end of a Docker file
                                and all the possible common layers at the top, so that they are (cache hits)
 
@@ -705,17 +831,6 @@ ________________________________________________________________________________
                              |   CMD ["--spring.profiles.active=postgres"]”
                              |
                              |   Excerpt From: Nigel Poulton. “Docker Deep Dive”. Apple Books.
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -959,5 +1074,4 @@ ________________________________________________________________________________
                             proxy_pass http://localhost:8080;
                         }
                     }
-
 

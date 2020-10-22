@@ -101,12 +101,54 @@ db.getCollection('company_profile').update({"_id":comp_no},
   _________________
   |
   | mongo --host mongodb://envb.mongo.ch.gov.uk --port 15307     <---- it I want to connect to a remote host
+  |________________
+  |
+  | mongo -u user1 -authenticationDatabase dbauth1 --port 27017 -p       <--- it will ask for a password
+  |
+  |
+  |Or even:
+  |
+  |MONGO_HOST='localhost'
+  |MONGO_PORT='27017'
+  |MONGO_AUTHCODE_DB='aaaa'
+  |MONGO_DB='dddd'
+  |MONGO_USER='uuuu'
+  |MONGO_PASSWORD='pppp'
+  |
+  |MONGO_URL="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=${MONGO_AUTHCODE_DB}&authMechanism=SCRAM-SHA-1"
+  |
+  |
+  |echo "$MONGO_URL"
+  |    "mongodb://uuuu:pppp@localhost:27017/dddd?authSource=aaaa&authMechanism=SCRAM-SHA-1"
+  |
+  |mongo "$MONGO_URL"    <-------------- easy
+  |
+  |_________________ replica set
+  |   HOST =  I can list + hosts (each with its own port) if they are part of a replica set. They are separated by a comma ','
+  |           ex:
+  |              HOST='mongo-db1.live.aws.internal:27017,mongo-db2.live.aws.internal:27017,mongo-db3.live.aws.internal:27017'
+  |   when I list + hosts, I must then add the 'replicaSet' parameter with the replica set name: ex 's1'
+  |
+  |   MONGO_URL="mongodb://${USER}:${PASSWORD}@${HOST}/${DB}?authSource=${AUTH_DB}&authMechanism=SCRAM-SHA-1&replicaSet=s1"
+  |_________________                                                                                         ^^^^^^^^^^^^^
+  |
+  |   TRICK:  If I don't know the replica set name I put a random name
+  |           I will receive many errors, anyhow it's dumped even this info: 'setName: "s1"
+  |           which is exactly the replica set name to use.
   |_________________
   |
   | mongodump --host envb.mongo.ch.gov.uk --port 16007           <---- this creates a dir ./dump/   with inside all the db collections
   |_________________
   |
   | mongoexport -h envb.mongo.ch.gov.uk:16407 -d company_profile -c company_profile > statler.txt    <---- thix export a colection into a json TEXT file
+  | mongoexport -h 'mongo-db1.live.aws.internal:27017'
+  |             -u admin
+  |             -p $MONGO_PASSWORD
+  |             --authenticationDatabase admin
+  |             -d company_profile
+  |             -c company_profile
+  |             --fields '_id,data.company_name'  <-------  export ONLY these fields
+  |             --type=csv > company.export.cs              (works only for csv not json)
   |_________________
   |
   | mongorestore                                                 <---- to be run from the dir containing ./dump
@@ -209,13 +251,14 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                           (and _id is auto created)
                                         - with an '_id' it replaces that entry
 
-           db.cccc.update(doc)         # like 'save()' but while the save() substitutes in full the doc
-                                         the update() changes only the fields provided
+           db.cccc.update(doc)                       # like 'save()' but while the save() substitutes in full the doc
+           db.cccc.update(query, update, options)    the update() changes only the fields provided
+                                                     Since version 2.2. there is also the 'multi-update'
+                                                     that is the update with the option  'multi' set to 'true'
+                                                     (default is 'false', and then it updates only one document)
+                                                     If multi is set to true, the update() updates all docs that match the <query>
+                                                     ex. db.cccc.update({}, {$set: {lastLookedAt: Date.now() / 1000}}, { multi: true })
 
-                                         Since version 2.2. there is also the 'multi-update'
-                                         that is the update with a 4th arg boolean flag ('true' multi update)
-                                         If multi is set to true, the update() updates all docs that match the <query>
-                                         ex. db.cccc.update({}, {$set: {lastLookedAt: Date.now() / 1000}}, { multi: true })
 
 
            db.cccc.drop()              # To delete cccc
@@ -249,8 +292,12 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                              $lte   <=
                                              $gt    >
                                              $gte   >=
-                                             $ne    !=           ex. {"data.type" : {$ne : "publish_filing"}}
+                                             $ne    !=          ex. {"data.type" : {$ne : "publish_filing"}}
                                              $eq    ==
+                                             $where             ex. find( { $where: function() { return this.Grade1 > this.Grade2 } } );
+                                                                    find( { $where : "this.Grade1 > this.Grade2" } );
+                                             $exp   (> mongo 3.6)
+                                                                    find({$expr:{$gt:["$Grade1", "$Grade2"]}})
                                              $regex //   <------------ it's the 'LIKE' operator but the '%' in mongo is '.*'
                                                                 so it is ex           db.users.find({"name": /.*m.*/}
                                                                  or even shorter :    db.users.find({"name": /m/})
@@ -292,6 +339,8 @@ db.getCollection('company_profile').update({"_id":comp_no},
                                         db.getCollection('queue').find({$and : [{"attempt" : {$gt : 0}}, {"attempt" : {$lt : 10}}]})
                                         db.getCollection('queue').find({$and : [{"created" : {$gt : ISODate("2017-03-23")}}, {"created" : {$lt : ISODate("2017-03-24")}}]})
 
+           db.cccc.find({"kk": {$exists:true}});     # find elem containing that field )even if null)
+           db.cccc.find({"kk": {$ne:null}});         #    "                  "          only if NOT null
 
            db.cccc.find().limit(5)     # like bash head -5. It outputs not more than those docs
            db.cccc.find().skip(5)      # It outputs starting after the firts 5 (skipping them)

@@ -1,0 +1,248 @@
+
+    Node.js allows you to run JavaScript on the server.
+
+    so node files are  .js
+
+    node     is the cmd on the command line to exec a .js:
+        .--------------------
+        |   > node   file.js
+        '--------------------
+
+                          Example of a web-server listening on 8080 and serving a static page:
+
+
+                          1. write   this ex1.js  file:
+
+                              var http = require('http');
+
+                              http.createServer(function (req, res) {
+                                res.writeHead(200, {'Content-Type': 'text/html'});
+                                res.end('Hello World!');
+                              }).listen(8080);
+
+
+                          2. node ex1.js
+
+                          3. open the browser at   http://localhost:8080
+
+
+------------------------------ MODULES   (require / exports)
+
+    require()       it's the node keyword to specify which modules to import
+
+                    ex:
+                          var http = require('http');
+                                     ^^^^^^^
+
+
+
+
+    require(./my-module)       I can include my own modules      (I have a file  my-module.js in the same dir of where I want to use it)
+
+
+
+
+
+    exports         it's the node keywod to specify what I can import in another module.
+
+
+
+             ex.
+                   my-module.js:                                ex1.js  which uses it:
+
+                   exports.myDateTime = function () {            var dt = require('./myfirstmodule');
+                   ^^^^^^^                                                ^^^^^^^
+                      return Date();                             var d = dt.myDateTime()
+                   };
+
+
+------------------------------ MODULE HTTP
+
+        var http = require('http');
+
+        http.createServer(function (req, res) {      <--------------- call method: 'createServer' passing a function
+          res.write('Hello World!'); //write a response to the client                                       this function is a callback
+          res.end(); //end the response                                                                     which will be called any time
+        }).listen(8080); //the server object listens on port 8080                                           the server receives something on 8080
+
+
+
+        http.createServer(function (req, res) {
+          res.writeHead(200, {'Content-Type': 'text/html'});  <-------- add 1 header
+          res.write('Hello World!');
+          res.end();
+        }).listen(8080);
+
+
+
+       req         the request 1st argument passed to my callback is of tyoe:  'http.IncomingMessage"
+                   This 'http.IncomingMessage' has a field 'url'  which contains the asked url
+                   so I can access it as req.url
+
+
+
+------------------------------ MODULE URL
+
+        var http = require('http');
+        var url = require('url');     <----------------- module URL to manage to requested URL
+
+        http.createServer(function (req, res) {
+          res.writeHead(200, {'Content-Type': 'text/html'});
+          var q = url.parse(req.url, true).query; <------------- it returns the URL args (ex. http://localhost:8080/?year=2017&month=July)
+          var txt = q.year + " " + q.month;   // 2017 July
+          res.end(txt);
+        }).listen(8080);
+
+
+
+
+------------------------------ MODULE File System
+
+        var fs = require('fs')       # I can now manage the files on the file system
+
+
+
+--------- READ
+
+        http.createServer(function (req, res) {
+          fs.readFile('demofile1.html', function(err, data) {
+                       ^^^^^^^^^^^^^                  ^^^^
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.write(data);   <------------------------------------- here used
+            return res.end();
+          });
+        }).listen(8080);
+
+
+
+==================  CREATE / UPDATE
+          the following  functions
+                        open / write / append
+          can be used both for UPDATING existing files
+          of for CREATING if they don't exist yet
+
+--------- OPEN  (for writing)
+
+        // ex.  Create a new, empty file:
+
+        fs.open('mynewfile2.txt', 'w', function (err, file) {      2nd arg="w" for "writing".
+          if (err) throw err;                                      If the file does not exist, an empty file is created.
+          console.log('Saved!');
+        });
+
+
+--------- APPEND
+
+        fs.appendFile('mynewfile1.txt', 'Hello content!', function (err) {
+          if (err) throw err;
+          console.log('Saved!');
+        });
+
+
+
+--------- WRITE
+
+        fs.writeFile('mynewfile3.txt', 'Hello content!', function (err) {
+          if (err) throw err;
+          console.log('Saved!');
+        });
+
+
+
+--------- DELETE
+
+        fs.unlink('mynewfile2.txt', function (err) {
+          if (err) throw err;
+          console.log('File deleted!');
+        });
+
+
+
+--------- RENAME
+
+        fs.rename('mynewfile1.txt', 'myrenamedfile.txt', function (err) {
+          if (err) throw err;
+          console.log('File Renamed!');
+        });
+
+
+
+
+------------------------------ npm
+
+
+        NPM is node's package manager
+
+
+        .--------------------
+        |   > npm  install xxxx
+        '--------------------
+
+        npm install -g npm
+
+
+-------- package.json
+
+         . it's the metadata of my project.
+         . it's always required
+         . it's a json
+
+-------- npm init
+
+         . it creates a first package.json
+           asking interactively the values to fill in.
+
+-------- npm install xxxx      (ex. npm install axios)
+         . it installs module xxxx in the current dir
+           (so
+             - a dir tree rooted as ./node_modules/xxxx
+             - the package.json      is updated
+             - the package-lock.json is updated
+------------------------------ Events
+
+        node has a built-in module, called "events",
+        where you can create-, fire-, and listen for- your own events.
+
+
+            var events = require('events');
+
+
+--------- EventEmitter  obj
+
+        all event properties and methods (ex 'emit() method to fire an event)
+        are an instance of an EventEmitter object.
+
+
+            var eventEmitter = new events.EventEmitter();
+                                          ^^^^^^^^^^^
+
+
+        I can assign my own event handlers:
+
+            var myEventHandler = function () {            //Create an event handler
+              console.log('I hear a scream!');
+            }
+
+            eventEmitter.on('scream', myEventHandler);    //Assign the event handler to an event
+
+
+            eventEmitter.emit('scream');             //Fire the 'scream' event:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

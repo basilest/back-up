@@ -1,4 +1,91 @@
+------------------------------------------
+      promises
+------------------------------------------
+- Callbacks added with then() even after the success or failure of the asynchronous operation, will be called.
 
+
+the then() function returns a new promise, different from the original
+
+----------------- fat arrow
+
+ =>   for   function:
+
+      function(a,b) { ... }    (a,b) => { ... }
+
+
+	I
+ x    for   return x:
+
+      () => { return x; }          () => x
+
+
+----------------- async
+The word "async" before a function means one simple thing:
+a function always returns a promise. (and wraps non-promises in it.)
+
+async function f() {
+  return 1;
+}
+
+short for:
+
+async function f() {
+  return Promise.resolve(1);
+}
+
+
+I call as usual.
+ex.
+    f().then(alert); // 1
+
+
+----------------- await
+
+await  works only inside async functions.
+
+
+The keyword await makes JavaScript wait until that promise settles and returns its result.
+(It’s just a more elegant syntax of getting the promise result than promise.then, easier to read and write.)
+
+
+let value = await promise;       // values contains the result of the promise.
+
+
+
+
+
+async function f() {
+
+  let promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve("done!"), 1000)
+  });
+
+  let result = await promise; // wait until the promise resolves
+
+  alert(result); // "done!"
+}
+
+f();
+
+
+--------- wrap code
+People who are just starting to use await tend to forget the fact that we can’t use await in top-level code. For example, this will not work:
+
+let response = await fetch('/article/promise-chaining/user.json');
+let user = await response.json();
+
+
+fix:  wrap it into an anonymous async function:
+
+(async () => {
+  let response = await fetch('/article/promise-chaining/user.json');
+  let user = await response.json();
+  ...
+})();
+
+
+
+------------------------------------------
 
 vim plugin:
            JSLint

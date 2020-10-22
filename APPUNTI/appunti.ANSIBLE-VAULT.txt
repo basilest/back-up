@@ -1,0 +1,196 @@
+
+
+                 |    the command is
+                 |                  > ansible-vault
+                 |
+                 |    . it encrypts / decrypts with AES256 symmetric keys
+                 |      files.
+                 |
+                 |    . It uses the editor specified by the 'export EDITOR` env var
+                 |      (default usually 'vi')
+                 |
+                 |    . ex.:
+                 |
+  CREATE         |       ansible-vault create encrypt.stef
+    NEW          |
+      FILE       |                              New Vault password:
+                 |                              Confirm New Vault password:
+                 |
+                 |       cat encrypt.stef
+                 |
+                 |              $ANSIBLE_VAULT;1.1;AES256
+                 |              66313135313933633462336335663362333533326239616262613839383933643235333638343232
+                 |              3661653763653330333932666462343238353735633061630a343764353937613535653534633231
+                 |              65383236623338386566623435363237393865376538393862616365326362376637303334353739
+                 |              3230653263653736380a313735393831313737343366633464373137613735376365653635646163
+                 |              34623939316165323739653233356336353364303634633439363865366363663931
+                 |
+                 |
+                 |
+   ECRYPT        |       > ansible-vault encrypt encrypt_me.txt
+     EXISTING    |
+        FILE     |              NOTE: the original file is overwritten (encrypted)
+                 |
+                 |
+   DECRYPT       |       > ansible-vault decrypt stef.txt
+     A           |
+        FILE     |              NOTE: the original file is overwritten (unencrypted)
+                 |
+                 |
+                 |
+                 |
+                 |
+   VIEW          |       > ansible-vault view stef.txt
+     THE         |
+        FILE     |
+                 |
+                 |
+                 |
+   EDIT          |       > ansible-vault edit stef.txt
+     A           |
+        FILE     |
+                 |
+                 |
+                 |
+                 |
+                 |
+   CHANGE PASSWD |       > ansible-vault rekey stef.txt
+                 |
+                 |
+ --------------------------------------------------------------------------------
+                 |
+   ANSIBLE       |     To copy vault-encrypted stef.txt to a remote host (here for example localhost)
+     COPY        |
+       VAULT     |  ansible --ask-vault-pass
+                 |          -bK
+   (with         |          -m copy
+    prompt)      |          -a 'src=stef.txt   dest=/tmp/stef.txt   mode=0600 owner=sbasile group=eveyone'
+                 |           localhost                               ^^^^^^
+                 |                                                      |
+                 |                                                limit access on remote
+                 |---------------------------  output:
+                 |           localhost | SUCCESS => {
+                 |              "changed": false,
+                 |              "checksum": "22fa7cc17e0403ae583d06ad25370c2635772c7b",
+                 |              "dest": "/tmp/stef.txt",
+                 |              "gid": 12,
+                 |              "group": "everyone",
+                 |              "mode": "0600",
+                 |              "owner": "sbasile",
+                 |              "path": "/tmp/stef.txt",
+                 |              "size": 23,
+                 |              "state": "file",
+                 |              "uid": 504
+                 |            }
+                 |
+                 |
+                 |         NOTE: I will be asked for 2 passwords
+                 |                         SUDO  password:
+                 |                         Vault password:
+ --------------------------------------------------------------------------------
+                 |
+   ANSIBLE       |     I can avoid to type the vault passwd, if I save it in a file (in clear txt)
+     COPY        |
+       VAULT     |  ansible --vault-password-file=.pass_stef.txt
+                 |          -bK                 # prompt for sudo REMOTE passwd (here localhost)
+   (with         |          -m copy
+    passwd-file) |          --a 'src=stef.txt   dest=/tmp/stef.txt   mode=0600 owner=sbasile group=eveyone'
+                 |           localhost
+                 |
+           ----------------------
+ANSIBLE_VAULT_PASSWORD_FILE          export ANSIBLE_VAULT_PASSWORD_FILE=~/test/.pass_stef.txt
+                 |
+                 |                   exporting the var, I didn't need to specify even the passw file
+                 |
+                 |  ansible -bK
+                 |          -m copy
+                 |          --a 'src=stef.txt   dest=/tmp/secret_key mode=0600 owner=sbasile group=eveyone'
+                 |           localhost
+                 |
+          -----------------------
+ vault_password_file              I can also define this var in the defaults of the ansible.cfg
+                 |
+                 |                [defaults]
+                 |                  ...
+                 |                vault_password_file = ./.vault_pass
+                 |
+           ----------------------
+  chmod +x       |        If the passwd-file is executable
+                 |        the execution result will be used. Ex:
+                 |
+                 |                     #!/usr/bin/env python
+                 |
+                 |                     import os
+                 |                     print os.environ['VAULT_PASSWORD']
+                 |
+                 |        If the VAULT_PASSWORD is defined (ex I define at the beginning of every session)
+                 |        I can use the passwd-file which doesn't contain the password in clear text
+                 |        (so I can store it in GitHub too)
+                 |        To type the password at every session is probably not the best
+                 |        but to accidentally commit to GitHub the password-file is definitely worse
+                 |
+           ----------------------
+                 |
+                 |  NOTE:  the passwd-file can be used not only to copy
+                 |         but for automatic create/encrypt/.....
+                 |
+ --------------------------------------------------------------------------------
+                 |
+    USE VARS     |    The values of the vars of my project which are
+                 |    considered sensible "by convention" are called as
+                 |
+                 |                vault_ xxxx      #var xxxx prepended by 'vault_'
+                 |                                 #ex. vault_mysql_password
+                 |
+                 |    and stored in a valut file.
+                 |
+                 |    They are then used/referenced to instanciate
+                 |    ansible vars using the Jinja2 template style
+                 |
+                 |                mysql_password: "{{ vault_mysql_password }}"
+                 |
+ --------------------------------------------------------------------------------
+   -m debug      |    useful module when I want to dump the var values
+                 |    They are dumped even the vault ones
+                 |
+                 |
+                 |    ansible -m debug -a 'var=hostvars[inventory_hostname]' database
+                 |
+                 |    localhost | SUCCESS => {
+                 |             "hostvars[inventory_hostname]": {
+                 |                 "ansible_check_mode": false,
+                 |                 "ansible_version": {
+                 |                     "full": "2.2.0.0",
+                 |                     "major": 2,
+                 |                     "minor": 2,
+                 |                     "revision": 0,
+                 |                     "string": "2.2.0.0"
+                 |                 },
+                 |                 "group_names": [
+                 |                     "database"                  NOTE --1--->  both the
+                 |                 ],                                            vars are
+                 |                 "groups": {                          --2--->  dumped.
+                 |                     "all": [
+                 |                         "localhost"
+                 |                     ],
+                 |                     "database": [
+                 |                         "localhost"
+                 |                     ],
+                 |                     "ungrouped": []
+                 |                 },
+                 |                 "inventory_dir": "/home/sammy/vault",
+                 |                 "inventory_file": "./hosts",
+                 |                 "inventory_hostname": "localhost",
+                 |                 "inventory_hostname_short": "localhost",
+                 |                 "mysql_host": "10.0.0.3",
+                 |         --1---> "mysql_password": "supersecretpassword",
+                 |                 "mysql_port": 3306,
+                 |                 "mysql_user": "fred",
+                 |                 "omit": "__omit_place_holder__6dd15dda7eddafe98b6226226c7298934f666fc8",
+                 |                 "playbook_dir": ".",
+                 |         --2---> "vault_mysql_password": "supersecretpassword"
+                 |             }
+                 |         }
+                 |
+ --------------------------------------------------------------------------------
+                 |

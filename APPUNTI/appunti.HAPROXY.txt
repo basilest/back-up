@@ -58,7 +58,7 @@ HAPROXY : High
           frontend  xxxxx   <-------------  #  any name I give is ok (ex 'http80)
                bind *:80                    #  for any IP on port 80
                timeout client  60s          #  stop client connection if inactive for 60s
-               mode http                    # can be http | tcp <--default
+               mode http                    # can be http (L7) | tcp (L4) <--default
                default_backend  allservers  <-----------------------------.
                                                                            \
           backend   xxxxx   <-------------  #  any name I give is ok (ex 'allservers')

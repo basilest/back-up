@@ -1,0 +1,563 @@
+
+╰─ ansible <tab>    # note the many executables installed:
+
+  1---> ansible             ansible-console     ansible-inventory   ansible-test
+        ansible-config      ansible-doc         ansible-playbook    ansible-vault
+        ansible-connection  ansible-galaxy      ansible-pull  \
+                                                               \______2
+
+            1: Ad-hoc   # to execute SINGLE task
+            2: run playbooks with MANY TASKS defined
+
+
+   . Declarative  : WHAT I WANT       vs        Imperative (or Procedural): HOW I implement
+
+   . Ansible is Declerative.
+             It's a Framework of IDEMPOTENT commands
+
+   . RECONCILIATION:     I align CURRENT STATE -------->   DESIRED STATE
+
+   . install:
+                 pip install ansible
+
+                                           note1: ansible relies on Python (installed via pip)
+                                           note2: Python must be 2.6 or greater
+                                                  Ansible-2.3 was released in April of 2017 and
+                                                  was the last Ansible release to support Python 2.4
+
+                                                  (ex. on some servers EWF FE and BE with Python 2.3
+                                                       the typical error is Broken-pipe as the remote Python
+                                                       cannot execute the Python commands sent via SSH)
+                                                       The Broken-pipe is misleading/red herring as it will be attempted to be fixed
+                                                       in many other ways (SSH timeouts / persistent connections)
+
+
+
+    e.g. IPad
+      .------.                                          .------.
+      |Manag-|                                          |Manag-|  e.g. docker container
+      |ed    |                                          |ed    |
+      | Node |       ssh                     docker     | Node |
+      '______' <------------- .------.  --------------> '______'
+                              |Central
+                              |      |
+                     ssh      | Node |        winrm
+      .------. <--------------'______' ---------------> .------. e.g. Windows server
+      |Manag-|                                          |Manag-|
+      |ed    |                                          |ed    |
+      | Node |                                          | Node |
+      '______'                                          '______'
+    e.g. Mac Book
+
+
+   . 1 Central-Node  controls many Managed-Nodes (which should have Python installed)
+
+                     connection:
+                              . usually SSH
+
+                              . but if I do:
+                                  .----------------------
+                                  |    ansible-doc -t connection -l
+                                  '----------------------
+
+                                I have a full list fo available protocols
+                        _____________________________________________________
+                        |   buildah      Interact with an existing buildah container
+                        |   chroot       Interact with local chroot
+                 ---------> docker       Run tasks in docker containers
+                        |   funcd        Use funcd to connect to target
+                        |   httpapi      Use httpapi to run command on network appliances
+                        |   iocage       Run tasks in iocage jails
+                        |   jail         Run tasks in jails
+                        |   kubectl      Execute tasks in pods running on Kubernetes
+                        |   libvirt_lxc  Run tasks in lxc containers via libvirt
+                        |   local        execute on controller
+                        |   lxc          Run tasks in lxc containers via lxc python library
+                        |   lxd          Run tasks in lxc containers via lxc CLI
+                        |   napalm       Provides persistent connection using NAPALM
+                        |   netconf      Provides a persistent connection using the netconf protocol
+                        |   network_cli  Use network_cli to run command on network appliances
+                        |   oc           Execute tasks in pods running on OpenShift
+                        |   paramiko_ssh Run tasks via python ssh (paramiko)
+                        |   persistent   Use a persistent unix socket for connection
+                        |   podman       Interact with an existing podman container
+                        |   psrp         Run tasks over Microsoft PowerShell Remoting Protocol
+                        |   qubes        Interact with an existing QubesOS AppVM
+                        |   saltstack    Allow ansible to piggyback on salt minions
+                   -------> ssh          connect via ssh client binary
+                        |   vmware_tools Execute tasks inside a VM via VMware Tools
+                        |   winrm        Run tasks over Microsoft's WinRM
+                        |   zone         Run tasks in a zone instance
+                        '____________________________________________________
+
+
+
+   ansible -m copy        -a  "src=1.txt dest=~/dir/subdir/2.txt"    localhost
+               |                              |                          |
+            module name              module arguments                  host (n.b. even localhost)
+
+EXAMPLE:
+
+╰─ ansible -m copy -a "src=1.txt  dest=../2.txt" localhost
+
+[WARNING]: No inventory was parsed, only implicit localhost is available
+localhost | CHANGED => {         <---------------------- NOTE: there is a CHANGE (something to do)
+    "changed": true,                                           so all this json block will be YELLOW
+    "checksum": "aee22e4a48ec5652f7e20a0165a396ab64bcad73",
+    "dest": "../2.txt",
+    "gid": 80,
+    "group": "admin",
+    "md5sum": "110c9e8c5ddd09b94af58381dfcb5db5",
+    "mode": "0644",
+    "owner": "sbasile",
+    "size": 8,
+    "src": "/Users/sbasile/.ansible/tmp/ansible-tmp-1593214897.8273642-99603-219001400641972/source",
+    "state": "file",
+    "uid": 504
+}
+
+
+--check             # dry run    (usefull to check if the file is changed or not)
+
+╰─ ansible -m copy -a "src=1.txt  dest=../2.txt" --check localhost
+                                                  ^^^^^^
+        [WARNING]: No inventory was parsed, only implicit localhost is available
+        localhost | SUCCESS => {         <---------------------- nothing to do)
+            "changed": true,                                     so all this json block will be GREEN
+            "checksum": "aee22e4a48ec5652f7e20a0165a396ab64bcad73",
+            "dest": "../2.txt",
+
+
+--diff              # like git
+
+╰─ ansible -m copy -a "src=1.txt  dest=../2.txt" --check --diff localhost
+                                                         ^^^^^^
+
+                               NOTE: together with --check it shows the diff but doesn't  copy
+                                     without  the  --check it shows the diff and ALSO  copies
+
+
+--------- modules
+        there are tons. Note mention:
+
+             setup      to gather facts
+             command    to execute shell commands
+             homebrew   to interace to homebrew
+             copy       to copy files
+             package    to install some software using the underling package_manager
+                        (it can be anything ex apt / yum ....)
+
+
+
+------------------------- PLAYBOOKs   (playbook.yml)
+
+   * They are the 'ansible-scripts', like xxxx.sh is a 'shell-script'
+
+   > ansible           is the ad-hoc way to execute 1 SINGLE ansible command
+
+   > ansible-playbook  is then what is normally used to execute MORE cmds
+                          .----------------------
+                          |   ansible-playbook playbook.yml
+                          '----------------------
+                                                         NOTE: I can run with many flags
+                                                               ex. our old friends:
+
+                                                                   --check
+                                                                   --diff
+
+                                                               plus a new one:
+
+                                                                   --verbose   (-v -vv -vvv -vvvv)
+                                                                                 1            4
+
+   * They are in YAML syntax.  (playbook.yml)
+
+   ex.
+      ad-hoc single command
+      .----------------------
+      |   ansible -m copy -a "src=1.txt  dest=../2.txt" --check --diff localhost
+      '----------------------
+
+      its playbook representation
+      .----------------------
+      |   hosts: localhost
+      |   tasks:
+      |   - copy: src="1.txt"  dest="../2.txt"       # NOTE:  '='
+      '----------------------
+      .----------------------
+      |   hosts: localhost
+      |   tasks:
+      |   - copy:
+      |           src: 1.txt                         # NOTE:  ':'
+      |           dest: ../2.txt
+      '----------------------
+
+      .----------------------
+      |   hosts: xxxxxxxx
+      |   tasks:
+      |   - copy:
+      |           xxxxxxxx
+      |           xxxxxxxx
+      |           ignore_errors: yes   <------------  'ignore_errors: yes'  allows to not stop
+      '----------------------                         playbook on a failing play
+
+
+
+            .-------------------------------------------------------------------.
+            | .-----------------------------------------.    .---------------.  |
+            | |                                         |    |               |  |
+            | |   .---------------.  .---------------.  |    | name          |  |
+            | |   |               |  |               |  |    | loop          |  |
+            | |   |   copy        |  |  src=...      |  |    | become        |  |
+            | |   |               |  |  dest=...     |  |    | check_mode    |  |
+            | |   |               |  |               |  |    | diff          |  |
+            | |   |   M O D U L E |  |     A R G S . |  |    |   ...         |  |
+            | |   '---------------'  '---------------'  |    |               |  |
+            | |                             A C T I O N |    |  P A R A M .  |  |
+            | '-----------------------------------------'    '---------------'  |
+            |                                                           T A S K |
+            '-------------------------------------------------------------------'
+
+
+
+       -------------  setup
+
+       When a playbook starts there is this starting task
+
+               TASK [Gathering Facts] ******************************
+
+       which runs the "setup" module against the "hosts"
+
+       I can run that by hand on localhost:
+             .--------------------------------
+             |  ansible -m setup localhost
+             '--------------------------------
+       and I'll receive a big JSON with lots of info
+
+
+
+       -------------  setup  disable
+
+       As the setup task is quite slow
+       I can even disable it if I need:
+
+              - name: my description here
+                gather_facts: false     <--------- DISABLED
+                hosts: localhost
+                tasks:
+                -copy: ......
+
+
+
+
+
+------------------------- ansible-doc
+
+     If I want to know the documentation of a module (ex copy)
+     to know the args or its return values, I can:
+
+              1. go online on the ansible doc documentation
+              2. see the same on my laptop with ansible-doc
+
+     .--------------------------------
+     |   ansible-doc -h
+     '--------------------------------
+
+usage: ansible-doc [-v] [-M MODULE_PATH]
+                   [--playbook-dir BASEDIR]
+                   [-t {become,cache,callback,cliconf,connection,
+                        httpapi,inventory,lookup,netconf,shell,
+                        module,strategy,vars}]
+                   [-j] [-F | -l | -s ]
+                   [plugin [plugin ...]]
+
+
+  --playbook-dir BASEDIR
+                        Since this tool does not use playbooks, use this as a
+                        substitute playbook directory.This sets the relative
+                        path for many features including roles/ group_vars/
+                        etc.
+  -l, --list            List available plugins
+  -F, --list_files      Show plugin names and their source files without
+                        summaries (implies --list)
+  -M MODULE_PATH, --module-path MODULE_PATH
+                        prepend colon-separated path(s) to module library (def
+                        ault=~/.ansible/plugins/modules:/usr/share/ansible/plu
+                        gins/modules)
+  -j, --json            Change output into json format.
+  -s, --snippet         Show playbook snippet for specified plugin(s)
+  -t --type             Choose which plugin type (defaults to "module").
+  -v, --verbose
+
+     ex:
+     .--------------------------------
+     |   ansible-doc -t shell --list
+     '--------------------------------
+
+                cmd        Windows Command Prompt
+                csh        C shell (/bin/csh)
+                fish       fish shell (/bin/fish)
+                powershell Windows PowerShell
+                sh         POSIX shell (/bin/sh)
+
+     .--------------------------------
+     |   ansible-doc -t shell csh
+     '--------------------------------
+
+     this will start with also a pathname
+     (ex. /usr/local/Cellar/ansible/2.9.7/libexec/lib/python3.8/site-packages/ansible/plugins/shell/csh.py)
+     which I can look into and learn a bit of the plugin (plus I can checks in the neighbour files too)
+
+
+-------------------------    -name:
+
+
+     Each block considered distinct can be described as
+
+           -name: ......... decsription here ......
+
+     this has not only the advantage to document it
+     and make it readable,
+     but during execution it will be displayed as:
+
+     PLAY [.....decsription here .....] ***************************
+
+
+     This block are called 'plays' and are the blocks of the 'playbook'
+
+-------------------------    register: vvv      debug: var=xxx   (I use the MODULE debug)
+
+     -name: .....
+     command: git config --global --list
+     register: stef                        # assign module's output to var 'stef'
+     -name: ....
+     debug: var=stef                       # we use the variable
+     debug: var=stef.stdout_lines          # vars have ansible keyords fields (here 'stdout_lines')
+
+
+------------------------- INVENTORY     ( > ansible-inventory)
+
+      I can specify the list of hosts.
+
+      the inventory is:
+                         the value of directive
+                       1.  'inventory=path_to_a_dir'    # inside ansible.cfg
+
+                         I can override specifying the ENV var:
+                       2.   ANSIBLE_INVENTORY
+
+      The inventory can be written in many languages/formats:
+
+          .---------------------
+          |  > ansible-doc  -t inventory  --list        # to see all the supported ones.
+          '---------------------                         . a good one is 'script'
+                                                           where I can write a script which returns a JSON
+
+                                                           ANYHOW NOTE THAT ANY FORMAT (yml / ini / script ...
+                                                           HAS ITS OWN SYNTAX
+                                                           SO REFER TO THE DOCUMENTATION OF EACH.
+
+      I can create a dir
+
+                   ---Inventory_dir
+                      |______
+                      |______
+                      |______
+                      |______    .orig    .ini   .cfg   .retry      # files with these extensions are ignored
+                                                                      run
+                                                                            .---------------------
+                                                                            |  > ansible-config   list
+                                                                            '---------------------
+                                                                      and search for 'IGNORED'
+                                                                      The list can be customised.
+
+
+      .---------------------
+      |  > ansible-inventory  --graph            ansible-inventory  --graph --vars   # dump vars too
+      '---------------------                                                ^^^^^^
+                                |
+                                |
+             @all:              V
+               |--@ungrouped:
+               |  |--localhost            ansible -m command -a "git config --global --list"  vagrant
+               |  @vagrant                 .................................................  centos
+               |  |--@centos:
+               |  |  |--centos20
+               |  |  |--centos21             I can specify ON WHICH GROUP OF HOSTS to execute
+               |  |--@ubuntu:
+               |  |  |--ubuntu10
+               |  |  |--ubuntu11
+
+
+------------------------- FULL SIMPLE WORKING EXAMPLE
+
+               _________
+              |  all:
+              |      children:
+              |          ewf:
+              |              children:
+              |                  be:
+              |                      hosts:
+              |                          chl-prod-bep[1:2].orctel.internal:
+              |                      vars:
+              |                          ansible_user: ewfbeplive
+   inventory.01.yml                      ansible_password: ewfwalprod
+              |                          ansible_python_interpreter: /usr/bin/python
+              |                  fe:
+              |                      hosts:
+              |                          ewfweb[1:1]v4.orctel.internal:
+              |                      vars:
+              |                          ansible_user: ewflive
+              |                          ansible_password: ewfwalprod
+              |                          ansible_command_timeout: 3000
+              '_________
+               _________
+              |  - name: 1st playbook
+              |    gather_facts: false
+              |    hosts: all
+              |    tasks:
+              |        - name: test 1st connection with clear password
+   test.01.yml|          shell: ls form*.log
+              |          register: out
+              |        - debug: var=out.stdout_lines
+              |
+              |
+              '_________
+
+               _________
+              |  tipycal example of a local dir ansible.cfg is a few settings to
+              |  customise the SSH args
+              |
+              |             [ssh_connection]
+              |             # ssh arguments to use
+              |             # Leaving off ControlPersist will result in poor performance, so use
+    ./ansible.cfg           # paramiko on older platforms rather than removing it, -C controls compression use
+              |             retries=3
+              |             pipelining=True
+              |             ssh_args = -C -o ControlMaster=auto -o ControlPersist=30m -o ServerAliveInterval=50
+              |             [persistent_connection]
+              |             connect_timeout = 3000
+              '_________
+
+
+       ex. run only on the hosts in 'be'
+
+      .---------------------
+      |  > ansible-playbook -i inventory.01.yml test.01.yml -l be -vvvv
+      '---------------------
+
+
+------------------------- CONFIGURING ANSIBLE
+
+      - via Env vars
+
+      - via command-line flags
+
+      - config file: ansible.cfg:   this is like for git, or a shell,
+                                    a list of files, from global to the local in the current working dir.
+
+                                    They are looked with this order:
+
+                                    . ANSIBLE_CONFIG (env var specifying a pathname)
+                                    . ansible.cfg (curr dir)
+                                    . .ansible.cfg (in home dir)
+                                    . /etc/ansible/ansible.cfg
+
+
+
+               paramiko: is a python impementation of SSH which I can use on old boxes:
+
+                ansible-playbook -c paramiko -i inventory.01.yml test.01.yml -l be -vvvv
+
+
+
+------------------------- BECOME
+      'become' is used to elevate privileges.
+
+      List of possible values:
+
+      .---------------------
+      |  > ansible-doc -t become --list
+      '---------------------
+
+
+                    doas       Do As user
+                    dzdo       Centrify's Direct Authorize
+                    enable     Switch to elevated permissions on a network device
+                    ksu        Kerberos substitute user
+                    machinectl Systemd's machinectl privilege escalation
+                    pbrun      PowerBroker run
+                    pfexec     profile based execution
+                    pmrun      Privilege Manager run
+                    runas      Run As user
+                    sesu       CA Privileged Access Manager
+                    su         Substitute User
+                    sudo       Substitute User DO
+
+
+------------------------- ansible-console
+
+      ex:
+      .---------------------
+      |  > ansible-console localhost
+      '---------------------
+
+      like all consoles (ex. lisp, mongo, ftp) I enter
+      into a shell where I can submit ansible commands
+      interactively.
+
+          (ins)sbasile@localhost (1)[f:5]$           <--- starting prompt
+          (ins)sbasile@localhost (1)[f:5]$ git_config list_all=yes scope=global   <--- example
+
+          (ins)sbasile@localhost (1)[f:5]$ git      <--- note there is auto-completion (double TAB)
+                                                         all starting matching modules are shown
+
+          git                      github_issue             github_webhook_info      gitlab_project
+          git_config               github_key               gitlab_deploy_key        gitlab_project_variable
+          github_deploy_key        github_release           gitlab_group             gitlab_runner
+          github_hooks             github_webhook           gitlab_hook              gitlab_user
+          (ins)sbasile@localhost (1)[f:5]$ git
+
+
+
+
+
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+------------------------- a
+
+
+
+
+
+
+
+

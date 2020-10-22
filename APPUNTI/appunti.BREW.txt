@@ -3,9 +3,13 @@ with errors like this:
 do this:
     export HOMEBREW_FORCE_BREWED_CURL=1
 _______________________________________________
-
+brew --prefix                gives /usr/local
+_______________________________________________
+brew --repo homebrew/core           -->  returns     /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core
+_______________________________________________
 
 brew ls                      see all packages
+brew list                    (longer version)
 brew ls --versions           see also the versions (nb. for a same package more versions can be installed, in the same time
                              ex          ansible  1.9.3  2.2.0.0_1  2.3.1.0
                                                   ^      ^          ^

@@ -190,6 +190,435 @@ ___________________________________________________________ ?pretty
            ....  http://localhost:9200/schools/school/_search?pretty
            ....  http://localhost:9200/schools/_bulk?pretty
 
+___________________________________________________________ LIST THE INDEXES OF A NODE:
+
+       curl -XGET -H "Content-Type: application/json" http://localhost:9200/_aliases
+                                                                            ^^^^^^^^
+                {
+                  "alpha_search": {
+                    "aliases": {}
+                  },
+                  ".kibana_1": {
+                    "aliases": {
+                      ".kibana": {}
+                    }
+                  }
+                }
+
+       curl -XGET -H "Content-Type: application/json" http://localhost:9200/_cat/indices\?v
+                                                                            ^^^^^^^^^^^^^^^
+
+                health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+                green  open   .kibana_1    2nKGER3fQ12I5kcfnijD7g   1   1          1            0      7.6kb          3.8kb
+                green  open   alpha_search jssk-DaPQxGcpp8NAPMgvg   3   1    7606786       190706     10.5gb          5.2gb
+
+
+
+
+       curl -XGET -H "Content-Type: application/json" http://localhost:9200/_stats/indexing      # stats gives the metrics
+                                                                            ^^^^^^^^^^^^^^       # here metric 'indexing'
+                {
+                  "_shards": {
+                    "total": 8,
+                    "successful": 8,
+                    "failed": 0
+                  },
+                  "_all": {
+                    "primaries": {
+                      "indexing": {
+                        "index_total": 7805171,
+                        "index_time_in_millis": 2020506,
+                        "index_current": 0,
+                        "index_failed": 1,
+                        "delete_total": 0,
+                        "delete_time_in_millis": 0,
+                        "delete_current": 0,
+                        "noop_update_total": 3286052,
+                        "is_throttled": false,
+                        "throttle_time_in_millis": 0
+                      }
+                    },
+                    "total": {
+                      "indexing": {
+                        "index_total": 10414415,
+                        "index_time_in_millis": 2730542,
+                        "index_current": 0,
+                        "index_failed": 1,
+                        "delete_total": 0,
+                        "delete_time_in_millis": 0,
+                        "delete_current": 0,
+                        "noop_update_total": 3286052,
+                        "is_throttled": false,
+                        "throttle_time_in_millis": 0
+                      }
+                    }
+                  },
+                  "indices": {
+                    ".kibana_1": { <--------------------------------------------------------------------
+                      "uuid": "2nKGER3fQ12I5kcfnijD7g",
+                      "primaries": {
+                        "indexing": {
+                          "index_total": 1,
+                          "index_time_in_millis": 25,
+                          "index_current": 0,
+                          "index_failed": 0,
+                          "delete_total": 0,
+                          "delete_time_in_millis": 0,
+                          "delete_current": 0,
+                          "noop_update_total": 0,
+                          "is_throttled": false,
+                          "throttle_time_in_millis": 0
+                        }
+                      },
+                      "total": {
+                        "indexing": {
+                          "index_total": 1,
+                          "index_time_in_millis": 25,
+                          "index_current": 0,
+                          "index_failed": 0,
+                          "delete_total": 0,
+                          "delete_time_in_millis": 0,
+                          "delete_current": 0,
+                          "noop_update_total": 0,
+                          "is_throttled": false,
+                          "throttle_time_in_millis": 0
+                        }
+                      }
+                    },
+                    "alpha_search": { <--------------------------------------------------------------------
+                      "uuid": "jssk-DaPQxGcpp8NAPMgvg",
+                      "primaries": {
+                        "indexing": {
+                          "index_total": 7805170,
+                          "index_time_in_millis": 2020481,
+                          "index_current": 0,
+                          "index_failed": 1,
+                          "delete_total": 0,
+                          "delete_time_in_millis": 0,
+                          "delete_current": 0,
+                          "noop_update_total": 3286052,
+                          "is_throttled": false,
+                          "throttle_time_in_millis": 0
+                        }
+                      },
+                      "total": {
+                        "indexing": {
+                          "index_total": 10414414,
+                          "index_time_in_millis": 2730517,
+                          "index_current": 0,
+                          "index_failed": 1,
+                          "delete_total": 0,
+                          "delete_time_in_millis": 0,
+                          "delete_current": 0,
+                          "noop_update_total": 3286052,
+                          "is_throttled": false,
+                          "throttle_time_in_millis": 0
+                        }
+                      }
+                    }
+                  }
+                }
+
+
+
+       curl -XGET -H "Content-Type: application/json" http://localhost:9200/_cluster/health\?level=indices
+                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                {
+                  "cluster_name" : "449229032822:es7-cluster-live",
+                  "status" : "green",
+                  "timed_out" : false,
+                  "number_of_nodes" : 3,
+                  "number_of_data_nodes" : 3,
+                  "discovered_master" : true,
+                  "active_primary_shards" : 4,
+                  "active_shards" : 8,
+                  "relocating_shards" : 0,
+                  "initializing_shards" : 0,
+                  "unassigned_shards" : 0,
+                  "delayed_unassigned_shards" : 0,
+                  "number_of_pending_tasks" : 0,
+                  "number_of_in_flight_fetch" : 0,
+                  "task_max_waiting_in_queue_millis" : 0,
+                  "active_shards_percent_as_number" : 100.0,
+                  "indices" : {
+                    ".kibana_1" : {
+                      "status" : "green",
+                      "number_of_shards" : 1,
+                      "number_of_replicas" : 1,
+                      "active_primary_shards" : 1,
+                      "active_shards" : 2,
+                      "relocating_shards" : 0,
+                      "initializing_shards" : 0,
+                      "unassigned_shards" : 0
+                    },
+                    "alpha_search" : {
+                      "status" : "green",
+                      "number_of_shards" : 3,
+                      "number_of_replicas" : 1,
+                      "active_primary_shards" : 3,
+                      "active_shards" : 6,
+                      "relocating_shards" : 0,
+                      "initializing_shards" : 0,
+                      "unassigned_shards" : 0
+                    }
+                  }
+                }
+
+___________________________________________________________ GET INFO OF AN INDEX
+
+       Just GET the index name:
+
+
+       curl -XGET -H "Content-Type: application/json" http://localhost:9200/alpha_search
+                                                                            ^^^^^^^^^^^^
+
+                {
+                  "alpha_search" : {
+                    "aliases" : { },
+                    "mappings" : {
+                      "_meta" : {
+                        "description" : "Mappings for alphabetical search"
+                      },
+                      "properties" : {
+                        "ID" : {
+                          "type" : "keyword",
+                          "ignore_above" : 256
+                        },
+                        "active_count" : {
+                          "type" : "integer"
+                        },
+                        "alpha_key_with_id" : {
+                          "type" : "keyword",
+                          "ignore_above" : 256
+                        },
+                        "company_type" : {
+                          "type" : "keyword"
+                        },
+                        "corporate_stripped" : {
+                          "type" : "keyword",
+                          "ignore_above" : 256
+                        },
+                        "corporate_stripped_len" : {
+                          "type" : "integer"
+                        },
+                        "corporate_with_type" : {
+                          "type" : "keyword",
+                          "ignore_above" : 256
+                        },
+                        "items" : {
+                          "properties" : {
+                            "alpha_key" : {
+                              "type" : "text",
+                              "fields" : {
+                                "keyword" : {
+                                  "type" : "keyword"
+                                }
+                              }
+                            },
+                            "company_number" : {
+                              "type" : "keyword"
+                            },
+                            "company_status" : {
+                              "type" : "keyword"
+                            },
+                            "corporate_name" : {
+                              "type" : "keyword",
+                              "fields" : {
+                                "doconly" : {
+                                  "type" : "text",
+                                  "index_options" : "docs"
+                                },
+                                "edge_ngrams" : {
+                                  "type" : "text",
+                                  "analyzer" : "analyzer_edge_ngram_token"
+                                },
+                                "first_token" : {
+                                  "type" : "text",
+                                  "analyzer" : "analyzer_limit_first"
+                                },
+                                "nonorms" : {
+                                  "type" : "text",
+                                  "norms" : false
+                                },
+                                "simple" : {
+                                  "type" : "text",
+                                  "analyzer" : "simple"
+                                },
+                                "startswith" : {
+                                  "type" : "text",
+                                  "analyzer" : "analyzer_startswith"
+                                },
+                                "startswith_stripped" : {
+                                  "type" : "text",
+                                  "analyzer" : "startswith_no_ws_punc"
+                                },
+                                "unique" : {
+                                  "type" : "text",
+                                  "analyzer" : "analyzer_unique_tf"
+                                },
+                                "word_count" : {
+                                  "type" : "token_count",
+                                  "analyzer" : "standard"
+                                }
+                              }
+                            },
+                            "corporate_name_ending" : {
+                              "type" : "keyword",
+                              "ignore_above" : 256
+                            },
+                            "corporate_name_start" : {
+                              "type" : "keyword",
+                              "ignore_above" : 256
+                            },
+                            "ordered_alpha_key" : {
+                              "type" : "text",
+                              "fields" : {
+                                "keyword" : {
+                                  "type" : "keyword"
+                                }
+                              }
+                            },
+                            "record_type" : {
+                              "type" : "keyword",
+                              "ignore_above" : 256
+                            }
+                          }
+                        },
+                        "kind" : {
+                          "type" : "keyword",
+                          "index" : false
+                        },
+                        "links" : {
+                          "properties" : {
+                            "self" : {
+                              "type" : "keyword",
+                              "index" : false
+                            }
+                          }
+                        },
+                        "ordered_alpha_key_with_id" : {
+                          "type" : "keyword",
+                          "ignore_above" : 256
+                        }
+                      }
+                    },
+                    "settings" : {
+                      "index" : {
+                        "refresh_interval" : "30s",
+                        "number_of_shards" : "3",
+                        "provided_name" : "alpha_search",
+                        "creation_date" : "1587150569348",
+                        "analysis" : {
+                          "filter" : {
+                            "filter_ascii_folding" : {
+                              "type" : "asciifolding",
+                              "preserve_original" : "true"
+                            },
+                            "filter_ws_punc_remove" : {
+                              "pattern" : "[\\s+|\\p{Punct}]",
+                              "type" : "pattern_replace",
+                              "replacement" : ""
+                            },
+                            "filter_whitespace_remove" : {
+                              "pattern" : "\\s+",
+                              "type" : "pattern_replace",
+                              "replacement" : ""
+                            }
+                          },
+                          "char_filter" : {
+                            "char_filter_character_mapping" : {
+                              "type" : "mapping",
+                              "mappings" : [
+                                "& => and"
+                              ]
+                            },
+                            "char_filter_remove_special_characters" : {
+                              "pattern" : "[^a-zA-Z0-9]",
+                              "type" : "pattern_replace",
+                              "replacement" : ""
+                            }
+                          },
+                          "analyzer" : {
+                            "analyzer_edge_ngram_token" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_ascii_folding"
+                              ],
+                              "type" : "custom",
+                              "tokenizer" : "edge_ngram_tokenizer"
+                            },
+                            "analyzer_keyword_token_sort" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_ascii_folding",
+                                "trim",
+                                "filter_whitespace_remove"
+                              ],
+                              "char_filter" : [
+                                "char_filter_character_mapping",
+                                "char_filter_remove_special_characters"
+                              ],
+                              "type" : "custom",
+                              "tokenizer" : "keyword"
+                            },
+                            "analyzer_whitespace_token" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_ascii_folding"
+                              ],
+                              "type" : "custom",
+                              "tokenizer" : "whitespace"
+                            },
+                            "analyzer_limit_first" : {
+                              "filter" : [
+                                "lowercase",
+                                "limit"
+                              ],
+                              "tokenizer" : "standard"
+                            },
+                            "startswith_no_ws_punc" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_ws_punc_remove"
+                              ],
+                              "tokenizer" : "keyword"
+                            },
+                            "analyzer_elastic" : {
+                              "tokenizer" : "standard"
+                            },
+                            "analyzer_startswith" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_whitespace_remove"
+                              ],
+                              "tokenizer" : "keyword"
+                            },
+                            "analyzer_unique_tf" : {
+                              "filter" : [
+                                "lowercase",
+                                "filter_whitespace_remove",
+                                "unique"
+                              ],
+                              "tokenizer" : "standard"
+                            }
+                          },
+                          "tokenizer" : {
+                            "edge_ngram_tokenizer" : {
+                              "type" : "edge_ngram",
+                              "min_gram" : "2",
+                              "max_gram" : "20"
+                            }
+                          }
+                        },
+                        "number_of_replicas" : "1",
+                        "uuid" : "jssk-DaPQxGcpp8NAPMgvg",
+                        "version" : {
+                          "created" : "7010199"
+                        }
+                      }
+                    }
+                  }
+                }
 ___________________________________________________________ DELETE
 
 

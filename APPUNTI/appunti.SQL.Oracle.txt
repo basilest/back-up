@@ -1,3 +1,28 @@
+TEST CONNECTIVITY:
+
+      use sqlplus   (or sqlplus64)
+
+      format    USER / PASSWORD  @  HOST : PORT / SCHEMA
+
+      ex:
+      sqlplus64 ewf/br1e@chw-chprd.internal.ch:1521/CHPRD
+
+                 | SQL*Plus: Release 11.2.0.3.0 Production on Thu Jun 25 12:58:27 2020
+                 |
+                 | Copyright (c) 1982, 2011, Oracle.  All rights reserved.
+                 |
+                 |
+                 | Connected to:
+                 | Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+                 | With the Partitioning, OLAP, Data Mining and Real Application Testing options
+                 |
+                 | SQL>
+
+
+
+
+
+
   DBMS:               Database Management System. A collection of programs written to manage a database.
 R-DBMS:               R is Relational.
                       The father of Relational Data-Model was Dr. E.F. CODD.

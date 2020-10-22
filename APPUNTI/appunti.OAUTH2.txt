@@ -115,12 +115,12 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
     |                 |        redirect URI: "yelp.com/callback"                |   user:______   |
     |   log with G    |        scope: "profile" "contacts"                      |   password:__   |
     |                 |        response type: "code"                            |                 |
-    `-----------------'                                                         `-----------------'
+    `-----------------'        client_id=abc123&                                `-----------------'
 
                                note. scope is a space-separated list of 'scope' values
                                      defined by the AUTHORIZATION SERVER, and which the Client
-                                     is aware when decided to register.
-                                     So Facebbok list of scopes are defined by Facebook
+                                     is aware of when decided to register.
+                                     So Facebook's list of scopes is defined by Facebook
                                      Google defines its own. ......
 
                                      OpenID will be implemented adding the scope: 'openid'
@@ -146,6 +146,10 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
                     X knows then what is what.
                     If X denys, then google will redirect the URL to yelp.com/callback with
                     something like:
+                              <------ https://yelp.com/callback?
+                                           error=access_denied&
+                                           error_desc='user did not conset'
+
 
                     if X accepts, then google will redirect the URL to yelp.com/callback
                     with an AUTHORIZATION-CODE. This is not yet the ACCESS TOKEN.
@@ -203,7 +207,7 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
 
       These last messages of the AOUTH2 protocol are exchanged between the back-end servers
       which are considered secure channels. On these channels are transmitted both the secret-id
-      and the ACCESS-TOKEN. These form the back-cahnnel (more secure) wrt to the previous front-channel.
+      and the ACCESS-TOKEN. These form the back-channel (more secure) wrt to the previous front-channel.
 
       Client                                                                   AUTHORIZATION SERVER
     .-----------------.                                                         .-----------------.
@@ -357,6 +361,7 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
     |                 |                "access_token": "fFAGRNJru1FTz70BzhT3Zg" |   'contacts' ?  |
     `-----------------'                 state=foobar                            |                 |
                                                                                 |     Yes/No      |
+                                                                                `-----------------'
 
 
                     note that the "access_token": "fFAGRNJru1FTz70BzhT3Zg" is then visible
@@ -440,11 +445,11 @@ OpenID Connect is implemented adding to the starting HTTP request:
 
 
 
-                            .-----------------.                  .                       |
-                            |   api.google/   |             .                            |
-                            |   contacts      |                                          |
-                         - >|                 |                                          |
-                      -     | RESOURCE SERVER |                                          |
+                            .-----------------.                  .                       .
+                            |   api.google/   |             .                            .
+                            |   contacts      |                                          .
+                         - >|                 |                                          .
+                      -     | RESOURCE SERVER |                                          .
                    -        |                 |                                          |
                 -           `-----------------'                                          |
        GET api.google.com/oauth2/v4/userinfo                                             |

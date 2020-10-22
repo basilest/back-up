@@ -8,11 +8,64 @@
 
 
 
+------------------------------- fly  (Concourse CLI)
 
 
 
+            ~/.bash_profile
+                export no_proxy="chs-dev,localhost,*.aws.chdev.org"
+                export NO_PROXY=$no_proxy
+
+Fly authentication
+
+against (e.g. Platform or Sandbox)
+
+fly -t <target>               login -c <concourse url>                    -n <team>        -b
+fly -t platform-common        login -c https://ci.platform.aws.chdev.org/ -n common        -b
+fly -t platform-team-aardvark login -c https://ci.platform.aws.chdev.org/ -n team-aardvark -b
+fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n development   -b
 
 
+
+  FLY:
+
+       install:
+                  1 way:   copy 1 binary directly in /usr/local/bin
+
+                  2 way:   package manager (brew cask install fly)
+
+
+            fly --target tutorial login --concourse-url http://127.0.0.1:8080 -u admin -p admin
+            fly -t       tutorial execute -c task_ubuntu_uname.yml
+            fly -t       tutorial e       -c task_ubuntu_uname.yml
+
+            fly -t       tutorial e -c inputs_required.yml -i some-important-input=.
+
+
+
+            ╰─ bat ~/.flyrc
+            ───────┬─────────────────────────────────────────────────────
+                   │ File: /Users/sbasile/.flyrc
+            ───────┼─────────────────────────────────────────────────────
+               1   │ targets:
+               2   │   tutorial:
+               3   │     api: http://127.0.0.1:8080
+               4   │     team: main
+               5   │     token:
+               6   │       type: bearer
+               7   │       value: YJLz5Sn0r+k7rKIbArE3pdWEUGPAGkxfAAAAAA
+            ───────┴─────────────────────────────────────────────────────
+
+
+
+  CONCOURSE:
+
+       $ wget https://concourse-ci.org/docker-compose.yml
+       $ docker-compose up -d
+       Creating docs_concourse-db_1 ...
+       Creating docs_concourse-db_1 ... done
+       Creating docs_concourse_1 ...
+       Creating docs_concourse_1 ... done
 
 
 
