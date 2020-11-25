@@ -460,9 +460,16 @@ aws ec2 create-tags --resources $subnet_6_id \
 
 
 
+1. VPC - Foudamentals
+
+         VPC : Virual Private CLOUD
+
+                    An isolated  virtual network inside AWS.
 
 
-
-
+                    I have full control for
+                        - selection of my own IP address range,
+                        - creation of subnets,
+                        - configuration of route tables / network gateways.
 
 

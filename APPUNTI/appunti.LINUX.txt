@@ -2170,7 +2170,7 @@ __  rsync
       --delete                  delete on server files not present locally (so making a real mirror)
 
       -v           --verbose
-      --progress               a progress bar
+      -P           --progress  a progress bar and also resume interrupted transfer
       --stats                  statistics info
 
       -e           --rsh       force using ssh on remote connections (nb. the short flag is -e the long flag is --rsh)
@@ -2180,6 +2180,19 @@ __  rsync
 
       ex.
         rsync -za  --delete --exclude "*log" /my/dir/* basilest:/backup      <--- nb. always best ending with /* the source path
+
+
+ rsync employs a special delta transfer algorithm:
+
+    rsync will check files sizes and modification timestamps of both A and B,
+    and skip any further processing if they match.
+
+    If the destination file B already exists, the delta transfer algorithm will make sure
+    only differences between A and B are sent over the wire.
+
+    rsync will write data to a temporary file T, and then replace the destination file B with T
+    to make the update look "atomic" to processes that might be using B.
+
 
 
 

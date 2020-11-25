@@ -71,7 +71,208 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
 
+---------------------------------------------------   BUILDING BLOCKS
 
+                1. YAML  inputs:    so I can keep under source control
+                2. CONTAINERS:      tasks runs in containers
+                3. STATELESS:       concourse is itself stateless.
+                                    To work on states, it then uses some:
+
+                                 4. RESOURCES: they are the data moving between jobs
+
+                                 5. TYPES (of RESOURCES):  every resource has a type:
+                                                           - git
+                                                           - amazon S3
+                                                           ....
+                                                           - I can create my own (extensible)
+                6. TASKS:  they are the SMALLEST unit of execution
+                           a job executed in a container
+
+                7. JOBS:   they are built of more TASKS moving RESOURCES
+
+                8. PIPELINE: a series of JOBS
+
+                9. BUILD:  the list of a steps really executed during a PIPELINE run.
+
+
+---------------------------------------------------   CONCOURSE ARCHITECTURE
+
+                3 parts:
+
+                a. web node
+                b. worker node
+                c. postsgr SQL DB
+
+
+        a. web node:  it is the brain
+                      it doesn't store any state
+                      it uses the DB to revtrieve any info
+
+        b. wirker node: it's the executor.
+                        I can scale adding more workers to many pipelines
+
+---------------------------------------------------   FLY
+
+        > fly targets
+
+        > fly --target ps login
+
+        > fly --target ps status
+
+        > fly --target ps execute  --config  task1.yml
+
+        > fly --target ps set-pipeline  --ipeline mypipe   --config pipeline.yml
+
+        > fly --target ps jobs  --pipeline mypipe
+
+---------------------------------------------------
+        docker-compose up
+---------------------------------------------------
+> fly -t platform-common jobs  -p payment-reconciler
+name                paused  status     next
+create-webhooks     no      succeeded  n/a
+delete-webhooks     no      n/a        n/a
+build-test-analyse  no      succeeded  n/a
+release             no      succeeded  n/a
+cidev-plan          no      succeeded  n/a
+cidev-apply         no      succeeded  n/a
+cidev-destroy       no      n/a        n/a
+aard1-plan          no      n/a        n/a
+aard1-apply         no      n/a        n/a
+aard1-destroy       no      n/a        n/a
+apollo1-plan        no      n/a        n/a
+apollo1-apply       no      n/a        n/a
+apollo1-destroy     no      n/a        n/a
+tcats1-plan         no      n/a        n/a
+tcats1-apply        no      n/a        n/a
+tcats1-destroy      no      n/a        n/a
+staging-plan        no      succeeded  pending
+staging-apply       no      succeeded  n/a
+staging-destroy     no      n/a        n/a
+rebel1-plan         no      succeeded  n/a
+rebel1-apply        no      succeeded  n/a
+rebel1-destroy      no      n/a        n/a
+
+
+---------------------------------------------------
+╰─ fly -t platform-common bs  -p payment-reconciler
+id     pipeline/job                           build  status     start                     end                       duration  team
+36879  payment-reconciler/staging-plan        6      pending    n/a                       n/a                       n/a       common
+36875  payment-reconciler/staging-plan        5      pending    n/a                       n/a                       n/a       common
+35761  payment-reconciler/cidev-apply         7      succeeded  2020-11-02@15:26:49+0000  2020-11-02@15:27:46+0000  57s       common
+35758  payment-reconciler/cidev-plan          7      succeeded  2020-11-02@15:24:58+0000  2020-11-02@15:26:01+0000  1m3s      common
+35735  payment-reconciler/rebel1-apply        3      succeeded  2020-11-02@14:27:37+0000  2020-11-02@14:28:29+0000  52s       common
+35733  payment-reconciler/rebel1-plan         4      succeeded  2020-11-02@14:21:56+0000  2020-11-02@14:23:30+0000  1m34s     common
+35730  payment-reconciler/cidev-apply         6      succeeded  2020-11-02@14:06:13+0000  2020-11-02@14:07:03+0000  50s       common
+35729  payment-reconciler/cidev-plan          6      succeeded  2020-11-02@14:04:43+0000  2020-11-02@14:06:11+0000  1m28s     common
+35728  payment-reconciler/release             7      succeeded  2020-11-02@14:02:13+0000  2020-11-02@14:04:41+0000  2m28s     common
+35726  payment-reconciler/build-test-analyse  10     succeeded  2020-11-02@14:00:22+0000  2020-11-02@14:02:12+0000  1m50s     common
+35600  payment-reconciler/rebel1-apply        2      succeeded  2020-11-02@09:17:13+0000  2020-11-02@09:18:16+0000  1m3s      common
+35596  payment-reconciler/rebel1-plan         3      succeeded  2020-11-02@09:14:33+0000  2020-11-02@09:16:13+0000  1m40s     common
+35555  payment-reconciler/cidev-apply         5      succeeded  2020-10-30@14:34:14+0000  2020-10-30@14:34:45+0000  31s       common
+35554  payment-reconciler/cidev-plan          5      succeeded  2020-10-30@14:33:04+0000  2020-10-30@14:34:05+0000  1m1s      common
+35553  payment-reconciler/release             6      succeeded  2020-10-30@14:31:13+0000  2020-10-30@14:32:59+0000  1m46s     common
+35552  payment-reconciler/build-test-analyse  9      succeeded  2020-10-30@14:29:53+0000  2020-10-30@14:31:06+0000  1m13s     common
+35273  payment-reconciler/cidev-apply         4      succeeded  2020-10-29@14:48:41+0000  2020-10-29@14:49:21+0000  40s       common
+35272  payment-reconciler/cidev-plan          4      succeeded  2020-10-29@14:47:40+0000  2020-10-29@14:48:38+0000  58s       common
+35271  payment-reconciler/release             5      succeeded  2020-10-29@14:45:50+0000  2020-10-29@14:47:39+0000  1m49s     common
+35270  payment-reconciler/build-test-analyse  8      succeeded  2020-10-29@14:45:00+0000  2020-10-29@14:45:44+0000  44s       common
+35269  payment-reconciler/build-test-analyse  7      failed     2020-10-29@14:43:50+0000  2020-10-29@14:44:22+0000  32s       common
+35248  payment-reconciler/build-test-analyse  6      failed     2020-10-29@14:13:43+0000  2020-10-29@14:14:26+0000  43s       common
+34780  payment-reconciler/build-test-analyse  5      failed     2020-10-28@09:33:33+0000  2020-10-28@09:34:51+0000  1m18s     common
+31970  payment-reconciler/rebel1-apply        1      succeeded  2020-10-12@15:31:45+0100  2020-10-12@15:35:09+0100  3m24s     common
+31969  payment-reconciler/cidev-apply         3      succeeded  2020-10-12@15:29:35+0100  2020-10-12@15:30:04+0100  29s       common
+31967  payment-reconciler/rebel1-plan         2      succeeded  2020-10-12@15:28:15+0100  2020-10-12@15:29:22+0100  1m7s      common
+31966  payment-reconciler/cidev-plan          3      succeeded  2020-10-12@15:28:05+0100  2020-10-12@15:29:31+0100  1m26s     common
+31964  payment-reconciler/release             4      succeeded  2020-10-12@15:26:14+0100  2020-10-12@15:28:03+0100  1m49s     common
+31963  payment-reconciler/build-test-analyse  4      succeeded  2020-10-12@15:25:24+0100  2020-10-12@15:26:08+0100  44s       common
+31962  payment-reconciler/rebel1-plan         1      failed     2020-10-12@15:23:54+0100  2020-10-12@15:24:59+0100  1m5s      common
+26677  payment-reconciler/staging-apply       3      succeeded  2020-09-01@16:58:48+0100  2020-09-01@16:59:18+0100  30s       common
+26676  payment-reconciler/staging-plan        4      succeeded  2020-09-01@16:57:07+0100  2020-09-01@16:58:30+0100  1m23s     common
+26675  payment-reconciler/cidev-apply         2      succeeded  2020-09-01@16:55:27+0100  2020-09-01@16:55:50+0100  23s       common
+26672  payment-reconciler/cidev-plan          2      succeeded  2020-09-01@16:54:27+0100  2020-09-01@16:55:23+0100  56s       common
+26669  payment-reconciler/release             3      succeeded  2020-09-01@16:52:07+0100  2020-09-01@16:54:20+0100  2m13s     common
+26668  payment-reconciler/build-test-analyse  3      succeeded  2020-09-01@16:51:16+0100  2020-09-01@16:52:00+0100  44s       common
+26663  payment-reconciler/staging-apply       2      succeeded  2020-09-01@16:39:25+0100  2020-09-01@16:39:43+0100  18s       common
+26662  payment-reconciler/staging-apply       1.2    aborted    n/a                       2020-09-01@16:39:15+0100  n/a       common
+26658  payment-reconciler/staging-apply       1.1    failed     2020-09-01@16:37:04+0100  2020-09-01@16:37:47+0100  43s       common
+26652  payment-reconciler/staging-apply       1      failed     2020-09-01@16:05:50+0100  2020-09-01@16:06:12+0100  22s       common
+26659  payment-reconciler/staging-plan        3.1    succeeded  2020-09-01@16:38:14+0100  2020-09-01@16:39:04+0100  50s       common
+26651  payment-reconciler/staging-plan        3      succeeded  2020-09-01@16:04:20+0100  2020-09-01@16:05:16+0100  56s       common
+26645  payment-reconciler/staging-plan        2.1    failed     2020-09-01@15:22:21+0100  2020-09-01@15:22:35+0100  14s       common
+26617  payment-reconciler/staging-plan        2      failed     2020-09-01@13:43:46+0100  2020-09-01@13:44:14+0100  28s       common
+26605  payment-reconciler/staging-plan        1.2    failed     2020-09-01@13:29:44+0100  2020-09-01@13:30:14+0100  30s       common
+26592  payment-reconciler/staging-plan        1.1    failed     2020-09-01@13:20:33+0100  2020-09-01@13:20:59+0100  26s       common
+26591  payment-reconciler/staging-plan        1      failed     2020-09-01@13:14:22+0100  2020-09-01@13:15:15+0100  53s       common
+26590  payment-reconciler/cidev-apply         1      succeeded  2020-09-01@13:13:22+0100  2020-09-01@13:13:54+0100  32s       common
+26589  payment-reconciler/cidev-plan          1      succeeded  2020-09-01@13:11:52+0100  2020-09-01@13:13:13+0100  1m21s     common
+26588  payment-reconciler/release             2      succeeded  2020-09-01@13:09:31+0100  2020-09-01@13:11:50+0100  2m19s     common
+
+╭─   11032   192.168.0.3  sbasile@pd12671   ~/ci/s     master 
+╰─
+
+---------------------------------------------------
+╰─ fly -t platform-common ab  --job payment-reconciler/staging-plan --build 5
+build successfully aborted
+
+╭─   11041   192.168.0.3  sbasile@pd12671   ~/ci/s     master 
+╰─
+
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
+---------------------------------------------------
 
 
 
