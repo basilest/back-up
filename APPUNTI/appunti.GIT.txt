@@ -68,6 +68,57 @@ REFERENCES:
    git symbolic-ref        # plumbing command to manage ref
 
 
+git for-each-ref
+                e45c828aa2d8714babe78af04bb93fb5bbd0be48 commit	refs/heads/alphabetical
+                249716e7eeb7c31d63d94d16ac1d0ab0745e0d60 commit	refs/heads/develop
+                010164f12084a8635f0201a40a423634196356e1 commit	refs/heads/develop-es-v1
+                c58ad1140dfc8209f59151b6b741222b57e00cd8 commit	refs/heads/es7-test
+                dc1891f40727bb05512561bad5d031db5a4db8b0 commit	refs/heads/feature/DOP-109
+                ae42a98931560a6c56352821d7a30b27cf928ba7 commit	refs/remotes/origin/jmcbride/es7-update
+                d549d27a042f67ee8db2e8899ac39226c17bf98e commit	refs/remotes/origin/master
+                7f425801506db57c5404dc84d395da407ccdf9e6 commit	refs/remotes/origin/officer_search_fil
+                c5541cf14d31c452b1e987933a3d72128bdf13e2 commit	refs/remotes/origin/re-add-unit-tests
+                07bb39c540c36d5c5205f6c22231ac6d3030d73f commit	refs/remotes/origin/release-1.0.0_loader
+                aa1fc2dafaae1cf1589937bca74509ddf00617b1 commit	refs/remotes/origin/release-2.0_elastic_search
+                a21100ddda935a5ae372990a0972773b8d28ea4a commit	refs/remotes/origin/release-2.1.0_company_status
+                f53b251414d5e9e05680b667431fe8085ae92374 commit	refs/remotes/origin/release/3.0.0
+                65e21e08a32b1f710af5a57f61fefb2ec84a67d0 commit	refs/remotes/origin/release/3.0.1
+                c3716a6f42a677268693363f72b78da4b4ee30d1 commit	refs/tags/1.0
+                af08060895870b3bfd6220b427ba73d3bffc7833 tag	refs/tags/1.1
+                7d06e31bd7dadebe56d832d0c849f0334db26445 tag	refs/tags/2.1.0
+                5eece09ba1320ce6f01797433417cf3b4adcd115 tag	refs/tags/2.3.0
+                5f1c1f84f2e0fd617f2e8e5f34ccabcc136b146a tag	refs/tags/2.4.0
+                f53b251414d5e9e05680b667431fe8085ae92374 commit	refs/tags/v3.0.0
+                65e21e08a32b1f710af5a57f61fefb2ec84a67d0 commit	refs/tags/v3.0.0-rc2
+                834c0cd560a4c09fc904eb7592dd2cf8478d788a tag	refs/tags/v3.0.1
+                65e21e08a32b1f710af5a57f61fefb2ec84a67d0 commit	refs/tags/v3.0.1-rc2
+
+git for-each-ref --format="%(refname)" refs)
+
+                refs/heads/alphabetical
+                refs/heads/develop
+                refs/heads/develop-es-v1
+                refs/heads/es7-test
+                refs/heads/feature/DOP-109
+                refs/remotes/origin/jmcbride/es7-update
+                refs/remotes/origin/master
+                refs/remotes/origin/officer_search_fil
+                refs/remotes/origin/re-add-unit-tests
+                refs/remotes/origin/release-1.0.0_loader
+                refs/remotes/origin/release-2.0_elastic_search
+                refs/remotes/origin/release-2.1.0_company_status
+                refs/remotes/origin/release/3.0.0
+                refs/remotes/origin/release/3.0.1
+                refs/tags/1.0
+                refs/tags/1.1
+                refs/tags/2.1.0
+                refs/tags/2.3.0
+                refs/tags/2.4.0
+                refs/tags/v3.0.0
+                refs/tags/v3.0.0-rc2
+                refs/tags/v3.0.1
+                refs/tags/v3.0.1-rc2
+
 
 NOTATIONS:
 
@@ -749,6 +800,17 @@ NOTATIONS:
   |                                                            #
   |                                                            #                  log  ..   =   diff ...
   |                                                            #                  log  ...  =   diff ..
+  |                                                            #
+  |               git log deleted file                         #  If a file was deleted then I cannot see it with just
+  |                                                            #  a "git log" but I must add some flags:
+  |                                                            #
+  |                                                            #  if I don't remember the path:
+  |                                                            #        git log --all --full-history -- "**/thefile.*"
+  |                                                            #
+  |                                                            #  if I know the path
+  |                                                            #        git log --all --full-history -- aa/bb/cc/file.txt
+  |                                                            #
+  |                                                            #
   |                                                            #
   | git diff --stat master~5 master dir_x                      # if you specify a dir (here dir_x) diff limits on that dir
   | git diff --stat master~5 master dir_x/main.c               # or limits on a single file (here main.c inside dir_x)

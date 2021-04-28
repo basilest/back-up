@@ -226,7 +226,7 @@ ___________________________________________________________________________ PACK
         m "xxxx"    <---- I add an 'alias', so after I can just use m.B to refer a B var/function of package "xxxx"
                           It's usefull when a package B is like another A (ex. .../logxxx and  'log')
                           In the following code using the alias allow to have the same code
-                          even i I change the package (both will have m.----)
+                          even if I change the package (both will have m.----)
 
         . "xxxx"    <---- In this case I can use the var/functions of "xxxx" without
                           prepending anything (ex. instad of xxxx.B or m.B directly B)
@@ -358,7 +358,7 @@ ___________________________________________________________________________ FOR
 
                                              'for' is the only loop construct
     for i := 0; i < 10; i++ {          <---- the are no '('  ')'
-        sum += i                             while the  '{'  '}'  are required
+        sum += i                             and   the  '{'  '}'  are required
     }
 
 

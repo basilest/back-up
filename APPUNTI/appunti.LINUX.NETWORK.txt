@@ -247,6 +247,8 @@ common grouping options:  -nnvvS  instead of -nn -vv -S
 
 
 -c 5         Only get 5 packets and stop.
+-A           Print each packet (minus its link level header) in ASCII.
+             Handy for capturing web pages and see HTTP headers
 -E           Decrypt IPSEC traffic by providing an encryption key.
 
 host 172.5.0.1     dump packet with that IP address
@@ -297,6 +299,33 @@ not              also !
 - SYNCHRONIZE (SYN) bit 2
 - FINISH (FIN)      bit 1
 
+--------------  HOW TO SEE THE HTTP  HEADERS WITH TCPDUMP
+
+[root@webserver1 ~]# tcpdump -vvvs 1024 -l -A host fir3net.com
+tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 1024 bytes
+19:51:57.742793 IP (tos 0x0, ttl 64, id 39410, offset 0, flags [DF], proto: TCP (6), length: 208) webserver1.55355 > web160.extendcp.co.uk.http: P, cksum 0x4ce6 (incorrect (-> 0x29e9), 1:157(156) ack 1 win 183
+E.....@.@.T.....O.(..;.P.B.<..w3....L......
+!y>.5...HEAD / HTTP/1.1
+User-Agent: curl/7.15.5 (x86_64-redhat-linux-gnu) libcurl/7.15.5 OpenSSL/0.9.8b zlib/1.2.3 libidn/0.6.5
+Host: fir3net.com
+Accept: */*
+
+19:51:57.747162 IP (tos 0x0, ttl 56, id 40702, offset 0, flags [DF], proto: TCP (6), length: 52) web160.extendcp.co.uk.http > webserver1.55355: ., cksum 0xdeb4 (correct), 1:1(0) ack 157 win 1448
+E..4..@.8.W.O.(......P.;..w3.B.............
+5...!y>.
+19:51:58.581168 IP (tos 0x0, ttl 56, id 40704, offset 0, flags [DF], proto: TCP (6), length: 475) web160.extendcp.co.uk.http > webserver1.55355: P, cksum 0xdd93 (correct), 1:424(423) ack 157 win 1448
+E.....@.8.U.O.(......P.;..w3.B.............
+5...!y>.HTTP/1.1 200 OK
+Date: Mon, 26 Sep 2011 19:51:57 GMT                                                     <--------
+Server: Apache/2                                                                        <--------
+X-Powered-By: PHP/5.2.17                                                                <--------
+P3P: CP="NOI ADM DEV PSAi COM NAV OUR OTRo STP IND DEM"                                 <--------
+Expires: Mon, 1 Jan 2001 00:00:00 GMT                                                   <--------
+Cache-Control: post-check=0, pre-check=0                                                <--------
+Pragma: no-cache                                                                        <--------
+Set-Cookie: 76a7b8dc15e4f0021ca24944dc631ff9=7bg357jeia0soqojvkj6iejhg5; path=/         <--------
+Last-Modified: Mon, 26 Sep 2011 19:51:58 GMT                                            <--------
+Content-Type: text/html; charset=utf-8                                                  <--------
 
 -------------------------------
      ip

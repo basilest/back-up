@@ -1,3 +1,10 @@
+-------------------------------------
+save Select into a file
+
+1. Normal select
+2. right click on the data retrieved (any place)
+3. Export   (choosing for example format CSV)
+-------------------------------------
 TEST CONNECTIVITY:
 
       use sqlplus   (or sqlplus64)
@@ -18,10 +25,37 @@ TEST CONNECTIVITY:
                  |
                  | SQL>
 
+to execute a file (ex. a.sql) from the command line ex
+    a.sql:
+           select count (*) from formheader where status=20 and paymentmethod=2  and orddtetme > TO_TIMESTAMP('12-FEB-2021 00:00:00', 'DD-MON-YYYY HH24:MI:SS') and orddtetme < TO_TIMESTAMP('17-FEB-2021 17:00:00', 'DD-MON-YYYY HH24:MI:SS');
+run                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         sqlplus ewf/br1e@chw-chprd.internal.ch:1521/CHPRD @a.sql </dev/null
+the </dev/null is to send an end of input to sqlplus
+another 2 ways:
+         1. echo exit | sqlplus ewf/br1e@chw-chprd.internal.ch:1521/CHPRD @a.sql
+         2. sqlplus ewf/br1e@chw-chprd.internal.ch:1521/CHPRD<<EOF
+            select count .... ;
+            EOF
+
+   .-------------------------------------------------------------
+   | JUST NOTE THAT OPERATIONS ON DATES
+   | SHOULD USE
+   |      TO_DATE ()         -- when only date and no time
+   |      TO_TIMESTAMP ()    -- when also time (hours/min/sec)
+   '-------------------------------------------------------------
 
 
+In Oracle, USERS and SCHEMAS are essentially the same thing.
 
+    USER   = the account to connect to a DB
+    SCHEMA = the set of objects (tables, views, etc.) that belongs to that account.
 
+You create users with the create user statement.
+This also "creates" the schema (initially empty) - you cannot create a schema as such, it is tied to the user.
+Once the user is created, an administrator can grant privileges to the user, which will enable it to create tables,
+execute select queries, insert, and everything else.
+
+The database is the thing that contains all the users you've created, and their data (and a bunch of predefined system users, tables, views, etc. that make the whole thing work). You should look at the Oracle Database Architecture documentation in the Concepts Guide (actually, that whole page is worth a read - there's a section about users and schemas higher up in that page) to get an introduction to what a database is, and what a database instance is - two important concepts.
 
   DBMS:               Database Management System. A collection of programs written to manage a database.
 R-DBMS:               R is Relational.
@@ -406,6 +440,11 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
       NON-EQUI-J   when it's not an EQUI-J
 
                SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T2 B WHERE   T1.ca BETWEEN T2.cx AND T2.cz
+
+               SELECT * from FORMHEADER where status=35 and
+                        orddtetme BETWEEN  TO_DATE('2021-04-22 00:00:00', 'YYYY-MM-DD HH24:MI:SS')  <--------------------------
+                                  and TO_DATE('2021-04-22 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+                        order by orddtetme desc;
 
 
       SELF-J   The SAME Table appears more with different aliases

@@ -1,3 +1,59 @@
+--------------------------------------------------- stdin / stdout /stderr  --- buffered | unbuffered | line-buffered
+
+ In a STREAM
+ characters from source --> destination can be
+
+     . unbuffered:    transmitted as soon as possible.   (every fwrite is followed by a flush)
+
+     . buffered:      transmitted as a block when a buffer is filled.
+
+     . line buffered: transmitted when a new-line is encountered.
+
+
+ and may be affected via the functions:
+            setbuf
+            setvbuf
+
+ 3 text STREAMS (stdin, stdout, stderr) are created automatically for
+ all unix programs by the C library (libc) at the start of program execution,
+
+           stdin     BUFFERED
+
+           stdout    BUFFERED:          For most programs it's usually BUFFERED
+                     LINE BUFFERED      but they usually switch to LINE-BUFFERED when connected to a terminal e.g. they don't output on a pipe |
+                     UNBUFFERED         if the prog has the option (ex. perl -e '$|=1 ...')
+
+           stderr    UNBUFFERED
+
+
+ex.
+
+    perl -e'print "a\n"; sleep(2); print "b\n";'         # it outputs on a terminal --> so LINE BUFFERED
+                                                           I will see
+                                                                   "a"
+                                                                   ---- 2 sec ----
+                                                                   "b"
+
+    perl -e'print "a\n"; sleep(2); print "b\n";' | cat   # it outputs on a pipe --> so fully BUFFERED
+                                                           I will see both after 2 sec:
+                                                                   ---- 2 sec ----
+                                                                   "a"
+                                                                   "b"
+        NOTE:
+        man perlvar:
+                  $| If nonzero, forces a flush after every write or
+                     print on the currently selected output channel.
+                  So 0 is with buffering and
+                     1 is without.
+
+                  perl -e'$|=0; print "a\n"; sleep(2); print "b\n";' | cat     # is BUFFERED for both ouputting on a pipe
+                                                                                 and because perl weas told to buffer
+                  perl -e'$|=1; print "a\n"; sleep(2); print "b\n";' | cat     # is UNBUFFERED
+                                                                                 I will see
+                                                                                         "a"
+                                                                                         ---- 2 sec ----
+                                                                                         "b"
+
 --------------------------------------------------- USER INFO
 user info (like name, password, default shell ....)
      can be changed with the commands:
@@ -961,7 +1017,7 @@ LOGIN
                    ex:
                         $LANG      language (ex.  "en_US.UTF-8")
                         $DISPLAY
-                        $CDPATH   <--- like PATH is a list of dir separated by ':'
+                        $CDPATH   <--- like PATH it's a list of dir separated by ':'
                                        The benefit of this var, is that
                                        each time a 'cd' is written, with not relative path (ex ../../.)
                                        the search is done ONLY in this list. To have
@@ -1009,7 +1065,7 @@ LOGIN
         father --> child   Any ENV v. created in a shell, will be available
                            to all child-procs created by the SHELL.
 
-        T1    T2           2 terminals, (ex 2 xterms) are separated shells
+        T1    T2           2 terminals, (ex 2 xterms) are separate shells
                            so T1.ENV.v  & T2.ENV.v  are completly different.
 
       % A=1 B=2  cmd args  Any var defined BEFORE a cmd (that will become a new CHILD)
@@ -1443,8 +1499,9 @@ umask           the umask command (ex in .bashrc: umask 022) set a value that
                 when any new file/dir is created its starting value will be
                     dir:  777 - umask  (ex  777 - 022 = 755)
                     file: 666 - umask  (ex  666 - 022 = 644)
-
-                files are 666 and not 777 for security reasons, (no 'x').
+                           |
+                           |
+                           files are 666 and not 777 for security reasons, (no 'x').
 
 
 ____________________
@@ -2031,6 +2088,16 @@ __  find
                   ex:
                       find . -not -path */.git/*
 
+
+____________________
+__  diff
+
+
+        diff -y                         to diff vertical   (also   --side-by-side)
+        diff -y --width=$COLUMNS        to override the builtin values which truncates at 130
+
+
+
 ____________________
 __  lsof
              is an 'utility' not a bash builtin
@@ -2148,6 +2215,25 @@ dd if=/dev/zero of=/dev/xxxxxx
       dd if=/dev/zero of=foobar count=1024 bs=1024       it's 1 MB: 1024 blocks  X  of personal size:1024 bytes
       dd if=/dev/zero of=foobar count=1 bs=1G            it's 1 GB: 1 block X 1G
 
+
+____________________
+__  du
+
+     -a   files & dirs
+     -h   human readable
+     -s   an entry for each file (if dir doesn't go down, gives total)
+     -S   exclude size of subdirs (not present on Mac)
+
+
+     du -a /home            # biggest dir (from /home down)
+     du -a                  # biggest dir (from current dir)
+     du -h -s *             # all file & dirs (dirs are given as total without detailing nested trees)
+
+
+
+     .------------------------------------------------------------------------
+     |   du -ah | sort -n -r | head -n 5     # Find Biggest Files and Directories
+     '------------------------------------------------------------------------
 
 
 ____________________
@@ -2463,6 +2549,9 @@ if - is in place of a input file, means stdin
          convert -delay 2 -loop 0 *.png  -fuzz 5% -scale 160x90 -layers optimize lupin3.gif
 
          -fuzz is the real compression flag.  Values > 10% become too lossy.
+
+    3. mov to mp4:
+       ffmpeg -i pay.mov -vcodec h264 -acodec mp2 pay.mp4
 --------------------------------------------------- /tmp
 
 
@@ -3275,7 +3364,7 @@ parse JSON on command line:
 
       | jq .
                                  - must be installed
-                                 + There is also --sort-keys
+                                 + There is also --sort-keys (or -S) ex. jq -S '.'
                                  + colours (default or with explicit 'jq -C') or no colour 'jq -M' (Monochrome)
                                  - up to and including jq version 1.5) will alter the values of
                                    very large and very small numbers because it parses numeric

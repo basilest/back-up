@@ -1,6 +1,16 @@
 -------------------------------
      DNS
 -------------------------------
+sometimes on a Mac ther are errors of hostname resolutions:
+ex:
+
+   ssh: Could not resolve hostname chl-prod-bep4.ch.gov.uk: nodename nor servname provided, or not known
+
+fix:
+    sudo killall -HUP mDNSResponder
+-------------------------------
+     DNS
+-------------------------------
 
       DNS :   Domain Name System      ("It's the phone book of the Web")
 

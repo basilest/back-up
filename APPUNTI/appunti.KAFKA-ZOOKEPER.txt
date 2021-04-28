@@ -394,12 +394,15 @@ __________________________________________________  ZooKeeper   (Apache)
 _______________ Installation & Usage
 
 
-          CONFIG FILE         any name (ex conf/zoo.cfg)
+          CONFIG FILE         any name (ex conf/zoo.cfg)  #in our 3 AWS boxes is in /etc/zookeeper/conf.dist/zoo.cfg
                               example:
 
                                   tickTime=2000                             # heartbeats in ms
                                   dataDir=/var/lib/zookeeper                # location to store the in-memory database snapshots.
                                                                               In production, storage must be managed externally (not a different partition, but a different device)
+                                              #in our 3 AWS boxes is same
+                                                 # the directory where the snapshot is stored.
+                                                 dataDir=/var/lib/zookeeper
 
                                   clientPort=2181                           # port to listen for client connections
                                   maxClientCnxns=60

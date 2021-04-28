@@ -1,37 +1,67 @@
 
-     D                      .--------------------.
-                            |  Docker client     |      Docker CLI
-     O                      |                    |          ex. docker container run ....
-                            |  >                 |
-     C                      '--------------------'
-                                     |
-     K                               |
-                            .--------------------.
-     E                      |  Docker daemon     |      The REST CRUD API (over gRPC)
-                            |                    |          ex. it's on listening and receives the instructions
-     R                      '--------------------'              which are routed to containerd
-                                     |
-                                     |
-                            .--------------------.
-                            |  containerd        |     supervisor of the containers
-     E                      |                    |     Manages their lifecycle:
-                            '--------------------'     (start | stop | pause | .. )  (*1)
-     N              ___________/  |   . . .  \__________     ex. prepare the image to give to runc (which will CREATE the container)
-                   /              |                     \
-     G            /               |                      \
-            .----------.     .----------.            .----------.
-     I      |  shim    |     |  shim    |  . . .     |  shim    | enable daemonless containers
-            |          |     |          |            |          |
-     N      '----------'     '----------'            '----------'
-            .----------.     .----------.            .----------.
-     E      |  runc    |     |  runc    |  . . .     |  runc    | runtime code (of the container)  (*2)
-            |          |     |          |            |          | (interface to kernel primitives)
-            '----------'     '----------'            '----------'
+     docker & containers are high levels usage of
+     what was already available since evere in Linux with:
 
-            .----------.     .----------.            .----------.
-            |          |     |          |  . . .     |          |   CONTAINERS (RUNNING)
-            |          |     |          |            |          |
-            '----------'     '----------'            '----------'
+
+      1/2 Namespaces        are about ISOLATION
+                            having multi indipendent operating systems inside an hypervisor
+
+                            Linux namespaces                                .----.
+                                          Process ID                pid     | c  |<---- so a container
+                                          Network                   net     | o  |      has its own
+                                          Files system/mount        mnt     | n  |      root file system
+                                          Inter-proc comms          ipc     | t  |      network
+                                          UTS                       uts     | a  |      users
+                                          User                      user    | .  |      process tree
+                                                                            '----'      ...
+
+
+      2/2 Control Groups    are about grouping objects in setting limits
+                            so that different containers can share democratically
+                            the same resources:
+                                      tot disk each
+                                      tot CPU  each
+                                       ...
+
+
+
+
+                               > docker CLI              ex. docker container run ....
+                                     |
+        ------------------           |
+     D  |                   .--------------------.
+        |                   |       API          |       ex.  /containers/create
+     O  |                   |                    |
+        |                   '--------------------'
+     C  |                            |
+        |                            |
+     K  |                            |
+        |                   .--------------------.
+     E  |                   |  docker daemon     |      The REST CRUD API (over gRPC / unix socket)
+        |                   |                    |          ex. it's on listening and receives the instructions
+     R  |                   '--------------------'              which are routed to containerd
+        |                            |
+        |                            |
+        |                   .--------------------.
+        |                   |  containerd        |     supervisor of the containers
+     E  |                   |                    |     Manages their lifecycle:
+        |                   '--------------------'     (start | stop | pause | .. )  (*1)
+     N  |           ___________/  |   . . .  \__________     ex. prepare the image to give to runc (which will CREATE the container)
+        |          /              |                     \
+     G  |   ______/_______________|______________________\________________________________________________________________________
+        |   .----------.     .----------.            .----------.                                                 KERNEL SPACE
+     I  |   |  shim    |     |  shim    |  . . .     |  shim    | enable daemonless containers                    where
+        |   |          |     |          |            |          |                                                 the actual
+     N  |   '----------'     '----------'            '----------'                                                 containers
+        |   .----------.     .----------.            .----------.                                                      =
+     E  |   |  runc    |     |  runc    |  . . .     |  runc    | runtime code (of the container)  (*2)           distinct/ isolated
+        |   |          |     |          |            |          | (interface to kernel primitives)                resources
+        |   '----------'     '----------'            '----------'                                                 start
+        |
+        |   .----------.     .----------.            .----------.
+        |   |          |     |          |  . . .     |          |   CONTAINERS (RUNNING)
+        |   |          |     |          |            |          |
+        |   '----------'     '----------'            '----------'
 
 
         NOTE. The modular diagram of the DOCKER ENGINE allows to upgrade parts indipendently.
@@ -40,22 +70,27 @@
 
 
 
-         (*1)  containerd is light and small. I has basic functionalities to start / stop / pause
-               containers. Anyhow it's extensible, which means I can use it alone (light and reusable
+         (*1)  containerd is light and small. Basic functionalities to
+
+                         start / stop / pause CONTAINERS.
+
+               Anyhow it's extensible, which means I can use it alone (light and reusable
                for example in Kubernetes) or I can add features to manage more esaily images
                management like push and pull.
-               It doesn't CREATE containers. This task is in runc.
+
+                          It doesn't CREATE containers. This task is in runc.
+
                containerd forks 1 runc at every container CREATION.
 
 
          (*2)  runc is the implementation of Docker Inc of the 'Container runtime spec'
                which is the spec defined by OCI  (so runc is also called OCI layer)
-               It CREATEs containers (like child of itself, then it exits)
+               It CREATEs containers (like child of itself (fork), then it exits)
                When it exits the shim process becomes the parent of the container
 
          (*3)  As parent of the container, it can keep for example the STDIN / OUT opened even
                if the Docker daemon is upgraded. So pipes in the container are not affected.
-               It also report back to the Docker daemon the exit status of the container.
+               It also reports back to the Docker daemon the exit status of the container.
 
 
 --------------------------------------------------------------------------------
@@ -237,6 +272,15 @@ ________________________________________________________________________________
                     I cannot delete an image till some of its containers
                     are still running
 
+                   A container is also defined as:
+                   "Isolated area of an OS with resource usage limits applied"
+
+                   NOTE: I can have + containers running from the SAME image.
+                         They are indipendent. The image has a READONLY filesystem
+                         so when every container writes to the filesystem it writes
+                         in its own space, which will not saved back to the image
+                         when the container is closed.
+
       diff with VM:  VM               any VM includes its own full-blown OS
                      Containers       All containers on a single host share a single OS.
                                       This would mean that a containerized app designed
@@ -325,7 +369,7 @@ ________________________________________________________________________________
 
            Docker can manage the file systems of a container
            with a STORAGE DRIVER.
-           There are differnt in Linux (for Windoes only 1: windowsfilter)
+           There are differnt in Linux (for Windows only 1: windowsfilter)
                . aufs             (the original and oldest)
                . overlay2         (the best choice)
                . devicemapper
@@ -361,6 +405,134 @@ ________________________________________________________________________________
                           ...
 
 |__________________________________________________________________________________________________
+
+
+              R E G I S T R Y   /  R E P O  :  I M A G E  (called TAG)
+
+                     docker.io  /   redis   :  latest
+                     docker.io  /   nginx   :  1.13.5
+
+        If omitted REGISTRY: default "docker.io"
+        If omitted IMAGE   : default "latest"
+
+                     ex:
+                        docker image pull docker.io/redis:4.0.1
+
+           .-------------.
+           |    FAT      |  Give
+           |   MANIFEST  |  Linux     .-------------.      The pull
+           |             | -------->  |    IMAGE    |      retrieves
+           |  (also      |            |   MANIFEST  |      The proper version
+           |   MANIFEST  |            '-------------'      of the image
+           |   LIST)     |                                 according to
+           '-------------'                                 the docker client
+                   |                                       (e.g. Linux, ...)
+             {API} |
+                   |
+                   |
+                  pull
+
+        1 image = stack of + layers   PLUS  1 manifest file  (containing: - the list of layers (and their digest/hash) +
+                                                                          - env vars +
+                         ________ digest1     .-----.                     - exposed ports +
+                         ________ digest2     | txt |                       ...
+                         ________ digest3     '_____'        )
+                                               digest
+
+
+        - layer --> digest            Every layer has is digest/hash which specifies its autenticity
+
+        - the manifest --> digest     The image manifest has also its digest/hash,
+                                      so that the image as a whole is assured to be autentic
+                                      as all the layers digests are written inside
+                                      so if everything changes (layesr/vars/ports...)
+                                      the manifest digest changes too.
+
+                                      On my loval filesystsem the hashes are called
+                                                       CONTENT hashes
+                                      anyhow when the IMAGE is pushed to a a repo (and then pull down)
+                                      the IMAGE is compressed and it has new digest called
+                                                       DISTRIBUTION hashes
+
+        - Storage Driver              it's the one that manages this digest cryptography
+                                      of the layers behind the scenes.
+                                      I can see it with a
+                                          $ docker system info | grep -i storage
+
+                                                 Storage Driver: overlay2
+
+
+
+-----------------------------------------
+DOCKER FILE:
+                          . it's the list of instructions to build an image
+                          . it's the meeting point between devs & ops people
+                            as ops people can look at it and understand
+                            it's then the DOCUMENTATION of the app
+                          . it's a file named 'Dockerfile'  (1 word & Capital D)
+                          . it's a file at the app root dir
+                          . the list of instructions are in the form
+                                 KEY value
+                            where KEY are instruction keywords (like FROM)
+                            and are usually CAPITALIZED
+
+                            ex.
+                                   FROM alpine
+
+       KEYWORDS
+                     FROM  alpine                      the image to start from
+                     LABEL mantainer="stef"            document with metadata
+                     RUN   apk add --update ...        to execute commands inside the image
+                                                       and create 1 layer
+                     COPY  . /src                      copy files from local host dir to image file sys
+                                                       and create 1 layer
+                     WORKDIR /src                      set the current dir in the image on start
+                     EXPOSE  8080                      expose an image port (from the image net space)
+                                                       when the container will be launched:
+                                                              docker container run -d  --name anyname  -p host_port:8080  imageID
+                                                       I will choose an host port to map onto:
+                                                       which means I can reach the app from the host
+                                                       as
+                                                             " localhost : host_port "
+
+                     ENTRYPOINT ["node", "./app.js"]   start the app which has been the main reason of building the container
+                                                       NOTE: ./ means from current WORKDIR so = /src/app.js
+
+
+       docker build
+                     It created an Image(/tag) from a Dockerfile whose place is given as build arg:
+
+                     docker image build -t image_name   place_wher_Dockerfile_is
+                                                                  \
+                                                                   \_____docker image build -t xxxx  .     (the place is the local file sys / cur dir)
+                                                                         docker image build -t xxxx  https://github.com/..../repo.git  (the place is remote)
+
+
+       MULTI STAGE BUILD     they are when a Dockerfile has more FROM:
+
+                                        FROM ....                     <--- stage 1 (produces an image)
+                                              ..
+
+                                        FROM ....                     <--- stage 2 (produces an image)
+                                              ..
+
+                                        FROM ....                     <--- stage 3 (produces an image)
+                                              ..
+
+                             each FROM is a 'stage' creating an image.
+                             They are used when:
+
+                                1. every previous stage builds an image
+                                   with libraries of the filesystem and i.e. compiles something
+
+                                2. every stage can reference the others to get something
+                                   i.e. an artefact
+
+                                3. the last stage retrieves what it needs from the others
+                                   to generate the final desired target.
+                                   The benefit is that every other stages (=images) are big
+                                   while the last can be a small image containing only what needed.
+
 -----------------------------------------
 
       docker image ls                   to see all the images
@@ -1074,4 +1246,9 @@ ________________________________________________________________________________
                             proxy_pass http://localhost:8080;
                         }
                     }
+
+-------------------------------------- VIDEO
+
+
+
 

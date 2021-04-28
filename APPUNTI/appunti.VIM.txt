@@ -1,3 +1,16 @@
+------------------------------------------------------ vimdiff excluding spaces / blanks
+        set diffopt+=iwhite       <---- in ~/.vimrc
+                                        or from command line:   vimdiff -c 'set diffopt+=iwhite' ...
+
+
+                          To have vimdiff ignore whitespace while
+                          normal vim doesn't, simply put this into your .vimrc:
+
+                                        if &diff
+                                            " diff mode
+                                            set diffopt+=iwhite
+                                        endif
+
 ------------------------------------------------------ refresh not working highlight
 
 If VI doesn't paint the whole page when syntax constructs go back too far:

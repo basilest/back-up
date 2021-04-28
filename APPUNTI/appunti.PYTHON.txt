@@ -488,6 +488,11 @@ ________________________________________ pip
 
 
 pip:       modules (external) are usually managed by 'pip' which recursively means (pip install python)
+
+           to check if pip is installed:
+           python -m pip --version
+
+
            sudo apt-get install python-pip
 
            once pip is installed, you can install modules:

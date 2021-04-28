@@ -144,11 +144,11 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
                  Yes/No
 
                     X knows then what is what.
-                    If X denys, then google will redirect the URL to yelp.com/callback with
+                    If X denies, then google will redirect the URL to yelp.com/callback with
                     something like:
                               <------ https://yelp.com/callback?
                                            error=access_denied&
-                                           error_desc='user did not conset'
+                                           error_desc='user did not consent'
 
 
                     if X accepts, then google will redirect the URL to yelp.com/callback
