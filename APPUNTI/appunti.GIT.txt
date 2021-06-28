@@ -937,9 +937,21 @@ NOTATIONS:
   |                                                            #                              (white)
   |                                                            #                              (magenta)
   |                                                            # ex.
-  |                                                            #         git log --date=short --pretty="%Cgreen%h%Creset ( %ad ) - %C(Yellow)%an%Creset   [%C(cyan)%s%Creset]"
+  |          Note the colors --->                              #         git log --date=short --pretty="%Cgreen%h%Creset ( %ad ) - %C(Yellow)%an%Creset   [%C(cyan)%s%Creset]"
+  |                                                            #
+  |                                                            #   following sort all the branches showing last commit
+  |          Note the colors --->                              #         git for-each-ref --sort=committerdate refs/heads/
+  |                                                            #                          --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) -
+  |                                                            #                                    %(color:red)%(objectname:short)%(color:reset) -
+  |                                                            #                                    %(contents:subject) -
+  |                                                            #                                    %(authorname)
+  |                                                            #                                   (%(color:green)%(committerdate:relative)%(color:reset))'
+  |                                                            #
+  |                                                            #
   | git log --oneline --decorate                               # to see where branches point to
   | git log --oneline --decorate --graph --all                 #
+  | git log --tags                                             # it shows the tags (refs/tags) as if they were commits. This can help to see the tags time
+  |                                                            #    $git log --tags --simplify-by-decoration --pretty="format:%ai %d"
   |                                                            #
   | git commit                                                 # opens the editor defined by $EDITOR or
   |                                                            #                      by git config --global core.editor

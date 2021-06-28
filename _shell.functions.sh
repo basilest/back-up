@@ -8,6 +8,143 @@
     F_FG_WHITE="$(tput setaf 7)"
     F_RESET="$(tput sgr0)"
     F_BOLD="$(tput bold)"
+
+function print_coloured  {
+    local col_fg=$2
+    local col_bg=$3
+    local bold=$4
+    echo "${col_fg}${col_bg}${bold}$1${F_RESET}"
+}
+function eval_cmd {
+    echo "$1"
+    eval "$1"
+}
+function exec_ewf_db {
+    printf "executing SQL command[\n$1\n]=====>[y/-] ? "
+    read  ok
+    if [[ $ok == 'y' ]]; then
+    EWF_SQL_RESULT=$(sqlplus -S ewf/br1e@ewfdb.live.heritage.aws.internal:1521/EWF <<EOF
+    $1
+EOF
+)
+    fi
+}
+function pay_sql_cmds {
+    local sql=''
+    if [[ "$1" == "CUST" ]]; then
+    sql="SELECT CUSTOMERID, CUSTOMERVERSION FROM (SELECT * FROM CUSTOMER WHERE LOWER(EMAIL) = '$2' order by CUSTOMERVERSION desc) where rownum = 1;"
+    elif [[ $1 == "CHECK" ]]; then
+    sql="SELECT SUBMISSIONNUMBER, STATUS, FORMTYPE, DATAID, ORDDTETME, CUSTID, CUSTVERSION FROM FORMHEADER WHERE SUBMISSIONNUMBER in ($2);"
+    elif [[ $1 == "INSERT" ]]; then
+    sql=$(cat <<EOF
+INSERT into FORMHEADER (SUBMISSIONNUMBER, STATUS, FORMTYPE, PAYMENTMETHOD,
+    PAYMENTREFERENCE, DATAID, ORDDTETME, CONUMB,
+    CUSTID, CUSTVERSION, AUTHDESIGNATION, STATUSTEXT,
+    COPYDOCTYPECV, AUTHID, DOCUMENTID, LANGUAGE,
+    PACKAGEREF, COMPANYCATEGORY, ATTACHMENTID, RESPONSECOUNT, delind
+  )
+  VALUES
+  (
+    '$3', '1', '10801', '2',
+    '$2', '0', TO_DATE('$4', 'YYYY-MM-DD HH24:MI:SS'), '99999999',
+    '$5', '$6', '0', 'Accept/Reject Email Sent',
+    '0', '000000', '0', 'en',
+    '2', '1', '0', '1', 'N'
+  );
+  COMMIT;
+EOF
+)
+    fi
+    if [[ ! -z "$sql" ]]; then
+        exec_ewf_db "$sql"
+        echo "$EWF_SQL_RESULT"
+    fi
+}
+function pay {
+    local choices=('init' 'check in formheader' 'INSERT'  'quit')
+    while true; do
+        select choice in "${choices[@]}"; do
+        case $choice in
+            'init')
+                printf "copy/paste from Barclays ex:\n4816135675667498 48276108|072-545974|99999999 CompaniesHouseWebfiling 2021-02-17 13:12:54 GMT 12.00 GBP visa visa RefundedExternally 0 info@akhanaccountants.co.uk\n"
+                read  cmd
+                local cmd="\$in='$cmd';@a=split(/\s+/,\$in);"
+                cmd="$cmd"'if ($a[1]=~/(\d+)-(\d+)/) {$s1=$1;$s2=$2;$a[1]="$s1-$s2";for($i=-2,$s2+=$i;$i<3;$i++,$s2++){push(@sl,sprintf("\047%03d-%06d\047",$s1,$s2));} $L=join(",",@sl); }'
+                cmd="$cmd"'print "$a[0]|$a[1]|$L|$a[3] $a[4]|$a[12]\n"'   # print desired fields separated by a |
+                local oldifs=$IFS; IFS='|'                                # source them in bash
+                perl -e "$cmd" | read psp subm subm_list dtime email
+                IFS=$oldifs
+                pay_sql_cmds 'CUST' "$email"
+                echo "$EWF_SQL_RESULT" | sed -n '/[^0-9]*[0-9][0-9]*[^0-9][^0-9]*[0-9][0-9]*/ p;' | read cust_id cust_ver
+                printf "PSP:$psp\nSUBM:\t\t$subm\nSUBM LIST:\t$subm_list\nDATE TIME:\t$dtime\nEMAIL:\t\t$email\nCUST ID:\t$cust_id\nCUST VER:\t$cust_ver\n"
+                break ;;
+            'check in formheader')
+                pay_sql_cmds 'CHECK' "$subm_list"
+                break ;;
+            'INSERT')
+                pay_sql_cmds 'INSERT' $psp $subm "$dtime" $cust_id $cust_ver
+                break ;;
+            'quit')
+                return
+                break ;;
+            *) echo invalid option;;
+        esac
+        done
+    done
+}
+#function pay {
+#    local psp=$1
+#    local subm=$2
+#    local dtime=$3
+#    local custid=$4
+#    local custv=$5
+#    local sub_list=$(subm $subm);
+#    cat <<EOF
+#SELECT SUBMISSIONNUMBER, STATUS, FORMTYPE, DATAID, ORDDTETME, CUSTID, CUSTVERSION
+#FROM FORMHEADER
+#WHERE SUBMISSIONNUMBER in ( $sub_list );
+#
+#INSERT into FORMHEADER
+#  (
+#    SUBMISSIONNUMBER, STATUS, FORMTYPE, PAYMENTMETHOD,
+#    PAYMENTREFERENCE, DATAID, ORDDTETME, CONUMB,
+#    CUSTID, CUSTVERSION, AUTHDESIGNATION, STATUSTEXT,
+#    COPYDOCTYPECV, AUTHID, DOCUMENTID, LANGUAGE,
+#    PACKAGEREF, COMPANYCATEGORY, ATTACHMENTID, RESPONSECOUNT, delind
+#  )
+#  VALUES
+#  (
+#    '$subm', '1', '10801', '2',
+#    '$psp', '0', TO_DATE('$dtime', 'YYYY-MM-DD HH24:MI:SS'), '99999999',
+#    '$custid', '$custv', '0', 'Accept/Reject Email Sent',
+#    '0', '000000', '0', 'en',
+#    '2', '1', '0', '1', 'N'
+#  )
+#EOF
+#}
+#function subm {
+#    local cmd="perl -e '"'$s="'$1'";if($s=~/(\d+)-(\d+)/){$s1=$1;$s2=$2; my $c;for($i=-2,$s2+=$i;$i<3;$i++,$s2++){printf ("%s\047%03d-%06d\047",$c,$s1,$s2);$c="\054"}}'"'"
+#    eval $cmd
+#}
+function res {
+   local restart=$1
+   if [[ ! -z $restart ]]; then restart='-r'; fi
+   #           'mesos-master1-stagblue.staging.aws.internal:8080' \
+   #           'mesos-master1-liveblue.live.aws.internal:8080' \
+   local envs=( \
+               'mesos-master1.live.aws.internal:8080' \
+               'mesos-master1-livesbox.live.aws.internal:8080' \
+               'mesos-master1.staging.aws.internal:8080' \
+               'mesos-master1-stagsbox.staging.aws.internal:8080' \
+              );
+   select env in "${envs[@]}"; do break;  done
+   printf "specify an optional (comma separated) list: "
+   read list
+   if [[ ! -z $list ]]; then list="-l $list"; fi
+   local cmd="./restart-app.pl -a $FESS_AUTH_MESOS_TOKEN -u $env $list $restart"
+   cd "${FESS_REPO_DIR}/restart-app"
+   eval_cmd $cmd
+}
 #________________________ <new settings for CHS on AWS>
 # this sources chtf to manage different version of Terraform (ex. chtf  0.8.8)
 
@@ -20,14 +157,14 @@
 #tfenv use 0.8.8      # uncomment when you need
 #</NEW SETTINGS> tfenv
 
-# Source chtf   --- terraform versions changer
+#Source chtf   --- terraform versions changer
 if [[ -f /usr/local/share/chtf/chtf.sh ]]; then
     source "/usr/local/share/chtf/chtf.sh"
 fi
 
-function ffh  { print -z $( fc -l 1 | awk '{$1=""}1' |fzf  ) }
-function ffv  { vi -o $( fzf -m ) }
-function ffga { git add $( git status -s | fzf -m | sed 's/^...//' ) }
+function ffh  { print -z $( fc -l 1 | awk '{$1=""}1' |fzf  ); }
+function ffv  { vi -o $( fzf -m ); }
+function ffga { git add $( git status -s | fzf -m | sed 's/^...//' ); }
 
 
 function awsenv () {
@@ -62,16 +199,24 @@ function rebuild_python_virt_envs () {
     echo 'deactivate'
     echo 'rmvirtualenv' "$VENV"
     echo 'mkvirtualenv' "$VENV"
+    echo 'check that both pip & pip3 are update on your system:'
+    echo '-----pip:  /usr/local/bin/python3 -m pip install --upgrade pip'
+    echo '-----pip3: pip3 install --upgrade pip'
+    echo 'python -m pip install --upgrade pip'
     echo 'pip3 install awscli --upgrade'
-    echo 'pip3 install boto3'
 
-    VENV='aws-cli-on.python.3'
+    VENV='aws-cli1-on.python.3'
     echo 'deactivate'
     echo 'rmvirtualenv' "$VENV"
     echo '/usr/local/bin/python3 --version'         # Python 3.7.6
     echo 'mkvirtualenv --python=/usr/local/bin/python3' "$VENV"
-    echo 'pip3 install awscli --upgrade'
+    echo 'python --version'
+    echo 'python -m pip install --upgrade pip'
+    echo 'which pip3'
+    echo 'pip3 install --upgrade pip'
     echo 'pip3 install boto3'
+    echo 'pip3 install botocore'
+    echo 'pip3 install awscli --upgrade'
 
 }
 
@@ -415,6 +560,9 @@ function ch {
     elif [[ $2 == "remcmd" ]] # release CMD
     then
         ch_legacySystems_cmd "${@:3}"
+    elif [[ $2 == "codes" ]] # codes for CHL
+    then
+        chl_codes "${@:3}"
     fi
 }
 
@@ -508,22 +656,58 @@ function as {
 #______________________________________
 function set_AWS_context {
     AWS_ENV_TYPE=$1
+    AWS_ENV_GIT=$1
+    AWS_BASIC_DOMAIN=''
     AWS_LOCAL_DIR_CONFIG="${HOME}/SUP/AWS_CONFIGS"
+    AWS_LOCAL_SUBDIR_CONFIG=$1
+    AWS_LOCAL_EC2_ENV_TYPE='live'
     if [[ $1 == "l" ]]
     then
         AWS_ENV_TYPE="live"
         AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/live/"
         AWS_MONGO_PASS=m0ng0pr0dadm1n
+    elif [[ $1 == "lb" ]]
+    then
+        AWS_ENV_TYPE="liveblue"
+        AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/liveblue/"
+        AWS_MONGO_PASS=m0ng0pr0dadm1n
+        AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.live"
+    elif [[ $1 == "lx" ]]
+    then
+        AWS_ENV_TYPE="livesbox"
+        AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/livesbox/"
+        AWS_MONGO_PASS=m0ng0pr0dadm1n
+        AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.live"
     elif [[ $1 == "s" ]]
     then
         AWS_ENV_TYPE="staging"
+        AWS_LOCAL_EC2_ENV_TYPE='staging'
         AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/staging/"
         AWS_MONGO_PASS=m0ng0adm1n
+    elif [[ $1 == "sb" ]]
+    then
+        AWS_LOCAL_EC2_ENV_TYPE='staging'
+        AWS_ENV_TYPE="stagblue"
+        AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/stagblue/"
+        AWS_MONGO_PASS=m0ng0adm1n
+        AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.staging"
+    elif [[ $1 == "sx" ]]
+    then
+        AWS_LOCAL_EC2_ENV_TYPE='staging'
+        AWS_ENV_TYPE="stagsbox"
+        AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
+        AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/stagsbox/"
+        AWS_MONGO_PASS=m0ng0adm1n
+        AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.staging"
     elif [[ $1 == "b" ]]
     then
-        AWS_ENV_TYPE="bulk-live"
+        AWS_ENV_TYPE="bulk.live"
+        AWS_ENV_GIT=$AWS_ENV_TYPE
         AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/bulk_live/"
     elif [[ $1 == "i" ]]
@@ -537,16 +721,33 @@ function set_AWS_context {
         AWS_S3_DIR_RELEASE="release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG=""
     fi
+    if [[ -z $AWS_BASIC_DOMAIN ]]; then
+        AWS_BASIC_DOMAIN=${AWS_ENV_TYPE}
+    fi
     AWS_ENV_KEY="${HOME}/.ssh/ch-aws-${AWS_ENV_TYPE}.pem"
+    AWS_LOCAL_EC2_DESCRIBE="${AWS_LOCAL_DIR_CONFIG}/${AWS_LOCAL_SUBDIR_CONFIG}/ec2.${AWS_LOCAL_EC2_ENV_TYPE}.describe.json"
+}
+#______________________________________
+function aws_is_type {
+    local is_type=$(printf ${AWS_ENV_TYPE} | egrep -ci "$1" )
+    printf $is_type
+}
+#______________________________________
+function aws_domain_sep {
+    local sep='.'
+    local is_blue_box=$(aws_is_type 'blue|box')
+    if [[ $is_blue_box -ne 0 ]]; then sep='-' ; fi
+    printf $sep
 }
 #______________________________________
 function aws_boxes_ips {
     local box_name=${1}
     local start=${2}
     local end=${3}
+    local sep=$(aws_domain_sep);
     for s in `seq $start $end`
     do
-      local box="mesos-${box_name}${s}.${AWS_ENV_TYPE}.aws.internal"
+      local box="mesos-${box_name}${s}${sep}${AWS_BASIC_DOMAIN}.aws.internal"
       local box_ip=$( nslookup ${box} | tail -2 | sed -n '/ddress/ {s/[^0-9\.]*//;h;}; $ {x;p;}' )
       echo "${box}|${box_ip}"
     done
@@ -555,8 +756,14 @@ function aws_boxes_ips {
 function aws_box_info {
     local start=${1:-1}
     #local end=${2:-`echo $start`}
-    local end=${2:-18}
-    aws_boxes_ips 'master' 1 3
+    local end=${2:-24}
+    if [[ ! -z $INCLUDE_MASTERS ]]; then
+        local max_masters=3
+        if [[ $AWS_ENV_TYPE == "bulk.live" ]]; then
+            max_masters=1
+        fi
+        aws_boxes_ips 'master' 1 $max_masters
+    fi
     aws_boxes_ips 'slave'  $start $end
 }
 #______________________________________
@@ -580,7 +787,12 @@ function aws_rcmd {
     do
         ip=$(echo $box | sed -e 's/[^|]*|//' )
         echo "${col_start}-------------------------[$box]${col_end}"
-        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@$ip "$cmd"
+        if [[ -z $ip ]]
+        then
+            echo "--------- [ip] currently NULL"
+        else
+            ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@$ip "$cmd"
+        fi
     done
 }
 #______________________________________
@@ -641,15 +853,15 @@ function aws_s3 {
 
     elif [[ $1 == "config" ]]
     then
-        cd $AWS_LOCAL_DIR_CONFIG/$AWS_ENV_TYPE
+        cd $AWS_LOCAL_DIR_CONFIG/$AWS_ENV_GIT
         if [[ $2 == "pull" ]]
         then
             aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG . --recursive
-            cd $AWS_ENV_TYPE
+            #cd $AWS_ENV_GIT
             git status
         elif [[ $2 == "push" ]]
         then
-            local files_changed=$(git status --porcelain)
+            local files_changed=$(git status --porcelain | grep -v describe.json)
             echo "files changed:\n$files_changed"
             if [[ $files_changed ]]
             then
@@ -657,12 +869,15 @@ function aws_s3 {
                 read  ok_to_push
                 if [[ "$ok_to_push" = "y" ]]
                 then
-                    for f in $( echo $files_changed| awk '{print $2}')
+                    for f in $( echo "$files_changed"| awk '{print $2}')
                     do
-                        aws --profile $AWS_ENV_TYPE s3 cp $f s3://${AWS_S3_DIR_CONFIG}${f}
+                        echo aws --profile $AWS_ENV_TYPE s3 cp $f s3://${AWS_S3_DIR_CONFIG}${f}
                     done
                 fi
             fi
+        elif [[ $2 == "status" ]]
+        then
+            for d in s sb sx l lb lx; do local fullp=$AWS_LOCAL_DIR_CONFIG/$d; cd $fullp; print_coloured $fullp $F_FG_GREEN; git status; done
         fi
     fi
     echo "_______________________"
@@ -671,22 +886,26 @@ function aws_s3 {
 }
 #______________________________________
 function aws_restart_Mesos_Marathon {
+    local cmd=$1   # stop / start
     local ok=
-    if [[ ${AWS_ENV_TYPE} != 'staging' ]]
-    then
-        for i in 1 2
-        do
-            echo "Restarting on ${AWS_ENV_TYPE} ??? Are you sure ???  [yes/-]  (remind $i of 2)"
-            read  ok
-            if [[ $ok != 'yes' ]]
-            then
-                return
-            fi
-        done
-    fi
+    local sep=$(aws_domain_sep);
+    #if [[ ${AWS_ENV_TYPE} != 'staging' ]]
+    #then
+    #    for i in 1 2
+    #    do
+    #        echo "Restarting on ${AWS_ENV_TYPE} ??? Are you sure ???  [yes/-]  (remind $i of 2)"
+    #        read  ok
+    #        if [[ $ok != 'yes' ]]
+    #        then
+    #            return
+    #        fi
+    #    done
+    #fi
     for i in 1 2 3
     do
-        ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}.${AWS_ENV_TYPE}.aws.internal 'sudo stop mesos-master;sudo stop marathon;sudo start mesos-master;sudo start marathon'
+      #ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal 'sudo stop mesos-master;sudo stop marathon;sudo start mesos-master;sudo start marathon'
+     #  ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal 'sudo stop mesos-master;sudo stop marathon'
+      ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal "sudo $cmd mesos-master;sudo $cmd marathon"
     done
 }
 #______________________________________
@@ -694,12 +913,28 @@ function aws_marathon_rest_api_old {
     if [[ -z $1  || $1 == "ls" ]]
     then
         local perl_script='$s; $l=$ARGV[0]; %k=map{$_ => 1} (split (/ /,$ARGV[0])); while (<STDIN>) { (($l eq "ALL") && (print)) || (/"id"[^:]*:(.*)/ && (print "$s\n") && ($s=" $1")) || ($_ =~ /"([^"]+)"[^:]*:(.*)/ && (exists $k{$1}) && ($s.=" [$1] $2") ); } print "$s\n";'
-        curl -X GET --netrc-file ${HOME}/_shell.curl.sh http://mesos-master1.${AWS_ENV_TYPE}.aws.internal:8080/v2/apps | jq '.' | perl -e "$perl_script" "$2" | sort | nl
+        curl -X GET --netrc-file ${HOME}/_shell.curl.sh http://mesos-master1.${AWS_BASIC_DOMAIN}.aws.internal:8080/v2/apps | jq '.' | perl -e "$perl_script" "$2" | sort | nl
     fi
 }
 #______________________________________
 function aws_marathon_rest_api {
     ${HOME}/SUP/fes-administration-scripts/restart-app/restart-app.pl -e ${AWS_ENV_TYPE} "$@"
+}
+#______________________________________
+function aws_ssh_kafka_brokers {
+    select box in $(for k in '' -streaming; do for i in 1 2 3; do echo "kafka${k}-broker${i}.${AWS_ENV_TYPE}.aws.internal"; done; done)
+    do
+        local user='ec2-user'; echo $box | grep -c stream && user=centos
+        ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 $user@$box
+        break;
+    done
+}
+#______________________________________
+function aws_restart_Broker {
+    echo "restarting broker $1:";
+    local cmd='sudo service confluent-kafka'
+    cmd="ssh -i $AWS_ENV_KEY centos@kafka-streaming-broker${1}.${AWS_ENV_TYPE}.aws.internal '$cmd stop; sleep 2; $cmd start'"
+    echo "$cmd" && eval "$cmd"
 }
 #______________________________________
 function aws_trans_processing_find {
@@ -709,7 +944,7 @@ function aws_trans_processing_find {
 #______________________________________
 function aws_trans_processing {
   local MONGO_HOST=mongo-db1.${AWS_ENV_TYPE}.aws.internal:27017
-  local SLAVE=ec2-user@mesos-slave2.${AWS_ENV_TYPE}.aws.internal
+  local SLAVE=ec2-user@mesos-slave2.${AWS_BASIC_DOMAIN}.aws.internal
 
   local CMD="mongo  --host $MONGO_HOST --authenticationDatabase admin -u admin -p $AWS_MONGO_PASS --eval 'db=db.getSiblingDB(\"transactions\"); printjson(db.getCollection(\"transactions\").find({ \$and : [{\"data.filings\": { \$exists: true}},{ \$where : function() { return (this.data.filings[this._id + \"-1\"].status == \"processing\") }}] },{_id:1}).toArray())'"
 
@@ -722,7 +957,66 @@ function aws_trans_processing {
   comm -12 stuck1 stuck2
 }
 #______________________________________
+function aws_trans_reprocess {
+    local SLAVE=$1   #it should be the SLAVE where transactions.api is running"
+    if [[ -z "$SLAVE" ]]
+    then
+        aws_rcmd 'ps aux | grep transactions.api | egrep -o "port=[0-9][0-9]*"'
+    else
+        local PORT=$2 #it should be the PORT  where transactions.api is running
+        local STUCK_FILE=$3
+        local LIST=$(sed -n 's/.*_id[" :]*\([^"]*\).*/\1/ p;' < $STUCK_FILE)
+        echo "SLAVE=$1"
+        echo "PORT=$2"
+        echo "STUCK_FILE=$3"
+        echo  "reprocess [y/n]? "
+        read  go_ok
+        if [[ "$go_ok" = "y" ]]
+        then
+            ssh -i ~/.ssh/ch-aws-live.pem ec2-user@mesos-slave${SLAVE}.live.aws.internal "echo \"$LIST\""'|while IFS= read -r t ; do echo $t; curl -v -XPOST '"http://localhost:$PORT/private/transactions/"'$t/reprocess; echo; echo done; sleep 10; done'
+        fi
+    fi
+}
+#______________________________________
+function aws_ec2 {
+    local cmd=''
+    if [[ $1 == "pull" ]]
+    then
+        cmd="aws --profile $AWS_LOCAL_EC2_ENV_TYPE ec2 describe-instances > $AWS_LOCAL_EC2_DESCRIBE"
+    elif [[ $1 == "h" ]]
+    then
+        cmd="cat $AWS_LOCAL_EC2_DESCRIBE | jq -r '.Reservations[].Instances[0] | .Tags[] | select(.Key == \"HostName\") | .Value'"
+        for i in "${@:2}"; do cmd="$cmd | grep -i $i"; done
+        cmd="$cmd | nl; echo ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@"
+    elif [[ $1 == "s" ]]
+    then
+        cmd="aws --profile $AWS_LOCAL_EC2_ENV_TYPE ec2 describe-instances --query 'Reservations[*].Instances[].{ID:InstanceId,ST:State.Name,HOST:(Tags[?Key=="'`HostName`'"].Value)[0]} | [? @.HOST != null] | sort_by(@, &HOST)' --output table"
+    fi
+    eval_cmd "$cmd"
+}
+#______________________________________
+function aws_sqs {
+    local base='aws --profile live sqs get-queue-attributes --attribute-names All --queue-url'
+    for tag in '' '-dead-letter'; do
+        local cmd="$base https://eu-west-2.queue.amazonaws.com/449229032822/efs-document-processor-live${tag}-queue.fifo"
+        eval_cmd "$cmd"
+    done
+}
+#______________________________________
 function myaws {   # support aws  (aws alone is already the https://aws.amazon.com/cli/)
+    INCLUDE_MASTERS=''
+
+    OPTIND=1         # Reset in case getopts has been used previously in the shell.
+    while getopts "m" opt; do
+        case "$opt" in
+        m)  INCLUDE_MASTERS=1
+            ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+    [ "${1:-}" = "--" ] && shift
+
     set_AWS_context $1
     if [[ -z $2  ]]
     then
@@ -730,11 +1024,11 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
         return
     elif [[ $2 == "ip" ]]
     then
-        echo "______ [start[1]] [end[18]]"
+        echo "______ [start:1] [end:24]"
         aws_box_info  "${@:3}" | nl -v 0 -n rn
     elif [[ $2 == "ssh" ]]
     then
-        echo "______ [start[1]] [end[18]]"
+        echo "______ [start:1] [end:24]"
         aws_ssh "${@:3}"
     elif [[ $2 == "s3" ]]
     then
@@ -750,10 +1044,10 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
         aws_rcmd 'iostat -y -h -c' "${@:3}"
     elif [[ $2 == "cmdapps" ]]
     then
-        aws_rcmd "ps -ef | grep executors | grep -v mesos-logrotate-logger | sed -n -e '/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}' | sort | nl" "${@:3}"
+        aws_rcmd "ps -ef | grep mesos-logrotate-logger  | grep stdout | sed -n -e '/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}' | sort | nl" "${@:3}"
     elif [[ $2 == "cmddir" ]]
     then
-        cmd='for L in $(ps -ef | grep executors | grep -v mesos-logrotate-logger | sed -n -e "s|.*\(/var/mesos/slaves/[^ ]*\) .*|\1|p;" ); do d=$(echo $L | sed -n -e "s|\(.*/runs/[^/]*/\).*|\1|p;"); f=$( echo $d | sed -n -e "/\/executors\// {s|.*/executors/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*/.*|\1|; p;}"); printf "\n-----------$f:\n\n"; out=$(cd $d;'"$3"'); printf "$out\n"; done'
+       cmd='for d in $(ps -ef | grep mesos-logrotate-logger  | grep stdout | sed -n -e "s/.*=\(\/.*\)\/stdout.*/\1/p;" ); do f=$( echo $d | sed -n -e "/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}"); printf "\n-----------$f:\n\n"; cd $d;'"$3"'; echo ""; done'
 
         aws_rcmd "$cmd"  "${@:4}"
     elif [[ $2 == "xxx" ]]
@@ -761,13 +1055,31 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
         aws_output_rcmd "top -b -n 1 -c" "${@:3}"
     elif [[ $2 == "restartMM" ]]
     then
-        aws_restart_Mesos_Marathon
+        aws_restart_Mesos_Marathon "${@:3}"
     elif [[ $2 == "restartApps" ]]  # (Mesos) Marathon REST API
     then
         aws_marathon_rest_api "${@:3}"
+    elif [[ $2 == "ssh_kafka_brokers" ]]  # ssh to kafka brokers
+    then
+        aws_ssh_kafka_brokers "${@:3}"
+    elif [[ $2 == "restartStreamBroker" ]]  # restart streaming brokers
+    then
+        aws_restart_Broker "${@:3}"
     elif [[ $2 == "trans_processing" ]]  # find stuck 'processing' transactions
     then
         aws_trans_processing "${@:3}"
+    elif [[ $2 == "trans_reproc" ]]  # reprocess stuck transactions
+    then
+        aws_trans_reprocess "${@:3}"
+    elif [[ $2 == "ec2" ]]  # ec2 instances
+    then
+        aws_ec2 "${@:3}"
+    elif [[ $2 == "sqs" ]]  # ec2 instances
+    then
+        aws_sqs "${@:3}"
+    elif [[ $2 == "inj" ]]  # inject temp AWS credentials/token
+    then
+        vi -c/"[$AWS_ENV_TYPE" ~/.aws/credentials
     fi
 }
 #______________________________________
@@ -810,6 +1122,7 @@ function get_connection_param_value {
     echo $1| grep -w $2 | awk '{print $2}'
 }
 #______________________________________
+#______________________________________
 function ch_legacySystems_cmd {
     local tag=$1
     local system=$2
@@ -817,6 +1130,7 @@ function ch_legacySystems_cmd {
     local start_num=$4
     local end_num=$5
     local cmd=$6
+    local first_cmd_arg=$7
 
     if [[ "$end_num" = "-" ]]
     then
@@ -826,12 +1140,35 @@ function ch_legacySystems_cmd {
 
     if [[ "$cmd" = "cronout" ]]
     then
-        cmd='STR="sb"; crontab -l | sed -e "s/^/#$STR/" > crontab.bk; crontab crontab.bk;'
-    elif [[ "$cmd" = "cronin" ]]
-    then
-        cmd='STR="sb"; crontab -l | sed -e "s/^#$STR//" > crontab.bk; crontab crontab.bk;'
+        local weekday=$(date +%u)
+        local cmd="crontab -l > crontab.stef.IN; sed  '/^ *[^#].* $weekday .*formPartition.sh/{s/^/#stef/;}' < crontab.stef.IN > crontab.stef.OUT; diff crontab.stef.*"
+        #cmd='STR="sb"; crontab -l | sed -e "s/^/#$STR/" > crontab.bk; crontab crontab.bk;'
+    #elif [[ "$cmd" = "cronin" ]]
+    #then
+    #    cmd='STR="sb"; crontab -l | sed -e "s/^#$STR//" > crontab.bk; crontab crontab.bk;'
     fi
         echo "$end_num $tag $system $sub_sys $start_num $end_num $cmd"
+
+    if [[ "$cmd" = "dumpConfigsSections" ]]
+    then
+        local configFile='EWF'
+        configFile="${configFile}Config"
+    perlcmd=$(cat <<EOF
+use vars qw(%c);
+use My::${configFile};
+use vars qw(%c);
+*c = \%My::${configFile}::c;
+use Data::Dumper;
+my @sections = split (/,/,"$first_cmd_arg");
+@sections = qw /accessuserdatabase bcddatabase codatabase comdatabase commondb esdatabase ewfstatdb sessiondb xmlstatdb/ if ! @sections;
+
+for (@sections) {
+print "-----------[\$_]:\n",Dumper \$c{\$_}, "\n";
+}
+EOF
+)
+        cmd="perl -I config -e '$perlcmd'"
+    fi
 
     for i in $( seq $start_num $end_num)
     do
@@ -846,6 +1183,21 @@ function ch_legacySystems_cmd {
             sshpass -p $pass ssh -oStrictHostKeyChecking=no  $user@$host "$cmd"
         fi
     done
+}
+#______________________________________
+function chl_codes {
+    local key=$1
+    local source="$CHL_HOME/chl-perl"
+    local cv_file='websystems/MODULES/CommonDB/CVConstants.pm'
+
+    cd $source
+    if [[ -z "$key" ]]
+    then
+        cat $cv_file | sed -n -e '/%defs/,/;/{ s/\([^=]*\)=>[^{]*{/\1/p;}'
+        echo 'Choose 1 of the keys [common choices: CSTAT DSTAT FORMTYPE ]'
+    else
+        perl -I $source/websystems/MODULES/ -e 'use CommonDB::CVConstants; use Data::Dumper;$h=get_defs('$key'); print Dumper $h'
+    fi
 }
 #______________________________________
 function ch_tux_send {

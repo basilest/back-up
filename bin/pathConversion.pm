@@ -15,8 +15,8 @@ my @base_dirs = ("$base_root/lib/", "$base_root/local/lib/perl5/", "$base_root/l
 
 my %dirs = (
      CHL => {
-         #root => "$home/CHL/chl-perl/",
-        root => "$home/CHL/chl-perl.v1.96.0-rc2/",
+         root => "$home/CHL/chl-perl/",
+        #root => "$home/CHL/chl-perl.v1.96.0-rc2/",
         dirs => [
                   "websystems/MODULES/"
                 ]

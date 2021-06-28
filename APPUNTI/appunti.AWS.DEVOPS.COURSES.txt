@@ -1,0 +1,1253 @@
+
+   REQUIRED
+       1 AWS Cloud Compute
+       2 AWS Operations
+       3 AWS - Application Development
+
+   OPTIONAL
+       4 AWS Networking
+       5 AWS Cloud Security
+---------------------------------------------------------   1
+
+       1 AWS Cloud Compute
+         (https://app.pluralsight.com/paths/skill/aws-compute)
+
+
+-------------------------  1/1-4
+Beginner·1h 17m·Apr 6, 2020
+       Managing AWS EC2 Instances
+       Armen Avanesi
+
+    _____________________________
+    . Introduction  (1m 9s)
+    _____________________________
+
+
+     EC2 : - types
+           - pricing
+           - use cases
+
+     AMI : Amazon Machine Images
+           (ex. Amazon Linux 2 ....)
+           They are templates containing the SW config.
+           (OS + application server + applications)
+           required to launch your EC2
+
+     Placement Groups
+
+
+    _____________________________
+    . On-demand Instances  (4m 44s)
+    _____________________________
+
+     Pay as you go model
+
+     No contracts  (I can start at any time
+                    and I will be billed only for that)
+
+     Use cases   Experiment
+                 Workload not sure/unknown
+
+     This flexibility comes at a higher cost
+
+     KEY CONCEPTS:
+
+        . Availability Zones  [AZ] = (1 or more data center in 1 region)
+          ^^^^^^^^^^^^^^^^^^
+
+                   (region)                    (region)
+                  us-east-1                   eu-west-2
+              .---------------.           .---------------.
+              |               |           |               |
+              |   AZ --- AZ   |           |   AZ --- AZ   |
+              |    \    /     |           |    \    /     |
+              |     \  /      |           |     \  /      |
+              |      AZ       |           |      AZ       |
+              '---------------'           '---------------'
+
+                   . regions are completely ISOLATED from each other
+                       - fault tolerant: any happening in 1 region
+                         doesn't affect the others
+
+                   . AZ are completely ISOLATED from each other too
+
+                   . EC2 belongs to 1 region, so I can only see them
+                     in the AWS console if I'm logged in that region
+
+
+
+        . Instance Types:  specify the Hardware type that hosts my application
+          ^^^^^^^^^^^^^^
+
+                    . 5 Instance Families     . General Purpose
+                      ^^^^^^^^^^^^^^^^^^^     . Compute Optimized
+                                              . Memory  Optimized
+                                              . Storage Optimized
+                                              . Accelerated Computing
+
+
+                    . Instance Sizes             Model     vCPU CPU  Mem  Network Performance
+                      ^^^^^^^^^^^^^^                           /hour GiB
+                                              ------------------------------------------------
+                                              . t2.nano      1   3   0.5  Low
+                                              . t2.micro     1   6   1    Low/Moderate
+                        Note that this        . t2.small     1  12   2    Low/Moderate
+                        data change           . t2.medium    2  24   4    Low/Moderate
+                        over time             . t2.large     2  36   8    Low/Moderate
+                                              . t2.xlarge    4  54  16    Moderate
+                                              . t2.2xlarge   8  81  32    Moderate
+
+
+
+    _____________________________
+    . Launching an On-Demand Instance (3m 13s)
+    _____________________________
+
+     1. Go in EC2 console
+     2. Click "Launch Instance"
+     3. Choose AMI                      ex. Amazon Linux 2
+     4. Chose Instance Type             ex. t2.micro
+     -----------  REVIEW & LAUNCH
+     (Optional steps:)
+     5. Configure                       to customize some params (Networks-VPC / Subnets / Roles ...)
+     6. Add Storage                     ex. Volume Type:           root
+                                            Device:                /dev/xvda
+                                            Snapshot:              snap-094c46c973eaf91f8
+                                            Size GiB:              8
+                                            Volum Type:            General Purpose
+                                            IOPS:                  100/3000
+                                            Throughput:            N/A
+                                            Delete on Termination: Y
+                                            Encryption:            N
+
+     7. Add Tags                        they are KEY=VALUE pairs    (ex. environment = development)
+     8. Security Group                  ex. Name  .....
+                                                  Rule1   Type        SSH
+                                                          Protocol    TCP
+                                                          Port Range  22
+                                                          Source      Custom 0.0.0.0/0  (*)
+                                                          Description ....
+                                                  [ADD RULE]
+
+                                                   (*) Warning: Rules with source of 0.0.0.0/0 allow all IPs
+                                                                to access the EC2, so it's recommended to select
+                                                                known IP only.
+     -----------  REVIEW & LAUNCH
+     9.The Launch will:
+                 - allow me to chose a previous PEM key file to use
+                 - create a new PEM key file to download and use.
+                 - Proceed without a PEM file
+
+    10.I can see my new running instance in the usual AWS Console "Instances"
+                                    Name:               ....
+                                    Instance ID:        i-029b4c05e7
+                                    Instance Type       t2.micro
+                                    Availability Zone:  eu-west-2
+                                    Instance State:     pending
+                                    Status Check:       Initializing
+                                    Alarm Satus:        None
+
+    _____________________________
+    . Reserved Instances   (9m 33s)
+    _____________________________
+
+     Like choosing a phone plan
+
+     The plan is 1 or 3 years
+
+     Less flexible but cheaper (ex. Up to 75% cheaper than on-Demand)
+
+                       - EC2 type               ex. t2.micro
+                       - OS                     ex. Linux / Windows
+                       - Tenancy                . Default / . Dedicated
+                       - Payment                . All Upfront / . Partial Upfront / . No Upfront
+                       - Term                   . 1-12 months / . 12-36 months
+                       - Availability Zone      If I don't specify an AZ there is a discount
+                                                If I pay to reserve an AZ then when that AZ runs
+                                                out of resources I'll have the precedence over
+                                                other EC2s
+
+     There are 3 types:
+                       . Standard     (I can later change between only some EC2 types)
+                       . Convertible  (I can change with any other EC2 type)
+                       . Scheduled     I can reserve capacity on a
+                                                      Daily
+                                                      Weekly
+                                                      Monthly
+                                       basis
+                                       (Good for predictable workload, ex. running maintenance
+                                        overnight at AM 5:00)
+
+     Used cases:       in general Reserved Instances are ok for regular workloads, not for ex ecommerce
+                       where it doesn't run probably at night.
+
+     Amazon Reserved Marketplace:  it's where people sell their Reserved Instances because
+                                   they don't need them anymore and they want to sell to someone
+                                   the time left on the contract.
+                                   If buyers are ok with that specific EC2 configuration, then
+                                   they can buy it, so in some cases thay can have Reserved Inst.
+                                   with contracts of < 1 year
+                                   All the buy & sell is managed by Amazon.
+    _____________________________
+    . Launching a Reserved Instance  (1m 41s)
+    _____________________________
+
+
+     1. from EC2 Console -> Purchase Reserved Instances
+     2. I specify:
+                    . Patform:       ex  Linux/UNIX
+                    . Tenancy            . Default / . Dedicated
+                    . Offering Class     . Convertible / . Standard
+                    . Instance Type  ex t2.micro
+                    . Term               . 1-12 months / . 12-36 months
+                    . Payment Option     . No Upfront  / . Partial Upfront / . All Upfront
+
+                    V. If I select the check-box: "Only show offerings that reserve capacity"
+                       I can choose an Availability Zone
+
+     3. Click SEARCH:    I have a table with the offers  (i.e. 1 t2.micro 12 montsh $80 All Upfront)
+
+
+    _____________________________
+    . Spot Instances  (5m 45s)
+    _____________________________
+
+
+     Unused EC2s in Amazon farm which are offered with up to 90% discount
+
+     2 min warning before it will be shutdown (Interruption notice)
+     which can happen for 3 reasons:
+
+      1 Price:  the hourly price is called SPOT Price
+                as it varies upon demand trends
+                When I purchase a Spot EC2 I define the max SPOT Price
+                so that if it goes beyond, Amazon will send me the 2 min Interruption notice.
+
+                SPOT BLOCK is a time between 1 and 6 hours
+                           that I can be guaranteed that I will not be terminated
+
+      2 Capacity: If there are needs in Capacity for other customers, Spot EC2s can be terminated
+
+      3 Constraints:  If my Spot EC2 constraint (e.g. I specified an AZ which becomes now full)
+                      are not satisfied anymore.
+
+     Use Cases:  . proc which needs to be run sometimes and can be suspended
+                   (ex. some maintenance jobs)
+                 . When adding resources in busy times
+
+    _____________________________
+    . Launching a Spot Instance   (3m 21s)
+    _____________________________
+
+     1. from EC2 Console -> Spot Requests
+     2. I can choose between pre-configured use cases:
+                                                 . Load Balancing workloads (ex. good for web services)
+                                                 . Flexible       workloads (ex. good for batch and CI/CD jobs)
+                                                 . Big data       workloads (ex. MapReduce jobs)
+                                                 . Defined duration  "      (spot block 1-6 hours)
+
+     3. I configure:    . AMI:       ex. Linux
+                        . type       ex. t2.micro
+                        . vCPU:      ex. 2
+                        . Mem:       ex. 3 GiB
+                        . AZ         . no preference / eu-west-2
+                        . KEY=VALUE  pairs
+
+     4. Select one among the offered ones (with listed discounts ex. 70%)
+
+    _____________________________
+    . Dedicated Instances   (4m 1s)
+    _____________________________
+
+     They don't share HW with any other AWS customers
+                . Usually EC2s among different customers run through a Hypervisor
+                  on the same (shared) HW
+
+     Dedicated Instances / Dedicated Hosts:
+                . Dedicated Instances   on HW-1 I'm the only AWS customer who can spin up EC2s
+                                        anyhow when 1 EC2 is stopped and restarted it can be restarted
+                                        onto another AWS HW-2 where I'll be still the only AWS customer
+                                        even though HW-1 and HW-2 are 2 different HW in the AWS farm
+                . Dedicated Hosts       In this case I rent a strict HW in the AWS farm and my EC2s
+                                        will be started only in that.
+                                        The only constraint is that ALL the EC2s on a Dedicated Host
+                                        must be of the same type (ex. I cannot mix 1 t2.micro
+                                        1 t3.micro and 1 4xlarge)
+
+     More expensive, as this privacy comes at a cost (included a $2/hour fee)
+
+     Use cases:    . some businesses have strict regulatory requirememts (ex. Finance)
+
+    _____________________________
+    . Launching a Dedicated Host  (1m 31s)
+    _____________________________
+
+     1. from EC2 Console -> Dedicated Hosts
+     2. I select an Instance family:     a1 / c3 / c4 / c5 / c5d / c5n / d2 / g2 / g3 / ...
+                                                 .
+
+     3. Instance auto-placement      Enable / Disable      (If Disable I must specify the EC2s which will be deployed)
+
+     4. Host Recovery                Enable / Disable      (If Enable it will automatically restart EC2s onto a new
+                                                            replacement Host if a failure is detected).
+
+    _____________________________
+    . Amazon Machine Images (AMIs)   (4m 33s)
+    _____________________________
+
+     Templates where the OS + frameworks + applications are bundled
+
+     Components inside AMIs are:
+                                  . Root Volume Template:   it's like the Hard Drive (Root Partition)
+                                                            it store OS / SW (ex Nginx) / Source Code
+
+                                  . Launch Permissions      specify WHO can use this AMI
+
+                                  . Block Device Mapping    EC2s are not limited to 1 Root Volume
+                                                            (they can have other Partitions, eg. for data logs)
+                                                            "Block Device Mapping" specify which of these other
+                                                            Volumes must be attached to my EC2
+
+
+     AMI Management:   . I create 1 AMI (which 'registers' it in AWS)
+                       . I can customize it furtherly creating/saving subsequent AMIs
+                       . I can organize them with tags  (e.g. "version = 1.0" / "stack = development")
+                       . I can de-register unused ones
+                       . AMIs:  . I can created my own AMIs
+                                . I can choose among AWS ready ones (e.g. some Linuxes)
+                                              - they come shipped with included useful tools
+                                              - they are updated regularly
+                                              - high performance environment
+                                              - free of charge
+                                . I can choose among AWS ready 3rd-party ones (not free of charge)
+                                . I can buy and sell my own AMIs
+
+    _____________________________
+    . Creating 1 AMI  (1m 6s)
+    _____________________________
+
+     1. from EC2 Console -> I select 1 running EC2 --> Actions --> Image --> Create Image
+                                          This will create/clone an Image from a running EC2
+     2. I specify the Volumes
+     3. After I Click CREATE, I will see it in the panel after INSTANCES, which after a while will turn into 'Status=AVAILABLE'
+
+    _____________________________
+    . Placement Groups   (3m 30s)
+    _____________________________
+
+     The specify how EC2s are placed on the underlying HW
+
+     Ex Grouping / Separating EC2   (if on different HW and 1 fail the others will still run)
+
+     Placement Groups settings are FREE of charge
+
+     3 Placement Groups:
+                           . Cluster      use cases which require that EC2s work connected together
+                                          (more important that connection with the outside) so they are
+                                          groupped into the same AZ.
+                           . Spread       HW isolation. It guarantes that EC2s do not run on the same HW
+                                          so they cannot fail at the same time if the HW fails.
+                           . Partition    it's a mix of the above. I have small sets of EC2s, each
+                                          strictly intraconnected (the EC2s can quickly communicate
+                                          to each other) but they stay on different HW:
+
+                                             EC2s can communicate inside each partiion
+                                             but not across partitions
+
+                                          7 is the limit of EC2s per partition
+
+    _____________________________
+    . Launching into a Placement Group  (26s)
+    _____________________________
+
+     1. Create Placement Group from panel below Instances
+     2. Give a Name and a strategy (Cluster / Spread / Partition)
+
+    =============================
+    . Using AWS EC2 Instances      (30m 45s)
+    =============================
+
+     ssh --> EC2
+
+     scp files --> EC2
+
+     change EC2 type
+
+     creating / attaching Volumes
+
+     creating snapshots
+
+    _____________________________
+    . Connecting to an EC2    (4m 31)
+    _____________________________
+
+     ssh -i  ./my-key-pair.pm  ec2-user@xxx.amazonaws.com
+              ^^^^^^^^^^^^^^^  ^^^^^^^^ ^^^^^^^^^^^^^^^^
+                    |             |                 |
+        private key obtained   'DEFAULT' user       I can see this in the DNS field
+        when creating the EC2  of the AMI chose     of the EC2 Description
+        (must have chmod 400)  to create the EC2
+
+    _____________________________
+    . Transfering files to EC2    (3m 12s)
+    _____________________________
+
+     scp  -i ./my-key-pair.pm    local.file  ec2-user@xxx.amazonaws.com
+
+    _____________________________
+    . Storage Volumes   (4m 12s)
+    _____________________________
+
+     Grant more storage capacity
+
+     Choose between types  Store or EBS
+
+     Created via AWS Console or CLI
+
+     Attached & Mounted to be used
+
+
+     EBS Volumes:        Network-attached storage
+
+                         Automatically replicated with an available zone (for recovery)
+
+                         Can be attached to only 1 EC2 at a time
+
+                         Monitoring in CloudWatch (free of charge)
+
+                         Can be Encrypted (using EBS encryption)
+
+                         Only pay for the storage I use
+
+                         Use cases:  . All critical/required data
+                                     . Data that need persistence
+                                     . When Volume needs to be resized
+
+
+     Instance Volumes:   Physically attached disks
+
+                         The above point gives an idea of why
+                         they depend on the EC2 type (ex. t2.micro different from 4x.large)
+                         They came shipped as 1 per EC2 or more, solid state or hard drive ...
+                         Not all EC2 support them.
+
+                         No costs if it's the ROOT volume
+
+                         Data persist till EC2 is not terminated.
+                         (If terminated or HW failure all data are lost)
+
+                         Use cases:  . Caches
+                                     . Non critical logs
+                                     . Temporary computation data
+
+
+    _____________________________
+    . Add Storage Volume   (3m 13s)
+    _____________________________
+
+     1. from EC2 Console --> "Volumes"
+     2. I see the list and I can "Create" new ones:
+                                                       . ARN
+                                                       . Volume Type    ex. SSD
+                                                       . Size GiB       min 1 GiB  Max 16386 GiB
+                                                       . Availab. Z
+                                                       . Throughput
+                                                       . Snapshot ID    optional to backup/restore
+                                                       . Encryption
+
+     3. Once created, I see it listed as vol-xxxx in status "available"
+     4. I can then select it and "Actions"-->"Attach" to link it to 1 EC2  (i-yyyy)
+     5. To use I need to FORMAT it as it comes as a raw data block
+                                    . ssh into the EC2
+                                    . lsblk        to see the current list (I'll see the attached Volume in this list ex. 'xvdf' 1G)
+                                    . sudo file -s /dev/xvdf    to see what filesystem is on it
+                                                                being still raw data it will say:   /dev/xvdf: data
+                                    . sudo mkfs -t xfs /dev/xvdf   to format it as filesystem xfs
+                                    . sudo file -s /dev/xvdf    to check that now it says:          /dev/xvdf: SGIXFS filesystem data (blksz 4096, inosz 512, v2 dirs)
+                                    . mkdir my-mount-point      to create a dir to mount it
+                                    . sudo mount /dev/xvdf  ./my-mount-point    to mount it
+
+
+    _____________________________
+    . EBS Snapshots    (3m 42s)
+    _____________________________
+
+     EBS Snapshots are point in time
+
+     Subsequent snapshots will only store the blocks that changed
+
+     Pay on GiB-month
+
+     Best Practices:   . Snapshots are done with the EC2 in use
+                         they are in status="Pending" till they are flushed to S3
+                       . It's better to LOCK the Filesystem and flush to S3
+                         as if I don't lock, then reads & writes still go, while
+                         the snapshot-in-time is taken, leaving something out.
+
+                         - Stop my EC2  (eliminate source of writes)
+                         - Unmount the Volume  (completely isolated)
+
+
+    EBS snapshot                 /   AMI
+    -----------------------------------------------------------
+    back-up 1 Volume (root | data)   can back-up more Volumes (root & data)
+    must be attached to 1 EC2        can be used to launch 1 EC2
+    more general purpose             tightly coupled to EC2
+
+
+    Extra features:
+            . Encrypted Volumes --> Encrypted Snapshots
+            . assig KEY=values tag to organize them
+            . EBS Snapshots can be shared with other AWS accounts
+
+    _____________________________
+    . Restoring Volumes from 1 Snapshot  (1m 28s)
+    _____________________________
+
+     I need the Volume ID (and the rights to access it)
+
+     It's downloaded 'lazily' from S3, which means that if it's not fully downloaded
+     and I access data not yet available, the Volume will retrieve that first from S3
+     and then it will continue from where suspended.
+
+
+     Use cases: test environment
+                (ex. I can load no regression data ready each time I need them)
+
+    _____________________________
+    . Backing up a Storage Volume   (1m 3s)
+    _____________________________
+
+     1. AWS Console EC2 --> Volumes
+     2. select 1 from the list,  Actions --> Create Snapshot
+     3. Give a Description / KEY=VALUE Tags
+     4. I can now see it in the AWS Console EC2  --> Snapshots    snap-xxx      (status=pending --> complete)
+
+     5. To restore put that snap-xxxx in the field Snapshot-ID when creating a Volume
+
+
+    _____________________________
+    . Managing the EC2 type   (2m 20s)
+    _____________________________
+
+     Change the EC2:   type
+                       size
+
+     Not all AMIs are compatible with any EC2
+     So as my EC2 is running a specific AMI it's not possible
+     to change in any desired way.
+
+     Linux AMIs in particular has 2 possible virtualizations:   . PV (Paravirtual) / . HVM (HW virtual machine)
+     and I can move 1 EC2 PV --> EC2 HVM only
+
+
+     Note that
+                changing the EC2 it will go on a new HW
+                               BUT
+                   i-xxxx     EC2 ids do not change
+                   private IP4 IP6    do not change
+
+
+    _____________________________
+    . Navigating the EC2 Lifecycle   (4m 29s)
+    _____________________________
+
+     1. AMI
+     1. Pending   (booting up / not accessible)
+     1. Running   (ssh ...)  ... and start the billing $$
+
+         Reboot      (brings EC2 back on the same host)
+         Start       (new host)
+         Hibernate   (sends a suspend-to-disk signal to OS) (very quick to resume)(new host)
+         Stop
+         Terminate   (there is Termination Protection flag to avoid an accidentally Delete)
+
+
+
+------------------------- 1/2-4
+Beginner·1h 8m·June 4, 2019
+       Managing Docker Container on AWS with the GUI
+       Jean Francois Landry
+
+    _____________________________
+    . Introduction to Conatiners with Amazon ECS   (39s)
+    _____________________________
+
+     What is a Docker container
+
+     Lab Setup & Install Docker in a Linux EC2
+
+     Run a Docker container
+
+     Overview of ECS  (Elastic Container Service)
+
+    _____________________________
+    . Docker and a bit of history   (3m 6s)
+    _____________________________
+
+     Once:   . Physical Servers
+             . Resources non fully optimal
+             . HW fault
+             . Updates HW (memory / cpu / ...)  downtime window
+
+     Then:   . Virtual Machines (Hypervisor)
+             . Resources close to optimal
+             . Updates no downtime  (I can move the Hypervisor on another HW)
+             . Can still be expensive (requires at least 2 servers to manage HW failures)
+
+     Docker  . Software
+             . Contains only what required
+             . Can be run from anywhere (Windows / Linux / Freebsd)
+    _____________________________
+    . Demo: Set up Launching a Linux Instance  (1m 30s)
+    _____________________________
+
+     Launch 1 EC2 (t2.micro) with Linux (AMI: with specified that this image, contains AWS CLI)
+
+    _____________________________
+    . Dockerfile Overview   (0m 36s)
+    _____________________________
+
+     FROM ubuntu: 16.04
+     RUN apt-get update
+     RUN apt-get -y install apache2
+     RUN echo "Welcome to Globomatics"           > /var/www/html.html
+     RUN echo '. /etc/apache2/envvars'           > /root/run_apache.sh
+     RUN echo 'mkdir -p /var/run/apache2'       >> /root/run_apache.sh
+     RUN echo 'mkdir -p /var/lock/apache2'      >> /root/run_apache.sh
+     RUN echo '/usr/sbin/apache2 -D FOREGROUND' >> /root/run_apache.sh
+     RUN chmod 775 /root/run_apache.sh
+     EXPOSE 80
+     CMD /root/run_apache.sh
+
+    _____________________________
+    . Demo Docker Installation   (4m 52s)
+    _____________________________
+
+     1. ssh into my EC2 (Linux with aws cli)
+     2. sudo yum install -y docker
+     3. sudo service docker start  <-------------- start docker daemon
+     4. vi dockerfile       # with the above content
+     5. docker build /home/ec2-user/  -t  welcome-globomantics
+     6. docker images
+     7. docker run -p 80:80 welcome-globomantics
+     8. go in AWS Console EC2, select the instance which is running this docker
+        look into its security groups:
+                           It has only 1 inbound rule:  Type:SSH Protocol:TCP  Port Range:22
+                           I must ADD another "   "  :  Type:HTTP     "             "    :80
+
+
+    _____________________________
+    . ECS  (Elastic Container Service)   (2m 30s)
+    _____________________________
+
+     It's a Container management service
+         . Scalable     # I can add & remove containers/resources
+         . Secure       # uses AWS roles
+         . Reliable
+         . Fast
+
+     2 Cluster types to launch:
+         . Serverless - Fargate : there is no server. I supply only the instruction/tasks
+                                  to a service running in my containers
+         . EC2 : The EC2 is my server and I'm the admin/rsponsible of docker and the
+                 containers running there.
+
+     ECS Cluster steps
+         1. Image
+         2. Push/Pull to repository
+         3. Task definition
+         4. Serivce (APP) start
+    _____________________________
+    . Demo Create a Cluster   (1m 21s)
+    _____________________________
+
+     1. select AWS Console ECS
+     2. Click CLUSTERS --> CREATE
+     3. Select Template   (I choose "Powered by AWS Fargate) --> Choose a name & CREATE
+     4. It's done quickly, I can view it (usual AWS Table layout, with first 2 colums: SERVICES - TASKS)
+
+    _____________________________
+    . Demo: Create a Cluster using ECS   (1m 21s)
+    _____________________________
+
+     1. from AWS, select service ECS
+     2. from the left menu, select CLUSTERS
+        (they are listed the ones already created if any,
+         or --> "Create Cluster" da Add a new one)
+     3. I choose the type  (ex. Powered by AWS Fargate
+                                EC2 Linux
+                                EC2 Windows)
+     4. I give a NAME="..." and clic: CREATE
+     5. In a few sec I can see it listed in the CLUSTERS table
+        with the colums
+                   SERVICES  |   TASKS
+        where I can see / add
+
+
+    _____________________________
+    . Managing Containers with ECS  (1m 8s)
+    _____________________________
+
+     We'll create a task definition with both
+                 - Fargate
+                 - EC2
+
+     We'll create services
+
+     We'll manage the worlflow of a container
+
+     We'll see scheduled tasks
+
+    _____________________________
+    . Creating a TASK in Fargate   (2m 58s)
+    _____________________________
+
+     Fargate runs in AWS without any EC2 required  (with permissions / patches or other maintenance)
+
+     It's Scalable (add / remove containers in seconds)
+
+     Nothing is shared between tasks (ex. shared memory or others), they are isolated
+
+     At Task level I can specify the varibale of CPU / Memeory values
+                                           0.25 vCPU    0.5, 1, 2     GB
+                                           0.5          1,   2, 3, 4  GB
+                                           1            2 .....    8  GB
+                                           2            4 ....... 16  GB
+                                           4            8         30  GB
+
+     Currently Fargate is not available in all the regions  (Ireland / London : ok)
+    _____________________________
+    . Demo of Fargate    (9m 27s)
+    _____________________________
+
+     1. from CLUSTERS, still left menu: TASK DEFINITIONS
+     2. Create, and choose Fargate or EC2  (we choose Fargate now)
+     3. give a NAME="..."
+     4. Specify the Task Role (defined in IAM) which has the right to pull down the docker image
+     5. Specify Network mode:  (defualt VPC is ok)
+     6. specify the Task Execution Role
+     7. specify Task CPU & Mem size
+     8. ADD container (to specify the image to pull down)
+     ---------------------
+     9. CREATE TASK
+
+       ------- ONCE the task is created, I can run it in 1 Cluster so
+
+     1. I select 1 Cluster, and I see its table with the task Column
+     2. I add a Task
+     3. I select in the drop-down menu from the Tasks list (maybe only 1, which I created before)
+     4. I specify the number of instance to run for this task (default 1)
+     5. I specify the task Group
+     6. I specify Cluster VPC & Subnets
+     7. I specfy Security Groups
+     8. I choose if AUTO-assing-Public-IP is ENABLE
+
+       ------- In a matter of seconds I'll see the task as running in the Cluster's table
+
+       . I can see it's Public IP  (put in a browser and (as usual) see what the code running in that image
+                                    is giving back)
+       . I can see the eni-...  (its network interface id, like in a PC)
+
+    1. STOP a task  (selecting from the Cluster's table)
+       to stop the billing
+
+    _____________________________
+    . Creating and Managing Services   (1m 22s)
+    _____________________________
+
+     ECS Service SCHEDULER
+           . strategy 1: REPLICA
+                         this strategy maintains the number of tasks running at all time.
+
+           . strategy 2: DAEMON
+                         places 1 task per container (used in EC2)
+
+    _____________________________
+    . Demo of Creating and Managing a Service   (7m 29s)
+    _____________________________
+
+     1. from the CLUSTERS tab, select 1st column (SERVICE) and clic "CREATE"
+     2. launch type (FARGATE or EC2)
+     3. Task definition
+     4. Service type "REPLICA"   # only strategy for FARGATE
+     5. Number of tasks   (like in Marathon/Mesos)
+     6. Deployment type "Rolling Update"
+     7. specify Network mode:  (defualt VPC is ok)
+     6. specify subnets & security groups
+     8. specify if AUTO-assing-Public-IP is ENABLE
+     9. specify if we want an optional ELB in front to distribute traffci/load
+    10. uncheck "Enable service discovery integration" as we don't want our service to be discovefed from internet
+    11. specify optionally auto scaling  (click on "Do not adjust the service's desired count")
+     --------------------
+    12. CREATE SERVICE
+
+        I can see it now in the usual Cluster table.
+
+     I can now from the table instead of "CREATE" select "UPDATE"
+     and I change the number of instances from 1 to 4
+     (which like Marathon / Mesos will deploy other 3
+      which I'll see in the cluster Table)
+
+     In the Cluster Table (Task section) there is also the colum "Desired..."
+     If I select 1 of the 4 task and I STOP it, I'll see that the scheduler
+     will deploy another to keep the number to 4.
+     (Again like the kill & scale in Mesos)
+
+     If I really want 3, then I "update" the service
+     and I set '3' at the point 5 above.
+
+
+    _____________________________
+    . Workflow of a Container   (1m 38s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Scheduling Tasks   (1m 0s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Demo of EC2   (5m 1s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Navigting the Container Agent   (0m 49s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Summary   (0m 42s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Managing Repos with ECR
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Authenticate to ECR   (2m 56s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Demo Creating 1 Repo  (3m 4s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Pushing / Pulling / Tagging with ECR  (7m 59s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Publishing Images using the Release Pipeline  (1m 48s)
+    _____________________________
+
+     EC2 : - types
+
+    _____________________________
+    . Summary   (1m 7s)
+    _____________________________
+
+     EC2 : - types
+
+
+------------------------- 1/3-4
+Beginner·1h 24m·June 12, 2019
+        Using Docker on AWS with the Command Line
+        David Clinton
+
+------------------------- 1/4-4
+Advanced·2h 15m·June 26, 2019
+        Managing Applications in AWS
+        Jasenko Krejic
+
+---------------------------------------------------------
+
+       2 AWS Operations
+
+
+Automating AWS Operations with the AWS CLI
+
+-------------------------  1/1-4
+Beginner·1h 17m·Apr 6, 2020
+       Automating AWS Operations with the AWS CLI
+       David Clinton
+
+     ---------------------
+     1. Course Overview  (1m 40s)
+
+     The course will teach how to Install & use AWS CLI
+
+
+     --------------------
+     2. INSTALLING & CONFIGURING AWS CLI
+
+    _____________________________
+    . Introduction to AWS CLI  (4m 1s)
+    _____________________________
+
+     General description of what can be done.
+
+    _____________________________
+    . Creating & using a IAM Admin User  (2m 2s)
+    _____________________________
+
+     ROOT vs IAM Admin user
+
+     as usual ROOT cannot be the user to access
+     all my AWS resources, ad it has FULL control
+     and can be compromised in the public internet.
+
+     So a IAM user is created which has ROOT access
+     only to some of my resorces:
+
+                                            AWS resource 1
+                                          /
+              Public        ROOT   ------|- AWS resource 2
+              Internet                    \
+                                            AWS resource 3
+
+                                            AWS resource 1
+                                          /
+              Public        IAM    ------|-  ...X...
+              Internet      USER          \
+                                             ...X...
+
+    1. Create IAM user from AWS console  (IAM / Manage User Access and Encryption Keys)
+    2. Users -> Add User -->
+                User Name: [ <type here> ]
+
+                Access type:  [V] Programmatic access   (Enables an access key ID/Secret access key)
+                              [ ] AWS Managem. Console access (enable a PASSWORD) to access the console
+    3. Set permissions
+                ([attach existing policies]:
+                            chose "Administrator Access")
+
+    4. Create --> I can now see
+
+                    AKIA4K624RA2NOYYA4Q                        Access Key ID
+                    eKWbTpBCrgY52BpGgtZvOnKbm4rFvN8t6CZWQJw    aws_secret_access_key
+
+
+    _____________________________
+    . Installing AWS CLI  (1m 39s)
+    _____________________________
+
+     I can have different ways according to the env
+                Mac
+                Windows
+                Linux    <--- ex used:
+                                 sudo snap install aws-cli    #package manager "snap"
+
+     Once installed:
+
+              $ aws --version
+
+                         ===========================
+                         |  Note: On Linux EC2, "aws" (cli) is already installed.
+                         ===========================
+
+    _____________________________
+    . Configurint AWS CLI  (1m 56s)
+    _____________________________
+
+     $ aws configure
+                                        AWS Access Key ID        AKIA4K624RA2NOYYA4Q
+                                        AWS SAecret Access Key   eKWbTpBCrgY52BpGgtZvOnKbm4rFvN8t6CZWQJw
+                                        Default region name      us-east-1
+                                        Default output format    text       <--- others: (table / json)
+
+     $ aws --profile live configure   <----- to refer to a specific profile
+
+                         ===========================
+                         |  Note: I can run $ aws configure at any time
+                         |        it will have already set the previous values, so that
+                         |        for instance I can just change the output format
+                         |        temporary
+                         ===========================
+
+
+
+    _____________________________
+    . Configuring Named Profiles for AWS CLI  (2m 30s)
+    _____________________________
+
+     ~/.aws
+            ./config
+            ./credentials    <--- key
+
+    . 1 option is to edit directly
+    . another is to use:
+                         $ aws configure --profile pppppp
+
+                                        AWS Access Key ID        AKIA4K624RA2NOYYA4Q
+                                        AWS SAecret Access Key   eKWbTpBCrgY52BpGgtZvOnKbm4rFvN8t6CZWQJw
+                                        Default region name      us-east-1
+                                        Default output format    text       <--- others: (table / json)
+
+     --------------------
+     3. GETTING HELP & GUIDANCE FOR AWS CLI
+
+    _____________________________
+    . Understanding AWS CLI Syntax (3m 25s)
+    _____________________________
+
+     $ aws [options] <command>  <subc> [parameters]
+               1        2         3         4
+
+               ex
+               $ aws
+                      1     --output table
+                      2     ec2
+                      3     describe-images
+                      4     --filters "Name=decsription,Values=*CentOS*"
+
+                         ===========================
+                         |  most important [options]:  --profile / --output / --region / --dry-run
+                         ===========================                                     ^^^^^^^^^
+    _____________________________
+    . Finding Syntax Help for AWS CLI  (3m 20s)
+    _____________________________
+
+     $ aws help
+     $ aws s3 help
+     $ aws s3 sync help
+
+    _____________________________
+    . Using both S3 & S3API  (3m 42s)
+    _____________________________
+
+                                S3   |  S3Api
+                      more highlevel |  granular
+                   to SYNC filesyst. |
+       Transfer big files in + parts |
+                                     |
+                                     |
+
+     --------------------
+     4. LAUNCHING COMPLEX MULTI-TIERED CLI-based OPS
+
+    _____________________________
+    . Configuring IAM Users, Groups  (5m 1s)
+    _____________________________
+
+     Devs of 1 scrums are groupped into   1 IAM group   (
+
+        $ aws iam create-user        --user-name mike      <---- it will give the AKIA4K624RA2NOYYA4Q key in output
+        $ aws iam get-user           --user-name mike      to see the key again
+        $ aws iam list-access-keys   --user-name mike          "       "   "
+        $ aws iam create-access-key  --user-name mike      output: AKIA4K624RA2NOYYA4Q / eKWbTpBCrgY52BpGgtZvOnKbm4rFvN8t6CZWQJw
+
+        $ aws iam create-group       --group-name  admins
+
+        $ aws iam list-policies
+                                    .....
+                                    {
+                                        "PolicyName": "AWSApplicationMigrationReplicationServerPolicy",
+                                        "PolicyId": "ANPAZKAPJZG4PXFWAA3SE",
+                                        "Arn": "arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationReplicationServerPolicy",
+                                        "Path": "/service-role/",
+                                        "DefaultVersionId": "v1",
+                                        "AttachmentCount": 0,
+                                        "PermissionsBoundaryUsageCount": 0,
+                                        "IsAttachable": true,
+                                        "CreateDate": "2021-04-07T07:21:57Z",
+                                        "UpdateDate": "2021-04-07T07:21:57Z"
+                                    },
+                                    {
+                                        "PolicyName": "AWSElasticBeanstalkReadOnlyAccess",
+                                        "PolicyId": "ANPAI47KNGXDAXFD4SDHG",
+                                        "Arn": "arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnlyAccess",
+                                        "Path": "/",
+                                        "DefaultVersionId": "v1",
+                                        "AttachmentCount": 1,
+                                        "PermissionsBoundaryUsageCount": 0,
+                                        "IsAttachable": false,
+                                        "CreateDate": "2015-02-06T18:40:19Z",
+                                        "UpdateDate": "2015-02-06T18:40:19Z"
+                                    }
+                                ]
+                            }
+
+        $ aws iam list-policies | grep AmazonEC2 | grep Access
+                                                            "PolicyName": "AmazonEC2FullAccess",
+                                                            "Arn": "arn:aws:iam::aws:policy/AmazonEC2FullAccess", <---------- I want this
+                                                            "PolicyName": "AmazonEC2ContainerRegistryFullAccess",
+                                                            "Arn": "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+                                                            "PolicyName": "AmazonEC2ReadOnlyAccess",
+                                                            "Arn": "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess",
+
+        $ aws iam attach-group-policy
+                                      --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+                                      --group-name admins
+
+        $ aws iam add-user-to-group
+                                      --group-name admins
+                                      --user-name  mike
+
+
+    _____________________________
+    . Creating an S3-based static website (2m 15s)
+    _____________________________
+
+     A static HTML web site
+
+        $ aws s3 mb s3://mysite548.com
+
+     I make it public on internet
+
+        $ aws s3api put-backet-acl --bucket mysite548.com --acl public-read
+                    ^^^^^^^^^^^^^^                        ^^^^^^^^^^^^^^^^^
+     I upload files giving same public permissions as the bucket
+     (suppose there is a aaa.thml file which I want to use as index.html
+     and an eee.thml I want to use for error pages)
+
+        $ aws s3  sync . s3://mysite548.com --acl public-read
+
+     I upload file giving same public permissions as the bucket
+
+        $ aws s3  website s3://mysite548.com --index-document aaa.html  --error-document eee.html
+                  ^^^^                      ^^^^^^^^^^^^^^^^^
+     I can inspect
+
+        $ aws s3api get-bucket-website --bucket mysite548.com
+
+                ERRORDOCUMENT   eee.html
+                INDEXDOCUMENT   aaa.html
+
+     The final url is
+            http://mysite548.com.s3-website-us-east-1.amazonaws.com
+
+
+
+    _____________________________
+    . Provisioning and Launching  (4m 51s)
+    _____________________________
+
+
+        $ aws ec2 create-security-group
+                                      --group-name  EC2SecurityGroup
+                                      --description "Security Group for EC2 instances to allow ports 22, 80 and 443"
+
+                  output:  sg-0efc4511c147840b2
+
+
+        $ aws ec2 authorize-security-group-ingress
+                                      --group-name  EC2SecurityGroup
+                                      --protocol    tcp
+                                      --port        22
+                                      --cidr        172.54.125.8/32    <--- I specify my local IP as the only which can access
+
+                                      --group-name  EC2SecurityGroup
+                                      --protocol    tcp
+                                      --port        80
+                                      --cidr        0.0.0.0/0          <--- anyone from anywhere
+
+                                      --group-name  EC2SecurityGroup
+                                      --protocol    tcp
+                                      --port        80
+                                      --cidr        0.0.0.0/0
+
+
+        $ aws ec2 describe-security-groups
+                                      --group-names  EC2SecurityGroup
+
+            SECURITYGROUPS  EC2SecurityGroup created 2017-03-23T11:41:28.379+00:00 sg-d3f834aa launch-wizard-3 250991044064 vpc-4b699e2f
+            IPPERMISSIONS   22      tcp     22
+            IPRANGES        0.0.0.0/0
+            IPPERMISSIONSEGRESS     -1
+            IPRANGES        0.0.0.0/0
+
+
+        ---------- get the IMAGE_ID of the image I want
+        $ aws ec2 describe-images
+                                      --filters "Name=description,Values=*Amazon Linux 2*" "Namw=owner-alias,Values=amazon"
+
+                  output:  ami-00b94673edfccb7ca
+
+
+                  Note: without a filter it's very slow, as it returns a big json
+                        of all the AMIs in AWS, each of this shape:
+
+                                 {
+                                "Architecture": "x86_64",
+                                "CreationDate": "2011-10-17T15:55:04.000Z",
+                                "ImageId": "ari-fd9fad89",
+                                "ImageLocation": "ubuntu-kernels-testing-eu/ubuntu-hardy-amd64-linux-image-
+                                                  2.6.24-29-xen-v-2.6.24-29.94-ramdisk.20111017.img.manifest.xml",
+                                "ImageType": "ramdisk",
+                                "Public": true,
+                                "OwnerId": "099720109477",
+                                "PlatformDetails": "Linux/UNIX",
+                                "UsageOperation": "RunInstances",
+                                "State": "available",
+                                "BlockDeviceMappings": [],
+                                "Hypervisor": "xen",
+                                "Name": "ubuntu-kernels-testing/ubuntu-hardy-amd64-linux-image-
+                                         2.6.24-29-xen-v-2.6.24-29.94-ramdisk.20111017",
+                                "RootDeviceType": "instance-store",
+                                "VirtualizationType": "paravirtual"
+                            }
+                        ]
+                    }
+
+
+
+        ---------- get the list of SUBNET-IDs
+        $ aws ec2 describe-subnets
+
+                  output choosen:   subnet-52d6117c
+
+
+        ---------- run 1 EC2 using the IMAGE_ID (of the AMI) and the (SUBNET-ID)
+        $ aws ec2 run-instances
+                               --count               1
+                               --image-id            ami-00b94673edfccb7ca
+                               --subnet-id           subnet-52d6117c
+                               --instance-type       t2.micro
+                               --key-name            the_pem_file           (*1)
+                               --security-group-ids  sg-0efc4511c147840b2
+                               --user-data           file://my-script.sh    (*2)
+                               --tag-specifications  'ResourceType=instance,Tags=[{Key=webserver,Value=production}]'
+
+                   (*1) it's the pem file in the current dir.
+                       It's specified by its name but without the '.pem' extension which is implicit
+                        The file must be in 400 mode
+
+                   (*2) optional file in cur dir which will be uploaded and then executed
+                        when the EC2 boots
+    _____________________________
+    . Course Review  (1m 57s)
+    _____________________________
+
+
+
+
+
+
+
+
+---------------------------------------------------------
+
+       3 AWS - Application Development
+---------------------------------------------------------
+
+       4 AWS Networking
+---------------------------------------------------------
+
+       5 AWS Cloud Security
+---------------------------------------------------------

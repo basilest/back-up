@@ -1,0 +1,20 @@
+
+
+- importatnt to remember:
+  the output should be thought as JSON: which means KEY: VALUE
+  where it can be that I MUST DEFINE/CREATE the KEYS
+
+  this is not noticed when printing out 1 only value, where
+
+  Reservations[*].Instances[*].InstanceId       is fine
+
+  but when printing + fields of a struct, I CREATE THE KEYS
+
+
+  --query 'Reservations[*].Instances[*].{ID:InstanceId,SUB:SubnetId,St:State.Name,TG:Tags}'
+                                         ^^            ^^^          ^^            ^^
+
+
+
+
+ aws --profile staging ec2 describe-instances --query 'Reservations[*].Instances[*].{ID:InstanceId,SUB:SubnetId,St:State.Name,TG:Tags}' --output json

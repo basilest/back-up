@@ -1,7 +1,8 @@
 #################################### CORP PROXY ###################################
 #PROXY_SERVER=corporate-proxy-server-here
 #PROXY_PORT=8888
-PROXY_SERVER=wsproxy.internal.ch
+#PROXY_SERVER=wsproxy.internal.ch       old. Changed on 2020.06.04
+PROXY_SERVER=websenseproxy.internal.ch
 PROXY_PORT=8080
 #PROXY_USERNAME=proxy_account
 #PROXY_PASSWORD=proxy_password
@@ -22,12 +23,12 @@ export http_proxy=http://$PROXY
 export HTTP_PROXY=http://$PROXY
 export https_proxy=http://$PROXY
 export HTTPS_PROXY=http://$PROXY
-export no_proxy=localhost,chs-dev,chs-kafka,chs-mongo,chs-logs,chs-metrics,chs-dev.internal,*.chs-dev.internal,*aws.chdev.org
+export no_proxy=localhost,chs-dev,chs-kafka,chs-mongo,chs-logs,chs-metrics,chs-dev.internal,*.chs-dev.internal,*.aws.chdev.org
 export NO_PROXY=${no_proxy}
 
 
 
-export PATH=".:/usr/local/bin:/Users/sbasile/bin:$PATH:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development"
+export PATH=".:/usr/local/bin:/Users/sbasile/bin:$PATH:/usr/local/sbin:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development"
 #echo "----------1---------------- $PATH"
 export GREP_OPTIONS='--exclude *\.svn* --color=auto'
 export MYCOL="30BK_31R_32G_33Y_34BL_35MG_36CY_37W"
@@ -47,6 +48,7 @@ export LSCOLORS=Exfxcxdxbxegedabagacad
 #_______________________________ <CHS>
 export CHS_HOME=$HOME/SingleService
 export CH_AWS_HOME=$HOME/CH_AWS
+export AWS_PAGER=""    # to avoid default pager (less on linux) for aws-cli-v2 (breaking change with v1)
 export GOPATH=$CHS_HOME/go
 export PATH=$PATH:$GOPATH/bin
 #echo "----------4---------------- $PATH"
@@ -75,10 +77,6 @@ export PATH="$PATH:$GROOVY_HOME/bin"
 #SETTINGS for PERLBREW
 export PATH="$PATH:${HOME}/perl5/perlbrew/bin"
 #echo "----------3---------------- $PATH"
-
-#SETTINGS for ACCESSING PUBLIC API ON GITHUB (a token avoids passwords need)
-export HOMEBREW_GITHUB_API_TOKEN=0227575b306512aef1949ccc46eaa18b302e9d8f
-
 
 ##################################################################################
 
@@ -116,8 +114,8 @@ export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 #TUX_SERVER=gonzo
 #TUX_SERVER=fozzie
 #TUX_SERVER=gonzo <--- was ok on 23 Feb 2018
-TUX_SERVER=kermit   # change 1/KKK
-#TUX_SERVER=waldorf
+#TUX_SERVER=kermit   # change 1/KKK
+TUX_SERVER=waldorf
 #TUX_SERVER=statler
 
 #export CHL_HOME="${HOME}/dev/CHLegacy"   # where I want to checkout the codebase
@@ -141,7 +139,8 @@ export CHL_BCD_DATABASE=bcddevstb         # my personal BCD DB
 #export CHL_CHD_DATABASE=statlerchd
 #export CHL_CHD_DATABASE=waldorfchd
 #export CHL_CHD_DATABASE=fozziechd
-export CHL_CHD_DATABASE=kermitchd    # change 2/KKK
+#export CHL_CHD_DATABASE=kermitchd    # change 2/KKK
+export CHL_CHD_DATABASE=waldorfchd
 export CHL_CHCC_DATABASE=chccdevstb
 export CHL_CHDATA_DATABASE=chdatadevstb
 
@@ -196,32 +195,10 @@ export AUTO_SSH_CONFIG_MP=U2FsdGVkX194+LgmFDgz+0l1ttFDdfzCl6XYyyG/U4w=
 #source /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
 source /usr/local/bin/virtualenvwrapper.sh
 export WORKON_HOME=~/PYTHON_ENVS
-workon aws-cli-on.python.3
+#workon aws-cli-on.python.3
 
 export CURL_HJ='"Content-Type: text/xml"'
 export CURL_HX='"Content-Type: application/json"'
-
-#_______________ Using fd with fzf
-#export FZF_DEFAULT_COMMAND='fd --type file --color=always'
-#export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-#export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
-
-
-#<FZF>
-# Setup fzf
-# ---------
-if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
-  export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
-fi
-
-# Auto-completion
-# ---------------
-[[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
-
-# Key bindings
-# ------------
-source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-#</FZF>
 
 
 # TUX STUFF
@@ -229,8 +206,16 @@ export FESS_REPO_DIR="${HOME}/SUP/fes-administration-scripts"
 export TUX_SHUTTLES_DIR="${FESS_REPO_DIR}/TUX_STUFF/shuttles"
 
 # slack curl
-export FESS_SLACK_TOKEN=$(cat .slack/FESS_SLACK_WEBHOOK)
-export FESS_SLACK_WEBHOOK=$(cat .slack/FESS_SLACK_TOKEN)
+export FESS_SLACK_TOKEN=$(cat "$HOME/.slack/FESS_SLACK_WEBHOOK")
+export FESS_SLACK_WEBHOOK=$(cat "$HOME/.slack/FESS_SLACK_TOKEN")
+
+#GITHUB / SETTINGS for ACCESSING PUBLIC API ON GITHUB (a token avoids passwords need)
+export HOMEBREW_GITHUB_API_TOKEN=$(cat ${HOME}/GIT_CREDENTIALS/GIT_TOKEN_RW.REPO_RW.HOOKS)
+
 
 # RUST (PACKAGE MANAGER: CARGO)
 export PATH="$HOME/.cargo/bin:$PATH"
+
+export FESS_AUTH_MESOS_TOKEN='c2Jhc2lsZTpDb21lbnQuMTIz'      # get this value as: $(printf 'user:password' | base64)
+
+export GROOVY_HOME=/usr/local/opt/groovy/libexec    # as advised by brew upgrade

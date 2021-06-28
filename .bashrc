@@ -34,7 +34,7 @@ gl.ori() {
 export SVN_BRANCH='Scrum_Dev' # CHIPS_Post_June
 
 #______________________________________
-c() {
+function c() {
     local SHARE_DIR="${HOME}/CHIPS-SHARE"
     local DIR=${SHARE_DIR}
     local DIRS=(

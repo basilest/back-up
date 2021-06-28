@@ -37,13 +37,13 @@
 
 
 
-    require(./my-module)       I can include my own modules      (I have a file  my-module.js in the same dir of where I want to use it)
+    require(./my-module)       I can include my own modules      (I have a file  my-module.js in the same dir where I want to use it)
 
 
 
 
 
-    exports         it's the node keywod to specify what I can import in another module.
+    exports         it's the node keywod to specify what another module can import from here
 
 
 
@@ -175,10 +175,10 @@
 
 
         .--------------------
-        |   > npm  install xxxx
+        |   > npm  install xxxx          install in this dir
         '--------------------
 
-        npm install -g npm
+        npm install -g npm               install globally
 
 
 -------- package.json

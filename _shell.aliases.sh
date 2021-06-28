@@ -11,6 +11,9 @@ a ts='tmux new-session -s mymain -n start -d; tmux source-file ~/tmux.script.sta
 a m='sshfs sbasile@wswebdev1.orctel.internal: ~/REMOTE_DEV1/'
 a ncdu="du -akx | sort -nr | head -100 | awk '{print $2}' | xargs du -hs 2>/dev/null"
 a ap="cd ${HOME}/back-up/APPUNTI"
+a s="cd ${HOME}/SUP/AWS_CONFIGS/s"
+a l="cd ${HOME}/SUP/AWS_CONFIGS/l"
+a con="cd ${HOME}/SUP/CONCOURSE/ci-pipelines"
 a gl="~/bin/gl.sh"
 a ga="cd ~/SingleService/go/src/github.com/companieshouse/pa-kafka-poc"
 a gr="cd ~/SingleService/go/src/github.com/companieshouse/resource-change-publisher"
@@ -38,3 +41,6 @@ export JAVA_HOME=$JAVA_8_HOME  # default java8
 alias fes='cd ${HOME}/bin/fes'
 
 alias vi=/usr/local/bin/vim
+alias ns=nslookup
+
+alias fuck_her='printf 914.46'

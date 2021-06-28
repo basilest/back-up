@@ -1,4 +1,281 @@
 ------------------------------------------
+      Asynchronous programming
+------------------------------------------
+
+ JavaScript is usually "single-threaded":
+
+     Only one thing can happen at a time, on a single main thread,
+     and everything else is blocked until an operation completes.
+
+
+    Many Web API features now use asynchronous code to run, especially
+    those that access some kind of resource
+     - fetching a file from the network
+     - accessing a database and returning data from it
+
+    using synchronous code won't work, ex:
+
+        let response = fetch('myImage.png');
+        let blob = response.blob();
+        // display your image blob in the UI somehow
+
+    The problem is that I don't know how long the image will take to download,
+    so when I come to run the second line it will throw an error (possibly intermittently, possibly every time)
+    because the response is not yet available.
+    Instead, I need my code to wait.
+
+------------------------------------------
+      Callbacks
+------------------------------------------
+A callback is a function passed as an argument to another function.
+
+            ________________________________________
+           |  function myDisplayer(some) {
+           |    document.getElementById("demo").innerHTML = some;
+           |  }
+           |
+           |  function myCalculator(num1, num2, myCallback) {
+           |    let sum = num1 + num2;
+           |    myCallback(sum);
+           |  }
+           |
+           |  myCalculator(5, 5, myDisplayer);    <----- passed just the name, no ()
+           '________________________________________
+
+the callback function is not executed immediately.
+It is "called back" asynchronously somewhere inside
+the containing function's body when the time comes.
+
+Callbacks are then a first way to do Asynchronous programming
+anyhow they are slightly old-fashioned now.
+
+Promises are the new style of async code.
+A good example is the fetch() API, which is basically like a modern,
+more efficient version of XMLHttpRequest.
+------------------------------------------
+      Promise     "I Promise a Result!"
+------------------------------------------
+
+
+          "Producing code" is code that can take some time
+          "Consuming code" is code that must wait for the result
+
+          A Promise is a JavaScript object that
+          contains both the producing code and calls to the consuming code:
+
+          A promise will return a value in the future, which means
+          it lets asynchronous methods to return values like synchronous methods:
+          instead of immediately returning the final value, the asynchronous method
+          returns a promise to supply the value at some point in the future.
+
+          IMPORTANT: when working with the promises think that by default things are going async
+                     instead of normally sync. Be careful then because you can find that
+                     for example a DB connection has been closed before you even started reading from it.
+
+            ________________________________________
+           |  let myPromise = new Promise(function(myResolve, myReject) { <--- if created explicitly via Prmoise construct
+           |  // "Producing Code" (May take some time)                         its argument is a PRODUCING-code function
+           |                                                                   which itself has 2 callbacks args which should
+           |    myResolve(); // when successful                                call when ok & when err
+           |    myReject();  // when error
+           |  });
+           |
+           |  // "Consuming Code" (Must wait for a fulfilled Promise)
+           |  myPromise.then(                                                  the method  '.then'
+           |    function(value) { /* code if successful */ },                  of a Promise has 2 OPTIONAL callbacks args
+           |    function(error) { /* code if some error */ }                   the 1st will be called when the Promise ended OK
+           |                                                                          (the return value of the promise is the arg to this 1st callback)
+           |  );                                                               the 2nd will be called when the Promise ended err
+           |                                                                   .then returns a new promise2, which is what returned
+           |                                                                   by the 1st or 2nd arg called.
+           |                                                                   If the 2 args-callback don't return a promise but a value x
+           |
+           |                                                                  always pass a function into then()
+           |                                                                  If .then receives not a function (ex a Promise or null (.then (null))
+           |                                                                  it is a 'pass-through'
+           |                                                                  ex. Promise.resolve('foo').then(Promise.resolve('bar')).then(function (result) {
+           |                                                                           console.log(result);  <--- 'foo'
+           |                                                                         });
+           |
+           '________________________________________
+           |  function myDisplayer(some) {
+           |    document.getElementById("demo").innerHTML = some;
+           |  }
+           |
+           |  let myPromise = new Promise(function(myResolve, myReject) {
+           |    let x = 0;
+           |
+           |  // The producing code (this may take some time)
+           |
+           |    if (x == 0) {
+           |      myResolve("OK");
+           |    } else {
+           |      myReject("Error");
+           |    }
+           |  });
+           |
+           |  myPromise.then(
+           |    function(value) {myDisplayer(value);},
+           |    function(error) {myDisplayer(error);}
+           |  );
+           '________________________________________
+
+
+           some_promise_returning_a_response_object().then(function(response) {
+             return response.json();
+           }).then(function(json) { <---- every .then  block rerurns a promise, chaining them together,
+              do_something (json);        so multiple async op can be made to run in order, one after another.
+           }).catch(function(err) {  <--------------  The catch() block at the end runs if any of the .then() blocks fail
+             console.log('Fetch problem: ' + err.message);
+           });
+
+  --------------
+   3 states
+  --------------
+           A promise internally can be in any of 3 possible state:
+
+           settled / -fulfilled  (resolve() was called)
+           ------- \ -rejected   (reject()  was called)
+
+                     -pending    (not yet fulfilled & rejected)
+
+            people use
+                      resolved or
+                      settled
+            to mean "not pending"
+
+            - Once settled, a promise can not be resettled.
+              Calling resolve() or reject() again will have no effect.
+              The immutability of a settled promise is an important feature.
+
+
+            - JavaScript don't expose promise states.
+              promise are considered as a black box.
+
+  --------------
+   Promises versus callbacks
+  --------------
+
+Promises have some similarities to old-style callbacks.
+They are essentially a returned object to which you attach callback functions,
+rather than having to pass callbacks into a function.
+
+However, promises are specifically made for handling async operations,
+and have many advantages over old-style callbacks:
+
+  . You can chain multiple async operations together using multiple .then() operations,
+    passing the result of one into the next one as an input.
+    This is much harder to do with callbacks, which often ends up with a messy "pyramid of doom" (or callback hell).
+
+  . Promise callbacks are always called in the strict order they are placed in the event queue.
+
+  . Error handling is much better - all errors are handled by a single .catch() block at the end,
+    rather than being individually handled in each level of the "pyramid".
+
+  . Promises avoid inversion of control, unlike old-style callbacks, which lose full control of how
+    the function will be executed when passing a callback to a third-party library.
+
+
+  --------------
+    Promise guarantes next block will be called
+  --------------
+
+   Generally, you are less interested in the amount of time an async operation will take to return its result
+   (unless of course, it takes far too long!),
+   and more interested in being able to respond to it being returned, whenever that is.
+   And of course, it's nice that it doesn't block the rest of the code execution.
+
+  --------------
+    Create = Exec
+  --------------
+
+   Per the promise spec, as soon as a promise is created, it begins executing.
+
+   Be careful then, because
+   if for example I create an array of Promises thinking to run them sequentially,
+   this will not exec as I'm assuming, as once the Promises are created they start executing.
+
+  --------------
+   4 static methods
+  --------------
+
+            There are 4 class-methods (which can be called on type JS 'Promise' without an object)
+                Promise.resolve()
+                Promise.reject()
+                Promise.all()
+                Promise.race()
+
+    Promise.resolve('some')  <----------- here Promise.resolve  will resolve directly passing 'some' to the chain (.then)
+
+          .then(function(string) { // <-- This will happen after the above Promise resolves (returning the value 'some')
+            return new Promise(function(resolve, reject) {
+              setTimeout(function() {
+                string += 'thing';
+                resolve(string);
+              }, 1);
+            });
+          })
+          .then(function(string) { // <-- This will happen after the above .then's new Promise resolves
+            console.log(string); // <-- Logs 'something' to the console
+          });
+
+
+    Promise.all()   the syntax is
+
+            Promise.all([a, b, c]).then(values => {
+              ...
+            });
+
+    It receives an array of Promises. The .then will be executed if ALL are fulfilled
+    and the 'values' passed as arg is an array of the values returned by each.
+    If any Promise fails, the then is not executed.
+
+        let a = fetch(url1);
+        let b = fetch(url2);
+        let c = fetch(url3);
+
+        Promise.all([a, b, c]).then(values => {
+          ...
+        });
+    ------------------------------------------
+      async / await
+------------------------------------------
+sync way:
+     function hello() { return "Hello" };
+     hello();     # Hello
+
+async way:
+     async function hello() { return "Hello" };
+     hello();     # Promise { <state>: "fulfilled", <value>: "Hello" }  <--- returns a Promise
+
+I can assign to a var:
+     hello = async function() { return "Hello" };
+     hello();     # Promise { <state>: "fulfilled", <value>: "Hello" }
+
+I can use arrow functions:
+     hello = async () => { return "Hello" };
+     hello();     # Promise { <state>: "fulfilled", <value>: "Hello" }
+
+To actually consume the value I can use a .then() block:
+     hello().then((value) => console.log(value))
+     # or just
+     # hello().then(console.log)
+
+
+
+
+await:
+
+
+       await can be put in front of any async promise-based function
+       to pause on that line until the promise fulfills, then return the resulting value.
+
+       The await keyword causes the JavaScript runtime to pause your code on this line,
+       not allowing further code to execute in the meantime until the async function call has returned its result
+       — very useful if subsequent code relies on that result!
+
+
+------------------------------------------
       promises
 ------------------------------------------
 - Callbacks added with then() even after the success or failure of the asynchronous operation, will be called.
@@ -13,7 +290,6 @@ the then() function returns a new promise, different from the original
       function(a,b) { ... }    (a,b) => { ... }
 
 
-	I
  x    for   return x:
 
       () => { return x; }          () => x
@@ -48,7 +324,7 @@ The keyword await makes JavaScript wait until that promise settles and returns i
 (It’s just a more elegant syntax of getting the promise result than promise.then, easier to read and write.)
 
 
-let value = await promise;       // values contains the result of the promise.
+let value = await promise;       // value contains the result of the promise.
 
 
 

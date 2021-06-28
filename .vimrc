@@ -59,6 +59,10 @@ set nocompatible
 "           OLD VUNDLE CONFIG:    Plugin 'scrooloose/nerdtree.git'
 Plug 'scrooloose/nerdtree'
 "</NERDTREE>
+"<VIM-DIRDIFF>
+Plug 'will133/vim-dirdiff'
+" usage  --->  :DirDiff <dir1> <dir2>      vim -c 'DirDiff dir1 dir2'
+"</VIM-DIRDIFF>
 
 "<AIRLINE>
 "           OLD VUNDLE CONFIG:    Plugin 'vim-airline/vim-airline'

@@ -504,6 +504,10 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
              pip install --upgrade pip
              pip install -U        pip
 
+             but it seems replace by the following
+                  python2 -m pip install --upgrade pip   # for Python 2
+                  python3 -m pip install --upgrade pip   # for Python 3
+
               ---------------------------------
               ISSUE OF PIP NOT UPGRADING ITSLEF:
               ---------------------------------

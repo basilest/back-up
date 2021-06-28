@@ -58,6 +58,253 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
 
+
+            ╰─ fly targets
+            name             url                                team    expiry
+            platform-common  https://ci.platform.aws.chdev.org  common  Thu, 17 Jun 2021 15:02:52 UTC
+            ps               http://localhost:8080              main    Tue, 10 Nov 2020 23:16:38 UTC
+            tutorial         http://127.0.0.1:8080              main    Sun, 30 Aug 2020 21:31:44 UTC
+
+
+            ╰─ fly -t platform-common teams
+            fly version (7.1.0) is out of sync with the target (6.7.1). to sync up, run the following:
+
+                fly -t platform-common sync
+
+            cowardly refusing to run due to significant version discrepancy
+
+            ╰─ fly -t platform-common sync                  #
+            downloading fly from https://ci.platform.aws.chdev.org...
+
+            fly v6.7.1 [================================================] 52.0MiB/52.0MiB
+            done
+
+
+            ╰─ fly -t platform-common teams                 # teams List the configured teams (aliases: t)
+            name
+            common
+            live
+            team-aardvark
+            team-amido
+            team-apollo
+            team-architects
+            team-celestial
+            team-csi
+            team-dsai
+            team-harmonia
+            team-infrastructure
+            team-pa
+            team-phoenix
+            team-platform
+            team-spartacus
+            team-synergy
+            team-thunderbirds
+            team-thundercats
+            team-tiny-rebels
+            team-titans
+            team-toro-loco
+
+            ╰─ fly -t platform-common status                #  status     Login status
+            logged in successfully
+
+            ╰─ fly -t platform-team-thundercats login -c https://ci.platform.aws.chdev.org/ -n team-thundercats
+            logging in to team 'team-thundercats'
+
+            navigate to the following URL in your browser:
+
+              https://ci.platform.aws.chdev.org/login?fly_port=53302
+
+            or enter token manually (input hidden):
+            target saved
+
+
+            ╰─ fly -t platform-team-thundercats get-pipeline -p efs-submission-api
+
+              ...<---- ALL THE YAML WILL BE SHOWN HERE
+
+            cd /Users/sbasile/SUP/CONCOURSE/ci-pipelines/scripts
+            ╰─ ./set-pipeline -t platform-common  -p efs-submission-api
+
+              this will SET a pipeline which is something to do only if the pipeline code itself was modified in github
+              since the last time it was kicked off
+
+
+
+
+            ╰─ fly -t platform-common bs                    # builds      List builds data (aliases: bs)
+            id     pipeline/job                                              build  status     start                     end                       duration   team
+            59449  chs-delta-api/cidev-api-tests                             1      started    2021-06-17@11:43:17+0100  n/a                       1m53s+     team-aardvark
+            59448  ois-tuxedo-configs/build-staging-configs                  1      started    2021-06-17@11:43:14+0100  n/a                       1m56s+     team-platform
+            59447  chs-delta-api/aard1-api-tests                             1      started    2021-06-17@11:43:51+0100  n/a                       1m19s+     team-aardvark
+            59446  company-search-consumer/apollo1                           2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
+            59445  company-search-consumer/cidev                             2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
+            59444  search.api.ch.gov.uk/apollo1-api-tests                    46     succeeded  2021-06-17@11:42:21+0100  2021-06-17@11:44:43+0100  2m22s      team-apollo
+            59443  search.api.ch.gov.uk/apollo1                              64     succeeded  2021-06-17@11:41:19+0100  2021-06-17@11:41:58+0100  39s        team-apollo
+            59442  search.api.ch.gov.uk/docker-build                         59     started    2021-06-17@11:41:19+0100  n/a                       3m51s+     team-apollo
+            59441  search.api.ch.gov.uk/release                              59     succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:41:16+0100  3m53s      team-apollo
+            59440  company-search-consumer/release                           2      succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:42:08+0100  4m45s      team-apollo
+            59439  data-reconciliation/analyse-pull-request                  71     succeeded  2021-06-17@11:35:09+0100  2021-06-17@11:39:16+0100  4m7s       team-thunderbirds
+            59438  efs-submission-web/analyse-pull-request                   55     succeeded  2021-06-17@11:34:24+0100  2021-06-17@11:40:12+0100  5m48s      team-thundercats
+            59437  search.api.ch.gov.uk/test-analyse                         62     succeeded  2021-06-17@11:34:23+0100  2021-06-17@11:37:06+0100  2m43s      team-apollo
+            59436  company-search-consumer/build-test-analyse                2      succeeded  2021-06-17@11:33:40+0100  2021-06-17@11:37:04+0100  3m24s      team-apollo
+            59435  efs-submission-api/analyse-pull-request                   71     succeeded  2021-06-17@11:31:00+0100  2021-06-17@11:35:33+0100  4m33s      team-thundercats
+            59434  efs-submission-api/api-tests                              45     succeeded  2021-06-17@11:30:50+0100  2021-06-17@11:32:07+0100  1m17s      team-thundercats
+            59433  chs-delta-api/cidev                                       7      succeeded  2021-06-17@11:29:52+0100  2021-06-17@11:30:36+0100  44s        team-aardvark
+            59432  chs-delta-api/api-tests                                   1      succeeded  2021-06-17@11:26:58+0100  2021-06-17@11:29:44+0100  2m46s      team-aardvark
+            59431  chs-configs/synchronise-to-s3                             497    succeeded  2021-06-17@11:25:49+0100  2021-06-17@11:28:04+0100  2m15s      common
+            59430  artifact-adminsites/build-ewfadmin-artifact               1      failed     2021-06-17@11:17:32+0100  2021-06-17@11:20:40+0100  3m8s       team-infrastructure
+            59429  efs-submission-web/analyse-pull-request                   54     succeeded  2021-06-17@11:16:09+0100  2021-06-17@11:21:05+0100  4m56s      team-thundercats
+            59428  efs-submission-web/analyse-pull-request                   53     succeeded  2021-06-17@10:43:35+0100  2021-06-17@10:49:42+0100  6m7s       team-thundercats
+  ------->  59427  ewf-terraform/staging-plan                                130    pending    n/a                       n/a                       n/a        team-infrastructure
+            59426  api-sdk-node/release                                      63     succeeded  2021-06-17@10:02:42+0100  2021-06-17@10:06:17+0100  3m35s      common
+            59425  api-sdk-node/unit-testing                                 46     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:02:30+0100  1m14s      common
+            59424  api-sdk-node/security-check                               32     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:01:40+0100  24s        common
+            59416  data-reconciliation/analyse-pull-request                  70     succeeded  2021-06-17@09:37:54+0100  2021-06-17@09:44:10+0100  6m16s      team-thunderbirds
+            59415  data-reconciliation/analyse-pull-request                  69     succeeded  2021-06-17@09:30:42+0100  2021-06-17@09:34:42+0100  4m0s       team-thunderbirds
+            59412  data-reconciliation/analyse-pull-request                  68     failed     2021-06-17@09:26:08+0100  2021-06-17@09:29:52+0100  3m44s      team-thunderbirds
+            59411  efs-submission-web/automation-tests                       24     started    2021-06-17@09:25:58+0100  n/a                       2h19m12s+  team-thundercats
+            59410  efs-submission-web/docker-build                           31     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:27:09+0100  1m51s      team-thundercats
+            59409  efs-submission-web/tcats1                                 43     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:25:49+0100  31s        team-thundercats
+            59407  efs-submission-web/release                                44     succeeded  2021-06-17@09:20:20+0100  2021-06-17@09:25:09+0100  4m49s      team-thundercats
+            59404  efs-submission-web/test-analyse                           45     succeeded  2021-06-17@09:14:51+0100  2021-06-17@09:20:10+0100  5m19s      team-thundercats
+            59403  api-sdk-node/pull-request-analysis                        154    succeeded  2021-06-17@09:14:25+0100  2021-06-17@09:17:21+0100  2m56s      common
+            59402  data-reconciliation/tbirds1-apply                         55     succeeded  2021-06-17@09:10:58+0100  2021-06-17@09:11:17+0100  19s        team-thunderbirds
+            59401  data-reconciliation/tbirds1-plan                          65     succeeded  2021-06-17@09:09:21+0100  2021-06-17@09:10:57+0100  1m36s      team-thunderbirds
+            59400  data-reconciliation/release                               29     succeeded  2021-06-17@09:03:13+0100  2021-06-17@09:09:07+0100  5m54s      team-thunderbirds
+            59399  extensions-web/vulnerability-audit                        323    failed     2021-06-17@09:02:37+0100  2021-06-17@09:05:08+0100  2m31s      team-toro-loco
+            59398  file-transfer-api/vulnerability-audit                     295    failed     2021-06-17@09:01:22+0100  2021-06-17@09:05:23+0100  4m1s       common
+            59397  ch.gov.uk/cidev                                           44     succeeded  2021-06-17@09:00:19+0100  2021-06-17@09:00:53+0100  34s        common
+            59396  ch.gov.uk/cidev                                           43     aborted    n/a                       2021-06-17@09:00:19+0100  n/a        common
+            59395  ch-account-ui/system-test-dev                             44     failed     2021-06-17@08:55:43+0100  2021-06-17@09:01:49+0100  6m6s       team-amido
+            59394  ch-account-ui/development-deploy                          83     succeeded  2021-06-17@08:55:03+0100  2021-06-17@08:55:33+0100  30s        team-amido
+            59393  data-reconciliation/build-test-analyse                    30     succeeded  2021-06-17@08:54:56+0100  2021-06-17@09:02:38+0100  7m42s      team-thunderbirds
+            59392  ch-account-ui/development-apply                           77     succeeded  2021-06-17@08:54:23+0100  2021-06-17@08:54:50+0100  27s        team-amido
+            59391  ch-account-ui/development-build                           82     succeeded  2021-06-17@08:50:20+0100  2021-06-17@08:54:07+0100  3m47s      team-amido
+            59390  ch-account-ui/development-plan                            79     succeeded  2021-06-17@08:48:17+0100  2021-06-17@08:50:16+0100  1m59s      team-amido
+            59389  ch-account-ui/testing                                     92     succeeded  2021-06-17@08:44:22+0100  2021-06-17@08:48:10+0100  3m48s      team-amido
+            59388  applications.api.identity.ch.gov.uk/analyse-pull-request  147    succeeded  2021-06-17@08:28:30+0100  2021-06-17@08:32:54+0100  4m24s      team-celestial
+
+
+            ╰─ fly -t platform-common abort-build -b 59427  #  abort-build     Abort a build (aliases: ab)
+            build successfully aborted
+
+
+
+            ╰─ fly -t platform-common ps                    # pipelines        List the configured pipelines (aliases: ps) <---- better with option -a /  --all
+            name                             paused  public  last updated
+            account.ch.gov.uk                no      yes     2020-11-13 08:58:49 +0000 GMT
+            account.ch.gov.uk-deps           no      yes     2020-11-13 08:59:00 +0000 GMT
+            alpha-key-library                no      yes     2020-10-08 16:03:24 +0100 BST
+            api-helper-java                  no      yes     2020-11-13 08:59:14 +0000 GMT
+            api-sdk-go                       no      yes     2020-11-13 08:59:49 +0000 GMT
+            api-sdk-java                     no      yes     2020-11-13 09:00:08 +0000 GMT
+            api-sdk-manager-java-library     no      yes     2020-11-13 09:00:21 +0000 GMT
+            api-sdk-node                     no      yes     2020-12-08 17:29:13 +0000 GMT
+            api-security-java                no      yes     2020-11-13 09:01:24 +0000 GMT
+            api.ch.gov.uk                    no      yes     2020-11-12 15:19:56 +0000 GMT
+            api.ch.gov.uk-deps               no      yes     2020-10-09 08:37:36 +0100 BST
+            barcode-generator                no      yes     2020-11-13 09:01:49 +0000 GMT
+            bulk-image-load                  yes     yes     2020-09-03 09:13:24 +0100 BST
+            cdn.ch.gov.uk                    no      yes     2020-11-13 09:02:02 +0000 GMT
+            ch-kafka                         no      yes     2020-11-13 09:02:12 +0000 GMT
+            ch-sdk-node                      no      yes     2020-11-13 09:02:24 +0000 GMT
+            ch-structured-logging-node       no      no      2020-10-09 18:55:50 +0100 BST
+            ch.gov.uk                        no      yes     2020-11-13 09:02:34 +0000 GMT
+            ch.gov.uk-deps                   no      yes     2021-05-10 16:46:47 +0100 BST
+            chips-filing-consumer.yml        no      yes     2020-09-14 06:59:16 +0100 BST
+            chips-image-service              no      yes     2020-09-14 07:05:29 +0100 BST
+            chips-prosecution-api            yes     yes     2020-09-03 09:14:15 +0100 BST
+            chips-tuxedo-proxy               no      yes     2020-11-13 09:03:06 +0000 GMT
+            chs-appointments-api             no      yes     2020-11-13 09:04:16 +0000 GMT
+            chs-appointments-api-deps        no      yes     2020-11-13 09:04:26 +0000 GMT
+            chs-backend                      no      yes     2021-01-07 15:25:51 +0000 GMT
+            chs-backend-deps                 no      yes     2021-04-27 13:01:04 +0100 BST
+            chs-company-profile-api          yes     yes     2020-11-13 09:04:40 +0000 GMT
+            chs-company-profile-api-deps     no      yes     2020-11-13 09:05:21 +0000 GMT
+            chs-configs                      no      yes     2021-04-19 11:49:54 +0100 BST
+            chs-exemption-api                yes     yes     2020-11-13 09:05:39 +0000 GMT
+            chs-exemption-api-deps           no      yes     2020-11-13 09:06:11 +0000 GMT
+            chs-go-avro-schemas              yes     yes     2020-11-13 09:11:53 +0000 GMT
+            chs-integrity-checker            no      yes     2020-11-13 09:14:26 +0000 GMT
+            chs-kafka-api                    no      yes     2020-09-16 06:04:36 +0100 BST
+            chs-monitor-consumer             no      yes     2020-09-14 07:31:51 +0100 BST
+            chs-monitor-gui                  no      yes     2020-11-13 09:14:51 +0000 GMT
+            chs-monitor-gui-deps             no      yes     2021-05-10 16:46:31 +0100 BST
+            chs-psc-api                      no      yes     2021-06-03 08:28:30 +0100 BST
+            chs-psc-api-deps                 no      yes     2020-11-13 09:15:46 +0000 GMT
+            chs-queue-api                    no      yes     2020-11-13 09:15:58 +0000 GMT
+            chs-queue-api-deps               no      yes     2020-11-13 09:16:14 +0000 GMT
+            chs-registers-api                yes     yes     2020-11-13 09:16:21 +0000 GMT
+            chs-registers-api-deps           no      yes     2020-11-13 09:16:43 +0000 GMT
+            chs-streaming-api                no      yes     2020-11-13 09:16:53 +0000 GMT
+            chs-transform-api                no      yes     2020-11-14 10:29:23 +0000 GMT
+            chs-transform-api-deps           no      yes     2020-11-13 09:17:57 +0000 GMT
+            chs.go                           no      yes     2020-11-13 09:18:42 +0000 GMT
+            common-web-java                  no      yes     2020-11-13 09:19:00 +0000 GMT
+            company-lookup.web.ch.gov.uk     no      yes     2020-11-13 09:19:21 +0000 GMT
+            dapperdox.developer.ch.gov.uk    no      yes     2020-11-30 14:06:37 +0000 GMT
+            dev-dashboard-backend            no      yes     2020-11-13 09:20:10 +0000 GMT
+            dev-dashboard-web                no      yes     2020-11-13 09:20:30 +0000 GMT
+            developer.ch.gov.uk              no      yes     2021-06-08 16:49:47 +0100 BST
+            developer.ch.gov.uk-deps         no      yes     2021-06-03 17:30:40 +0100 BST
+            doc-template-sync                yes     yes     2020-09-03 09:16:53 +0100 BST
+            doc1-producer                    no      yes     2020-11-13 09:21:17 +0000 GMT
+            document-render-assets-registry  yes     yes     2020-11-13 09:21:28 +0000 GMT
+            document-render-from-html5       yes     yes     2020-09-03 09:17:02 +0100 BST
+            document-render-service          no      yes     2020-09-14 07:41:16 +0100 BST
+            document-request.web.ch.gov.uk   no      yes     2020-11-13 09:22:04 +0000 GMT
+            email-producer-java              no      yes     2020-10-15 13:19:53 +0100 BST
+            encryption-java-library          no      yes     2020-09-03 09:17:39 +0100 BST
+            envconf                          yes     yes     2020-11-13 09:23:22 +0000 GMT
+            environment-reader-library       no      yes     2020-11-13 09:23:31 +0000 GMT
+            environment-staging              yes     yes     2020-11-11 14:47:43 +0000 GMT
+            eric                             no      yes     2020-11-13 09:23:52 +0000 GMT
+            file-delivery-api                no      yes     2020-11-13 09:24:07 +0000 GMT
+            file-transfer-api                no      yes     2020-11-02 10:43:39 +0000 GMT
+            global-resource-check            no      yes     2020-11-14 10:23:27 +0000 GMT
+            go-sdk-manager                   no      yes     2020-11-13 09:24:41 +0000 GMT
+            go-session-handler               yes     yes     2020-11-13 09:24:47 +0000 GMT
+            gofigure                         yes     yes     2020-11-13 09:25:01 +0000 GMT
+            gotools                          yes     yes     2020-11-13 09:25:09 +0000 GMT
+            htmlform                         yes     yes     2020-11-13 09:25:46 +0000 GMT
+            image-regeneration               yes     yes     2020-09-03 09:20:46 +0100 BST
+            image-sender                     no      yes     2020-09-03 09:20:50 +0100 BST
+            ixbrl-renderer-service           no      yes     2020-11-13 09:25:59 +0000 GMT
+            java-session-handler             no      yes     2020-11-13 09:26:13 +0000 GMT
+            kafka-models                     no      yes     2020-11-13 09:26:24 +0000 GMT
+            letter-producer                  no      yes     2020-11-13 09:26:46 +0000 GMT
+            node-session-handler             no      yes     2020-10-12 16:27:36 +0100 BST
+            payment-reconciliation-consumer  no      yes     2020-11-13 09:27:37 +0000 GMT
+            postcode-lookup                  no      yes     2021-03-12 12:33:56 +0000 GMT
+            private-api-sdk-go               no      yes     2020-11-13 09:27:58 +0000 GMT
+            private-api-sdk-java             no      yes     2020-11-13 09:28:06 +0000 GMT
+            private-api-sdk-node             no      yes     2020-11-13 09:28:21 +0000 GMT
+            prosecution-case                 yes     yes     2020-09-03 09:21:22 +0100 BST
+            prosecution-event-handler        yes     yes     2020-09-03 09:21:25 +0100 BST
+            prosecution-web                  yes     yes     2020-09-03 09:21:30 +0100 BST
+            psc-discrepancies.api.ch.gov.uk  no      yes     2021-02-22 09:44:23 +0000 GMT
+            psc-discrepancies.web.ch.gov.uk  no      yes     2021-02-26 17:56:29 +0000 GMT
+            psc-discrepancy-parser           no      yes     2020-11-13 09:30:02 +0000 GMT
+            renderer-template-deployment     yes     yes     2020-09-03 09:23:39 +0100 BST
+            resource-change-publisher        no      yes     2020-11-13 09:30:12 +0000 GMT
+            rest-service-common-library      no      yes     2020-11-13 09:30:37 +0000 GMT
+            restoration-calculator-service   no      yes     2020-11-13 09:30:51 +0000 GMT
+            s3-av-scanner                    no      yes     2020-11-02 13:15:26 +0000 GMT
+            sdk-manager-java                 no      yes     2020-11-13 09:31:28 +0000 GMT
+            stream-router                    no      yes     2020-11-13 09:32:27 +0000 GMT
+            structured-logging               no      yes     2020-11-13 09:32:37 +0000 GMT
+            test-data-generator              no      yes     2021-04-19 12:51:20 +0100 BST
+            test-data-generator-stack        yes     yes     2020-11-13 09:33:54 +0000 GMT
+            test-data-stack                  yes     yes     2020-10-27 10:52:40 +0000 GMT
+            transactions.api.ch.gov.uk       no      yes     2020-11-30 07:41:17 +0000 GMT
+            transactions.web.ch.gov.uk       no      yes     2021-04-09 16:54:58 +0100 BST
+            uri-web                          no      yes     2020-11-13 09:35:03 +0000 GMT
+            web-security-java                no      yes     2020-11-13 09:35:28 +0000 GMT
+            web-security-node                no      yes     2021-05-17 13:24:12 +0100 BST
+            webhook-token-generator          no      yes     2020-09-03 09:25:53 +0100 BST
+
+
+
   CONCOURSE:
 
        $ wget https://concourse-ci.org/docker-compose.yml
@@ -106,9 +353,9 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
         a. web node:  it is the brain
                       it doesn't store any state
-                      it uses the DB to revtrieve any info
+                      it uses the DB to retrieve any info
 
-        b. wirker node: it's the executor.
+        b. worker node: it's the executor.
                         I can scale adding more workers to many pipelines
 
 ---------------------------------------------------   FLY
@@ -273,7 +520,6 @@ build successfully aborted
 ---------------------------------------------------
 ---------------------------------------------------
 ---------------------------------------------------
-
 
 
 

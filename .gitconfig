@@ -29,16 +29,19 @@
 	ba = branch -a
 [http]
     #proxy = http://wsproxy.internal.ch:8080
+    #proxy = http://websenseproxy.internal.ch:8080
 	postBuffer = 524288000
 [https]
-    #proxy = http://wsproxy.internal.ch:8080
+    #proxy = http://websenseproxy.internal.ch:8080
 [push]
 	default = simple
 [remote "origin"]
 	prune = true
-[url "https://sbasile-ch:72427e03c7348a2f11ae32ad5d10e9e830fcf4b7@github.com/"]
+[url "https://sbasile-ch:240abb2f55400d3b5b5c487520cf4a70abaeba50@github.com/"]
 	insteadOf = https://github.com/
-[url "https://sbasile-ch:72427e03c7348a2f11ae32ad5d10e9e830fcf4b7@github.com/"]
+[url "https://sbasile-ch:240abb2f55400d3b5b5c487520cf4a70abaeba50@github.com/"]
 	insteadOf = git@github.com:
 [url "git@github.com:"]
 	insteadOf = https://github.com/
+
+

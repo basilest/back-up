@@ -1884,6 +1884,13 @@ __  inodes
                tmpfs          1011292     34 1011258    1% /run/user/1000
           ______________________
 
+         df dir        to give info where a dir is mounted on:
+
+            [wcklive@wck2tux3 logdir]$  df .
+            Filesystem           1K-blocks      Used Available Use% Mounted on
+            /dev/cciss/c0d0p2     22177396  18060604   2990236  86% /home
+            [wcklive@wck2tux3 logdir]$
+
 
           ______________________ INODE
           An inode is the C-struct that can be seen with a   "man 2 stat"    (stat(2))

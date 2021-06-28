@@ -5,6 +5,13 @@ setopt HIST_FIND_NO_DUPS          # sbasile: imported the BASH equivalent (expor
 bindkey -v
 bindkey '^R' history-incremental-search-backward
 
+export HISTSIZE=100000
+export SAVEHIST=$HISTSIZE
+# sbasile: Appends every command to the history file once it is executed
+setopt inc_append_history
+# sbasile: Reloads the history whenever you use it
+setopt share_history
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -74,6 +81,27 @@ POWERLEVEL9K_VCS_MODIFIED_FOREGROUND='141'
 
 # --->  for code ({000..255}) print -P -- "$code: %F{$code}This is how your text would look like%f"  <-- paste in terminal to see all the colors
 #------------------ [END] configuration for  powerlevel9k/powerlevel9k
+#_______________ Using fd with fzf
+#export FZF_DEFAULT_COMMAND='fd --type file --color=always'
+#export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+#export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+
+
+#<FZF>
+# Setup fzf
+# ---------
+if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
+fi
+
+# Auto-completion
+# ---------------
+[[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
+
+# Key bindings
+# ------------
+source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+#</FZF>
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load

@@ -1978,7 +1978,8 @@ _____________________________________________________________________________
                |
                |                  2) matches as many as possible char. (greedy)
                |                     In Modern Perl you can use ? to switch to nongreedy (as few characters as possible)
-               |                     /.*?/
+               |                     GREEDY *, +, ?, and {}     NON_GREEDY:  *?, +?, ??, and {}?, respectively.
+               |                     ex. /.*?/
                |
                |         use re 'strict' (new in v5.22)     applies stricter rules than otherwise when compiling regex.
                |                                            It can find things that, while legal, may not be what you intended.
@@ -1986,8 +1987,8 @@ _____________________________________________________________________________
                |         !~              reverses =~     if ("Hello World" !~ /World/) { ...
                |
                |         m<C> ... <C>    to use another char <C> as delimiter instead of //   ex. "Hello World" =~ m!World!
-               |                          1.  <C> can be any char repeated (ex. | ... |)
-               |                          2.  <C> can be any mirrored char too.  ex [..]  (..)  {..}  <..>
+               |                          1.  <C> can be any char repeated (ex. m| ... |)
+               |                          2.  <C> can be any mirrored char too.  ex m[..]  m(..)  m{..}  m<..>
                |                         Useful when there are a lot of slashes, (to avoid to escape each).
                |                         ex. =~ m{///}              matches three literal forward slashes,
                |                             =~ s{^https?://}{}     removes the protocol part of a URL.

@@ -60,6 +60,9 @@ db.getCollection('company_profile').update({"_id":comp_no},
           |              collection.ns      stores the namespacing metadata for the collection.
           |______________________
 -----------------------------------
+1. run on all the svales
+myaws l cmd "mongo --host localhost -u admin --authenticationDatabase admin company_profile -p <password_here> -eval '"'db.company_profile.find({_id : "NI036890"},{"data.company_name":1})'"'"
+-----------------------------------
 1. run the daemon in a shell:
 
            mongod                             # with no params
@@ -713,3 +716,110 @@ capped:                  db.createCollection('logs', {capped: true, size: 104857
                                                                                      reaches 'max'
 
 
+____________________________________________________________ EXAMPLES
+_____________________________ 1
+
+[ec2-user@mesos-slave1-bulk:~]$   cat getzeropages.js
+use restore_10
+DBQuery.shellBatchSize = 1000
+db.getCollection('dynamo').find({"Pages.s":"0"},{_id:1,"DocumentID.s":1,"CompanyNumber.s":1,"CreatedAt.s":1,"Barcode.s":1,"OriginalID.s":1,"Pages.s":1,"Category.s":1})
+[ec2-user@mesos-slave1-bulk:~]$   mongo --norc mongo-db1-bulk.live.aws.internal < getzeropages.js
+MongoDB shell version v4.0.10
+connecting to: mongodb://mongo-db1-bulk.live.aws.internal:27017/test?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("5ab547c4-e114-44e1-a8e7-f93ae1325f98") }
+MongoDB server version: 3.6.13
+WARNING: shell and server versions do not match
+switched to db restore_10
+1000
+{ "_id" : ObjectId("5ec55e3b21713a93da6fe646"), "Pages" : { "s" : "0" }, "Category" : { "s" : "accounts" }, "CompanyNumber" : { "s" : "00029846" }, "OriginalID" : { "s" : "CHIPS:58503702" }, "Barcode" : { "s" : "A0G31CSY" }, "CreatedAt" : { "s" : "\"2015-02-01T00:42:06.947280554Z\"" }, "DocumentID" : { "s" : "4UtTkyAsZryuw5omRyya_s0rB7MnmgM_m0CphNyTCAc" } }
+{ "_id" : ObjectId("5ec5958721713a93da381bd8"), "Pages" : { "s" : "0" }, "Category" : { "s" : "accounts" }, "CompanyNumber" : { "s" : "FC005158" }, "OriginalID" : { "s" : "CHIPS:188478704" }, "Barcode" : { "s" : "A0LSKUMN" }, "CreatedAt" : { "s" : "\"2015-01-31T18:12:23.568028492Z\"" }, "DocumentID" : { "s" : "EzGIqKuG9w3lmsTsj4GqUWm0IC3laFgfl8waCbQwUdg" } }
+{ "_id" : ObjectId("5ec59c7621713a93da3baf3b"), "Pages" : { "s" : "0" }, "Category" : { "s" : "accounts" }, "CompanyNumber" : { "s" : "08687223" }, "OriginalID" : { "s" : "CHIPS:3101460374" }, "Barcode" : { "s" : "A397RU6R" }, "CreatedAt" : { "s" : "\"2015-01-31T22:20:24.030832223Z\"" }, "DocumentID" : { "s" : "JK1b4KBvDLJBU6_618fUN-ol-x0B-dUJLvC8FGWB5mQ" } }
+bye
+[ec2-user@mesos-slave1-bulk:~]$
+_____________________________ 1
+
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo -f _id,Pages,Category --query '{"_id" : ObjectId("5ec55cef21713a93da12621f")}' --type=csv --out testfile.txt
+   mongoexport --host localhost:27017 -d restore_10 -c dynamo -f _id,Pages,Category --query '{"_id" : ObjectId("5ec55cef21713a93da12621f")}' --type=csv --out testfile.txt
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo -f _id,Pages,Category --query '{"_id" : ObjectId("5ec55cef21713a93da12621f")}' --type=csv --out testfile.txt
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo  --query '{"_id" : ObjectId("5ec55cef21713a93da12621f")}' --type=csv --out testfile.txt
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo -f _id,Pages.s,Category.s,CompanyNumber.s,OriginalID.s,Barcode.s,CreatedAt.s,DocumentID.s --query '{"_id" : ObjectId("5ec55cef21713a93da12621f")}' --type=csv --out testfile.txt
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo -f _id,Pages.s,Category.s,CompanyNumber.s,OriginalID.s,Barcode.s,CreatedAt.s,DocumentID.s --query '{"Pages.s":"0"}' --type=csv --out zeropages.txt
+   mongoexport --host mongo-db1-bulk.live.aws.internal -d restore_10 -c dynamo -f '_id,Pages.s,Category.s,CompanyNumber.s,OriginalID.s,Barcode.s,CreatedAt.s,DocumentID.s' --query '{"Pages.s":"0"}' --type=csv --out zeropages.txt
+
+
+--------------------------- AGGREGATE
+
+    {
+        "_id" : "abcb32d5-62e6-45cf-a3b2-61e37f5c1d2c",
+        "created_at" : ISODate("2020-10-08T07:33:40.243Z"),
+        "data" : {
+            "kind" : "psc_discrepancy#psc_discrepancy_report",
+            "etag" : "e971f234872445334034d16fedc8c97d1a9c2c78",
+            "psc_name" : "Shorif Uddin",
+            "psc_date_of_birth" : "03/1989",
+            "details" : "Barclays Bank - Greenline",
+            "links" : {
+                "self" : "/psc-discrepancy-reports/c3636428-aad2-4303-95a2-aead490e7f4e/discrepancies/abcb32d5-62e6-45cf-a3b2-61e37f5c1d2c",
+                "psc-discrepancy-report" : "/psc-discrepancy-reports/c3636428-aad2-4303-95a2-aead490e7f4e"
+            }
+        }
+    }
+
+
+   .======================================
+   |  db.getCollection('psc_discrepancies').aggregate( [                 db.getCollection('queue').aggregate([{
+   |    {                                                                     $group: {_id: "$data.officer_id", count: { $sum: 1 }}
+   |      $group: {_id: {name:"$data.psc_name"}, count: { $sum: 1 } }       }],{"allowDiskUse":true})
+   |    }                                                                      ^^^^^^^^^^^^^^^^^^^^^
+   |  ])                                                                        to use temp files for results > 100 MB
+   |           use RAM up to 100 MB limit
+   '======================================
+
+
+
+   will give
+
+   {
+    "_id" : {
+        "name" : "Mr Markhan Singh Johal"
+    },
+    "count" : 1.0
+    }
+    /* 2 */
+    {
+        "_id" : {
+            "name" : "Mr Manpreet Singh Kohli"
+        },
+        "count" : 1.0
+    }
+    /* 3 */
+    {
+        "_id" : {
+            "name" : "PSC missing"
+        },
+        "count" : 22.0
+    }
+   .======================================
+   |  db.getCollection('psc_discrepancies').aggregate( [
+   |  {
+   |    $group: {_id: "$data.etag",
+   |             etag: { $first: "$created_at" }
+   |        }
+   |  } ])
+   '======================================
+   will give
+
+    {
+        "_id" : "309b363b4660532e6509c20971f81896672581ee",
+        "etag" : ISODate("2021-06-01T16:50:26.372Z")
+    }
+    /* 2 */
+    {
+        "_id" : "4db2c54c62d6225e555b85af97ede3545db64142",
+        "etag" : ISODate("2021-05-28T09:16:34.882Z")
+    }
+    /* 3 */
+    {
+        "_id" : "e971f234872445334034d16fedc8c97d1a9c2c78",
+        "etag" : ISODate("2020-10-08T07:33:40.243Z")
+    }

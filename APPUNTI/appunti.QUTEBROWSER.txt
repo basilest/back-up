@@ -1,0 +1,130 @@
+:version        # any info, including last commit / python version & paths
+
+
+                    qutebrowser v2.2.2
+                    ..
+                    adblock: 0.4.4
+                    ..
+                    config: C:\Users\USERNAME\AppData\Roaming\qutebrowser\config
+                    data: C:\Users\USERNAME\AppData\Roaming\qutebrowser\data
+
+
+
+     note these 3 are all the same
+
+                :version
+
+                :open qute://version
+
+                o qute://version
+
+--------------------------- o
+
+    o is one of default key bindings (in config.py)
+        config.bind('o', 'set-cmd-text -s :open')
+
+---------------------------  /  ?
+    normal search
+
+---------------------------  help
+
+    any of these:
+
+                :help
+
+                :open qute://help
+
+                o qute://help
+
+---------------------------  dev tools
+
+    wi  or :devtools                 open in a TAB
+    wIw or :devtools window          open in a WINDOW
+
+
+
+---------------------------  adblock
+
+                      it uses Brave’s Adblock Plus (ABP).
+    :adblock-update      ---> updates file "blocked-hosts" in the "data" dir
+
+
+---------------------------  messages
+
+                       to see all session messages
+    :messages
+    :messages --plain
+
+    H   (to go back to previous page)
+
+
+
+---------------------------  config.py
+
+
+    :config-write-py --defaults         --> creates a file named "config.py" in "config" dir
+
+    $ qutebrowser ':config-write-py --defaults filename.py'    from the command line to export in a file
+
+
+---------------------------  start without loading config/data/....
+
+    $ qutebrowser -T               or
+    $ qutebrowser --temp-basedir
+
+
+
+
+---------------------------  moving around
+
+     o         type URL + ENTER
+     go        to edit current page URL
+     H         go back     in history
+     L         go forward  in history
+     f         click link without mouse
+
+
+ T   gt        to list the tabs
+ A   Alt-2     to go to tab 2 .... Alt-n tab n
+ B   d         close 1 tab
+     u         undo close
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

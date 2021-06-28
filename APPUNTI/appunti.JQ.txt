@@ -1,0 +1,12 @@
+
+
+    .                identity filter   (prints input on output)
+    .foo             prints value of key foo
+                                             {"foo": 42, "bar": "less interesting data"}
+                                jq '.foo'
+                                             42
+    -r               jq -r       to remove double quote "      instead of ... | tr -d '"'
+                              jq    ....  "secure-mongo-db1.live.aws.internal"
+                              jq -r ....   secure-mongo-db1.live.aws.internal
+
+    jq '.[] | select(.location=="Stockholm")'  filter only entries with a field equal a value

@@ -1,0 +1,278 @@
+================================================================================
+                                B A S E  6 4
+================================================================================
+   Base64 & are encoding which work like this:
+
+       BINARY DATA --->  TEXT IN A FIXED RANGE OF PRINTABLE CHARS
+
+       ex images
+                          (this TEXT is easy to be
+                                - stored
+                                - transferred over a media
+                          ) ex HTML / CSS files / send email attach
+
+   BASE 64
+
+          It uses 6 bits (so 2^6 = 64 symbols) (called sextet) as by this table
+
+                0	000000	A	16	010000	Q	32	100000	g	48	110000	w
+                1	000001	B	17	010001	R	33	100001	h	49	110001	x
+                2	000010	C	18	010010	S	34	100010	i	50	110010	y
+                3	000011	D	19	010011	T	35	100011	j	51	110011	z
+                4	000100	E	20	010100	U	36	100100	k	52	110100	0
+                5	000101	F	21	010101	V	37	100101	l	53	110101	1
+                6	000110	G	22	010110	W	38	100110	m	54	110110	2
+                7	000111	H	23	010111	X	39	100111	n	55	110111	3
+                8	001000	I	24	011000	Y	40	101000	o	56	111000	4
+                9	001001	J	25	011001	Z	41	101001	p	57	111001	5
+                10	001010	K	26	011010	a	42	101010	q	58	111010	6
+                11	001011	L	27	011011	b	43	101011	r	59	111011	7
+                12	001100	M	28	011100	c	44	101100	s	60	111100	8
+                13	001101	N	29	011101	d	45	101101	t	61	111101	9
+                14	001110	O	30	011110	e	46	101110	u	62	111110	+
+                15	001111	P	31	011111	f	47	101111	v	63	111111	/
+                Padding	=
+
+
+
+
+
+           StdEncoding ( Standard 64 characters with padding )
+                        ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+                        .........1.........2.........3.........4.........5.........6...4
+
+           URLEncoding ( = StdEncoding but + --> - and / --> _ )
+
+                        ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
+                        .........1.........2.........3.........4.........5.........6...4
+
+     -------------------------
+     Note that ASCII range != BASE 64
+
+              ex.     M a n      ASCII  0100 1101   0110 0001   0110 1101
+                                            M           a           n
+
+                                 in 6-bit chunks:
+                                        010011 010110 000101 101101
+                                          T      W      F      t
+
+
+     -------------------------
+     Note the decimal index in the table:
+          the numerical (decimal) index in the table (ex 31 = 011111, which maps an f)
+          is used to get the value.
+
+
+     -------------------------
+     Padding	=
+                some '=' padding characters might be added to make the last encoded block contain 4 Base64 characters (sextets)
+
+                the m.c.m between 8 (8-bit-bytes) and 6 (6-bit-symbols) is 24
+                3 bytes   = 24 bits
+                4 sextets = 24 bits
+
+                so a stream of bytes is considered in blocks of 3 bytes, which will give each 4 sextets
+                if the last block of bytes is not of 3 (ex. 1 or 2) then:
+
+                if 1: 8 bit  --> 2 sextets (12 bit) + 2 to go to 4 sextets --> 2 padding =
+                if 2: 16 bit --> 3 sextets (18 bit) + 1 to go to 4 sextets --> 1 padding =
+
+                So note that:
+                      - padding can never be more than 2.... no possible 3:  = = =
+                      - A base64 string is aleays a multiple of 4 (with the last 4 eventually padded with 1 or 2 =)
+
+     Note Padding optional:
+                The padding character = is not essential since the number of missing bytes can be inferred
+                (from the length of the encoded text).
+                An exception anyhow is when multiple Base64 encoded files have been CONCATENATED.
+
+
+N2UyNDBkZTc0ZmIxZWQwOGZhMDhkMzgwNjNmNmE2YTkxNDYyYTgxNQ==
+fiQN50+x7Qj6CNOAY/amqRRiqBU
+
+
+================================================================================
+                                S H A
+================================================================================
+
+    SHA-1 &          (deprecated as it has been broken)
+    SHA-2 &
+    SHA-3 ....
+
+  are HASH FUNCTIONS
+  which means they produce a hash (a digest a checksum) from an input stream.
+
+      INPUT  -----(HASH FUNCTION) ----> hash
+
+
+  where :
+
+      - LENGTH.hash FIXED (ex 256 bit) whatever the INPUT.LENGHT
+      - Not possible to reconstruct INPUT <-- hash
+      - different INPUT should have --> differnt hash (if 2 INPUT have same hash it's called a CONFLICT)
+
+   SHA-2 steps:
+
+         1. convert into binary
+            "hello world" :  01101000 01100101 01101100 01101100 01101111 00100000 01110111 01101111
+                             01110010 01101100 01100100
+
+
+         2. Appent 1
+                             01101000 01100101 01101100 01101100 01101111 00100000 01110111 01101111
+                             01110010 01101100 01100100 1
+
+
+         3.  Pad with 0’s until data is a multiple of 512, less 64 bits (448 bits in our case):
+                             01101000 01100101 01101100 01101100 01101111 00100000 01110111 01101111
+                             01110010 01101100 01100100 10000000 00000000 00000000 00000000 00000000
+                             00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+                             00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+                             00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+                             00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+                             00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+
+         4.  8 hard-coded constants : the first 32 bits of the fractional parts of the square roots of the first 8 primes: 2, 3, 5, 7, 11, 13, 17, 19
+
+                                  square root        fractional part   fractional part
+                                                        (decimal)         (binary)
+
+                             2    1.41421356237      0.41421356237  0.0110101000001001111     h0 := 0x6a09e667
+                             3    1.73205080757      0.73205080757  0.10111011011001111011    h1 := 0xbb67ae85
+                             5    2.2360679775       0.2360679775   0.00111100011011101111    h2 := 0x3c6ef372
+                             7    2.64575131106      0.64575131106  0.10100101010011111111    h3 := 0xa54ff53a
+                             11   3.31662479036      0.31662479036  0.01010001000011100101    h4 := 0x510e527f
+                             13   3.60555127546      0.60555127546  0.10011011000001010111    h5 := 0x9b05688c
+                             17   4.12310562562      0.12310562562  0.0001111110000011111     h6 := 0x1f83d9ab
+                             19   4.35889894354      0.35889894354  0.01011011111000001101    h7 := 0x5be0cd19
+
+
+         5.  64 hard-coded constants : the first 32 bits of the fractional parts of the cube roots of the first 64 primes: (2 - 311)
+
+                                    0   0x428a2f98
+                                    1   0x71374491
+                                    2   0xb5c0fbcf
+                                           ..
+                                   63   0xc67178f2
+
+
+================================================================================
+                                SHA 256 & BASE 64 in GO & PERL
+================================================================================
+
+--------------- GO
+
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+)
+
+// DocumentID represents a document ID
+type DocumentID string
+
+var (
+	//Salt is a short string added to a message prior to encryption for added security
+	Salt = ":Lq514gbx1YWD8lW"
+)
+
+// NewDocumentID creates a new document ID
+func NewDocumentID(id string) DocumentID {
+	fmt.Println("received:" + id)               // received:3249228055
+	if len(id) == 0 {
+		return "error"
+	}
+
+	id = strings.TrimLeft(id, "0")
+	if len(id) == 0 { //Remove leading 0s not any and all 0s in a string of only 0s
+		id = "0"
+	}
+	id = "CHIPS:" + id
+	fmt.Println("now id is:" + id)               // now id is:CHIPS:3249228055
+
+	hasher := sha256.New()
+	hasher.Write([]byte(id))
+	hasher.Write([]byte(Salt))
+
+	encoded := strings.TrimSuffix(base64.URLEncoding.EncodeToString(hasher.Sum(nil)), "=")
+	fmt.Println("the legacy encoding would be:" + encoded)    // the legacy encoding would be:1wHfGQgQhMauFRcAh2oAqCDCjBLb8-wcnhpYP5tJ32I
+
+	//------------------------------ 1/3
+	e1 := hasher.Sum(nil)
+	fmt.Printf("sh256 sum gives : %s", hex.Dump(e1))       // sh256 sum gives : 00000000  d7 01 df 19 08 10 84 c6  ae 15 17 00 87 6a 00 a8  |.............j..|
+                                                           // 00000010  20 c2 8c 12 db f3 ec 1c  9e 1a 58 3f 9b 49 df 62  | .........X?.I.b|
+	fmt.Printf("sh256 sum just gives : %x \n", e1)         // sh256 sum just gives : d701df19081084c6ae151700876a00a820c28c12dbf3ec1c9e1a583f9b49df62
+
+	//------------------------------ 2/3
+	e2 := base64.URLEncoding.EncodeToString(e1)
+	fmt.Println("base64 gives :" + e2)               // base64 gives :1wHfGQgQhMauFRcAh2oAqCDCjBLb8-wcnhpYP5tJ32I=
+
+	//e2 += "=============="
+	//fmt.Println("adding many padding :" + e2)
+
+	//------------------------------ 3/3
+	e3 := strings.TrimSuffix(e2, "=")
+	fmt.Println("trimming gives :" + e3)             // trimming gives :1wHfGQgQhMauFRcAh2oAqCDCjBLb8-wcnhpYP5tJ32I
+
+	return DocumentID(encoded)
+}
+
+func main() {
+	id := os.Args[1] // pass entity id (ex. 3249228055)
+
+	fmt.Println(NewDocumentID(id))
+1wHfGQgQhMauFRcAh2oAqCDCjBLb8-wcnhpYP5tJ32I
+}
+--------------- PERL
+perl -e 'use Digest::SHA qw(sha256_hex sha256_base64);
+         $data="CHIPS:3249228055:Lq514gbx1YWD8lW";
+         $digest1=sha256_hex($data);
+         $digest2=sha256_base64($data);
+         print "$digest1\n$digest2\n";'
+
+      d701df19081084c6ae151700876a00a820c28c12dbf3ec1c9e1a583f9b49df62  <---- sha256 same as GO
+      1wHfGQgQhMauFRcAh2oAqCDCjBLb8+wcnhpYP5tJ32I                       <---- bade 64 different:
+                                                                                         - Go uses - (as I used URLEncoding) and padding = (which is the trimmed off)
+                                                                                           (so in perl I can do $digest2 =~ s/\+/-/g;  $digest2 =~ s|/|_|g;
+                                                                                         - Perl uses + and no padding
+
+
+      Note from CPAN:
+      By convention, CPAN Digest modules do not pad.
+      Problems can occur when feeding such digests to other software that expects properly padded Base64 encodings.
+      Any necessary padding must be done by the user.
+      Fortunately, this is a simple operation:
+      if the length of a Base64-encoded digest isn't a multiple of 4, simply append "=" characters to the end of the digest until it is:
+
+        while (length($b64_digest) % 4) {
+                $b64_digest .= '=';
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

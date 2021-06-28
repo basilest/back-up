@@ -5,6 +5,32 @@ AWS CLI
              upgrade            (same of install)
 
              uninstall          pip3 uninstall awscli
+
+     v2 on mac (both install & UPDATE):
+
+                $ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+                $ sudo installer -pkg AWSCLIV2.pkg -target /
+
+
+                ╰─ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" ; sudo installer -pkg AWSCLIV2.pkg -target /
+
+                      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                                     Dload  Upload   Total   Spent    Left  Speed
+                    100 24.9M  100 24.9M    0     0   267k      0  0:01:35  0:01:35 --:--:--  324k
+                    Password:
+                    installer: Package name is AWS Command Line Interface
+                    installer: Upgrading at base path /
+                    installer: The upgrade was successful.
+
+                    ╭─   28048   192.168.0.3  sbasile@pd12671   ~/CHL 
+                    ╰─
+
+----------------------------------------------------------
+AWS CLI --debug
+                           . aws --debug ....    # add whenever a command doesn't work as expected
+
+                                                 ex. used with  aws --profile live --debug sqs list-queues
+                                                     to find that python was failing to work with its module 'boto'
 ----------------------------------------------------------
 AWS CLI configure
                            . aws configure      <--- this will create a default entry to use
@@ -161,6 +187,51 @@ aws-cli for S3
 
 				   ex:
 					  aws s3  cp  /tmp/foo/  s3://bucket/  --recursive
+
+
+
+                TO LIST THE VERSIONS OF DOCS DOWN A VERSIONED BUCKET:
+
+aws s3api list-object-versions --bucket shared-services.eu-west-2.configs.ch.gov.uk
+                                        ^^^^^^^^^^^^^^^^^^^^ 1 ^^^^^^^^^^^^^^^^^^^^
+                  1: bucket name (note:
+                            - no s3://
+                            - no / at the end
+                            - it's not the dir where a file is present, it's really the bucketname,
+                              the file is identified by its "Key" field)
+
+                  the above command will dump a list of any versioned file in any sub-dirs, ex of list-entry:
+                            {
+                                "ETag": "\"b1714689211011a833081174ca2dfcd5\"",
+                                "Size": 13334,
+                                "StorageClass": "STANDARD",
+                                "Key": "chl-xmlgw-configs/staging/XMLGWConfig.pm", <------------- the Key
+                                "VersionId": "WzU_VHBe7som04kpW.OPuzya8BXvuX6d",   <------------- the version-id
+                                "IsLatest": true,
+                                "LastModified": "2021-06-09T09:20:05+00:00",
+                                "Owner": {
+                                    "ID": "98d4e194677d46e956f7af0d3c0e4f48a85aba407a365e005c647629b196550f"
+                                }
+                            },
+aws s3api get-object --bucket shared-services.eu-west-2.configs.ch.gov.uk --version-id WzU_VHBe7som04kpW.OPuzya8BXvuX6d --key chl-xmlgw-configs/staging/XMLGWConfig.pm output_file
+                              ^^^^^^^^^^^^^^^^^^^^ 1 ^^^^^^^^^^^^^^^^^^^^              ^^^^^^^^^^^^^^^ 2 ^^^^^^^^^^^^^^       ^^^^^^^^^^^^^^^^^^ 3 ^^^^^^^^^^^^^^^^^^  ^^ 4 ^^^^^^
+                  1: bucket name: as for the "list-object-versions" command above
+                  2: the version I want
+                  3: the Key (it's usually a FULL path, so that -1- can just be a bucket name)
+                  4: the output file where to save the result
+
+    NOTE:
+           4 (output_file) will contain the result, nonetheless on stderr is printed something like this:
+                        {
+                            "AcceptRanges": "bytes",
+                            "LastModified": "2021-06-09T09:20:05+00:00",
+                            "ContentLength": 13334,
+                            "ETag": "\"b1714689211011a833081174ca2dfcd5\"",
+                            "VersionId": "WzU_VHBe7som04kpW.OPuzya8BXvuX6d",
+                            "ContentType": "binary/octet-stream",
+                            "Metadata": {}
+                        }
+
 
 ----------------------------------------------------------
 Why AWF:  It is the FASTEST growing cloud computing platform
@@ -906,3 +977,24 @@ _________________________________________________________ Identity Access Manage
             }
         ]
     }
+_________________________________________________________ Key pairs
+
+
+   1. The keys are used to access EC2 (over ssh)
+   2. I can see their fingerprints in the console in EC2 / Network & Security / Key Pairs
+
+         Name   Fingerprint                                      ID
+	     ewf	06:07:86:a1:d0:44:4c:32:99:e7:3e:dc:27:3b:da:b9	key-025b7a0195275f6a7
+
+   3. The keys as file .pem CANNOT be seen again after it's created.
+      The shown "Fingerprint" is just a DER-encoded copy of the private key.
+      (just for veryfing that it's from the key I have). So if the pem key is lost
+      it must be created another one
+
+   4. $ aws ec2   describe-key-pairs                         # to see the pairs
+   5. $ aws ec2   describe-key-pairs --key-name ewf          # to shown only that pair
+   6. $ aws ec2   delete-key-pair    --key-name ewf          # to delete
+   7. $ aws ec2   create-key-pair    --key-name ewf --query 'KeyMaterial' --output text > ewf.pem
+
+   8. put the key in ~/.ssh with chmod 400
+
