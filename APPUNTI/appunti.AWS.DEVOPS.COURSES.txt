@@ -1239,6 +1239,61 @@ Beginner·1h 17m·Apr 6, 2020
 
 
 
+---------------------------------------------------------
+
+       2 Managing AWS Operations
+         Andru Estes
+
+
+       AWS Systems Manager
+
+           - Group user resources ----> into Resource-GROUPS
+
+       AWS Systems Manager is a suite of more tools:
+
+         Operations Management:
+                     - Explorer: allows customizable dashboards for reports of resources
+                     - OpsCenter: centralised place for viewing / investigating / fixing
+                                   (I can create my own events associated to instances (e.g. EC2 id))
+                     - CloudWatch / metrics:   I can create my Dashboard
+                     - Trusted Advisor: AWS Health EVENTS
+
+         Application Management:
+                     - Resource Groups: I can create my resources based on TAG (ex 'XML') or CloudFormation stack ids.
+                                        Once the group is created (with its name), all the resources grouped
+                                        can be seen all together (and so automatic actions will be possible
+                                        specifing that resource-GROUP-name)
+                     - AppConfig: allows to create / deploy app configs
+                     - Parameter Store  (for secrets & data)
+
+
+
+
+
+
+
+
+
+
+    _____________________________
+    . 1/4 Course Review
+    _____________________________
+
+
+    _____________________________
+    . 2/4 Planning & Configuring AWS System Manager
+    _____________________________
+
+
+    _____________________________
+    . 3/4 Monitoring Compliance
+    _____________________________
+
+
+    _____________________________
+    . 4/4 Using Additional Monitoring Service
+    _____________________________
+
 
 
 ---------------------------------------------------------

@@ -1,3 +1,36 @@
+===========================================================================
+TL;DR
+PROBLEM WITH DISABLE GIT ACCOUNT:
+
+╰─ git push --set-upstream origin feature/fix-missing-double-quote
+remote: Invalid username or password.
+fatal: Authentication failed for 'https://github.com/companieshouse/xml-ami.git/'
+
+
+               1. ssh-keygen -t rsa -b 4096 -f id_ghub_ch_rsa       # I get [id_ghub_ch_rsa] + [id_ghub_ch_rsa.pub]
+               2. pbcopy < ~/.ssh/id_ghub_ch_rsa.pub                # I copy to the clipboard
+               3. GitHub account -> Settings -> SSH and GPG keys -> SSH keys [New SSH key] --> paste
+               4. GitHub account -> Settings -> Developer settings -> Personal access tokens [Generate new token]
+
+                                    Tokens you have generated that can be used to access the GitHub API.
+
+                                    Make sure to copy your personal access token now. You won’t be able to see it again!
+                                    ghp_...................................C
+
+
+               5. Stick it into ~/.gitconfig
+
+                38 [remote "origin"]
+                39     prune = true
+                40 [url "https://sbasile-ch:ghp_...................................C@github.com/"]
+                41     insteadOf = https://github.com/
+                42 [url "https://sbasile-ch:ghp_...................................C@github.com/"]
+                43     insteadOf = git@github.com:
+                46
+===========================================================================
+
+
+
 
 --------------------------------------------------- / Encription
 
@@ -71,6 +104,18 @@
       |        |          |         |
       |  sshd  |  <=====> |   ssh   |
       |________|          |_________|
+
+      if ssh-copy-id is not present, then to copy the key on the remote server I can do any of the following:
+
+      --------------1
+      scp ~/.ssh/id_rsa.pub user@remote.example.com:/tmp/id_rsa.pub
+      ssh user@remote.example.com
+      cat /tmp/id_rsa.pub >> ~/.ssh/authorized_keys
+
+      -------------2
+      cat ~/.ssh/id_rsa.pub | ssh user@remote.example.com 'cat >> ~/.ssh/authorized_keys'
+
+
 
 
       There could be different ways to configure the handshaking, anyhow

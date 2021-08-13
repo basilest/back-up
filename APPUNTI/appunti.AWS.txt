@@ -234,6 +234,89 @@ aws s3api get-object --bucket shared-services.eu-west-2.configs.ch.gov.uk --vers
 
 
 ----------------------------------------------------------
+aws-cli Session Manager
+
+        sms
+
+        I can install th optional plugin to ease connections to EC2
+
+        INSTALL
+
+        1. curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
+        2. unzip sessionmanager-bundle.zip
+        3. sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+                                                   ^^^^^^^^^^^^^^^ 1 ^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^^ 2 ^^^^^^^^^^^^^^^^^
+
+           I need Python 2.6.5 or later, or Python 3.3 or later.
+           I can specify whoch python to use adding its absolute path (after sudo):
+
+           3.1. sudo /usr/local/bin/python3.9 sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+                     ^^^^^^^^^^^^^^^^^^^^^^^^                                  ^^^^^^^^^^^^^^^ 1 ^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^^ 2 ^^^^^^^^^^^^^^^^^
+
+              -i  (1)   the installed binary
+              -b  (2)   a symlink to (1)
+
+              -h to see the help      ./sessionmanager-bundle/install -h
+
+        UNINSTALL
+
+                       sudo rm -rf /usr/local/sessionmanagerplugin                (1)
+                       sudo rm /usr/local/bin/session-manager-plugin              (2)
+
+
+        VERIFY INSTALL
+
+               $ session-manager-plugin
+
+                 The Session Manager plugin was installed successfully. Use the AWS CLI to start a session.
+
+               $ aws ssm start-session --target i-07e9bd6d3497545cd --region eu-west-2
+
+        TUNNEL SSH via ssm
+               1. Add this into ~/.ssh/config
+
+                     # SSH over Session Manager
+                     host i-* mi-*
+                     ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+               2. ssh ec2-user@i-07e9bd6d3497545cd
+
+----------------------------------------------------------
+aws-cli SSO              (Single  Sign-On Portal)
+
+╰─ aws configure sso
+SSO start URL [None]: https://companies-house.awsapps.com/start#/
+SSO Region [None]: eu-west-2
+There are 9 AWS accounts available to you.
+  ch-heritage-dev, heritagedev@companieshouse.gov.uk (300288021642)
+  ch-shared-services, sharedservices@companieshouse.gov.uk (416670754337)
+  ch-heritage-dev, heritagedevelopment@companieshouse.gov.uk (898467161089)
+  Companies House - LIVE, awslive@companieshouse.gov.uk (449229032822)
+  CH PreProd, awspreprod@companieshouse.gov.uk (250991044064)
+  ch-innovation, awsinnovation@companieshouse.gov.uk (450865997890)
+  ch-heritage-staging, heritagestaging@companieshouse.gov.uk (973538526606)
+  Companies House, mfairhurst@companieshouse.gov.uk (169942020521)
+> ch-heritage-live, heritagelive@companieshouse.gov.uk (976051798167)
+
+
+
+                                      ╰─ aws configure sso
+                                      SSO start URL [None]: https://companies-house.awsapps.com/start#/
+                                      SSO Region [None]: eu-west-2
+                                      There are 9 AWS accounts available to you.
+                                      Using the account ID 976051798167
+                                      The only role available to you is: PowerUserAccess
+                                      Using the role name "PowerUserAccess"
+                                      CLI default client Region [eu-west-1]: eu-west-2
+                                      CLI default output format [json]: json
+                                      CLI profile name [PowerUserAccess-976051798167]: hlive
+
+                                      To use this profile, specify the profile name using --profile, as shown:
+
+                                      aws s3 ls --profile hlive
+
+
+----------------------------------------------------------
 Why AWF:  It is the FASTEST growing cloud computing platform
 
 
