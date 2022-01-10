@@ -1,0 +1,60 @@
+================================================================================== URI::Escape
+
+---------------------
+URI ESCAPE:  refers to the term of adding a '%' (escape char) when a 'reserved' char is used in a string
+
+AN URI has reserved chars
+
+        reserved      =  :     /     ?     #     [     ]     @
+                         !     $     &     '     (     )
+                         *     +     ,     ;     =
+
+   while this are then allowed:
+
+        unreserved    = ALPHA / DIGIT / - / . / _ / ~
+
+
+    Any other byte (octet) can be represented in the URI,
+    by an escape sequence: the triplet --> "%" followed by 2 hexadecimal digits.
+
+
+---------------------
+uri_escape( $string )
+---------------------
+
+                perl -e 'use URI::Escape; $safe = uri_escape("10% is enough\n"); print "$safe\n"'
+
+                       10%25%20is%20enough%0A
+
+
+---------------------
+uri_escape( $string, $range )     in the string I escape the chars which comes in the range specified in "$range"
+---------------------             ex. of ranges:
+                                        "\x00-\x1f\x7f-\xff"          # all control and hi-bit characters
+                                        "a-z"                         # all lower case char
+                                        "^A-Za-z"                     # everything not a letter
+
+                 perl -e 'use URI::Escape; $s = uri_escape("ABCDFEGHILMNOPQRSTUVZ0123456789", "\111-\377"); print "$s\n"'
+                                                                                                  ^^^^
+
+                       ABCDFEGH%49%4C%4D%4E%4F%50%51%52%53%54%55%56%5A0123456789
+
+                 perl -e 'use URI::Escape; $s = uri_escape("GHIL", "\111-\377"); print "$s\n"'
+                                                                        ^^^^
+                       GH%49%4C
+
+                 perl -e 'use URI::Escape; $s = uri_escape("GHIL", "\112-\377"); print "$s\n"'
+                                                                        ^^^^
+                       GHI%4C
+
+---------------------
+uri_escape_utf8( $string )
+---------------------
+
+                perl -e 'use URI::Escape; $x="10% is enough£\n"; $s=uri_escape $x;$s8=uri_escape_utf8 $x; print "[$s]\n[$s8]\n"'
+                      [10%25%20is%20enough%C2%A3%0A]
+                      [10%25%20is%20enough%C3%82%C2%A3%0A]
+
+
+==================================================================================
+

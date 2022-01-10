@@ -1,0 +1,297 @@
+       1 AWS Operations Path
+
+
+Deploying an Application on AWS (By Patrick Neborg)
+
+Course Overview		                                                     2m 1s
+
+Planning Your Deployment		                                         52m 47s
+    Introduction		                                                     4m 40s
+    CloudFormation Template		                                             5m 13s
+    Planning with CloudFormation		                                     5m 52s
+    Demo: Simple Load Balancer YAML		                                     12m 21s
+    Demo: Simple Load Balancer JSON		                                     5m 44s
+    Beyond a Basic CloudFormation Template		                             6m 50s
+    Demo: Deploying a Web Application		                                 11m 14s
+    Wrap Up		                                                             49s
+
+Deploying a Sample Stack Application		                             36m 6s
+    Introduction		                                                     1m 47s
+    Command Line Interface (CLI)		                                     5m 41s
+    Demo: Create a Stack with CLI		                                     6m 7s
+    CloudFormation Sample Templates		                                     2m 51s
+    Demo: LAMP Sample Stack		                                             5m 10s
+    CloudFormation Sample Services		                                     8m 23s
+    Demo: Node.js Sample Service Stack		                                 5m 17s
+    Wrap Up		                                                             47s
+
+Deciding between CloudFormation or OpsWorks		                         32m 47s
+    Introduction		                                                     5m 28s
+    OpsWorks Stacks Overview		                                         5m 2s
+    Demo: Node.js Sample OpsWorks Stack		                                 9m 50s
+    CloudFormation vs. OpsWorks		                                         5m 30s
+    Demo: Globomantics OpsWorks Stack		                                 5m 50s
+    Wrap Up		                                                             1m 6s
+
+When to Use AWS CodeStar		                                         29m 19s
+    Introduction		                                                     5m 25s
+    Getting Started with CodeStar		                                     4m 0s
+    Demo: Create a new CodeStar Project		                                 8m 4s
+    Is CodeStar a Good Fit?		                                             2m 41s
+    Demo: Globomantics Node.js Web App		                                 7m 59s
+    Wrap Up		                                                             1m 9s
+
+
+
+
+     EC2    CloudFormation    OpsWorks     CodeStar      Elastic Beanstalk
+
+                            Convenience    -------------------------->
+     <----------------- Control
+
+    |---------------------------| |---------------------------------------|
+       Fine grained control                  Managed Services
+
+
+
+    ________________________________________________________________________
+    1.   C l o u d F o r m a t i o n   <--------- it's the AWS technology on top of which different  (introduced in  2011)
+
+                                   deployment strategies can be used
+
+                                   deployment strategy means:
+                                            Infrastructure as code
+                                                              (eg. write easily the configuration to
+                                                                   deploy on hundred of thousand of servers)
+
+                                                              (eg. avoid the bunch of 'custom scripts'
+                                                                   which are
+                                                                            - error prone
+                                                                            - difficult to maintain
+                                                                            - difficult to reuse
+                                                                            - fragile
+                                                              )
+
+                                                              (eg. allow to use git (version control)
+                                                                   to maintain / collaborate / ....)
+
+                                                              (eg. allow to interact with CI/CD)
+
+                                   used by
+                                             AWS OpsWorks
+                                             AWS CodeStar
+
+    ________________________________________________________________________
+    2. CloudFormation  T E M P L A T E
+
+             They can be both in
+                   YAML <--------  more redable and I can add comments
+                   JSON
+
+             and containing these info (just 1 mandatory: "Resources")
+
+             AWS Template version     a value set by Amazon (indicating the version that this template conforms to).
+                                      AWS to 2010-0909.
+
+             Description              text area to describe the templates.
+
+             Metadata                 additional information about the template
+
+             Parameters               values to pass into the template at runtime
+                                      can then be referenced in both the Resources and Outputs sec.
+
+             Mappings                 key-value (HASH) that can be used to Resources and Outputs sec.
+                                      to get a value from a passed key
+
+             Conditions               if/else  to configure depending on conditions (ex. staging vs live)
+
+             Transforms               allow to address templates stored elsewhere. This allows snippets to be reused for more than one template.
+
+             Resources                the only required section within a template. It specifies the resources and their properties.
+
+             Outputs                  configure what to show as resultes of a deployed template.
+
+             Intrinsict functions     e.g. string manipulation   (technically not a section)
+
+
+
+                          ||================= E X A M P L E ================
+                          ||  {
+                          ||    "AWSTemplateFormatVersion" : "2010-09-09",
+                          ||
+                          ||    "Description" : "AWS CloudFormation Sample Template ",
+                          ||
+                          ||    "Resources" : {
+                          ||      "S3Bucket" : {
+                          ||        "Type" : "AWS::S3::Bucket",
+                          ||        "Properties" : {
+                          ||          "AccessControl" : "PublicRead",
+                          ||          "WebsiteConfiguration" : {
+                          ||            "IndexDocument" : "index.html",
+                          ||            "ErrorDocument" : "error.html"
+                          ||           }
+                          ||        },
+                          ||        "DeletionPolicy" : "Retain"
+                          ||      }
+                          ||    },
+                          ||
+                          ||    "Outputs" : {
+                          ||      "WebsiteURL" : {
+                          ||        "Value" : { "Fn::GetAtt" : [ "S3Bucket", "WebsiteURL" ] },
+                          ||        "Description" : "URL for website hosted on S3"
+                          ||      },
+                          ||
+                          ||      "S3BucketSecureURL" : {
+                          ||        "Value" : { "Fn::Join" : [ "", [ "https://", { "Fn::GetAtt" : [ "S3Bucket", "DomainName" ] } ] ] },
+                          ||        "Description" : "Name of S3 bucket to hold website content"
+                          ||      }
+                          ||    }
+                          ||  }
+                          ||================= E X A M P L E ================
+
+
+
+    ________________________________________________________________________
+    3. Best Practices
+
+
+             Split in more templates/stacks to be modular & reuse in different places. (Export & Import Resources)
+
+             CloudFormation allows to add "Parameter-constraints" & then validate a template against them.
+
+
+
+
+
+
+    ________________________________________________________________________
+    4. Use case
+
+                .---------------------> Application ----port 80-----> ALB    --- port 80-----> ALB
+                |                       Load                          Listener                 Target Group
+               allow port 80            Balancer                    .--------------------------'
+                |                                                   |
+                |                                                   V
+   start   SECURITY                                                 | port 80
+  ------>  GROUP                                                .---'---.
+                |                                               |       |
+                |                                               V       V
+               allow port 22 (SSH)                            EC2-A    EC2-B
+                |                                               |       |
+                '------------------------------------------>----'-------'
+
+
+    ________________________________________________________________________
+    5. plumbing commands
+
+          Inside the EC2 I can access a family of cloudformation commands
+          which are like
+
+                   /opt/aws/bin/cfn-....
+
+          ex:
+
+                   /opt/aws/bin/cfn-init    <--- to execute some init commands
+                   /opt/aws/bin/cfn-signal  <--- to send a signal (like kill)
+
+
+          ex:
+              /opt/aws/bin/cfn-init  -v --stack ${AWS::StackName} --configsets RunApp --resource EC2Instance1 --region ${AWS::Region}
+                                                 ^^^^^^^^^^^^^^^                                                       ^^^^^^^^^^^^^
+                                                 template var                                                          template var
+
+
+    ________________________________________________________________________
+    6. CLI commands
+
+           Note a command on more lines is possible adding a ` (backtick)
+                  line 1`
+                  line 2`
+
+          aws  cloudformation    validate-template         --template-url  https://.....  <---- for remote templates
+                                                           --template-body ssss            <--- string  or local file (file://path/here)
+
+          aws  cloudformation    create-stack              --template-body ssss
+                                                           --stack-name    nnnn
+                                                           --parameters
+                                                                    ParameterKey=kkk1,ParameterValue=vvv1   <----  these entries
+                                                                    ParameterKey=kkk2,ParameterValue=vvv2   <----  are separated by each other
+                                                                      ....                                  <----  by spaces if on same line
+                                                                                                                   if a VALUE contains a comma ,
+                                                                                                                   it should be escaped: \,
+
+          aws  cloudformation    delete-stack              --stack-name    nnnn
+
+          aws  cloudformation    describe-stacks           --stack-name    nnnn
+
+
+          aws  cloudformation    describe-stack-events     --stack-name    nnnn            it dumps the log of events
+                                                                                           ex when the resources were deployed/updated
+
+
+          aws  cloudformation    list-stack-resources      --stack-name    nnnn            it dumps the log of events
+
+
+
+          aws  cloudformation    list-stacks               --stack-status-filter CREATE_COMPLETE
+          aws  cloudformation    list-stacks               --stack-status-filter CREATE_COMPLETE
+
+
+    ________________________________________________________________________
+    7. OpsWorks
+
+         playbooks to manage a group of EC2/Scaling group/ .....
+
+           OpsWorks for Chef Automate :     playbooks for Chef  (requires a Chef server)
+           OpsWorks for Puppet Enterprise:  playbooks for Puppet Enterprise
+           OpsWorks Stacks:                 playbooks for Chef  (does not require Chef server, as its tasks are
+                                            automatically performed by AWS)
+
+          Limits:
+                  Opsworks can manage a limit set of AWS resources (EC2 included)
+                  Opsworks can manage ELB only if already created previously
+
+
+
+    ________________________________________________________________________
+    8. CodeStar   (2017)   [free. I pay the underlying resources]
+
+           it handles together all the following services:              https://aws.amazon.com/codecommit/pricing/
+
+
+           CodeCommit     (2015)    to manage version controlled code                          [free 5 users. then $1 user/month]              https://aws.amazon.com/codecommit/pricing/
+
+           CodeBuild      (2016)    to build from version controlled code                      [~$0.005-$0.02/min]                             https://aws.amazon.com/codebuild/pricing/
+
+           CodeDeploy     (2014)    to deploy to differente envs (ex. EC2, E-Beanstalk, ...)   [free. I pay the underlying resources]          https://aws.amazon.com/codedeploy/pricing/
+
+           CloudFormation (2011)    to create/start/stop/destry                                [free. I pay the underlying resources]          https://aws.amazon.com/cloudformation/pricing/
+
+           CodePipeline   (2015)    continuous delivery  like Jenkins/Concourse                [free 1st pipeline. then $1 pipeline/month]     https://aws.amazon.com/codepipeline/pricing/
+
+
+           [note. Consider even S3 usage in the "underlying resources"]
+
+
+
+       usual list
+
+           - 1. Teams        (manage users, permissions. roles)
+
+           - 2. Projects     (create/manage applications by Teams)
+
+           - 3. Integrations (to allow application to interact with external SW (ex. GitHub, Jira)
+
+           - 4. Manage       (centralized control (for source-code / build / deploy))
+
+
+
+       CodeStar has ~ 30 different predefined templates (Web application, Web services, Alexa skill, Static website, .....)
+       to speed up the usage in common use cases.
+
+       LIMITS:
+                - max proj per user:   10
+                - max proj per team:  333
+                - max users per team: 100
+
+

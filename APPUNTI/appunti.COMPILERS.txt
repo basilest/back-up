@@ -1,0 +1,72 @@
+
+               Source Code _______________|
+                                          |
+                                       PRE PROCESSOR
+                                          |
+               Pre processed code ________|
+                                          |
+                                       COMPILER
+               Target Assembly code ______|
+                                          |
+                                       ASSEMBLER
+               Relocatable code __________|
+                                          |
+                                       LINKER <------------ LIBRARIES / RELOC. MODULES
+               Exeec code ________________|
+                                          |
+                                       LOADERR
+                                          |
+                                          |
+                                       MEMORY
+
+
+
+
+
+_______________________________________PRE PROCESSOR
+
+          . usually considered part of the Compiler
+
+            - macro processing /
+            - includes /
+            - lang. extensions
+
+
+_______________________________________COMPILER
+
+          . 1/2 PHASE:  creates lexycal tree and symbol table
+          . 2/2 PHASE:  creates lexycal tree and symbol table
+
+
+          1. lexer   ---> rerurns TOKENS
+          2. parser  ---> returns a TREE of tokens
+                          2.1 syntax checks     (I'm respecting the keyords)
+                          2.2 semantic checks   (I'm respecting the language grammar rules)
+
+
+_______________________________________ASSEMBLER
+
+          .
+
+_______________________________________LINKER
+
+          .
+
+_______________________________________LOADERR
+
+          .
+
+_______________________________________MEMORY
+
+
+
+
+
+
+
+
+
+
+
+
+

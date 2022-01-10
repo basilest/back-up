@@ -43,7 +43,7 @@ ZOOKEPER
 
 
      SHOW/CONSUME MESSAGES FOR A TOPIC:
-                        kafka-console-consumer  --zookeeper kafka-zk1.live.aws.internal:2181,kafka-zk2.live.aws.internal:2181,kafka-zk3.live.aws.internal:2181 --topic order-received --from-beginnin
+                        kafka-console-consumer  --zookeeper kafka-zk1.live.aws.internal:2181,kafka-zk2.live.aws.internal:2181,kafka-zk3.live.aws.internal:2181 --topic order-received --from-beginning
 
      WRITE/PRODUCE MESSAGES ON A TOPIC:
                         export TOPIC_NAME=xxxxxx

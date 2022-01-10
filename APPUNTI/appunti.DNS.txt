@@ -1,4 +1,90 @@
 -------------------------------
+     DNS Troubleshoot
+-------------------------------
+
+
+1. Issue:                            ____________ my IP
+                                    /
+                                   /
+                                  /
+            ╭─ ↵ 1  49121   192.168.1.14  sbasile@pd11835   ~/TEST/PO/p     master  
+            ╰─ nslookup mesos-master1.live.aws.internal
+            Server:         192.168.1.1
+            Address:        192.168.1.1#53   <----------------------------------------------------- Wifi router DNS !!!!!!!
+
+            ** server can't find mesos-master1.live.aws.internal: NXDOMAIN
+
+
+            ╭─ ↵ 1  49121   192.168.1.14  sbasile@pd11835   ~/TEST/PO/p     master  
+            ╰─ ns private-api.companieshouse.gov.uk
+            Server:         192.168.1.1
+            Address:        192.168.1.1#53
+
+            Non-authoritative answer:
+            private-api.companieshouse.gov.uk       canonical name = internal-live-chs-apichgovuk-private-1586566722.eu-west-2.elb.amazonaws.com.
+            Name:   internal-live-chs-apichgovuk-private-1586566722.eu-west-2.elb.amazonaws.com
+            Address: 10.55.1.151
+            Name:   internal-live-chs-apichgovuk-private-1586566722.eu-west-2.elb.amazonaws.com
+            Address: 10.55.129.42
+            Name:   internal-live-chs-apichgovuk-private-1586566722.eu-west-2.elb.amazonaws.com
+            Address: 10.55.65.46
+
+
+
+    It tries to use the DNS of my wifi router:
+        192.168.1.1
+
+    while it should AUTOMATICALLY pick up the corporate's one  (eg. 172.16.7.7)
+
+
+    A workaround is to add it Manually to
+
+            System Pre > Network > Advanced > DNS
+
+
+------------
+
+    Useful commands to troubleshoot (seeing the sequence of DNS)     scutil  is a Mac system-config-util. It opens an interactive session with configd
+
+    ╰─ scutil
+                > list ".*DNS"                                                     <----- command 1
+                  subKey [0] = State:/Network/Global/DNS
+                  subKey [1] = State:/Network/MulticastDNS
+                  subKey [2] = State:/Network/PrivateDNS
+                  subKey [3] = State:/Network/Service/1FA46E9B-6DF5-44F9-AE6B-2936F7A24394/DNS
+                  subKey [4] = State:/Network/Service/com.cisco.anyconnect/DNS
+                >  get State:/Network/Global/DNS                                   <----- command 2
+                > d.show                                                           <----- command 3
+                <dictionary> {
+                  ServerAddresses : <array> {
+                    0 : 192.168.1.1
+                  }
+                }
+                > quit
+
+    While after the manual add of the DNS 172.16.7.7:
+
+    ╰─ scutil
+                > list ".*DNS"
+                  subKey [0] = Setup:/Network/Service/1FA46E9B-6DF5-44F9-AE6B-2936F7A24394/DNS
+                  subKey [1] = State:/Network/Global/DNS
+                  subKey [2] = State:/Network/MulticastDNS
+                  subKey [3] = State:/Network/PrivateDNS
+                  subKey [4] = State:/Network/Service/1FA46E9B-6DF5-44F9-AE6B-2936F7A24394/DNS
+                  subKey [5] = State:/Network/Service/com.cisco.anyconnect/DNS
+                > get State:/Network/Global/DNS
+                > d.show
+                <dictionary> {
+                  ServerAddresses : <array> {
+                    0 : 172.16.7.7
+                  }
+                }
+                >
+
+
+
+
+-------------------------------
      DNS
 -------------------------------
 sometimes on a Mac ther are errors of hostname resolutions:
@@ -29,7 +115,7 @@ fix:
                                               ______  _____   _____            each domain-label-LEN <  63  chars
                                             >_____________________<            anyhow total LEN      < 255  chars
 
-                                              __3___  __2__   __1__            Each domain has 1 or +  authoritative DNS servers
+                                                                               Each domain has 1 or +  authoritative DNS servers
 
                                                                                An authoritative DNS servers publishes info
                                                                                about that domain
@@ -54,7 +140,7 @@ fix:
                                gives the IP address of a domain.
                                It maps a hostname to a 32-bit IPv4 address.
                                users that try to go to www.example.com will get the right IP address.
-                               maps a hostname to a 32-bit IPv4 address.
+
                                It takes this format (example):
 
                                         Name             TTL     TYPE    DATA
@@ -64,7 +150,7 @@ fix:
                                         Name             TTL     TYPE    DATA
                                         *.domain.com     43200   A       10.0.2.2
 
-                               The '*' allows to match multiple domain names to have the same IP
+                               The '*' allows to match multiple domain names having the same IP
                                This way, if someone mistakenly types subdomains of domain.com
                                he will still get domain.com
 

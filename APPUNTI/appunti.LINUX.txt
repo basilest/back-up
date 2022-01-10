@@ -16,6 +16,8 @@
 
  3 text STREAMS (stdin, stdout, stderr) are created automatically for
  all unix programs by the C library (libc) at the start of program execution,
+ For efficiency, stdin/out/err  are only allocated on first use.
+ Other streams can be created to connect to files, sockets, pipes.
 
            stdin     BUFFERED
 
@@ -24,7 +26,6 @@
                      UNBUFFERED         if the prog has the option (ex. perl -e '$|=1 ...')
 
            stderr    UNBUFFERED
-
 
 ex.
 
@@ -47,7 +48,7 @@ ex.
                      1 is without.
 
                   perl -e'$|=0; print "a\n"; sleep(2); print "b\n";' | cat     # is BUFFERED for both ouputting on a pipe
-                                                                                 and because perl weas told to buffer
+                                                                                 and because perl was told to buffer
                   perl -e'$|=1; print "a\n"; sleep(2); print "b\n";' | cat     # is UNBUFFERED
                                                                                  I will see
                                                                                          "a"
@@ -2397,6 +2398,8 @@ a way to copy to another server
 
   date --date $xxxxx       gives time related to the text string in val $xxxxx
   date  -d    $xxxxx         "                "        "           "
+                           ex.  date -d "10 days"           # it will return the date string with 10 days in the future from now
+                           ex.  date -d "10 days ago"       # it will return the date string with 10 days in the past   from now
 
   date --date $xxxxx +%s   gives again num sec ----> I can operates on date with + - * /
 

@@ -1,0 +1,55 @@
+
+==================================================  AD
+   AD : Active Directoty    (Microsoft proprietary directory service, running on Windows Server)
+
+        .  It's like a DNS, I can query it to have information (ex. location)
+
+        .  It's this tree structure :
+
+                 Root directory
+                      |
+                      |________
+                               |
+                               |
+                            Countries
+                               |________
+                                        |
+                                        |
+                                  Organisations
+                                        |________
+                                                 |
+                                                 |
+                                        Organisational Units
+                                                 |________
+                                                          |
+                                                          |
+                                               Individuals  (info about people, printers, files, ...)
+
+             so for example I can query individual="John" in Country="America" and
+             I receive back many individuals. I can then narrow down to in the end grab i.e. his email address.
+
+
+
+
+==================================================  Services in AD
+
+      AD provides its taks via its main services:
+
+
+      1. AD DS   =  (Acrive Directory) DOMAIN Service
+
+                    . it's the MAIN service.
+                    . it runs on a server which is called "domain controller"
+                    . it stores dir info and manages the users' access
+
+
+      2. AD LDS = LIGHTWEIGHT DIR Services
+
+                    . like AD DS but can run in multiple instances on one server
+                    . It manages data via LDAP
+
+      3. LDAP   = LIGHTWEIGHT DIR ACCESS Protocol   it's a protocol (application level)
+      4. AD CS  = CERTIFICATE     Services  to handle certificates/ keys
+      5. AD FS  = FEDERATION      Services  it manages SSO  (to login once)
+      6. AD RMS = RIGHTS MANAGEM. Services  it encrypts info (eg. email) to limit access
+

@@ -1,3 +1,28 @@
+
+
+            G E N E R A L   C O N C E P T
+
+
+
+                                - use Encode qw(decode encode );                       str2bytes may be used as an alias for encode.
+                     ________________                    _________________________     bytes2str may be used as an alias for decode.
+                     |  PERL        |      decode()      |    OUTSIDE            |
+                     |  Internals   |    <-------        |    WORLD              |
+                     |              |      encode()      |                       |
+                     |    $perl_var |    ------->        |    UTF8-byte sequence |
+                     '______________'                    '_______________________'
+
+
+            perl brings inside UTF8 byte streams from the outside world into internal data structures
+            (ex. a get from URL)
+                          ex. 1   $foo  = decode('UTF-8', get 'http://example.com/');
+
+            perl can export its internal data structures out to the world as a UTF8 byte sequence
+                          ex. 2   $body = encode('UTF-8', $body);
+
+
+==================================================================================
+
 perluniintro
 
 
@@ -131,3 +156,519 @@ binmode $fh, ':raw';
 $dom = XML::LibXML->load_xml(IO => $fh);
 
 
+unpack /pack
+
+          pack:  scalar <----------  list     (think of array)
+
+        unpack:  scalar  ----------> list     (think of array)
+
+
+perl -e 'use utf8; $x="RÖCH"; sub h {@bytes=unpack("U0C*",shift);printf (" \\X%lX",$_) for (@bytes);printf "\n"}h($x); $x=pack("U0C*",unpack("U0C*",$x));h($x);'
+
+------------------------------------------------------------------
+The Encode module provides the interface between Perl strings and the rest of the system. Perl strings are sequences of characters.
+
+The repertoire of characters that Perl can represent is a superset of those defined by the Unicode Consortium. On most platforms the ordinal values of a character as returned by ord(S)
+is the Unicode codepoint for that character.
+
+     perl -e '$s=" ";      print ord($s)'      32     same ASCII
+     perl -e '$s="A";      print ord($s)'      65     same ASCII
+     perl -e '$s="AB";     print ord($s)'      65      "     "    (note gives the code point of the 1st char of the string)
+     perl -e '$s="ABC";    print ord($s)'      65      "     "      "                  "                       "
+     perl -e '$s="1";      print ord($s)'      49      "     "      "                  "                       "
+     perl -e '$s="12";     print ord($s)'      49      "     "      "                  "                       "
+     perl -e '$s="123458"; print ord($s)'      49      "     "      "                  "                       "
+
+
+
+------------------------------------------------------------------ perlunitut
+
+    TL;DR
+           - use Encode qw(encode decode);
+             use Encode;
+
+
+             ex. 1   $foo  = decode('UTF-8', get 'http://example.com/');  # decode receiving input into a CHARACTER or TEXT string
+                     length $foo                                          # num of CHARACTERS
+
+                     so is:   a-received-byte-sequence-encoded-in-UTF8 ----> is loaded into a Unicode-perl-internal scalar-string
+
+
+             ex. 2   $body = encode('UTF-8', $body);                      # encode sending output
+                     $byte_count = length $body                           # num of BYTES
+
+                     so is:   a Unicode-perl-internal scaalar-string ----> is encoded into a-byte-sequence-encoded-in-UTF8
+
+
+                     I can use for example if sending as HTTP headers
+                                    "Content-Type: text/plain; charset=UTF-8",
+                                    "Content-Length: $byte_count"
+
+
+
+           - utf8::encode(my $utf8_byte_string = $string);                # If performance is needed and
+                                                                          # only interested in the UTF-8 representation:
+
+             $octets = encode("iso-8859-1", $string);
+
+                                 the UTF8 flag for $octets is always off.
+                                 When you encode anything, the UTF8 flag on the result is always off, even
+                                 when it contains a completely valid UTF-8 string.
+
+
+           - use Encode qw(from_to);
+             from_to($string, 'FOO', 'BAR');  # from_to func in Encode module, allows converting from 1 format to another
+                                                in 1 instruct. instead of the 2:
+                                                             my $text_string = decode('FOO', $foo_string);
+                                                             my $bar_string  = encode('BAR', $text_string);
+
+
+           - decode_utf8
+             encode_utf8                   aliases for decode('utf8', ...)
+                                                       encode('utf8', ...) .
+
+                                           Note they are different from the preferred
+                                                       decode('UTF-8', ...)
+                                                       encode('UTF-8', ...) ;
+
+
+
+
+    ---------------------
+
+
+
+   . difference between bytes and characters
+   . there are many different character sets
+   . there are many different character sets - encodings
+
+   . Unicode is encoded using several competing encodings, of which UTF-8 is the most used.
+   . UTF-8 treats the first 128 codepoints, 0..127, the same as ASCII (so 1 byte per character.)
+     All other characters are encoded as 2 to 4 bytes using a complex scheme.
+
+
+   . Perl handles this for us, so we don't have to worry about this.
+
+
+
+
+
+        - TEXT STRINGS (or CHARACTER STRINGS)
+          They are the default strings. They are intended as  CHARACTER strings
+                                 * Bytes are irrelevant here
+                                 * and so are encodings
+
+              Each character is just that: the character.
+
+              The value of a character (ord, chr) is the corresponding Unicode code point.
+
+                       ord EXPR   Returns the numeric value of the first character of EXPR.
+                                  If EXPR is an empty string, returns 0. If EXPR is omitted, uses $_
+
+
+                       chr NUMBER Returns the character represented by that NUMBER in the character set.
+                                  For example, chr(65) is "A" in either ASCII or Unicode, and
+                                               chr(0x263a) is a Unicode smiley face.
+
+                                  Negative values give the Unicode replacement character (chr(0xfffd)),
+                                  except under the bytes pragma, where the low eight bits of the value
+                                  (truncated to an integer) are used.
+
+                                  If NUMBER is omitted, uses $_ .
+
+                                  Characters from 128 to 255 (inclusive) are by default internally
+                                  not encoded as UTF-8 for backward compatibility reasons.
+
+
+                       here s1 and s2 are eq:
+                     ________________________________________________________
+                    | @codepoints = map ord($_), split //, $s1;
+                    | $s2 = join '', map chr($_), @codepoints;
+                    '________________________________________________________
+              perl -e 'use utf8; $s1="£€"; @c = map ord($_), split //, $s1; $s2 = join "", map chr($_), @c; print "[$s1]\n[$s2]\n";'
+
+
+
+
+
+
+        - BINARY STRINGS (or BYTE STRINGS)
+          They are made of bytes. Here, you don't have characters, just bytes.
+          All communication with the outside world (anything outside of your current Perl process) is done in binary.
+
+          ex.   my (@length_content) = unpack "(V/a)*", $binary;
+
+
+
+
+
+
+        -  Encoding
+
+           Is the conversion from text to binary.
+           To encode, you have to supply the target encoding, for example iso-8859-1 or UTF-8 .
+           Some encodings, like the iso-8859 ("latin") range, do not support the full Unicode standard;
+           Characters that can't be represented are lost in the conversion.
+
+
+        -  Decoding
+
+           Is the conversion from binary to text.
+           To decode, you have to know what encoding was used during the encoding phase.
+           And most of all, it must be something decodable. It doesn't make much sense to decode
+           a PNG image into a text string.
+
+
+        -  Perl Internal format
+
+           Perl has an internal format, an encoding that it uses to encode text strings so it can
+           store them in memory. All text strings are in this internal format.
+           In fact, text strings are never in any other format!
+
+           You shouldn't worry about what this format is, because conversion is automatically done when
+           you decode or encode.
+
+           With no specified encoding layer, Perl tries to fit things into a single byte (ISO-8859-1 = ASCII)
+           When it can't, it emits this warning and uses UTF-8 encoded data instead. Actually utf8 which is
+           a superset of UTF-8 and Perl's more liberal way to deal with it.
+
+           Every var stored has its own UTF8 flag, which says to Perl if it is UTF-8 or ASCII
+
+
+------------------------------------------------------------------  perluniintro
+
+        Perl v5.6.0, Starts to add the capacity to handle Unicode natively.
+        Perl v5.6.1  fixed many problems but regular expressions still do not work.
+        Perl v5.8.0, First recommended release for serious Unicode work.
+        Perl v5.14.0 First release where Unicode support is (almost) seamlessly integrable without some gotchas.
+        Perl v5.26.0 some fixes in the range operator
+        Perl v5.28.0 some fixes in split
+
+
+       -  . use feature 'unicode_strings'   #explicit
+          . use feature ':5.12'             #implicit
+          . use v5.12                       #implicit
+          . on the command line:  -E
+
+            They allow a proper management of Unicode text strings for Perl 5.12 or higher
+            (in regex / uppercasing / lowercasing ....)
+
+
+------------------------------------------------------------------  perlunifaq
+
+        TL;DR
+
+          perl -MEncode -le "print for Encode->encodings(':all')"  # To find out which character encodings your Perl supports
+
+
+7bit-jis
+AdobeStandardEncoding
+AdobeSymbol
+AdobeZdingbat
+ascii
+ascii-ctrl
+big5-eten
+big5-hkscs
+cp1006
+cp1026
+cp1047
+cp1250
+cp1251
+cp1252
+cp1253
+cp1254
+cp1255
+cp1256
+cp1257
+cp1258
+cp37
+cp424
+cp437
+cp500
+cp737
+cp775
+cp850
+cp852
+cp855
+cp856
+cp857
+cp858
+cp860
+cp861
+cp862
+cp863
+cp864
+cp865
+cp866
+cp869
+cp874
+cp875
+cp932
+cp936
+cp949
+cp950
+dingbats
+euc-cn
+euc-jp
+euc-kr
+gb12345-raw
+gb2312-raw
+gsm0338
+hp-roman8
+hz
+iso-2022-jp
+iso-2022-jp-1
+iso-2022-kr
+iso-8859-1
+iso-8859-10
+iso-8859-11
+iso-8859-13
+iso-8859-14
+iso-8859-15
+iso-8859-16
+iso-8859-2
+iso-8859-3
+iso-8859-4
+iso-8859-5
+iso-8859-6
+iso-8859-7
+iso-8859-8
+iso-8859-9
+iso-ir-165
+jis0201-raw
+jis0208-raw
+jis0212-raw
+johab
+koi8-f
+koi8-r
+koi8-u
+ksc5601-raw
+MacArabic
+MacCentralEurRoman
+MacChineseSimp
+MacChineseTrad
+MacCroatian
+MacCyrillic
+MacDingbats
+MacFarsi
+MacGreek
+MacHebrew
+MacIcelandic
+MacJapanese
+MacKorean
+MacRoman
+MacRomanian
+MacRumanian
+MacSami
+MacSymbol
+MacThai
+MacTurkish
+MacUkrainian
+MIME-B
+MIME-Header
+MIME-Header-ISO_2022_JP
+MIME-Q
+nextstep
+null
+posix-bc
+shiftjis
+symbol
+UCS-2BE
+UCS-2LE
+UTF-16
+UTF-16BE
+UTF-16LE
+UTF-32
+UTF-32BE
+UTF-32LE
+UTF-7
+utf-8-strict    or   UTF-8 is the official standard
+utf8                 it's a superset of UTF-8. It's Perl's way of being liberal in what it accepts.
+viscii
+
+      Note that they are:
+              . case insensitive
+              . "_" are treated as "-"
+
+      find_encoding("UTF-8")->name # is 'utf-8-strict'
+      find_encoding("utf-8")->name # ditto. names are case insensitive
+      find_encoding("utf_8")->name # ditto. "_" are treated as "-"
+      find_encoding("UTF8")->name  # is 'utf8'.
+
+
+      SO BE VERY AWARE TO NOT FORGET THE "-" IN UTF-8 OR IT WILL BECOME THE LAX PERL's utf8
+
+
+
+       -  binmode $fh     # To manage binary data, (like images)
+                           needed because otherwise Perl may convert line endings on Win32 systems.
+
+
+
+       -  binary string used together with a text string without explicit decoding:
+          Perl assumes the binary string was encoded with ISO-8859-1 (known as latin-1).
+          This implicit decoding (known as "upgrading") may sound positive, but it's best to avoid it.
+
+       -  To store a text string, Perl sticks to 8 bit encoding as long as it can.
+          When it has to give that up because other characters are added to the text string,
+          it silently upgrades the string to UTF-8.
+
+       -  utf8::upgrade($string)         # to force encoding to UTF-8.
+                                           This can be used safely on any string,
+                                           as it checks and does not change strings that have already been upgraded.
+
+       -  "Wide character in print at example.pl line 2."
+
+          a warning when I don't encode explicitly a text string.
+          With no specified encoding layer, Perl tries to fit things into a single byte.
+          When it can't, it emits this warning and uses utf8 (Perl liberal superset of UTF-8) encoded data instead.
+          Perl will stream out its internal format (usually UTF8 so it could work
+          but relying on this could also cause weird bugs)
+
+
+
+
+       -  open my $fh, '<:encoding(UTF-8)', $filename;  # auto decoding on read
+          open my $fh, '>:encoding(UTF-8)', $filename;  # auto encoding on write
+
+
+          binmode $fh, ':encoding(UTF-8)';              # if file handle already opened
+
+
+          They tell the PerlIO system to automatically decode everything, with the encoding layer.
+          This way all streamings in/out through that filehandle will be encoded/decoded
+          automatically
+
+
+       -  use utf8;                  # to use Unicode in my Perl sources (eg. variables/function names ...)
+
+       -  use bytes                  # is usually a failed attempt to do something useful. Just forget about it.
+
+       -
+------------------------------------------------------------------ use bytes
+
+
+
+        use bytes;
+
+        ... chr(...);       # or bytes::chr
+        ... index(...);     # or bytes::index
+        ... length(...);    # or bytes::length
+        ... ord(...);       # or bytes::ord
+        ... rindex(...);    # or bytes::rindex
+        ... substr(...);    # or bytes::substr
+
+        no bytes;           #  reverse the effect of use bytes within the current lexical scope.
+
+
+        It allows non-destructively examine characters' individual bytes.
+        Just insert this pragma temporarily, and remove it after the debugging is finished.
+
+
+        $x = chr(400);     # Perl stores it in utf8
+        length $x;         # is 1 (CHARACTER)
+        use bytes          # set Perl to consider var stored as binary values (seq. of BYTES)
+        length $x;         # is now 2 (BYTES)
+
+
+
+
+        bytes::length()    is admittedly handy if you need to know the byte length of a Perl scalar.
+                           But a more modern way is:
+
+        use Encode 'encode';
+        length(encode('UTF-8', $scalar))
+------------------------------------------------------------------ use utf8
+
+        use utf8;     # it tells Perl that the source code since then must be considered UTF-8 and not ASCII
+                        Bytes in the source text that are not in the ASCII character set, will then be treated
+                        as being part of a literal UTF-8 sequence.
+
+        no utf8;      # go back to ASCII
+
+
+        --------------------
+        The following are functions in utf8:: module.
+        NOTE:   You do not need to say use utf8 to use these and in fact you should not say that unless
+                you really want to have UTF-8 source code.
+        --------------------
+
+
+        utf8::upgrade($string)     # TEXT-ASCII -->  TEXT-UTF-8  (no change if already UTF-8)
+                                   # It's a change-in-place so the var memory is modified if not already UTF-8
+                                   # Returns the number of BYTES necessary to represent the string as UTF-8.
+
+
+
+        $success = utf8::downgrade($string[, $fail_ok]) # (Since Perl v5.8.0) TEXT-UTF-8 --> TEXT-ASCII  (no change if already ASCII)
+                                                        # It's a change-in-place so the var memory is modified
+                                                        # Returns true on success.
+                                                        # dies on Fail (conversion not possible).
+                                                        # Return false (instead of dying) on Fail + I specified $fail_ok true
+                                                          ex. utf8::downgrade($string, 1) or die "string must be octets";
+
+
+
+        utf8::encode($string)     # (Since Perl v5.8.0) TEXT  --> to internal utf8 Perl
+                                  # same of
+                                          use Encode;
+                                          $x = Encode::encode("utf8", $x);
+                                  # Returns nothing
+                                  # UTF8 flag is turned off
+
+
+
+
+
+
+
+        $success = utf8::decode($string)      # (Since Perl v5.8.0) internal utf8 Perl --> TEXT
+                                  # same of
+                                          use Encode;
+                                          $x = Encode::encode("utf8", $x);
+                                  # Returns false (if $string is invalid) otherwise returns true.
+                                  # UTF-8 flag is turned on only if the source string contains multiple-byte UTF-8 characters.
+                                  #
+
+
+
+         # Convert a code point from the platform native character set to
+         # Unicode, and vice-versa:
+         # (Since Perl v5.8.0)
+         # NOTE: . On ASCII platforms, they both returns their own input (ex. 65 --> 65)
+
+         $unicode = utf8::native_to_unicode(ord('A'));   # uint (code point) --> unicode
+                                                         # returns 65 on both
+                                                         # ASCII and EBCDIC
+                                                         # platforms
+         $native = utf8::unicode_to_native(65);          # returns 65 on ASCII
+                                                         # platforms; 193 on
+                                                         # EBCDIC
+
+
+         $flag = utf8::is_utf8($string)                  # (Since Perl 5.8.1) Test whether $string is marked internally
+                                                         # as encoded in UTF-8.
+                                                         # the same as
+                                                               Encode::is_utf8($string)
+
+         $flag = utf8::valid($string)                    # Returns true if
+                                                         # it is well-formed:
+                                                         # (Perl internal utf8 & UTF-8 flag on)  or if $string is held as ASCII bytes
+
+------------------------------------------------------------------
+
+../MODULES/CompaniesHouse/CompanyData/companyDetails.pm.new
+102     $companyDetails_data = callTuxedo( "shuttle02", $self->get_config, \%params, $arrayCols );
+
+
+../MODULES/ProductGen/Reports/ShuttleReport.pm.new
+339         $companyDetails  = get_companyDetails  ( $self->{_config}, $self->{_cnumb}, $lang, $self );
+405     my $sgml   = $template->templateOutput;
+
+
+
+../MODULES/DocBook/CharacterMap.pm.new2
+
+../MODULES/Common/XMLMapper.pm
+
+------------------------------------------------------------------

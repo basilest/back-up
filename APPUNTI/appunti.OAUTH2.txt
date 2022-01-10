@@ -205,7 +205,7 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
       yelp.com can contact again the AUTHORIZATION SERVER of google asking to change the AUTHORIZATION-CODE
       for a scoped-ACCESS-TOKEN.
 
-      These last messages of the AOUTH2 protocol are exchanged between the back-end servers
+      These last messages of the OAUTH2 protocol are exchanged between the back-end servers
       which are considered secure channels. On these channels are transmitted both the secret-id
       and the ACCESS-TOKEN. These form the back-channel (more secure) wrt to the previous front-channel.
 

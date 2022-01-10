@@ -1,0 +1,80 @@
+    pack / unpack
+    are designed when dealing with
+    FIXED-WIDTH data.
+
+
+
+     sequence of bytes
+
+
+     my( $hex ) = unpack( 'H*', $mem );
+     print "$hex\n";           -->  ex. 41204d414e204120504c414e20412043414e414c2050414e414d41
+
+
+     unpack : converts a byte-sequence with the template specified
+              . here template specified = H*, so it converts in hex
+              . where the * is the repeat-count, so it applies to whatever remains
+
+              . so unpack turns a fixed-width-format string into several pieces of data.    $ --> @
+
+
+
+     ex.
+
+                                   1         2         3         4         5
+                     1234567890123456789012345678901234567890123456789012345678
+                     Date      |Description                | Income|Expenditure   <------ suppose this is $line
+
+                 then, the following takes the fileds:
+
+                     my($date, $desc, $income, $expend) = unpack("A10xA27xA7A*", $line);
+
+                                      "A10xA27xA7A*"  is the template to take the chunks
+                                                      A10    first 10 bytes
+                                                      x      x means SKIP this (and move to the next)
+                                                             [note: for pack it means instead to print nothing: null byte 0x0
+                                                                    it will not print a space: 0x20]
+                                                      ..*    * means as said, anything remaining
+
+
+
+                      Note that I can put spaces in the template to make it more readable but that doesn't change anything:
+                                    "A10xA27xA7A*"    same of    "A10 x A27 x A7 A*"
+
+
+
+
+                                 .==========================================
+                                 | Be warned:
+                                 | unlike regular expressions,
+                                 | if the unpack template doesn't match the incoming data,
+                                 | Perl will scream and die.
+                                 '==========================================
+
+
+     my $s = pack( 'H2' x 10, 30..39 );
+     print "$s\n";
+
+                       note: . 'H2' x 10  -->   H2H2H2H2H2H2H2H2H2H2
+
+                              . so it takes 2 bytes at a time from the byte-sequence (eg 30)
+                                and interprets each as 1 hex value
+
+              . so pack goes from several pieces of data to one fixed-width version       @ --> $
+
+
+     print pack("A11 A28 A8 A*", $date, "Totals", $tot_income, $tot_expend);
+
+                       . The A format pads any non-existent characters with spaces,
+
+
+     pack("A*A*", $one, $two)              packs all of $one into the first A* and
+                                                 all of $two into the second.
+                       This is a general principle: each format character corresponds to one piece of data to be packed.
+
+
+----------------- UNICODE   'U'
+
+$UTF8{Euro} = pack( 'U', 0x20AC );
+
+$Unicode{Euro} = unpack( 'U', $UTF8{Euro} );

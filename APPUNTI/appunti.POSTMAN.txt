@@ -1,0 +1,417 @@
+
+
+
+
+------------------------------------------------------------------------- URLS PARAMS
+    http://localhost:3000/books/search?title=waste
+                                       ^^^^^^^^^^^
+
+                                       I can write the Params directly in the URL
+                                       or also in the Params tab.
+                                       The effect is the same and the 2 are synced on the fly.
+
+
+
+
+------------------------------------------------------------------------- SEND / SAVE-Download
+
+       the "SEND" button can also be switched to a "Save-Download" which
+       for example can save the response as a local json file
+
+
+
+------------------------------------------------------------------------- HISTORY
+
+       very useful menu (on the left)
+
+
+------------------------------------------------------------------------- AUTHORISATION
+
+       It's the tab where I can add/specify different kind of Auth. ex
+           user & password
+           Api key
+           ....
+
+
+------------------------------------------------------------------------- PRESET (HEADERS)
+
+       If I clone a previous msg, it will have the same HEADERS of the original.
+       But if I start a new msg, it will be empty.
+       The "PRESETS" sub-tab in HEADERS tab, allows to define a name xxxx into which I
+       add all the headers (key : value) I want.
+       This name xxxx will go in a list of PRESETS headers available.
+       Every time I'll select one, it will source into the HEADERS all
+       the key-value pairs defined inside xxxx
+
+
+------------------------------------------------------------------------- ENVIRONMENTS
+
+       They work like PRESETS
+       They are a menu on the left.
+       I can add many xxxx, yyyy, zzzz   (ex. dev / staging / live) envs
+       each defining values for the same set of vars (ex.  host / api-key / ....)
+       which I'll use as {{}}  (ex {{host}} / {{api-key}} ) in the url, or haders or ....
+       and the actual value will be the one from the ENV I choose.
+
+
+
+------------------------------------------------------------------------- IMPORT
+
+       I can use the menu IMPORT/RAW TEXT
+       to paste a CURL (ex coming from the browser / dev tools --> export as CURL)
+       This will auto-fill all the fields into their right place
+       in the request,
+       so I can quickly submit and amend.
+
+
+------------------------------------------------------------------------- FRM MSG --> TO CODE
+
+       the </>  button
+       can generate the equivalent code in any of the supported languages/commands
+       (ex. Node, Java, Go, pure HTML, wget, curl, ....)
+       of the current Postman request.
+
+
+------------------------------------------------------------------------- TESTS
+
+       I can create Tests
+       which is the Tab which allows to add some Tests which are executed
+       once the msg has been sent and an answer received.
+
+       The syntax (in Javacsript) allows to inspect any part of the answer and
+       declare what it should be.
+       If it matches the test will be green, otherwise red.
+
+       'pm' unsurprisingly is the starting namespace of this postman notation.
+
+
+       example of 2 tests:
+
+           1. check status code is 200
+           2. check all books in the returned json array have a title
+
+      =========================
+      | pm.test("Status code is 200", function () {
+      |     pm.response.to.have.status(200);
+      | });
+      | pm.test("All books have a title", function () {
+      |     var books = pm.response.json();
+      |     pm.expect(books.every(book=>{return book.title !== undefined;})).to.be.true;
+      | });
+      =========================
+
+      As I use Javascript I can write code. Ex, the previous example can
+      use a function and call it:
+
+      =========================
+      |  const titleIsDefined = (book) => {return book.title !== undefined; }
+      |
+      |  pm.test("Your test name", function () {
+      |      var books = pm.response.json();
+      |      pm.expect(books.every(titleIsDefined)).to.be.true;
+      |  });
+      =========================
+
+
+
+
+------------------------------------------------------------------------- TEST - EXTERNAL JS LIBRARIES
+
+       The Javascript code that I can write for the Tests
+       can use SOME (only some) JS libraries which Postman supports.
+
+       If a JS library 'llll' is supported, then I can write the Test
+       with the usual syntax:
+
+           const cccc = require ('llll');
+
+           ....
+              .... cccc().some_method(......)
+
+
+------------------------------------------------------------------------- COLLECTIONS
+
+       I can group a set of msg
+       into a folder/collection
+
+       The cool feature is that I can clic on the 3 dots ...
+       of the collectipn to RUN it,
+       which runs the full set of msg.
+
+       I can also run the collection specifying an ITERATION value (ex N)
+       which loops N times the whole set.
+
+       It could be useful to make use of variables so that
+       some msg are flexible or with values set by previous
+       msg's answers.
+       These values are set via VARIABLES
+
+
+------------------------------------------------------------------------- VARIABLES
+
+       I can use the JS notation pm.
+       to store a var (ex. getting its value from a response)
+       and then retrieve later its value.
+
+       TO STORE a var, ex:
+
+                pm.global.set("vvvv", pm.response.json().some_field_here);  <----- this in a "Test" part (JS code) of the msg
+
+
+              in this example the field "some_field_here" of the response will be stored in
+              a global var "vvvv"
+
+
+       TO REUSE LATER THE VAR'S VALUE:   usual notation {{vvvv}}
+
+
+
+------------------------------------------------------------------------- PRE-SCRIPTS
+
+       I can set a variable directly in the PRE-REQUEST tab.
+
+
+                pm.global.set("vvvv", 1);  <----- this in the "PRE-REQUEST" tab
+
+       So I don't set it in the Test section of a precedent msg, but I write it
+       directly as an init code which will be executed before the msg is sent.
+
+
+       I can specify which will be the next msg postman should execute
+
+        postman.setNextRequest("Add book to User");     <----- here I specify that the msg named "Add book to User" will be executed next
+                ^^^^^^^^^^^^^^
+
+       this is useful as with an if I can set as next different ones according to some condition.
+
+       NOTE 0 : setNextRequest() is not a function call in the sense that it will jump
+                AT THAT TIME so stopping to process the current request.
+                It's instead like setting a flag of what the next request will be
+                once the current request is FULLY executed.
+
+       NOTE 1 : setNextRequest() only works in Collection Runner
+                it has no effect when you run a request using the Send button
+
+       NOTE 2 : setNextRequest(null) to stop the flow
+
+       NOTE 3 : setNextRequest() can be in the pre-request script
+                or the test script (execute then AFTER the request).
+                If more than one value is assigned, the last will be used.
+
+------------------------------------------------------------------------- DATA FILES
+
+       When running a collection I can "Select a file"
+       which allows me to select a local JSON  file
+       which contains an ARRAY [M] of info
+
+       If I select N iteration, then:
+
+       if N <= M    each iteraion i will use 1--N elem of the array [M]
+
+       if N > M     each iteraion i > M will reuse the last elemt M of the array
+
+
+------------------------------------------------------------------------- CLEAN VARIABLES
+
+       I can use the last msg of the collection,
+       (which will end the list of runs) to tidy up.
+
+       If I add a list of
+            pm.global.unset("vvvv1");
+            pm.global.unset("vvvv2");
+            pm.global.unset("vvvv3");
+                      ^^^^^
+       I can remove all the variable used / defined
+       when running that collection.
+
+
+       I can of course also use the "unset" already in the same msg-Test which created that var
+       without waiting the last msg-Test
+
+------------------------------------------------------------------------- NEWMAN
+
+       A cli (writtend in node.js) to run a collection
+
+
+       1. INSTALL
+           npm install -g newman
+
+       2. EXPORT A COLLECTION AS 1 JSON FILE
+
+       3. EXPORT VARS AS 1 JSON FILE
+
+       4. RUN
+           newman run coll_location  -e  env_location
+
+
+------------------------------------------------------------------------- MOCK SERVER
+
+       Mock server (on usual left main menu) allows to fake interfaces/api not yet implemented.
+
+       When I create a Mock server I give it a name (MMMM) and a URL but
+       not a full URL just the endpoint  (plus the http method and the wanted response (code & body))
+       ex
+            method    = GET
+            URL       = household/1/ownedBooks
+            Resp code = 200
+            Resp body = .....
+
+       Once created, Postman displays in the ending creation page a URL
+            ex.    https://335c5a71-6e03-42bb-9bd5e-5a5096e0e931.mock.pstmn.io
+       (so on Postman servers. In fact the free plan has 1000 calls/month)
+       which can be used to send requests to, appending the endpoint
+                    household/1/ownedBooks
+       so in the end:
+                    https://335c5a71-6e03-42bb-9bd5e-5a5096e0e931.mock.pstmn.io/household/1/ownedBooks
+
+       By default my MMMM mock server URL is saved as 1 env var "url".
+       In the ENV drop down menu I can then select my Mock server MMMM.
+       so in the end I can specify:
+                    {{url}}/household/1/ownedBooks
+
+       As for any other var, in the ENV panel I can change the name "url".
+
+       ====================== MOCK USAGE
+
+       Once the Mock server is created it is both in the
+                Mock Severs
+       menu on the left, as well in "Collections"
+       I can then select that Collection/MMMM and in the "..." near the SAVE button
+       I can "Add new example"
+       I notice that this 'new example' becomes a 2nd entry under Collection/MMMM
+       as there is already a 1st entry "Default".
+       The entry "Default" it's the 1 listening on
+                       {{url}}/household/1/ownedBooks
+       so the 'new example' will be usefull if I specify a differnt path
+       ex.
+                       {{url}}/household/2/ownedBooks
+
+       For every 'example' in  Collection/MMMM,
+       together with the listening {{url}}/some_endpoint
+       I can specify
+
+              1. the Body of the answer to send back & HEADER (ex. KEY: content-type    VALUE: application/json)
+              2. The HTTP code I want to send (ex. 200)
+
+       So if now I send something to {{url}}/some_endpoint
+       I'll  receive back
+              o that body
+              o that http code (200)
+
+
+
+
+
+       ====================== MOCKING ERRORS
+
+       the same as before, but put the step 2. (http code) to 500 instead of 200.
+
+       If I want any value in the response code (ex. 418), I can now
+       add the the request this HEADER
+                   x-mock-response-code:  418
+
+       Postman will return 418 (instead of 500)
+
+------------------------------------------------------------------------- DOCUMENTING
+
+       1. Select NEW
+       2. then "API Documentation"
+       3. then choose the Collection
+       4. Add any text (markdown supported)
+       5. I can now 'View" the result (a tab is opened still in postman(
+          similar to swagger
+
+
+       ----- documenting single msg
+       6. If I create 'exmamples' (like in the Mock Server)
+          under each req/msg that I want to document more
+          this will then be shown in the Collection doc "View"
+          adding the more details under that specifi req.
+
+
+
+       I can  PUBLISH the documentation.
+       It will go, in swagger style, on Postam servers.
+
+------------------------------------------------------------------------- postmanctl
+
+       External tool to interact with Postman
+
+       brew install kevinswiber/postmanctl/postmanctl
+------------------------------------------------------------------------- POSTMAN API
+
+       . Postman keeps on its private servers all my account/stuff (collections, variables, ....)
+
+       . The free account for example has a 3 days period to recover from an accidentally deletion of a whole colletion.
+
+       . Creating an API KEY on their server allows to interact with their APIs
+         which are avialble at https://www.postman.com/postman/workspace/postman-public-workspace/
+
+         They are groupped by
+                  Collections          GET (all)   GET (single)   POST(Create)  PUT(Update)   DEL(Delete)
+                  Environments            "             "              "            "            "
+                  Mocks                   "             "              "            "            "
+                  Monitors                .
+                  Worspace                          .
+                  User                                       .
+                  Import                                              .
+                  API                                                          .
+                  Webhooks                                                              .
+                  SCIM 2.0 Identity                                                              .
+                  API Security                                                                           .
+
+        . The general call uses th key as   curl ...  --header "X-Api-Key: $MY_POSTMAN_KEY"
+                                                                ^^^^^^^^^
+
+        . Examples:
+                 . GET ALL MY COLLECTIONS (returns the "id" of all the collections)
+
+                   curl --location --request GET https://api.getpostman.com/collections --header "X-Api-Key: $MY_POSTMAN_KEY"
+
+
+                       {
+                          "collections": [
+                            {
+                              "id": "267f2b26-4c94-4232-be6b-47217f5ac621", <----------------- id
+                              "name": "XML_Gateway",
+                              "owner": "1801429",
+                              "createdAt": "2019-10-25T12:18:14.000Z",
+                              "updatedAt": "2021-12-07T09:25:59.000Z",
+                              "uid": "1801429-267f2b26-4c94-4232-be6b-47217f5ac621",
+                              "isPublic": false
+                            },
+                            {
+                               ...
+
+
+                 . GET SINGLE COLLECTION  (useful for backup into 1 single JSON)
+
+
+                   ID=....  (id of the collection I want)
+
+                   curl --location --request GET https://api.getpostman.com/collections/$ID --header "X-Api-Key: $MY_POSTMAN_KEY"
+                                                                                       ^^^^
+
+------------------------------------------------------------------------- HISTORY
+
+       .
+
+
+------------------------------------------------------------------------- HISTORY
+
+       .
+
+
+------------------------------------------------------------------------- HISTORY
+
+       .
+
+
+------------------------------------------------------------------------- HISTORY
+
+       .
+
+
+------------------------------------------------------------------------- HISTORY
+
+       .

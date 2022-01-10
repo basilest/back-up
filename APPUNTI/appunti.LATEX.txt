@@ -18,8 +18,7 @@ SPECIAL CHARS         # $ % ^ & _ { } ~ \
                               {} to enclose MANDATORY args
                               []       "    OPTIONAL  args
 
-COMMENTS              %  comments out :
-                        {till the end of line} + {any starting spaces of next line}
+COMMENTS              %  line comments
 
 GENERAL DOC STRUCTURE                     ______________
                        \documentclass{...}                 PREAMBLE

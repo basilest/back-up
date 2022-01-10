@@ -1,0 +1,222 @@
+
+
+           AWS  SSO    Single Sign-On
+
+       It is a web service (portal) that allows easily
+       to assign access
+
+       user (= roles assigned to them)  ---- access ---> AWS account applications
+
+
+
+
+ NOTE: it requires AWS CLI v.2
+
+
+
+ aws sso ....
+       o login
+       o logout
+
+       o get-role-credentials
+       o list-account-roles
+       o list-accounts
+
+ The commands are the above 5,
+ but before using themt, sso must be CONFIGURED via
+      $ aws configure
+
+
+
+
+
+
+-------------------------------------------- 1 - CONFIGURE  - aws configure sso
+I must provide the URL and the region
+
+
+    ╰─ aws configure sso
+    SSO start URL [None]: https://companies-house.awsapps.com/start#/
+    SSO Region [None]: e
+                         eu-central-1    <------------------ the regions are auto-filled when just starting typing 'e'
+                         eu-north-1
+                         eu-west-1
+                         eu-west-2
+
+
+
+
+Once given URL/region, the drop down menu provides the list of ACCOUNTS defined
+
+NOTE: ACCOUNT word refers to something like 'staging' 'hlive'
+      it's not in the sense of my name 'sbasile' (whcih is the 'user')
+
+
+    ╰─ aws configure sso
+    SSO start URL [None]: https://companies-house.awsapps.com/start#/
+    SSO Region [None]: eu-west-2
+    There are 8 AWS accounts available to you.
+    > ch-heritage-dev, heritagedev@companieshouse.gov.uk (300288021642)    <--------- autofilled drop down menu
+      ch-shared-services, sharedservices@companieshouse.gov.uk (416670754337)
+      ch-live, awslive@companieshouse.gov.uk (449229032822)
+      ch-staging, awspreprod@companieshouse.gov.uk (250991044064)
+      ch-innovation, awsinnovation@companieshouse.gov.uk (450865997890)
+      ch-heritage-staging, heritagestaging@companieshouse.gov.uk (973538526606)
+      ch-development, awsdev@companieshouse.gov.uk (169942020521)
+      ch-heritage-live, heritagelive@companieshouse.gov.uk (976051798167)
+
+
+
+
+
+
+
+    ╰─ aws configure sso
+    SSO start URL [None]: https://companies-house.awsapps.com/start#/
+    SSO Region [None]: eu-west-2
+    There are 8 AWS accounts available to you.
+    Using the account ID 300288021642
+    There are 2 roles available to you.
+    Using the role name "AdministratorAccess"
+    CLI default client Region [eu-west-1]: eu-west-2
+    CLI default output format [json]:
+    CLI profile name [AdministratorAccess-300288021642]: hdev
+
+    To use this profile, specify the profile name using --profile, as shown:
+
+    aws s3 ls --profile hdev
+
+
+
+
+
+
+
+Once all is given the files
+
+ ~/.aws/config ~/.aws/credentials
+
+ are amended
+
+
+
+
+             [profile hdev]
+             output = json
+             region = eu-west-2
+            +sso_start_url = https://companies-house.awsapps.com/start
+            +sso_region = eu-west-2
+            +sso_account_id = 300288021642
+            +sso_role_name = PowerUserAccess
+
+
+-------------------------------------------- 2 - LOGIN
+
+  alternative A:
+    1.  export AWS_PROFILE=hlive
+    2.  aws sso login
+
+  alternative B:
+    1.  aws --profile hlive sso login
+
+
+  both the alternatives will redirect to sso URL in the browser.
+
+  This will create a json file containing the accessToken valid for 8 hours
+
+
+     ls -l ~/.aws/sso/cache/
+    -rw-------  1 sbasile  staff  1393 22 Dec 09:42 6b095e5712340ecf164b2e117d2e4510eed4c3a4.json
+    -rw-------  1 sbasile  staff  1395 22 Dec 11:10 9ce992c1a68e1510398077a3d4a53cff20014ceb.json  <---------
+    -rw-------  1 sbasile  staff   962 22 Oct 07:40 botocore-client-id-eu-west-2.json
+
+
+       {
+       "startUrl": "https://companies-house.awsapps.com/start#/",
+        "region": "eu-west-2",
+        "accessToken": "eyJlbmMiOiJBMjU2R...................................................",
+        "expiresAt": "2021-12-22T19:10:10Z"
+       }
+
+
+
+
+
+
+================================= yawsso  - Yet Another AWS SSO  (https://github.com/victorskl/yawsso)
+
+    yawsso is used to resync (token elapsed)
+    a previous valid sso
+    So the 1st step is always a normal
+
+          $  aws --profile xxx  sso login
+
+    this can be collapsed into 1 single command
+
+          $  yawsso login  --profile hlive       # will trigger both the [aws sso] and then the following sync
+
+    a yawsso without both either a
+           "sso login"      or a
+           "yawsso login"
+
+    will not sync:
+
+    ╰─ yawsso -p hlive
+    Current cached SSO login is expired since 2021-12-23T01:16:57+00:00. Try login again.
+
+
+
+
+
+
+    1. INSTALL          pip3.9 install yawsso      <------ it requires python >= 3.6
+                                                           so a normal pip might not work on a Mac with default Python 2.7
+
+    2.
+        o yawsso --profile   hlive                  # will sync 1 profile
+                 -p          hlive
+
+        o yawsso -p   hlive hstag shared            # will sync 3 profiles
+        o yawsso -p   'h*'                          # will sync hlive & hstag
+
+        o yawsso -p   hlive -e                      # dump the AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY/AWS_SESSION_TOKEN
+                                                      so I can copy quicly and paste/source in a server
+        o yawsso -p   'h*'  -e                      # dump the same for hstag / hlive
+
+
+    2. export AWS_PROFILE=hstag
+
+    3. yawsso login --profile $AWS_PROFILE --this        <----- it opens the browser like sso
+
+
+
+      . yawsso logs in to the specified profile
+
+
+
+            ╰─ yawsso login --profile hdev
+            Attempting to automatically open the SSO authorization page in your default browser.
+            If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
+            https://device.sso.eu-west-2.amazonaws.com/
+            Then enter the code:
+            SQJD-TZRN
+            Successully logged into Start URL: https://companies-house.awsapps.com/start
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `development`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `dev`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `dev2`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `development-eu-west-2`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `default`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `preprod`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `live`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `stagsbox`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `livesbox`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `live-eu-west-2`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `shared`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `bulk-live`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `bulk.live`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `bulk_live`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `stagblue`
+            Not an AWS SSO profile nor no source_profile found. Skip syncing profile `liveblue`
+
+
+

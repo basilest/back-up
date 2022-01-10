@@ -381,9 +381,6 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                           ~/.zshrc:   `bindkey -v' (set vi)
                                                                    |                                                       `bindkey -e' (set emacs)
                                                                    |
-                                                                   |                           remember vi starts in insert, so `ESC' to enter vi commands.
-                                                                   |
-                                                                   |
                                                                    |  2. BANG '!'              The usual (ex !!:1 .... !!:3-$   )
                                                                    |                           !!
                                                                    |                           !!:1       last  command 1st arg
@@ -450,8 +447,8 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |
                                                                    |  .EXTENDED_HISTORY               allows (consuming bit of disk space) to have timestamp for every command
                                                                    |                                  (so that, I can list also that:
-                                                                   |                                                                     history       only the commands
-                                                                   |                                                                     history -d    time + cmd
+                                                                   |                                                                     history       only the commands  (short list by default. 'history 0' shows ALL.   'history -f 0' is your final frind)
+                                                                   |                                                                     history -d    time + cmd                                                           ^^^^^^^^^^^^
                                                                    |                                                                     history -f    date + cmd
                                                                    |                                                                     history -D    elapsed time + cmd
                                                                    |                                                                     history -E    date European  d.m.yy

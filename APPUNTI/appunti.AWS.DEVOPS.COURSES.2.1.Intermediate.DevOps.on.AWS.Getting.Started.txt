@@ -1,0 +1,52 @@
+
+       1 AWS Operations Path
+
+
+Deploying an Application on AWS (By Wes Novack)
+
+Course Overview	                                                1m 31s
+
+Deploying Apps with AWS CodeDeploy		                        41m 15s
+
+    Introduction		                                             2m 2s
+    DevOps, Continuous Delivery, and the Benefits of CodeDeploy		 3m 24s
+    Components of CodeDeploy		                                 5m 10s
+    AppSpec File and Installing the CodeDeploy Agent		         6m 22s
+    Demo: Installing the CodeDeploy Agent		                     7m 24s
+    Connecting All the Pieces		                                 1m 47s
+    Using and Navigating the CodeDeploy Console		                12m 16s
+    Module Summary		                                             2m 48s
+
+Continuous Integration with AWS CodeBuild		                40m 38s
+    Module Introduction		                                         4m 9s
+    Continuous Integration		                                     1m 45s
+    Alternatives to CodeBuild		                                 2m 6s
+    Benefits of CodeBuild		                                     2m 30s
+    How CodeBuild Is Used in a CI/CD Pipeline		                 1m 17s
+    Components of CodeBuild		                                     6m 55s
+    BuildSpec File and Testing Frameworks		                     3m 56s
+    Demo: Create Java Build Project and Run a Build		            11m 2s
+    Demo: Run a Python Build and Navigate CodeBuild Console		     3m 50s
+    Module Summary		                                             3m 3s
+
+Automating Software Releases with AWS CodePipeline		        40m 12s
+    Module Introduction		                                         2m 57s
+    What Is a Pipeline?		                                         1m 41s
+    Prerequisites for Using AWS CodePipeline		                 2m 12s
+    Benefits of CodePipeline		                                 2m 18s
+    CodePipeline Components		                                     4m 32s
+    Pipeline Action Types		                                     1m 46s
+    Monitoring Pipelines		                                     1m 33s
+    Demo: Creating a Pipeline, Checking Results, Disabling CodeBuild Webhooks 10m 9s
+    Demo: Editing a Complex Pipeline and Checking Execution History	4m 40s
+    Demo: Pipeline Monitoring and Alerting		                    4m 51s
+    Module Summary		                                            3m 28s
+
+
+    ________________________________________________________________________
+    2. CloudFormation  T E M P L A T E
+
+             They can be both in
+                   YAML <--------  more redable and I can add comments
+                   JSON
+

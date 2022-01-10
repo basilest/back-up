@@ -1,3 +1,19 @@
+-------------------------------------------------
+           updates in Git 2.23
+
+             - solution to
+                   git checkout "overloaded"
+                   (the problem of
+                            git checkout bbbbb     # switch to BRANCH bbbbb
+                            git checkout fffff     # overwrite FILE   fffff (from the repo)
+                    problem when I have both a branch and a file named bbbbb)
+
+                   so 2 distinct commands:
+
+                          git switch  bbbbb    (with       git switch -c newb  = git checkout -b newb)
+                          git restore fffff
+
+-------------------------------------------------
  GENERAL NODES
                            TAG --->     (C)    COMMIT (author, message, 1 TREE-SHA1)
                                          |
@@ -43,12 +59,12 @@ REFERENCES:
 
               ex:   find .git/refs/  :
 
-                     .git/refs/
-                     .git/refs/remotes
-                     .git/refs/remotes/origin
-                     .git/refs/remotes/origin/master
-                     .git/refs/remotes/origin/HEAD      <---- a text file like   ----->"  ref: refs/remotes/origin/develop  "<-----
-                     .git/refs/tags
+       ALL           .git/refs/
+        these        .git/refs/remotes
+          files      .git/refs/remotes/origin
+       are           .git/refs/remotes/origin/master
+          41 B       .git/refs/remotes/origin/HEAD      <---- a text file like   ----->"  ref: refs/remotes/origin/develop  "<-----
+       Commit+\n     .git/refs/tags
                      .git/refs/heads
                      .git/refs/heads/master
 
@@ -193,7 +209,7 @@ NOTATIONS:
   |                             |                        and so all the files in there (not only the index, but
   |                             |                        the ref (ex. the remotes !!! names and protocol used https/git/...))
   |                             |                        are settings specific to only that repo.
-  |                             |                        Another repo can have complete different settings
+  |                             |                        Another repo can have completely different settings
   |                             |
   |                             |
   |                             | $GIT_EDITOR      to set a preferred editor (ex.  export GIT_EDITOR=vim   # .bashrc)

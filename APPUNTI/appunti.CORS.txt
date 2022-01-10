@@ -1,0 +1,215 @@
+
+
+          User --------.---->   Server A
+                        \       domain 1
+                         \
+                          \
+                           `----------------> Server B
+                                               domain 2
+
+
+
+          Browsers stops to fullfil a request that requires
+          a page asked to Server A to load values (ex. in a <canvas> of that page)
+          from a Sever B in a domain 2 different from Server A.
+
+
+Cross-Origin Resource Sharing (CORS) fixes this problem and allows to load from Server B too
+
+
+          DEFAULT:    so by default a browser will not load contents from different domains
+                      to render the same page
+                      CORS is OFF
+
+          CORS ON:    It's a 3 steps:
+
+
+                          1.   Client ---------  HTTP -------------------------------->  Server
+                                                 header:
+                                                     Origin: scheme,host,port
+
+                          2.   Client <--------  HTTP ---------------------------------  Server
+                                                 header:
+                                                     Access-Control-Allow-Origin: <requesting-origin>
+                                                                                       or
+                                                                                       *     # to allow any origin
+
+                          3.   Client
+                               Browser checks and allows
+
+
+
+
+
+ex. 1 : NO CORS
+
+
+        GET https://cors-demo.glitch.me/
+
+
+       step 1    GET / HTTP/1.1
+                  Host: cors-demo.glitch.me
+                  User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:87.0) Gecko/20100101 Firefox/87.0
+                  Accept: */*
+                  Accept-Language: en-US,en;q=0.5
+                  Accept-Encoding: gzip, deflate, br
+                  Referer: https://web.dev/
+                  Origin: https://web.dev     <--------------- CORS header
+                  Connection: keep-alive
+                  Pragma: no-cache
+                  Cache-Control: no-cache
+
+
+
+        step 2                          HTTP/1.1 200 Connection established
+                                         date: Fri, 13 Aug 2021 14:07:22 GMT
+                                         content-type: application/json; charset=UTF-8
+                                         content-length: 53
+                                         x-powered-by: Express
+                                         accept-ranges: bytes
+                                         cache-control: public, max-age=0
+                                         last-modified: Wed, 24 Oct 2018 17:50:04 GMT
+                                         etag: W/"35-166a7329ce0"
+                                         X-Firefox-Spdy: h2
+
+
+        step 3  Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://cors-demo.glitch.me/. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing).
+
+
+
+
+
+
+
+
+
+
+
+
+ex. 2 : WITH CORS
+
+
+        GET https://cors-demo.glitch.me/allow-cors
+
+
+       step 1    GET /allow-cors HTTP/1.1
+                  <
+                    same
+                    as
+                    before
+                  >
+
+
+        step 2                          HTTP/1.1 200 Connection established
+                                         date: Fri, 13 Aug 2021 14:14:49 GMT
+                                         content-type: application/json; charset=UTF-8
+                                         content-length: 53
+                                         x-powered-by: Express
+                                         access-control-allow-origin: *      <----------------- this only chage
+                                         accept-ranges: bytes
+                                         cache-control: public, max-age=0
+                                         last-modified: Wed, 24 Oct 2018 17:50:04 GMT
+                                         etag: W/"35-166a7329ce0"
+                                         X-Firefox-Spdy: h2
+
+
+
+        step 3   OK
+
+
+
+
+
+
+
+
+
+credentials with CORS
+
+
+                      For privacy reasons, CORS is normally used for "anonymous requests" where
+                      the request doesn't identify the requestor.
+                      If you want to send cookies when using CORS (which could identify the sender),
+                      you need to add additional headers to the request and response.
+                      Request #
+
+                      Add credentials: 'include' to the fetch options like below. This will include the cookie with the request.
+
+                      fetch('https://example.com', { mode: 'cors', credentials: 'include' })
+
+                      Response #
+
+                      Access-Control-Allow-Origin must be set to a specific origin (no wildcard using *) and
+                      must set Access-Control-Allow-Credentials to true.
+
+                      HTTP/1.1 200 OK
+                      Access-Control-Allow-Origin: https://example.com    <-------- this (not '*')
+                      Access-Control-Allow-Credentials: true              <-------  and this
+
+
+
+
+
+
+
+Preflight requests for complex HTTP calls #
+
+                     If a web app needs a complex HTTP request,
+                     the browser adds a preflight request to the front of the request chain.
+
+                     The CORS specification defines a complex request as
+
+                         A request that uses methods other than
+                                                           GET
+                                                           POST
+                                                           HEAD
+
+                         A request that includes headers other than
+                                                           Accept
+                                                           Accept-Language
+                                                           Content-Language
+
+                         A request that has a Content-Type header other than
+                                                           application/x-www-form-urlencoded
+                                                           multipart/form-data
+                                                           text/plain
+
+                     Browsers create a preflight request which is an
+                                  OPTIONS request
+                     like:
+
+                     OPTIONS /data HTTP/1.1
+                     Origin: https://example.com
+                     Access-Control-Request-Method: DELETE
+
+                     The server responds to the preflight request with
+                     information about the methods the application accepts from this origin.
+
+                     HTTP/1.1 200 OK
+                     Access-Control-Allow-Origin: https://example.com
+                     Access-Control-Allow-Methods: GET, DELETE, HEAD, OPTIONS
+
+                     The server response can also include an
+
+                         Access-Control-Max-Age header to specify the duration (in seconds) to cache preflight results so the client does not need to make a preflight request every time it sends a complex request.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

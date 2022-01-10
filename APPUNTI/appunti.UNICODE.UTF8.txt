@@ -19,9 +19,9 @@
           .coded in ASCII:
                   - able to represent every character using
                     a number between 32 and 127 (7 bits)
-                  - Space was 32, the letter "A" was 65
+                  - Space was 32, the letter "A" was 65 (decimal, or 0x41 hex)
                   - Codes below 32 were called unprintable and were used for control characters:
-                    ex 7 computer beep
+                    ex  7 computer beep
                        12 page of paper to go flying out of the printer and a new one to be fed in.
 
    2. 1byte = 7bits + 1
@@ -101,6 +101,151 @@
             These encodings when failing produce a '?' instead of the correct Unicode symbol.
 
 
+   7. NORMALISATION               annex 15:  https://www.unicode.org/reports/tr15/)
+       The SAME unicode char can have more representations (all called "canonically equivalent")
+
+                U+00C5 ( Å ) LATIN CAPITAL LETTER A WITH RING ABOVE  <-------------- this is the NFC one
+                U+212B ( Å ) ANGSTROM SIGN
+                U+0041 ( A ) LATIN CAPITAL LETTER A + U+030A ( ̊ ) COMBINING RING ABOVE
+
+       each then with a different binary value, so it's possible that in a program
+       I can have odd results (ex. string compare)
+
+   2 Unicode chars (2 SINGLETON) are EQUIVLENT depending of 2 types
+
+            . CANONICAL     equivalence     (NFC)
+            . COMPATIBILITY equivalence     (symbol used 'K'  Kompatibility (NFKC)  as C is already 'Composition')
+
+    A.CANONICAL     equivalence      it's the real scrict one (the default: NFC)
+                                     meaning that the 2 chars must be the same on video
+                                     even if they have
+
+                                      - different code points
+                                         ANGSTROM SIGN      U+212B ( Å ) =  U+00C5 ( Å )  LATIN CAPITAL LETTER A WITH RING ABOVE
+                                         Omega greek        U+2126 ( Ω ) =  U+03A9 ( Ω )  Ohm symbol
+
+                                      - different combining sequence
+                                                 Ç 	    = 	C + ◌̧       # 1 singleton vs 1 letter (combined +) symbol
+
+                                      - different ordering
+                                                 q+◌̇+◌̣ 	= 	q+◌̣+◌̇       # 1 letter (combined +) same symbols but different order
+
+    B.COMPATIBILITY equivalence      It's weaker, allowing different dispalys
+
+                                         ℌ 	= 	H          font variants
+                                         ℍ 	= 	H          font variants
+                                         ① 	= 	1          Circled variants
+                                         ｶ 	= 	カ         Width variants
+                                        ︷ 	= 	{          Rotated variants
+                                         ︸ = 	}
+                                     	i⁹ 	= 	i9         Superscripts/subscripts
+                                         i₉ = 	i9
+                                         ㌀ = 	アパート   Squared characters
+                                         ¼ 	= 	1/4        Fractions
+
+
+---------------------  PRE-COMPOSED Characters
+
+        Some special characters exist as single standalone char (not composed)
+        ex
+
+             ḍ       (1E0D) Latin Small Letter D with Dot Below     which is also equivalent to
+
+             d + .  (0064 + 0323)
+
+        so ḍ is called pre-composed
+
+        Not always exist a pre-composed
+        ex the 'q' doesn't exist already with a Dot Below, but
+        I can only create it as
+
+            q + .  (0071 + 0323)
+
+
+---------------------  DECOMPOSITION
+
+        It's the process the decompose a char (i.e. a string)
+        in its elements.
+        Also pre-composed char are 'opened'
+        ex
+                 ḍ      (1E0D)             is opened as
+                 d + .  (0064 + 0323)
+
+        There are 2 ways to open or decompose
+
+        NFD     (opens in canonical/preserve mode)
+           2⁵   (0032 + 2075)  =    2 (0032)  + ⁵ (2075)
+
+        NFKD     (opens in compatibility/lose mode)
+           2⁵   (0032 + 2075)  =    2 (0032)  + 5 (0035)
+
+
+
+---------------------  COMPOSITION
+        It's the process to 'close' an open string
+        so if exist pre-composed char they are used to compact
+        ex
+
+             d + .  (0064 + 0323)             is closed as
+             ḍ      (1E0D)
+
+
+             d + . +  ̇̇ (0064 + 0323 + 0307)   is closed as
+             ḍ     +  ̇̇ (1E0D +        0307)
+
+
+             the q doesn't have any precomposed so there si no way to close/compact
+             these 3 any further:
+
+             q + . +  ̇̇ (0071 + 0323 + 0307)
+
+        ORDERING
+             The composition respects ANYHOW ALSO AN ORDER
+             so for example
+
+             q +  ̇̇ + . (0071 + 0307 + 0323)  remains 3 shorts but the composition changes the ordering as
+             q + . +  ̇̇ (0071 + 0323 + 0307)
+
+
+---------------------  NORMALISATION
+
+        Normally it's the process to Decompose (open) and Re-compose (close)
+
+        There is no different in the COMPOSITION phase,
+        so the NORMALISATION
+             NFC  is the close of a string opened with canonical/preserve mode NFD
+             NFKC is the same close of a string which was instead opened in compaitbility mode
+
+             So here the journey of a 2⁵
+
+                2⁵  --NFD -->   2 (0032)  + ⁵ (2075) --> NFC  2 (0032)  + ⁵ (2075)
+                2⁵  --NFKD-->   2 (0032)  + 5 (0035) --> NFKC 2 (0032)  + 5 (0035)
+
+
+        The normalizations will then compact the 3 below all into the 1st
+
+                00C5 ( Å ) LATIN CAPITAL LETTER A WITH RING ABOVE  <-------------- this is the NFC one
+                212B ( Å ) ANGSTROM SIGN
+                0041 ( A ) LATIN CAPITAL LETTER A + U+030A ( ̊ ) COMBINING RING ABOVE
+
+
+---------------------  STRING CONCATENATION
+
+        Normalisation is not a closed operation on concatenation
+        which means that if s1 & s2 are both normalized strings
+        it's not guaranteed that s1.s2 (concatenation)
+        is still normalized.
+                ex
+                     s1       d   (0064)      s2 . (0323)
+                     s1.s2    d. (0064 0323)  is different from what obtaining normalizing it: ḍ  (1E0D)
+
+
+
+
+
+
+
+
   AGAIN:
 
   .-------------------------------------------------------------------
@@ -128,6 +273,77 @@
            <html>
                 <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+
+
+
+
+---------------- UTF-8 :
+
+
+UNICODE
+CODE
+POINTS
+
+[0-127]            0 x x x  x x x x                  old ASCII 0-127 still stays in 1 byte
+                     ^^^^^^^^^^^^^^                  the HEADER is 1 bit: starting 0
+                          7
+
+
+[128-2.047]        110  x  x x x x      10   x x  x x x x     for UNICODE CODE-POINTS > 128  < 2.047
+                   ^^^  ^^^^^^^^^^      ^^   ^^^^^^^^^^^^     I need 11 bits of info. They are split
+                            5                    6            in 2 bytes:
+                            '--------------------'                - 1st: HEADER of 110   <--- which I can remember as 2-"1" -> 2 bytes
+                                    tot=11                        - 2nd: HEADER of  10   <--- header of the "continuation byte"
+
+
+ 3rd range         1110    x x x x      10  x x  x x x x     10   x x  x x x x
+                   ^^^^    ^^^^^^^      ^^  ^^^^^^^^^^^^     ^^   ^^^^^^^^^^^^
+                            4                    6                   6
+                            '--------------------'-------------------'
+                                              tot=16
+                                                              for UNICODE CODE-POINTS > 128  < 4.096
+                                                              I need 16 bits of info. They are split
+                                                              in 3 bytes:
+                                                                  - 1st: HEADER of 1110  <- which I can remember as 3-"1"-> 3 bytes
+                                                                  - 2nd: HEADER of  10   <- header of the "continuation byte"
+                                                                  - 3rd: HEADER of  10   <- header of the "continuation byte"
+
+
+...
+
+
+last range:
+
+                   1111 110 x      10  x x  x x x x   10   x x  x x x x   10  x x  x x x x   10   x x  x x x x   10   x x  x x x x
+                   ^^^^^^^^ ^      ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^
+                            1                6                   6                 6                   6                   6
+                            '----------------'-------------------'-----------------'--------------------'-----------------'
+                                                                   tot=31
+                                                              31 bits for the last block, with 6 bytes split as
+                                                              in 3 bytes:
+                                                                  - 1st: HEADER of 1111 110 <- which I can remember as 6-"1"-> 6 bytes
+                                                                  - 2nd: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 3rd: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 4th: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 5th: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 6th: HEADER of  10      <- header of the "continuation byte"
+
+
+
+        NOTE 1:  UTF-8 will never send 8-"0" (8 consecutive zeros)
+                 so this avoids to send what the receiver could interpret as an "END-OF-STRING"
+                 and then potentially stops listening for the following bytes.
+
+        NOTE 2:  taking any byte from a stream, I always know if I'm in the middle of a "continuation bytes"
+                 or if I've taken a leading byte
+                 so I can look forward or backward in the stream of byte
+
+        NOTE 3:  If a byte starts with 0 it's a 1 ASCII = 1 UTF-8 single byte/char.
+
+
 
 
 

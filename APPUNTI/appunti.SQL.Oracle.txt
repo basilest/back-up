@@ -5,6 +5,36 @@ save Select into a file
 2. right click on the data retrieved (any place)
 3. Export   (choosing for example format CSV)
 -------------------------------------
+SPECIAL SELECT:
+
+
+   1.  set define off    <----- set this before running a select on a string containing '&' (ex. ... & ASSOCIATES)
+                                because otherwise it prompts interactively to specify a value for ASSOCIATES
+
+
+   2.  Use regex REGEXP_LIKE instead of just LIKE '%...%'
+
+        select conumb, coname from formheader where status = 1 and coname like '%&%';       deosn't work
+        select conumb, coname from formheader where status = 1 and coname like '%?%';       deosn't work
+        select conumb, coname from formheader where status = 1 and REGEXP_LIKE (coname, '[?&]');    works
+        select conumb, coname from formheader where status = 1 and REGEXP_LIKE (coname, '[^ -~]');  finds Unicode chars (not ASCII: out of range 'space'-'tilde'
+
+------------------------------------- TO KNOW WHICH CHAR SET IS USE IN THE DB
+SELECT * FROM NLS_DATABASE_PARAMETERS;      this gives all (e.g. even territory, date format, ...)
+
+select * from nls_database_parameters  where parameter='NLS_CHARACTERSET';  ---> ex AL32UTF8      this gives then only the charset
+
+
+Note: export NLS_LANG env var MUST be set :
+
+         NLS_LANG: export NLS_LANG='ENGLISH_UNITED KINGDOM.UTF8'
+                                  ='AMERICAN_AMERICA.AL32UTF8'
+                                  ='GERMAN_GERMANY.AL32UTF8'
+                                    .....
+
+otherwise I can have weird data
+
+-------------------------------------
 TEST CONNECTIVITY:
 
       use sqlplus   (or sqlplus64)

@@ -5,6 +5,76 @@
 
 
 
+---------------------------------------------------
+
+
+         Concourse:    C O N T I N U O U S  pipeline    (continuous thing-doer
+                                                         continuous delivery
+                                                         ....
+                                                         )
+
+         YAML ________ (start)------- pipeline
+         file                             \
+                                           \
+                                             (task1) executed
+                                             (task2) in ephemeral containers
+                                             (task3) which are destroyed once done.
+
+                                                     (so no STATE is kept
+                                                      betweeen subsequent RUNS)
+
+
+   RESOURCES      store data    (since concourse doesn't keep any STATE itself)
+        \
+         \_______ they have a TYPE  (ex. stndard GIT / AWS S3 / .... + I can create my own TYPES)
+
+
+
+   TASKS
+        \
+         \_______ the smallest unit of execution (the scripts that run in a container)
+
+   JOBS
+        \
+         \_______ is a collection of more TASKS  (a sequence of separate scripts)
+                                  - t1: pull from git
+                                  - t2  compile
+                                  - t3  upload to S3
+                                  - t4  send email/slack
+
+   PIPELINE
+        \
+         \_______ a series of JOBS
+
+   BUILDS
+        \
+         \_______ are the different executions of the same pipeline
+                  which are logged and kept on the server to inspection / historical logs
+
+---------------------------------------------------
+
+
+             CONCOURSE ARCHITECTURES
+
+                                                     - Web UI
+            [PostresSQL] ------------  [ Web Nodes]  - API                    <----- Web Nodes are the BRAIN of Concourse
+                                            |        - Pipeline scheduler            and can be scaled on different servers
+                                            |        - Worker registration
+                                            |
+                                            |
+                                       [Worker Nodes] - Container Management API ----> Containers
+                                                      - Volume    Management API ----> Volumes
+
+
+---------------------------------------------------
+
+         fly     targets
+
+         fly  --target  ps login
+         fly  --target  ps status
+         fly  --target  ps execute          --config  task1.yml
+         fly  --target  ps set-pipeline     --config  pipeline.yml  --pipeline   mypipe
+
 
 
 
@@ -60,10 +130,11 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
             ╰─ fly targets
-            name             url                                team    expiry
-            platform-common  https://ci.platform.aws.chdev.org  common  Thu, 17 Jun 2021 15:02:52 UTC
-            ps               http://localhost:8080              main    Tue, 10 Nov 2020 23:16:38 UTC
-            tutorial         http://127.0.0.1:8080              main    Sun, 30 Aug 2020 21:31:44 UTC
+            name                       url                                team              expiry
+            platform-common            https://ci.platform.aws.chdev.org  common            Wed, 23 Jun 2021 06:05:43 UTC
+            platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Wed, 23 Jun 2021 06:05:43 UTC
+            ps                         http://localhost:8080              main              Tue, 10 Nov 2020 23:16:38 UTC
+            tutorial                   http://127.0.0.1:8080              main              Sun, 30 Aug 2020 21:31:44 UTC
 
 
             ╰─ fly -t platform-common teams
@@ -73,12 +144,21 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
             cowardly refusing to run due to significant version discrepancy
 
-            ╰─ fly -t platform-common sync                  #
+      ╰─ which fly
+      /usr/local/bin/fly
+
+
+      /usr/local/bin/fly --version
+      7.1.0
+
+            ╰─ fly -t platform-common sync                  # <------- THIS IS GOING TO OVERWRITE MY SYSTEM MORE UPDATED 7.1.0 /usr/local/bin/fly <---- THIS WILL BECOME 6.7.1 !!!!!!!!!!
             downloading fly from https://ci.platform.aws.chdev.org...
 
             fly v6.7.1 [================================================] 52.0MiB/52.0MiB
             done
 
+      /usr/local/bin/fly --version
+      6.7.1 <------------------------------------------ NOTE
 
             ╰─ fly -t platform-common teams                 # teams List the configured teams (aliases: t)
             name
@@ -465,9 +545,19 @@ build successfully aborted
 ╭─   11041   192.168.0.3  sbasile@pd12671   ~/ci/s     master 
 ╰─
 
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------------------
 ---------------------------------------------------
 ---------------------------------------------------

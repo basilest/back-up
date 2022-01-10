@@ -1,0 +1,330 @@
+ideas:
+          autoscale   (reduce EC2)
+          Dynamic Scaling https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scale-based-on-demand.html
+
+SNS: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/US_SetupSNS.html
+
+
+==================================================================== CloudWatch
+       CloudWatch is basically a metrics repository.
+
+       metrics (are variables to measure my resources)
+
+       An AWS service—such as Amazon EC2—puts metrics into the repository,
+       and you retrieve statistics based on those metrics.
+
+       Metrics are stored separately in Regions,
+       but you can use CloudWatch cross-Region functionality to aggregate statistics from different Regions.
+
+       Home page:    auto-created metrics for every AWS service
+       Dashboard:    I can create my metrics
+
+       Alarm:        watch metrics --> send notif
+                     can also make changes when > treshold
+                     When creating an alarm, select an alarm monitoring period that is greater than or equal to the metric's resolution.
+
+
+
+      Namespaces:    A namespace is a container for CloudWatch metrics.
+                     Metrics in different namespaces are isolated from each other
+                     There is no default namespace.
+                     I must create my own (max 256 char)
+                     AWS namespaces typically are: AWS/service. For example AWS/EC2 namespace
+
+
+      Metrics:        Think of a metric as a variable to monitor, and the data points as representing the values of that variable over time.
+
+                      Each data point in a metric has a time stamp, and (optionally) a unit of measure
+                      The time stamp can be up to 2 weeks in the past and up to 2 hours into the future.
+                      If you do not provide a time stamp, CloudWatch creates a time stamp for you based on the time the data point was received.
+
+                      timestamp = date + hh:mm:ss     ex   2016-10-31T23:59:59Z
+
+
+
+                      Metrics cannot be deleted, but they automatically expire after 15 months if no new data is published to them.
+                      Data points older than 15 months expire on a rolling basis; as new data points come in, data older than 15 months is dropped.
+
+
+      Retentions:     how long data points are kept depends on the incoming rate:
+
+                        Rate < 1/60 sec              ---> kept 3 hours
+                        Rate   60 seconds (1 minute) ---> 15 days
+                        Rate  300 seconds (5 minute) ---> 63 days
+                        Rate 3600 seconds (1 hour)   ---> 455 days (15 months)
+
+                    Data points that are initially published with a shorter period are aggregated together for long-term storage.
+                    Ex: if you collect data using a period of 1 minute, the data remains available for 15 days with 1-minute resolution.
+                    After 15 days this data is still available, but is aggregated and is retrievable only with a resolution of 5 minutes.
+                    After 63 days, the data is further aggregated and is available with a resolution of 1 hour.
+
+
+      Dimensions:     1 dim is key:value pair.   I can have 10 dim to 1 metric
+
+==================================================================== Logs INSIGHTS
+        ----------------------   Logs INSIGHTS query syntax
+
+           the syntax for INSIGHTS is to grab info from the logs.
+
+           ex:
+           fields @timestamp, @message | sort @timestamp desc | limit 25
+
+           The general fields of 1 log line are
+               @timestamp
+               @message     <------ this the most important as it's where the `customer` fields actually are
+
+           here the syntax rules:
+
+        . |       (pipe) unix-like to concat more commands
+
+        . #       comments (supported)
+
+        . ' "     '(single q)  or "(double q) can be used to delimit string (when arguments)
+        . `       (backtick)  are used to delimit bareword FIELD names
+
+        . as      like SQL to create an ephemeral field, which can be used in the following of the query
+                  (available in fields, stats, and sort)
+
+        . 6 commands:
+
+           1. display
+                            fields @message
+                                | parse @message "[*] *" as loggingType, loggingMessage     <------ 2 ephemeral (built-on-the-fly) fields loggingType/loggingMessage
+                                | filter loggingType = "ERROR"
+                                | display loggingMessage    <-------- Specifies which fields to display (if more display command piped, only the last will do)
+
+           2. fields
+                           fields `foo-bar`, action, abs(f3-f4)                       # display fiels `fod-bar` action and the absolute value of the difference between f3 and f4
+                                  ^       ^                                             NOTE usage of ` (backtick)
+                           fields concat(Operation, '-', StatusCode) as opStatus      # displays an ephemeral field opStatus, as concat of Operation and StatusCode fields with a '-' as separator
+                           fields ispresent(resolverArn) as isRes                     # creates  an ephemeral field isRes (value 0 or 1) which can be used in the remaining of the query
+
+                               NOTE:
+                                   If multiple fields commands & no display command, then ALL the fields in ALL the commands are displayed.
+                                                                                          ^^^               ^^^
+           3. filter
+                           (operator supported:  Comparison (=, !=, <, <=, >, >=),
+                                                 Boolean    (and or not)
+                                                 member     ( in []   not in [] )
+                                                 match      ( =~  like)
+                                                            case sensitive.
+                                                                fields f1, f2, f3 | filter f1 like /Exception/
+                                                                fields f1, f2, f3 | filter f1 =~   /Exception/
+                                                                fields f1, f2, f3 | filter f1 like "Exception"
+
+                                                            NOT case sensitive.
+                                                                fields f1, f2, f3 | filter f1 like /(?i)Exception/
+                                                                fields f1, f2, f3 | filter f1 =~  /^(?i)Exception$/
+
+                                                 GENERAL operators (see table later)
+
+
+
+                           fields f1, f2, f3 | filter (duration>2000)                 # gets fields f1 f2 f3 for all events with field "duration" > 2000
+                           filter (duration>2000)                                     # displays ALL (@timestamp and @message) if "duration" > 2000
+                           fields f1, f2 | filter (f1=10 or f3>25)                    # f1 f2 for all lines where f1=10 or f3 > 25.
+                           fields f1 | filter statusCode like /2\d\d/                 # f1    "    "    "     "   statusCode between 200 and 299.
+
+                           fields @timestamp, @message                                # ... statusCode in that range
+                                 | filter statusCode in [300,400,500]
+
+                           fields @timestamp, @message
+                                 | filter Type not in ["foo","bar",1]                 # ... statusCode NOT in that range
+
+
+           4. stats        to aggregate
+                           (operator supported:  sum()
+                                                 avg()
+                                                 count()
+                                                 min()
+                                                 max())
+                           stats avg (f1) by f2                                       # f1 average value for each unique value of f2.
+
+           5. sort         asc / desc
+
+                           fields f1, f2, f3 | sort f1 desc
+
+           6. limit        to override the "default" 1000 lines output with a new value between 1 and 10,000
+
+                           sort @timestamp desc | limit 25  |  display f1, f2
+
+           7. parse        to create ephemeral fields extracting from a regex
+              (...'as')    in both shell/perl style:
+                   ^^
+                           here the examples base su e.g.
+                                             25 May 2019 10:24:39,474 [ERROR] {foo=2, bar=data} The error was: DataIntegrityException
+
+                           A) regex style shell (glob)  ex use * ?
+
+                                             parse @message "[*] * The error was: *" as level, config, exception
+                                                                                     ^^
+                           B) regex style perl  (the grouping is with the syntax (?xxxxRRRR)   xxxx is the name of the var which will hold the catch with the regex RRRR)
+
+                                             parse @message /\[(?<level>\S+)\]\s+(?<config>\{.*\})\s+The error was: (?<exception>\S+)/
+
+                           Both A) & B) give
+                                             level:     'ERROR'
+                                             config:    '{foo=2, bar=data}'
+                                             exception: 'DataIntegrityException'
+
+                           ex:
+                             parse @message /user=(?<uuuu>.*?), method:(?<mmmm>.*?), latency := (?<llll>.*?)/
+                                | stats avg(llll) by mmmm, uuuu
+
+                             extract the ephemeral uuuu, mmmm, and llll and returns the average latency for each unique combination of mmmm and uuuu.
+                                                                                                                 ^^^^^^ ^^^^^^^^^^^
+
+
+
+GENERAL OPERATORS
+
+                        a + b
+                        a - b
+                        a * b
+                        a / b
+                        a ^ b       2 ^ 3 returns 8
+                        a % b      10 % 3 returns 1
+
+                        abs(nnnn)             Absolute value.
+                        ceil(nnn)             Round to ceiling (smallest int > nnnn).
+                        floor(nnn)            Round to floor  (largest  int < nnnn).
+                        greatest(n1, n2, ...) Returns largest
+                        least(n1, n2, ...)    Returns smallest
+                        log(nnn)              Natural log.
+                        sqrt(nnn)             Square root.
+
+
+                        ispresent(ffff)                             Returns true if ffff exists.
+                        coalesce(f1,f2,...)                         Returns the first non-null value from the list of fields
+
+                        isempty(fieldName: string)                  boolean         Returns true if ffff  is missing or an empty string.
+                        isblank(fieldName: string)                  boolean         Returns true if ffff  is missing or an empty string  or contains only white space.
+                        concat(s1,s2,...)                           string          Concatenates the strings.
+                        ltrim(s)                                    string          Trims left spaces
+                        ltrim(s, trimChars)                         string          Trims the characters in trimChars from the left of str. ex: ltrim("xyZxyfooxyZ","xyZ")  -->  "fooxyZ".
+                        rtrim(s)                                      "               "   right                                                        ^^^^^
+                        rtrim(s, trimChars)                           "               "   right ex: rtrim("xyZfooxyxyZ","xyZ") -->  "xyZfoo".
+                        trim(str: string)                                                                        ^^^^^
+                        trim(str: string, trimChars: string)          "               "   both  ex: trim("xyZxyfooxyxyZ","xyZ") --> "foo".
+                                                                                           ^^^^^   ^^^^^
+                        strlen(s)                                   number          the length of the string IN UNICODE CODE POINTS.
+                        toupper(s)                                  string          to uppercase.
+                        tolower(s)                                  string          to lowercase.
+                        substr(s, startIndex)                       string          Returns a substring from the index specified by to the end of the string.
+                        substr(s, startIndex, length)               string          "      .... per len: ex: substr("xyZfooxyZ",3, 3) returns "foo".
+                        replace(s,searchValue, replaceValue)        string          Replaces ALL instances of searchValue with replaceValue. ex: replace("foo","o","0") returns "f00".
+                        strcontains(s, searchValue)                 number          1 if s contains searchValue (0 otherwise)
+
+Datetime functions
+
+I can use a number and then either m for minutes or h for hours. For example, 10m is 10 minutes and 1h is 1 hour.
+
+                        bin(p: Period)                              Timestamp       Rounds the value of @timestamp to the given period and then truncates.
+                        datefloor(t: Timestamp, p: Period)          Timestamp       Truncates the timestamp to the given period. For example, datefloor(@timestamp, 1h) truncates all values of @timestamp to the bottom of the hour.
+                        dateceil(t: Timestamp, p: Period)           Timestamp       Rounds up the timestamp to the given period and then truncates. For example, dateceil(@timestamp, 1h) truncates all values of @timestamp to the top of the hour.
+                        fromMillis(fieldName: number)               Timestamp       Interprets the input field as the number of milliseconds since the Unix epoch and converts it to a timestamp.
+                        toMillis(fieldName: Timestamp)              number          Converts the timestamp found in the named field into a number representing the milliseconds since the Unix epoch.
+
+IP address functions
+
+                        isValidIp(ffff)                             boolean         true if ffff is a valid IPv4 or IPv6
+                        isValidIpV4(ffff)                           boolean         true if ffff is a valid IPv4
+                        isValidIpV6(ffff)                           boolean         true if ffff is a valid IPv6
+                        isIpInSubnet(ffff, subnet: string)          boolean         true if ffff is a valid IPv4 or IPv6 address within the specified v4 or v6 subnet. When you specify the subnet, use CIDR notation such as 192.0.2.0/24 or 2001:db8::/32.
+                        isIpv4InSubnet(ffff, subnet: string)        boolean         true if ffff is a valid IPv4 address within the specified v4 subnet. When you specify the subnet, use CIDR notation such as 192.0.2.0/24.
+                        isIpv6InSubnet(ffff, subnet: string)        boolean         true if ffff is a valid IPv6 address within the specified v6 subnet. When you specify the subnet, use CIDR notation such as 2001:db8::/32.
+
+Stats aggregation functions
+
+                        avg(ffff)                                   number          average of the values of field ffff
+                        count() or count(*)                         number          counts all events returned by the query
+                        count(ffff)                                 number          counts all records that include the specified ffff
+                        count_distinct(ffff)                        number          number of unique ffff values. If ffff has very high cardinality (contains many unique values), the value returned is just an approximation.
+                        max(ffff)                                   LogFieldValue   The maximum of the ffff values
+                        min(ffff)                                   LogFieldValue   The minimum of the ffff values
+                        pct(ffff, percent: number)                  LogFieldValue   A percentile indicates the relative standing of a value in a dataset.
+                                                                                    ex. pct(@duration, 95) returns the @duration value at which 95 percent of the values of @duration are lower than this value, and 5 percent are higher than this value.
+                        stddev(ffff)                                number          The standard deviation of the values in the specified field.
+                        sum(ffff)                                   number          The sum of the values in the specified field.
+
+Stats non-aggregation function
+
+                        earliest(fff)                               LogField        value of ffff that has the earliest timestamp
+                        latest(fff)                                 LogField        value of ffff that has the latest timestamp
+                        sortsFirst(fff)                             LogField        value of ffff that sorts first
+                        sortsLast(fff)                              LogField        value of ffff that sorts last
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==================================================================== Filter and pattern syntax
+
+        "commit"
+        "commit"  - "ineffective"
+        "commit ineffective"
+        "commit"  ?"ineffective"
+        [w1=Returned,w2]
+        [w1=ERROR || w1=WARN, w2]
+        [w1!=ERROR&&w1!=WARN, w2]
+        {$.foo = bar}
+        {$.foo = bar || $.foo = baz }
+
+        Space delimited fileds
+
+        127.0.0.1 - frank [10/Oct/2000:13:25:15 -0700] "GET /apache_pb.gif HTTP/1.0" 200 1534
+        127.0.0.1 - frank [10/Oct/2000:13:35:22 -0700] "GET /apache_pb.gif HTTP/1.0" 500 5324
+        127.0.0.1 - frank [10/Oct/2000:13:50:35 -0700] "GET /apache_pb.gif HTTP/1.0" 200 4355
+
+        [ip, user, username, timestamp, request, status_code, bytes]
+
+...    if I don't know the num of fields
+        [..., status_code, bytes]
+        [ip, user, ..., status_code, bytes]
+        [ip, user, ...]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

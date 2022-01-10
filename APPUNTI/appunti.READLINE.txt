@@ -1,0 +1,154 @@
+
+
+
+    Readline (library) performs actions to change command lines
+    (note: ONLY INTERACTIVELY (it cannot be scripted))
+
+    It is used in different programs
+
+         bash      (if emacs mode. set -o vi to use vi mode/ set -o emacs to go back to emacs)
+         ftp
+         bc
+         gdb
+         MySQL
+         perl -d
+
+
+    zsh    has a bultin fork slightly different (zle : zsh line editor)
+    bsd    has another
+
+
+
+
+
+  usually ^ (control) works on char
+  alt (called modifier, usually ESC) works on words
+
+  ^l        clear screen
+  ^s        stops output (suspended)
+  ^q        restates from suspended
+
+  ^_        undo
+  ^p        cycle back in the history
+
+
+======================================================== BASIC
+  ________________ MOVING
+
+            |<-------- ^a ------|------- ^e ------->|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+                          esc b    esc f
+                            |---|---|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+
+
+                             ^b  ^f
+                              |-|-|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+
+  ________________ KILL (cut/delete)
+
+
+            |--------- ^u ------|------- ^k --------|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+                             _______ remember more as 'w-hite' (till space) than 'w-ord'
+                            /
+                           /    esc d
+                   |---- ^w ----|---|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+
+          NOTE: it seems then to miss this backward delete word  (it might though work Alt-backspace)
+
+                            |---|
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+         see later the    "esc +- number" to how that can be acheived as    esc - esc d
+
+
+
+  ________________ YANK (paste)
+
+            any deleted test is kept in a 'ring' for all the bash session
+            so between lines
+            and can be pasted at any time
+
+  ^y        paste the last kill/but if I keep pressing
+            ESC y     it changes the pasted test cycling in the ring
+
+
+
+   cat .inputrc
+
+              set expand-tilde on           ~
+
+
+
+  ________________ esc  +-  number
+
+  esc +- number   prepending  this to a command, it's going to do it "number" of times
+
+                  with a minus it repeats in revers meaning
+
+
+                  ex.
+                         esc - esc d       (or esc -1 esc d)
+
+                         deletes a word backward
+
+                                            |---|     esc - esc d  / Alt-backspace
+                          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+
+
+
+  ________________ NISCELLANEOUS
+
+      ^t                    swap last 2 chars
+
+                            aaaaa bbbbb ccccc  dddddd  eeeee12
+                            aaaaa bbbbb ccccc  dddddd  eeeee21
+
+
+      Alt t                 swap last 2 words
+
+                            aaaaa bbbbb ccccc  dddddd1  eeeeee2
+                            aaaaa bbbbb ccccc  eeeeee2  dddddd1
+
+      Alt _                 inject !$   (last arg previous cmd)
+
+      ^ Alt y               inject !!:1 (1st  arg previous cmd)
+
+      Alt 2 ^ Alt y         inject !!:2 (2nd  arg previous cmd)   3,4,.....
+
+======================================================== SEARCH HISTORY
+
+
+    ^r        enter in reverse search  (and keep going if repeated)
+    ^n        reverse directlion of ^r
+    esc       exit
+    ^g        exit
+
+    ^o        executes the one found
+    ^t        like enter, it  does't execute (so I can edit before executing)
+
+    esc p     similar to ^r. It shows a ':' I can then type a string and then type esc to load (in editing) the most recent match
+              so it doesn't cycle.
+
+========================================================
+
+
+
+
+
+
+
+
