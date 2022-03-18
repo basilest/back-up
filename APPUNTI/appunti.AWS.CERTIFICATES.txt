@@ -1,0 +1,227 @@
+
+ ------------------ certificates are mainly managed via any of both:
+
+                            o IAM
+                            o ACM (Amazon Certificate Manager)
+
+ ______________________________________________________________
+ o  get list of certificates stored in IAM
+
+   aws --profile live iam list-server-certificates
+
+   returns:
+
+            {
+                "ServerCertificateMetadataList": [
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "DocumentAPIProdSSL",
+                        "ServerCertificateId": "ASCAI7HAWBD6B5DGXZQDQ",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/DocumentAPIProdSSL",
+                        "UploadDate": "2015-05-15T13:52:28+00:00",
+                        "Expiration": "2017-05-14T23:59:59+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "DocumentAPIProdSSL2",
+                        "ServerCertificateId": "ASCAJXSAJ5DTHYJLIFOB2",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/DocumentAPIProdSSL2",
+                        "UploadDate": "2015-05-20T07:00:32+00:00",
+                        "Expiration": "2017-05-19T23:59:59+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "DocumentAPIProdSSL3",
+                        "ServerCertificateId": "ASCAJOEOK4VMMFVEX3TXS",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/DocumentAPIProdSSL3",
+                        "UploadDate": "2017-05-19T09:09:35+00:00",
+                        "Expiration": "2018-06-09T23:59:59+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "Live_2022",
+                        "ServerCertificateId": "ASCAWRGBDBV3PI3W6O5PH",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/Live_2022",
+                        "UploadDate": "2020-03-04T10:31:41+00:00",
+                        "Expiration": "2022-02-17T12:00:00+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "prod-v1",
+                        "ServerCertificateId": "ASCAJFQILWXLBUGWAZH6C",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/prod-v1",
+                        "UploadDate": "2016-10-14T10:21:19+00:00",
+                        "Expiration": "2018-06-09T23:59:59+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "Production2020",
+                        "ServerCertificateId": "ASCAJTEVNU2Y7TR2KKNBG",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/Production2020",
+                        "UploadDate": "2018-04-25T09:53:19+00:00",
+                        "Expiration": "2020-04-17T12:00:00+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "Production_2022",
+                        "ServerCertificateId": "ASCAWRGBDBV3FQBHBRD7W",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/Production_2022",
+                        "UploadDate": "2020-04-03T08:34:59+00:00",
+                        "Expiration": "2021-04-17T12:00:00+00:00"
+                    },
+                    {
+                        "Path": "/",
+                        "ServerCertificateName": "starCertExpOct2021",
+                        "ServerCertificateId": "ASCAWRGBDBV3EZK2B7EF6",
+                        "Arn": "arn:aws:iam::449229032822:server-certificate/starCertExpOct2021",
+                        "UploadDate": "2020-10-07T08:56:37+00:00",
+                        "Expiration": "2021-10-14T12:00:00+00:00"
+                    }
+                ]
+            }
+ ______________________________________________________________
+ o  get list of certificates stored in ACM
+
+     aws --profile live acm list-certificates --max-items 10
+
+   returns:
+
+            {
+                "CertificateSummaryList": [
+                    {
+                        "CertificateArn": "arn:aws:acm:eu-west-2:449229032822:certificate/24a5f378-60c8-4d47-a509-8e4bcf2be9c8",
+                        "DomainName": "forgerock-grafana.company-information.service.gov.uk"
+                    },
+                    {
+                        "CertificateArn": "arn:aws:acm:eu-west-2:449229032822:certificate/a3082516-e0a1-441b-966b-17d3fde660ac",
+                        "DomainName": "forgerock-prometheus.company-information.service.gov.uk"
+                    },
+                    {
+                        "CertificateArn": "arn:aws:acm:eu-west-2:449229032822:certificate/5c57a264-3168-4de8-8767-40fd0cedebf0",
+                        "DomainName": "*.companieshouse.gov.uk"
+                    }
+                ]
+            }
+ ______________________________________________________________
+ o  get info of 1 ACM cert
+
+     export ARN_ID="arn:aws:acm:eu-west-2:449229032822:certificate/5c57a264-3168-4de8-8767-40fd0cedebf0"
+     aws --profile live acm describe-certificate --certificate-arn $ARN_ID
+
+   returns:
+
+            {
+                "Certificate": {
+                    "CertificateArn": "arn:aws:acm:eu-west-2:449229032822:certificate/5c57a264-3168-4de8-8767-40fd0cedebf0",
+                    "DomainName": "*.companieshouse.gov.uk",
+   =============>   "SubjectAlternativeNames": [
+                        "*.companieshouse.gov.uk",
+                        "*.company-information.service.gov.uk"
+                    ],
+                    "DomainValidationOptions": [
+                        {
+                            "DomainName": "*.companieshouse.gov.uk"
+                        },
+                        {
+                            "DomainName": "*.company-information.service.gov.uk"
+                        }
+                    ],
+                    "Serial": "04:41:40:de:70:1f:2b:f7:4f:f8:15:46:48:a3:23:4f",
+                    "Subject": "C=GB,L=Cardiff,O=Companies House,CN=*.companieshouse.gov.uk",
+                    "Issuer": "DigiCert Inc",
+                    "CreatedAt": "2021-06-16T10:29:04+01:00",
+                    "ImportedAt": "2021-10-01T08:10:34+01:00",
+                    "Status": "ISSUED",
+                    "NotBefore": "2021-09-28T01:00:00+01:00",
+   =============>   "NotAfter": "2022-10-16T00:59:59+01:00",
+                    "KeyAlgorithm": "RSA-2048",
+                    "SignatureAlgorithm": "SHA256WITHRSA",
+                    "InUseBy": [
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/awseb-AWSEB-1FK01N9SGYFPX/73c2219ca9d35b58",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/forgerock-ig-external/0dc5d7c0b9799acd",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/forgerock-ig-internal/6fe305621aec50e1",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-accountchgovuk/cb3d9c4402cf968f",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-apichgovuk/ea7b269db15a1c48",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-chgovuk/38ed967576273f44",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-developersitespecs/29e9881e1581b17b",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-efs-web/71e0a16c6bdc512c",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-extractives/0a92114b50e1dce1",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-monitorgui/78c45852af70ee78",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-payments-api/bb539a2cf6f6fc7f",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-payments-web/29fad3acc44a187a",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-chs-stream/d7aed48990c4de71",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/live-matomo/3f83384950fee28a",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/logging-live-elasticsearch/4ae6f5d4c9f84c2a",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/logging-live-grafana/8ba54e2629dc10be",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/logging-live-kibana/9393143acf41cd3e",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/logging-live-prometheus/c30bb368d85f1ac7",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/ocr-api-live-lb/67603ac869e963d0",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/app/publicfacingredirect/cb224811cc04e58d",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/awseb-e-4-AWSEBLoa-1BMX3OGXBO2EL",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/awseb-e-i-AWSEBLoa-194PNT97MOKIW",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/awseb-e-i-AWSEBLoa-7FEI548MJFJF",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/awseb-e-q-AWSEBLoa-Z77N1KWPVG6K",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/awseb-e-y-AWSEBLoa-130YKY08NFRJV",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/ci-vpc-053bbbc346229616f-web-elb",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/ci-vpc-0aee7f05623f04ea3-web-elb",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/ci-vpc-0bcef2eaaa7e0b8ac-web-elb",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-accountchgovuk",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-alphakey",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-apichgovuk",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-apichgovuk-private",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-barcode",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-chgovuk",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-chips-image-service",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-chsbackend",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-dev",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-developersite",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-developersitespecs",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-efs-web",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-enablement",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-enablementapi",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-extractives",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-hide-image-service",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-int-payments-api",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-internalapi",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-monitorapi",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-monitorgui",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-payments-api",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-payments-web",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-restoration-calc",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-sanctions-search",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-secure-data-app",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-chs-uri-web",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-image-redaction-in",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/live-image-redaction-out",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/livesbox-chs-accountchgovuk",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/livesbox-chs-apichgovuk",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/livesbox-chs-apichgovuk-private",
+                        "arn:aws:elasticloadbalancing:eu-west-2:449229032822:loadbalancer/livesbox-chs-barcode"
+                    ],
+                    "Type": "IMPORTED",
+                    "KeyUsages": [
+                        {
+                            "Name": "DIGITAL_SIGNATURE"
+                        },
+                        {
+                            "Name": "KEY_ENCIPHERMENT"
+                        }
+                    ],
+                    "ExtendedKeyUsages": [
+                        {
+                            "Name": "TLS_WEB_SERVER_AUTHENTICATION",
+                            "OID": "1.3.6.1.5.5.7.3.1"
+                        },
+                        {
+                            "Name": "TLS_WEB_CLIENT_AUTHENTICATION",
+                            "OID": "1.3.6.1.5.5.7.3.2"
+                        }
+                    ],
+                    "RenewalEligibility": "INELIGIBLE",
+                    "Options": {
+                        "CertificateTransparencyLoggingPreference": "DISABLED"
+                    }
+                }
+            }
+
+ ______________________________________________________________

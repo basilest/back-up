@@ -1,0 +1,109 @@
+
+
+
+         IAM   - (AWS) Identity and Access Management
+______________________________________________
+
+
+       o  it's a web service  (so I can access it via a browser or via its HTTPS API)
+       o  control access to AWS resources,
+                          which means it checks that who operates on the resource
+
+                        - is authenticatied   (log in)
+                        - has authorisation   (has the rights on the resource)
+
+
+the usual chain is:
+
+
+   1.   create 1 AWS account  (I have user & password to access ALL AWS resources [IAM can also set
+        Multi factor auth. to add a 3rd secuity check to just user & password])
+
+   2.   the creation account above has ROOT priviledges (and it should NEVER be used)
+
+   3.   create 1 IAM-admin user
+
+   4.   create optionally others:
+
+                            a. IAM group
+                            b. IAM policy and attach to the group
+                            c. assing users to the group
+
+
+   5.   create optionally roles. They are like users (so I can create roles and attach policies to them)
+        but they are aimed to be assigned on-demand (temporarily)  to users/applicarions to grant access to resources
+
+        Typical scenario: 1 app in EC2 must access 1 resource (ex S3).
+                          I can embed my credential in EC2 (bad practice)
+                                           or
+                          I let the application assume the proper IAM role to access S3.
+
+        Roles get secret keys created on the fly to access the resources.
+
+
+
+   o   IAM single user  (a user does not to be a person, it can be an application)
+   o   IAM group  users   (all members of the group will have the same rights, the ones defined in that group)
+   o   rigths on the resources are fine grained, (I can decide WHO can access aresource
+                                                  I can decide WHAT (read/write/...) can be used of that resource)
+       THESE RIGHST ARE CALLED IAM POLICIES
+
+       defining a IAM-policy is defining who/what <----> resource
+
+   o   JSON is how the policies are defined.
+
+   o   DENY is the default.  Any opened/granted right must be explicitly configured.
+       (only exception is the root user, which we have seen should be never used)
+
+        {
+            "Sid": "Stmt150576701000",       <------------------- Who is autorized
+            "Effect": "Allow",               <--- grant
+            "Action": [
+                       "s3:DeleteObject",    <--- what operations are allowed
+                      "s3:GetObject"
+                      ],
+            "Condition": {                   <--- what must be met to grant auth
+                      "" : {
+                             "aws:SourceIP": "10.14.8.0/24"
+                      }
+            "Resource": [
+                            "arn:aws:s3:::billing-marketing",   <---- resources to open
+                            "arn:aws:s3:::billing-sales"
+                      ]
+        }
+
+   o   'Eventually' Consistent, it eventually/finally/in the end  reaches a consistent state
+                                but it takes time to propagate changes to all the several IAM servers
+                                so after a change some time must be waited (think of this and split
+                                the code of the app or script between an init phase and the business part fo the app)
+
+   o   Federating users.
+       If users are already authenticated via a corporate network, I can avoid to create IAM users for them.
+       Their identities can be federated into IAM, so that they have temp access/credentials.
+
+       If the corporate network supports SAML 2.0 (Security Assertion Markup Language) it intercats via SSO (single sign in)
+
+       Without SAML 2.0 I can still use SSO but I must create first a 'identity broken application' which accesses AWS console.
+
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________
+______________________________________________

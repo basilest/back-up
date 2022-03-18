@@ -2242,6 +2242,11 @@ __  du
      .------------------------------------------------------------------------
      |   du -ah | sort -n -r | head -n 5     # Find Biggest Files and Directories
      '------------------------------------------------------------------------
+     |   find . -x    -type f -size +100M          -x or -xdev (deprecated)
+     |   find . -xdev -type f -size +100M
+     |   find / -x    -type f -size +102400000c
+     |   find / -xdev -type f -size +102400000c
+     '------------------------------------------------------------------------
 
 
 ____________________
@@ -2589,6 +2594,8 @@ It produces results similar to nmap, the most famous port scanner.
 Internally, it operates more like scanrand, unicornscan, and ZMap, using asynchronous transmission.
 The major difference is that it's faster than these other scanners.
 In addition, it's more flexible, allowing arbitrary address ranges and port ranges.
+--------------------------------------------------- see a pdf on the terminal (the txt)
+pdftotext apdf      # will create a.txt in the same dir
 --------------------------------------------------- concat more pdf files
 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress
               -sOutputFile=merged.pdf 10.Bristol.Londra 10.Londra.Stansted 16.Londra.Bristol

@@ -519,6 +519,23 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
 
 
 
+Example:
+     find all rows in 1 table which are not in the other:
+
+        SELECT t1.ID                                    SELECT FH.submissionnumber
+        FROM Table1 t1                                  FROM formheader FH
+            LEFT JOIN Table2 t2 ON t1.ID = t2.ID            LEFT JOIN formdetail FD ON FH.submissionnumber = FD.submissionnumber
+        WHERE t2.ID IS NULL                             WHERE FH.status = 27 and FH.orddtetme > '10-JAN-2022 16:35.00' and FD.submissionnumber IS NULL
+
+which I can use to do a set:
+                                                        UPDATE formheader SET STATUS=1 WHERE submissionnumber in
+                                                        (SELECT FH.submissionnumber
+                                                        FROM formheader FH
+                                                        LEFT JOIN formdetail FD ON FH.submissionnumber = FD.submissionnumber
+                                                        WHERE FH.status = 27 and FH.orddtetme > '10-JAN-2022 16:35.00'  and FD.submissionnumber IS NULL)
+
+
+
 
 -------------------------------------------
 SEQUENCES:

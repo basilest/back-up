@@ -14,7 +14,7 @@
          perl -d
 
 
-    zsh    has a bultin fork slightly different (zle : zsh line editor)
+    zsh    has a bultin fork slightly different (zle : zsh line editor: do "man zshzle" [bindkey -v (vi) / bindkey -e (emacs)])
     bsd    has another
 
 
@@ -97,7 +97,7 @@
 
   esc +- number   prepending  this to a command, it's going to do it "number" of times
 
-                  with a minus it repeats in revers meaning
+                  with a minus it repeats in reverse meaning
 
 
                   ex.

@@ -91,7 +91,7 @@ myaws l cmd "mongo --host localhost -u admin --authenticationDatabase admin comp
    ...
    ...
 
-2. in another shell run "mongo" which opens the mongo shell
+2. in another shell run "mongo" which opens the mongo shell    NOTE: now "mongosh"
    to run interactive commands that are in the forms
                db.xxxxxx()
 
@@ -161,7 +161,11 @@ myaws l cmd "mongo --host localhost -u admin --authenticationDatabase admin comp
   |_________________
   |
   |  mongoimport -h envb.mongo.ch.gov.uk:47307 -d account -c company_profile -u u123 -p p123 --file export.json
-  |
+  |  mongoimport --host mongo-db1.live.aws.internal:27017 -u admin -p pppppppp --authenticationDatabase admin -d config -c marathon_apps --mode=upsert --file=app.json
+  |                                                                                                                                      ^^^^^^^^^^^^    /^^^^^^^^^^^^^
+  |                                                                                                                                      replace with this file
+  |                                                                                                                                      the documents with the "_id" : ObjectId("123456789012345678901234"),
+  |                                                                                                                                      specified in app.json
   |_________________
 
   to save interactive command output into a file:

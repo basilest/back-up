@@ -31,12 +31,12 @@ KEYBOARD:    Programmers, must develop their application thinking as a rule that
                                  "return" (MAC OS) |
 
 
-lowecase     Authors MUST use lowercase ASCII letters for role=... or aria-*=...   values
+lowercase    Authors MUST use lowercase ASCII letters for role=... or aria-*=...   values
 
-LABELS       <lable> in HTML adds info to a supposed linked <input> (or similar tags)
+LABELS       <label> in HTML adds info to a supposed linked <input> (or similar tags)
              so some 'accessible' elements.
 
-             <lable> in the ARIA philosophy must then have an 'accessible-name' well defined.
+             <label> in the ARIA philosophy must then have an 'accessible-name' well defined.
 
              ex. these work:
 
@@ -63,22 +63,5 @@ ROLE         role='presentation'   (or role=none  (synonym))               remov
              role=application      many (not all!) screen readers stop intercepting keystrokes,
                                    and pass all keystrokes directly to the browser.
                                    (so it should not be used)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

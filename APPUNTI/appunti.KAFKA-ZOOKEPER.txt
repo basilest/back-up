@@ -3,6 +3,39 @@
 
 
 --------------------------------------------------------------------------------
+    cd /etc/kafka <--------------- usually the dir where the config is
+
+     exemple of its content:
+
+        -rw-r--r-- 1 root root  906 Aug 26  2016 connect-console-sink.properties
+        -rw-r--r-- 1 root root  909 Aug 26  2016 connect-console-source.properties
+        -rw-r--r-- 1 root root 2760 Aug 26  2016 connect-distributed.properties
+        -rw-r--r-- 1 root root  883 Aug 26  2016 connect-file-sink.properties
+        -rw-r--r-- 1 root root  881 Aug 26  2016 connect-file-source.properties
+        -rw-r--r-- 1 root root 1074 Aug 26  2016 connect-log4j.properties
+        -rw-r--r-- 1 root root 2061 Aug 26  2016 connect-standalone.properties
+        -rw-r--r-- 1 root root 1199 Aug 26  2016 consumer.properties
+        -rw-r--r-- 1 root root 4369 Aug 26  2016 log4j.properties
+        -rw-r--r-- 1 root root 1900 Aug 26  2016 producer.properties
+        -r--r--r-- 1 root root 6384 Feb 20  2019 server.properties
+        -rw-r--r-- 1 root root 1032 Aug 26  2016 tools-log4j.properties
+        -rw-r--r-- 1 root root 1027 Aug 26  2016 zookeeper.properties
+
+ex. ito see some config (ex. retention period)
+
+    [centos@kafka-streaming-broker1 kafka]$ grep -i retention *
+    server.properties:############################# Log Retention Policy #############################
+    server.properties:log.retention.hours=168
+    server.properties:# A size-based retention policy for logs. Segments are pruned from the log unless the remaining
+    server.properties:# segments drop below log.retention.bytes. Functions independently of log.retention.hours.
+    server.properties:#log.retention.bytes=1073741824
+    server.properties:# to the retention policies
+    server.properties:log.retention.check.interval.ms=300000
+    server.properties:# By default the log cleaner is disabled and the log retention policy will default to just delete segments after their retention expires.
+    [centos@kafka-streaming-broker1 kafka]$
+
+so the deafult 168 hours (1 week)
+--------------------------------------------------------------------------------
 ZOOKEPER
      LIST REGISTERED BROKERS
                                             1. ssh -i ~/.ssh/ch-aws-staging.pem centos@kafka-streaming-zk1.staging.aws.internal

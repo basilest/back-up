@@ -28,6 +28,31 @@ _____________________________________________________________________________
         |                                               if undefined/missing          |
         |_____________________________________________________________________________|
 
+================================= perltidy  ======================================================
+PerlTidy (https://en.wikipedia.org/wiki/PerlTidy)
+is a tool written in the Perl to do formatting & static code analysis
+
+It's oft-recommend tool for Perl programmers, noted in a number of key books. Notably, the work Perl Best Practices
+(here referenced in Mojo by its author: https://github.com/mojolicious/mojo/pull/1226#discussion_r189431708)
+
+                        Here is the input file unit.t:
+
+                        %unitscale=("in",72,"pt",72.27/72,"pc",12,"mm",72/25.4,"cm",72/2.54,
+                        "\\hsize",100,"\\vsize",100,"\\textwidth",100,"\\textheight",100,
+                        "\\pagewidth",100,"\\linewidth",100);
+
+                        The command perltidy unit.t produces a file named unit.t.tdy with this result:
+
+                        %unitscale = (
+                          "in",           72,        "pt",          72.27 / 72,
+                          "pc",           12,        "mm",          72 / 25.4,
+                          "cm",           72 / 2.54, "\\hsize",     100,
+                          "\\vsize",      100,       "\\textwidth", 100,
+                          "\\textheight", 100,       "\\pagewidth", 100,
+                          "\\linewidth",  100
+                        );
+==================================================================================================
+
 
   .---------------------------
   | START A SCRIPT
@@ -2669,7 +2694,43 @@ _____________________________________________________________________________
                |
                |
                |     -Alternative Debuggers :    Are all under Devel::
-               |                              - Devel::Trace                % perl -d:Trace program.pl
+               |                              - Devel::Trace                % perl -d:Trace program.pl      https://metacpan.org/pod/Devel::Trace
+               |
+               |                                         If it's not installed then:  mkdir ./Devel/; vi ./Devel/Trace.pm # and copy & paste the below code; perl -I . -d:Trace a.pl
+               |
+               |                                                            package Devel::Trace;
+               |                                                            $VERSION = '0.12';
+               |                                                            $TRACE = 1;
+               |
+               |                                                            # This is the important part.  The rest is just fluff.
+               |                                                            sub DB::DB {
+               |                                                              return unless $TRACE;
+               |                                                              my ($p, $f, $l) = caller;
+               |                                                              my $code = \@{"::_<$f"};
+               |                                                              print STDERR ">> $f:$l: $code->[$l]";
+               |                                                            }
+               |                                                            sub import {
+               |                                                              my $package = shift;
+               |                                                              foreach (@_) {
+               |                                                                if ($_ eq 'trace') {
+               |                                                                  my $caller = caller;
+               |                                                                  *{$caller . '::trace'} = \&{$package . '::trace'};
+               |                                                                } else {
+               |                                                                  use Carp;
+               |                                                                  croak "Package $package does not export `$_'; aborting";
+               |                                                                }
+               |                                                              }
+               |                                                            }
+               |
+               |                                                            my %tracearg = ('on' => 1, 'off' => 0);
+               |                                                            sub trace {
+               |                                                              my $arg = shift;
+               |                                                              $arg = $tracearg{$arg} while exists $tracearg{$arg};
+               |                                                              $TRACE = $arg;
+               |                                                            }
+               |
+               |                                                            1;
+               |
                |                              - Devel::ptkdb  <--- GREAT    % perl -d:ptkdb program.pl
                |                              - Devel::ebug                 % perl -d:ebug  program.pl
                |                              - Devel::hdb    mini web server (its web interface, lets me debug on a remote server)

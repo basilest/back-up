@@ -1,5 +1,6 @@
 
 
+
            AWS  SSO    Single Sign-On
 
        It is a web service (portal) that allows easily
@@ -219,4 +220,59 @@ Once all is given the files
             Not an AWS SSO profile nor no source_profile found. Skip syncing profile `liveblue`
 
 
+
+=======================================================================
+ CAVEATS
+
+ To use AWS session manager, as it's done  under the hood when trying to connect to an EC2
+ it's used a python plugin which will be installed in 2 /bin places (usually both already included in PATH)
+
+     /usr/local/sessionmanagerplugin
+     /usr/local/bin/session-manager-plugin
+
+SessionManagerPlugin is not found. Please refer to SessionManager Documentation here: http://docs.aws.amazon.com/console/systems-manager/session-manager-plugin-not-found
+
+
+➜  curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 3496k  100 3496k    0     0   227k      0  0:00:15  0:00:15 --:--:--  197k
+➜  unzip sessionmanager-bundle.zip
+Archive:  sessionmanager-bundle.zip
+   creating: sessionmanager-bundle/
+  inflating: sessionmanager-bundle/install
+  inflating: sessionmanager-bundle/THIRD-PARTY
+  inflating: sessionmanager-bundle/seelog.xml.template
+  inflating: sessionmanager-bundle/LICENSE
+   creating: sessionmanager-bundle/bin/
+  inflating: sessionmanager-bundle/bin/session-manager-plugin
+  inflating: sessionmanager-bundle/NOTICE
+  inflating: sessionmanager-bundle/README.md
+  inflating: sessionmanager-bundle/RELEASENOTES.md
+ extracting: sessionmanager-bundle/VERSION
+➜  Downloads ./sessionmanager-bundle/install -h
+Usage: install [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -i INSTALL_DIR, --install-dir=INSTALL_DIR
+                        The location to install the Session Manager Plugin.
+                        The default value is /usr/local/sessionmanagerplugin
+  -b BIN_LOCATION, --bin-location=BIN_LOCATION
+                        If this argument is provided, then a symlink will be
+                        created at this location that points to the session-
+                        manager-plugin executable. The default symlink
+                        location is /usr/local/bin/session-manager-plugin
+                        Note: The session-manager-plugin executable must be in
+                        your $PATH to use Session Manager Plugin with AWS CLI.
+
+
+
+➜  which python3
+/usr/bin/python3
+➜  sudo  python3 ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+Password:
+Creating install directories: /usr/local/sessionmanagerplugin/bin
+Creating Symlink from /usr/local/sessionmanagerplugin/bin/session-manager-plugin to /usr/local/bin/session-manager-plugin
+Installation successful!
 
