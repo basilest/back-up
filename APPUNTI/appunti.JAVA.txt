@@ -35,9 +35,9 @@ THE SIMPLEST PROG:
    1. go in a dir (ex ~)
    2. write a simple My_class.java (containing main:  public static main (String [] args))
    3. compile with: javac My_class.java
-   4. this generates a .class in this same dir
+   4. this generates a .class in the same dir
 
-   1. Now create a 'package tree'  (ex from current dir: mkdir -p org/bsilest)
+   1. Now create a 'package tree'  (ex from current dir: mkdir -p org/basilest)
    2. move My_class.java in org/basilest
    3. edit My_class.java adding 'package org.basilest;'
    4. from ~: javac org/basilest/My_class.java
@@ -127,7 +127,7 @@ JAR and CLASSPATH
              after the test-instruction) but 99.99 % is always x <= y
              JIT will compile reverting the test as if it was if (x <= y) {B} else {A}
 
-             At the end JIT is intended to kill JUMPS in the Assembly code.
+             In the end JIT is intended to kill JUMPS in the Assembly code.
 
              Another JUMP killing is removing function-calls, compiling the
              function INLINE if it's short enough. To decide what 'short enough' means

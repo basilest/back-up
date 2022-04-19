@@ -2248,6 +2248,50 @@ __  du
      |   find / -xdev -type f -size +102400000c
      '------------------------------------------------------------------------
 
+NOTE ON rm (unlink):
+                 avoid rm (unlink) on files in use (e.g. processes are still using them).
+                 as there will still be open file descriptors and the kernel will maintain the inodes and continue
+                 allowing the running processes to write data there, despite those files being no more visible via both du / df
+                 The result is that the file system becomes full an no du/df can tell where the space is lost
+                 It's possible to see these zombie files via lsof
+                 ex
+                 lsof -nP | grep '(deleted)'           # -n (avoid conversion of host names)    -P avoide conversion port names  (both makes it a bit quicker)
+                    rsyslogd  15512   root 1w   REG  202,1 15058180413  271276 /var/log/messages-20210617 (deleted)
+                    rsyslogd  15512   root 4w   REG  202,1     1084301  262507 /var/log/maillog-20210620 (deleted)
+                    rsyslogd  15512   root 5w   REG  202,1     6348556  271370 /var/log/cron-20210620 (deleted)
+                    mesos-mas 31025   root 6w   REG  202,1    62960400  271288 /var/log/mesos/mesos-master.mesos-master1.live.aws.internal.invalid-user.log (deleted)
+
+        Once I know the proc, I can kill or restart it,
+        or otherwise I can reset the content of the open file desciptor:
+             : > /proc/15512/fd/N             15512   is the pid
+                                              N       is the file descriptor
+
+        [root@mesos-master1 ~]# ls -l  /proc/15512/fd
+        total 0
+        lrwx------ 1 root root 64 Apr  9 13:47 0 -> socket:[23776]
+        l-wx------ 1 root root 64 Apr  9 13:47 1 -> /var/log/messages-20210617 (deleted)   <------- this
+        l-wx------ 1 root root 64 Apr  9 13:47 2 -> /var/log/secure
+        lr-x------ 1 root root 64 Apr  9 13:47 3 -> /proc/kmsg
+        l-wx------ 1 root root 64 Apr  9 13:47 4 -> /var/log/maillog-20210620 (deleted)    <------- this
+        l-wx------ 1 root root 64 Apr  9 13:47 5 -> /var/log/cron-20210620 (deleted)       <------- this
+        [root@mesos-master1 ~]# : > /proc/15512/fd/4
+        [root@mesos-master1 ~]# : > /proc/15512/fd/1
+        [root@mesos-master1 ~]# : > /proc/15512/fd/5
+        [root@mesos-master1 ~]# df -hT
+        Filesystem     Type   Size  Used Avail Use% Mounted on
+        /dev/xvda1     ext4    20G  2.7G   16G  15% /
+        tmpfs          tmpfs  3.9G     0  3.9G   0% /dev/shm
+        [root@mesos-master1 ~]#
+
+
+       NOTE: the above is note a real fix, because the file descriptor is kept open
+             and so the proc will continue to write in the zombie file
+
+
+
+
+
+
 
 ____________________
 __  rsync

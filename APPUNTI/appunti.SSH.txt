@@ -576,6 +576,9 @@ fatal: Authentication failed for 'https://github.com/companieshouse/xml-ami.git/
               |
               |  ssh user1@serv '/scripts/r.sh'          run remote script
               |  ssh user1@serv < loc.sh                 run a local script (just an input redirect, so also a pipe work:    cat loc.sh | ssh user1@server1 )
+              |  ssh user1@serv "bash -s" < loc.sh       same as above (-s makes bash read from standard input)
+              |  ssh user@@serv "bash -s" -- < loc.sh "arg" "--aswitch" "avalue"  <--- syntax in case the script has args to pass (note '--')
+
 
 
 

@@ -42,7 +42,7 @@
              |      state              Advanced state management
 
 
-  chtf                               (Homebrew Casks) Terraform version switcher
+  chtf                               Terraform version switcher   (brew install yleisradio/terraforms/chtf)
                                      to install/switch multiple Terraform versions (since 0.6.6) at the same time,
                                      [chtf installs the specified version automatically if needed].
 

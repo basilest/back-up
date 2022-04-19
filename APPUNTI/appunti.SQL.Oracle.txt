@@ -19,6 +19,8 @@ SPECIAL SELECT:
         select conumb, coname from formheader where status = 1 and REGEXP_LIKE (coname, '[?&]');    works
         select conumb, coname from formheader where status = 1 and REGEXP_LIKE (coname, '[^ -~]');  finds Unicode chars (not ASCII: out of range 'space'-'tilde'
 
+        select distinct city from station where REGEXP_LIKE(city, '^[aeiouAEIOU]');   # ex city staring with vowel
+
 ------------------------------------- TO KNOW WHICH CHAR SET IS USE IN THE DB
 SELECT * FROM NLS_DATABASE_PARAMETERS;      this gives all (e.g. even territory, date format, ...)
 
@@ -125,33 +127,219 @@ ORACLE SQL SYNTAX:
   |  - desc T1                    to have all T1 cols (& their type), its description
   |
   |
+  |  - single quote   (for string 'AAA', only some other DBS support also double "AAA")
+  |                    strin single quoted / numbers no
+  |-------------------------------------------
+  |FUNCTIONS:
+  |
+  |________FUNCTIONs THAT WORK ON A SINGLE ROW
+  |     ------- on INT
+  |
+  |       ABS            - ABS(-87)   --> 87
+  |       MOD            - mod(30,4)  --> 2
+  |       POWER          - power(2,3) --> 8
+  |       SQRT           - sqrt(16)   --> 4
+  |       ROUND (number) - round(3.4573,2) --> 3.46
+  |       TRUNC (number) - trunc(3.4573,2) --> 3.45
+  |
+  |       CEIL           - 1st > integer   ciel (3.456) --> 4
+  |       FLOOR          - 1st <   "       floor(3.456) --> 3
+  |
+  |       EXP            - e^x   exp(7) --> e^7
+  |       LN             - ln(5)
+  |       LOG            - log(3,9)     --> 2
+  |
+  |       ACOS           -
+  |       ASIN           -
+  |       ATAN           -
+  |       ATAN2          -
+  |       BITAND         -
+  |       COS            -
+  |       COSH           -
+  |       SIGN           -
+  |       SIN            -
+  |       SINH           -
+  |       TAN            -
+  |       TANH           -
+  |
+  |     ------- on STRING
+  |
+  |       LOWER          -  LOWER(‘SAMI’) --> sami
+  |       UPPER          -  UPPER(‘Sami’) --> SAMI
+  |       INITCAP        -  INITCAP(‘mohammed sami’) --> Mohammed Sami
+  |       LENGTH         -  length(‘mohammed sami’)  --> 13
+  |       SUBSTR         -  substr('mohammed sami',10,3) --> sam
+  |       INSTR          -  instr('mohammed sami','a')   --> 4   (1st position, if char not present: 0)
+  |       REPLACE        -  replace('ali mohd khan','mohd','mohammed') --> ali mohammed khan
+  |       TRANSLATE      -  translate('intr','ABCabcinrt', 'BCDk012349') --> 2394
+  |       SOUNDEX        -  for pronunciation of names (you will never use this)
+  |       RPAD           -  rpad(name,'*',10) -->  Smith*****
+  |       LPAD           -  lpad(name,'*',10) -->  *****Smith
+  |       LTRIM          -  removes left 'blanks'
+  |       RTRIM          -       "  right    "
+  |       TRIM           -  remove that char:  trim(0 from '00003443500') --> 34435
+  |       CONCAT         -  concat(concat(c1,' is a '),c2)  -->  Smith is a clerk
+  |
+  |       RIGHT          - returns last N char of a string. Ex   RIGHT( '1234567890', 4 ); -- returns '7890'
+  |                        (another way to get the same:   SUBSTR(col, LENGTH(col) - 3, 4)
+  |
+  |
+  |
+  |     ------- Miscellaneous
+  |
+  |       GREATEST       -  greatest(10,20,50,20,30) --> 50
+  |       LEAST          -  least   (10,20,50,20,30) --> 10     least('SAMI','RAVI') --> RAVI
+  |
+  |       COALESCE       - returns 1st not-null of a list: coalesce(c1+c2,c1,1000)
+  |       DECODE         - returns the val matched by an exp or default : DECODE (exp, match1, val1, match2, val2 ..., default)
+  |                                                                       decode(c1,10,'Sales',20,'Accounts,30,'Production, 'Unknown Dept')
+  |       NVL            -  NVL(exp1,exp2)       would return exp1, but if exp1 is NULL, returns exp2
+  |       NVL2           -  NVL2(exp1,exp2,exp3) returns exp2 if exp1 != NULL, else exp3
+  |       NULLIF         -  NULLIF(exp1, exp2)   returns NULL if exp1=exp2 else returns exp1
+  |
+  |       UID            -  Session ID of user
+  |       USER           -  User name
+  |       SYS_CONTEXT    -  return the env var specified. Ex: sys_context('USERENV','SESSION_USER') --> Scott
+  |       VSIZE          -  VSIZE(exp)  returns how many bytes that value occupies in memory
+  |
+  |________FUNCTIONs THAT WORK ON A SET OF ROWS
+  |
+  |       AVG            - select avg(c1)   from T1;  --> 40          Full syntax: AVG( ALL /DISTINCT  exp)    # Average val of a numeric col
+  |       SUM            - select sum(c1)   from T1;  --> 2400.76                  SUM( "              "  )    # SUM     "   "  "    "     "
+  |       MAX            - select max(c1)   from T1;  --> 4000                     MAX( "              "  )    # MAX val of selecetd col
+  |       MIN            - select min(c1)   from T1;  --> 6                        MIN( "              "  )    # MIN  "
+  |       COUNT          - select count (*) from T1   --> 15 (num of rows)         COUNT( "            "  )    # NB  COUNT returns the num of rows which match a certain criterion
+  |       STDDEV         - standard deviation                                      STDDEV( "           "  )
+  |       VARIANCE       - Variance                                                VARIANCE( "         "  )
+  |
+  |      ex. SELECT COUNT(DISTINCT manager_id) "Managers" FROM employees;
+  |
+  |____________________________________________
+  |
   |  - SELECT * from T1 WHERE c1 > 5000
   |                     WHERE c1 = 5000
-  |                     WHERE c1 BETWEEN  1000 AND 2000
-  |                     WHERE c1='aaaa'
+  |                     WHERE c1 BETWEEN  1000 AND 2000         # range can be numbers, text, or dates.  (NB BETWEEN  ..   AND  ..)
+  |                     WHERE c1='aaaa'                                                                      ^^^^^^^       ^^^
   |                     WHERE c1 IN     ('text1', 'text2', ..)
   |                     WHERE c1 NOT IN ('text1', 'text2', ..)
+  |                     WHERE c1 IN ( Select ....)                    # nested select
   |                     AND / OR / NOT       WHERE c1=1000 AND c2='aaaa'
 S |                                          WHERE c1=1000 OR  c2='aaaa'
   |                                          WHERE NOT c1=1000
-E |                     WHERE c1 IS NULL
-  |                     WHERE c1 IS NOT NULL
+E |                     WHERE c1 IS NULL          # NULL doesn't use = < <> but IS
+  |                     WHERE c1 IS NOT NULL                                    IS NOT
 L |
+  |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd inner select has at least 1 row
+E |
   |                     WHERE c1 LIKE 'a%'         LIKE for pattern mathing
-E |                           c1 LIKE 'A%d'
+C |                           c1 LIKE 'A%d'
   |                           c1 LIKE '%a%'
-C |                           c1 LIKE '%\%%'   \ escapes %
+T |                           c1 LIKE '%\%%'   \ escapes %
   |
-T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd inner select has at least 1 row
+  |                               WHERE CustomerName LIKE 'a__%'
   |
-  |  - SELECT * from T1 ORDER by c1
+  |                                               % = perl *  (0 or +)
+  |                                (underscore)   _ = perl .  (1 char)         ex WHERE col LIKE 'a__%'  <--- start with a and at least 3 chars
+  |                                                                                         LIKE 'L_n_on'
+  |                                             [ ] =  usual range             ex    '[bsp]%'
+  |                                                                                  '[a-c]%'
+  |                                                                                  '[^abc]%'
+  |
+  |
+  |  - SELECT * from T1 ORDER by c1              (short for   ORDER by c1 ASC   as ascending is the default)
   |                     ORDER by c1 DESC         descending
   |                     ORDER by c1, c2 DESC     sort on c1 (ascending) and for same c1 on c2 (descending)
   |
   |                     nb. instead of col names num position of cols can also be used
   |                     ORDER by 1,2 DESC
   |
-  |  - SELECT DISTINCT c1 from T1 ...    returns only different values of c1
+  |                     This numbering (instead of col names) is very useful when I have nested select where
+  |                     the cols might not have a name (ex. the result of a function ex. length)
+  |                     ex.
+  |                        select length(city), city from station T group by city;
+  |
+  |                                         6 Turner                          <----- in this case the 1 colum has no name
+  |                                         7 Negreet                                but I can reference like 1 in ORDER BY
+  |                                         7 Glencoe
+  |                                         9 Barrigada
+  |                                         8 Culdesac
+  |                                         16 Prince Frederick
+  |                                         11 Pomona Park
+  |                                         9 Irvington
+  |
+  |                        select length(city), city from station T group by city order by 1;
+  |
+  |                                         6 Turner
+  |                                         7 Negreet
+  |                                         7 Glencoe
+  |                                         8 Culdesac
+  |                                         9 Barrigada
+  |                                         9 Irvington
+  |                                         11 Pomona Park
+  |                                         16 Prince Frederick
+  |
+  |  - SELECT DISTINCT c1       from T1 ...    returns only different values of c1
+  |    SELECT DISTINCT c1,c2,c3 from T1 ...    NB I can specify a list of cols
+  |
+  |           ID   CITY   STATE
+  |          _______________________               select distinct city from station;
+  |          433 Canton     ME  99 106                    Canton
+  |          842 Decatur    MI  63 161                    Decatur
+  |          678 Bennington IN  36  27                    Bennington
+  |          305 Bennington KS  94  83
+  |          226 Decatur    MI  71 118                 select distinct city,stated from station;
+  |          448 Canton     MN 124 151                    Canton     ME
+  |                                                       Decatur    MI
+  |                                                       Bennington IN
+  |                                                       Bennington KS
+  |                                                       Canton     MN
+  |
+  |       SELECT COUNT(DISTINCT c1) FROM T1
+  |
+  |
+  |  - SELECT  .... FETCH FIRST 3 ROWS ONLY;             it returns only N nows (in the example: 3)
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^
+  |                                                        The SQL ANSI syntax would be:   SELECT TOP 3 * FROM Customers;   (syntax used by SQL Server/MS Access)
+  |                                                        Bur Oracle defines this long 'FETCH FIRST 3 ROWS ONLY'   (Oracle > 12)
+  |
+  |                                                        Older version of Oracle use 'ROWNUM':   .....WHERE ROWNUM <= 3;
+  |                                                                                                           ^^^^^^
+  |
+  |                                                        MYSQL also doesn't use TOP, but LIMIT:   SELECT ...  LIMIT 3;
+  |                                                                                                             ^^^^^
+  |____________________________________________
+  |  - ALIAS          used for Tables or cols. They give temp names which LAST ONLY FOR THE DURATION OF THE QUERY
+  |
+  |                ex SELECT CustomerID, CustomerName     --->      CustomerID  CustomerName
+  |                   FROM Customers;                               ------------------------
+  |                                                                   (without alias)
+  |
+  |
+  |                ex SELECT CustomerID AS ID, CustomerName AS Cust     --->  ID    Cust
+  |                   FROM Customers;                                         ----------
+  |                                                                          (with alias)
+  |
+  |                ex SELECT CustomerName, Address + ', ' + PostalCode + ' ' + City + ', ' + Country AS Address     # concat more cols into 1
+  |                   FROM Customers;                                                                                 ^^^^^^^^^^^^^^^^^^^^^^
+  |
+  |                           CustomerName	                      Address
+  |                           -------------------------------------------------------------------------------------
+  |                           Alfreds Futterkiste 	              Obere Str. 57, 12209 Berlin, Germany
+  |                           Ana Trujillo Emparedados y helados 	  Avda. de la Constitución 2222, 05021 México D.F., Mexico
+  |                           Antonio Moreno Taquería 	          Mataderos 2312, 05023 México D.F., Mexico
+  |
+  |                           MySQL syntax:
+  |                               SELECT CustomerName, CONCAT(Address,', ',PostalCode,', ',City,', ',Country) AS Address
+  |                               FROM Customers;
+  |
+  |                           Oracle syntax:
+  |                               SELECT CustomerName, (Address || ', ' || PostalCode || ' ' || City || ', ' || Country) AS Address
+  |                               FROM Customers;
+  |
+  |
+  |
+  |____________________________________________
+  |
   |
   |  - UNION                   T1 (Select)            T2  (Select)                         UNION (is an append 1 above the other)
   |                           | a1 | a2 | a3 |     | b1 | b2 | b3 |                     | a1 | a2 | a3 |
@@ -176,8 +364,8 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |       "    MINUS     "          returns only select1 rows that are not also in select2
   |
   |  - GROUP BY;  collapse a Select of 1 col  in distinct val only
-  |                        a Select of 2 cos  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
-  |                        a Select of 3 cos  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
+  |                        a Select of 2 col  in distinct val c1 AND c2               select c1,..ci GROUP BY (c1 .. ci)     A GROUP BY has
+  |                        a Select of 3 col  in distinct val c1 AND c2 AND c3                   ^                ^          the same list on left and right
   |
   |                           Note that if some columns on the left are not present in the right GROUP BY
   |                           then this will work ONLY IF they are using any of these: AVG, COUNT, MAX, MIN, SUM, STDDEV, and VARIANCE.
@@ -193,6 +381,11 @@ T |                     WHERE EXISTS (select ... )  EXISTS to test that a 2nd in
   |        - select c1,c2 from T1 GROUP BY (c1,c2);  With more Cols
   |        - select c1,c2 from T1 GROUP BY ROLLUP (c1,c2);  With 'superaggregate' rows - seldom used
   |        - select c1,c2 from T1 GROUP BY CUBE   (c1,c2);  With 'superaggregate' rows - seldom used
+  |
+  |              ex:  SELECT COUNT(CustomerID), Country       3  	Argentina
+  |                   FROM Customers                          2  	Austria
+  |                   GROUP BY Country;                       2  	Belgium
+  |                                                           9  	Brazil
   |
   |  CASE IF:   CASE expressions allows inline usage of
   |                  IF ... THEN ... ELSE  logic
@@ -249,8 +442,8 @@ L |  -  ALTER :   Alter the structure of the Table:
   \  -  RENAME :  rename T1 to T2
 
 
-  /  - INSERT                     INSERT into T1 values (101,’Sami’,3400);
-  |                               INSERT into T1 (c1, c5, c18) select cx, cy, cz from T2;
+  /  - INSERT                     INSERT into T1 values (101,’Sami’,3400);                      # I can skip the col names, it's like '*', the values will be inserted in the cols order
+  |                               INSERT into T1 (c1, c5, c18) select cx, cy, cz from T2;       # I specify the col  (NB I can skip some cols. The default or NULL will be used)
   |
   |                               #----- MULTI-TABLE insert:
   |                               INSERT all
@@ -260,9 +453,9 @@ D |                                   into T4 (c2, c7, c16) values (x, a, b)
   |
   |                                   SELECT x, y, z, d, g, a, b from T2;      <-----  here the vars are defined
 M |
-  |  -  UPDATE:    to modify values in a row
+  |  -  UPDATE:    to modify values in a row  (NB, omitting 'WHERE' will update ALL the rows)
   |                UPDATE T1 set c1=10                             # update 1 val  (of ANY row)
-L |                UPDATE T1 set c1=10, c2='aaaa'                  # update 2 cols (   "      )
+L |                UPDATE T1 set c1=10, c2='aaaa'                  # update 2 cols (   "      )     <----- more cols
   |                UPDATE T1 set c1=c1+500 WHERE c2 = 104;         # update only some rows
   |                UPDATE T1 set c3=c1+c2                          # update 1 col using values from others
   |
@@ -361,93 +554,14 @@ To change a Oracle par:
    1. use ALTER SESSION statement
    2. call the proper function ex. TO_DATE:   TO_DATE ('November 13, 1992', 'MONTH DD, YYYY')
 -------------------------------------------
-FUNCTIONS:
-
-________FUNCTIONs THAT WORK ON A SINGLE ROW
-     ------- on INT
-
-       ABS            - ABS(-87)   --> 87
-       MOD            - mod(30,4)  --> 2
-       POWER          - power(2,3) --> 8
-       SQRT           - sqrt(16)   --> 4
-       ROUND (number) - round(3.4573,2) --> 3.46
-       TRUNC (number) - trunc(3.4573,2) --> 3.45
-
-       CEIL           - 1st > integer   ciel (3.456) --> 4
-       FLOOR          - 1st <   "       floor(3.456) --> 3
-
-       EXP            - e^x   exp(7) --> e^7
-       LN             - ln(5)
-       LOG            - log(3,9)     --> 2
-
-       ACOS           -
-       ASIN           -
-       ATAN           -
-       ATAN2          -
-       BITAND         -
-       COS            -
-       COSH           -
-       SIGN           -
-       SIN            -
-       SINH           -
-       TAN            -
-       TANH           -
-
-     ------- on STRING
-
-       LOWER          -  LOWER(‘SAMI’) --> sami
-       UPPER          -  UPPER(‘Sami’) --> SAMI
-       INITCAP        -  INITCAP(‘mohammed sami’) --> Mohammed Sami
-       LENGTH         -  length(‘mohammed sami’)  --> 13
-       SUBSTR         -  substr('mohammed sami',10,3) --> sam
-       INSTR          -  instr('mohammed sami','a')   --> 4   (1st position, if char not present: 0)
-       REPLACE        -  replace('ali mohd khan','mohd','mohammed') --> ali mohammed khan
-       TRANSLATE      -  translate('intr','ABCabcinrt', 'BCDk012349') --> 2394
-       SOUNDEX        -  for pronunciation of names (you will never use this)
-       RPAD           -  rpad(name,'*',10) -->  Smith*****
-       LPAD           -  lpad(name,'*',10) -->  *****Smith
-       LTRIM          -  removes left 'blanks'
-       RTRIM          -       "  right    "
-       TRIM           -  remove that char:  trim(0 from '00003443500') --> 34435
-       CONCAT         -  concat(concat(c1,' is a '),c2)  -->  Smith is a clerk
-
-     ------- Miscellaneous
-
-       GREATEST       -  greatest(10,20,50,20,30) --> 50
-       LEAST          -  least   (10,20,50,20,30) --> 10     least('SAMI','RAVI') --> RAVI
-
-       COALESCE       - returns 1st not-null of a list: coalesce(c1+c2,c1,1000)
-       DECODE         - returns the val matched by an exp or default : DECODE (exp, match1, val1, match2, val2 ..., default)
-                                                                       decode(c1,10,'Sales',20,'Accounts,30,'Production, 'Unknown Dept')
-       NVL            -  NVL(exp1,exp2)       would return exp1, but if exp1 is NULL, returns exp2
-       NVL2           -  NVL2(exp1,exp2,exp3) returns exp2 if exp1 != NULL, else exp3
-       NULLIF         -  NULLIF(exp1, exp2)   returns NULL if exp1=exp2 else returns exp1
-
-       UID            -  Session ID of user
-       USER           -  User name
-       SYS_CONTEXT    -  return the env var specified. Ex: sys_context('USERENV','SESSION_USER') --> Scott
-       VSIZE          -  VSIZE(exp)  returns how many bytes that value occupies in memory
-
-________FUNCTIONs THAT WORK ON A SET OF ROWS
-
-       AVG            - select avg(c1)   from T1;  --> 40          Full syntax: AVG( ALL /DISTINCT  exp)
-       SUM            - select sum(c1)   from T1;  --> 2400.76                  SUM( "              "  )
-       MAX            - select max(c1)   from T1;  --> 4000                     MAX( "              "  )
-       MIN            - select min(c1)   from T1;  --> 6                        MIN( "              "  )
-       COUNT          - select count (*) from T1   --> 15 (num of rows)         COUNT( "            "  )
-       STDDEV         - standard deviation                                      STDDEV( "           "  )
-       VARIANCE       - Variance                                                VARIANCE( "         "  )
-
-      ex. SELECT COUNT(DISTINCT manager_id) "Managers" FROM employees;
--------------------------------------------
 JOINS:        to remember  JOIN = FROM T1,T2 ...
 
 
                                    T1                   T2                   JOIN T1 x T2   (has  - rows = r1 x r2  <-- the actual num is decided by the WHERE
                               | a1 | a2 | a3 |     | b1 | b2 |                                    - cols = c1 + c2) <-- the actual num is decided by the select (ex. select *)
-                         r1   | a1 | a2 | a3 |     | b1 | b2 | r2
-                              | a1 | a2 | a3 |                               | a1 | a2 | a3 || b1 | b2 |
-                                                                        r1   | a1 | a2 | a3 || b1 | b2 |
+                         r1   | a4 | a5 | a6 |     | b3 | b4 | r2
+                              | a7 | a8 | a9 |                               | a1 | a2 | a3 || b1 | b2 |
+                                                                        r1   | a4 | a5 | a6 || b1 | b2 |
                                                                         x         ....
                                                                         r2
       A J is performed each time the FROM clause has > 1 Table:
@@ -482,6 +596,28 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
                SELECT A.ca,  A.cb,  A.cd,    B.cy  FROM T1 A, T1 B WHERE   A.ck = B.ca
 
 
+    Here are the different types of the JOINs in SQL:
+
+    (INNER) JOIN:        Returns ALL matching in both T1 "AND" T2
+    FULL  (OUTER) JOIN:  Returns ALL matching in both T1 "OR"  T2      (can be very big)
+    LEFT  (OUTER) JOIN:  Returns ALL T1 plus matching condition in T2
+    RIGHT (OUTER) JOIN:  Returns ALL T2 plus matching condition in T1
+
+    +-----------+                       +-----------+                      +-----------+                       +-----------+
+    |       .----------.                |       .----------.               |       .----------.                |       .----------.
+    |       :   |      :                |       :   |      :               |       :   |      :                |       :   |      :
+    |   T1  :   | T2   :                |   T1  :   | T2   :               |   T1  :   | T2   :                |   T1  :   | T2   :
+    |       : ^ |      :                |       : ^ |      :               |       : ^ |      :                |       : ^ |      :
+    |       .-^--------.                |   ^   .-^--------.               |       .-^---^----.                |   ^   .-^----^---.
+    +---------^-+                       +---^-----^-+                      +---------^-+ ^                     +---^-----^-+  ^
+              ^                             ^     ^                                  ^   ^                         ^     ^    ^
+              ^                             ^     ^                                  ^   ^                         ^     ^    ^
+              ^                             ^     ^                                  ^   ^                         ^     ^    ^
+           INNER-J                        LEFT-J                                 RIGHT-J                          FULL-J
+
+
+
+
       INNER-J   (sometimes called a "simple join")
                 is a normal J, where rows satisfy the WHERE condition.
 
@@ -495,12 +631,16 @@ JOINS:        to remember  JOIN = FROM T1,T2 ...
                              |                                                     ON c.ItemID = b.ItemID
                              |                                                       INNER
                              |                                                          JOIN T4 AS d
-                     they 2 the same  -------------------------------->                   ON d.ItemID = c.ItemID
+                     they are the same  -------------------------------->                   ON d.ItemID = c.ItemID
 
 
+                 ex: (the following are the same)
+                    select * from formheader FH,           formdetail FD where  FH.submissionnumber = FD.submissionnumber and fh.submissionnumber in ('072-142442', '072-146030', '072-150376');
+                    select * from formheader FH inner join formdetail FD on     FH.submissionnumber = FD.submissionnumber and fh.submissionnumber in ('072-142442', '072-146030', '072-150376');
+                                               ^^^^^^^^^^^               ^^^^^
 
-
-
+                           , T   <----->   inner join T
+                           where <----->   on
 
 
 
@@ -767,3 +907,34 @@ join CVVALUE V on (V.CVCLASS='45' and V.CVID = H.formtype and V.LANGUAGE='en')
 where lower(C.EMAIL) = 'admin@dawerandco.com'
 and D.STATUS = '25'
 order by H.orddtetme
+
+
+
+
+
+
+
+To aceess a column with no name (i.e. coming from a nested select with 'fake' columns
+(i.e. created with functions: count / length / ...) I can create a temp view and alias:
+
+create view V as
+        select length(city) as aaaa, city from station group by city order by 1 ;
+                            ^^^^^^^
+
+select city, aaaa from V where city = (select min(city)from (
+select city,aaaa from V where aaaa = (select min(aaaa) from V))
+    );
+
+select city, aaaa from V where city = (select min(city)from (
+select city,aaaa from V where aaaa = (select max(aaaa) from V))
+    );
+
+
+
+Alternatively I can reuse the same function instead of a name to refer to the same col:
+            select city, length(city) from (
+                         ^^^^^^^^^^^^
+                select length(city),city from station group by city order by 1);
+                       ^^^^^^^^^^^^
+
+

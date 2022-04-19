@@ -24,30 +24,30 @@
   usually ^ (control) works on char
   alt (called modifier, usually ESC) works on words
 
-  ^l        clear screen
-  ^s        stops output (suspended)
-  ^q        restates from suspended
+  ^l        clear screen                                                             BASH: Y      ZSH: Y
+  ^s        stops output (suspended)                                                 BASH: Y      ZSH: Y
+  ^q        restates from suspended                                                  BASH: Y      ZSH: Y
 
-  ^_        undo
-  ^p        cycle back in the history
+  ^_        undo                                                                     BASH: Y      ZSH: Y
+  ^p        cycle back in the history                                                BASH: Y      ZSH: Y
 
 
 ======================================================== BASIC
   ________________ MOVING
 
-            |<-------- ^a ------|------- ^e ------->|
+            |<-------- ^a ------|------- ^e ------->|                                BASH: Y      ZSH: Y
           >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
 
 
                           esc b    esc f
-                            |---|---|
+                            |---|---|                                                BASH: Y      ZSH: Y
           >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
 
 
 
 
                              ^b  ^f
-                              |-|-|
+                              |-|-|                                                  BASH: Y      ZSH: Y
           >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
 
 
@@ -55,19 +55,19 @@
   ________________ KILL (cut/delete)
 
 
-            |--------- ^u ------|------- ^k --------|
+            |--------- ^u ------|------- ^k --------|                                BASH: Y      ZSH: ^k ok / ^u ALL (bash ^u = zsh Esc w)
           >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
 
 
                              _______ remember more as 'w-hite' (till space) than 'w-ord'
                             /
                            /    esc d
-                   |---- ^w ----|---|
-          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
+                   |---- ^w ----|---|                                                BASH: Y      ZSH: ^w del word (i.e. dd only)
+          >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678                                                                     ^^
 
 
 
-          NOTE: it seems then to miss this backward delete word  (it might though work Alt-backspace)
+          NOTE: it seems then to miss (in bash) this backward delete word  (it might though work Alt-backspace)
 
                             |---|
           >  aaaa  bbbb.cccc.dd<.>dd.fff  1234  5678
@@ -82,8 +82,11 @@
             so between lines
             and can be pasted at any time
 
-  ^y        paste the last kill/but if I keep pressing
-            ESC y     it changes the pasted test cycling in the ring
+  ^y        paste the last kill                                                      BASH: Y      ZSH: Y
+            and leaves the text higlighted.
+            Until I leave it higlighted, I can press
+  ESC y                                                                              BASH: Y      ZSH: Y
+            to cycle in the ring
 
 
 
@@ -101,7 +104,7 @@
 
 
                   ex.
-                         esc - esc d       (or esc -1 esc d)
+                         esc - esc d       (or esc -1 esc d)                         BASH: Y      ZSH: no esc +. Only esc - (& no with numbers)
 
                          deletes a word backward
 
@@ -112,24 +115,24 @@
 
   ________________ NISCELLANEOUS
 
-      ^t                    swap last 2 chars
+      ^t                    swap last 2 chars                                        BASH: Y      ZSH: Y
 
                             aaaaa bbbbb ccccc  dddddd  eeeee12
                             aaaaa bbbbb ccccc  dddddd  eeeee21
 
 
-      Alt t                 swap last 2 words
+      Esc t                 swap last 2 words                                        BASH: Y      ZSH: Y
 
                             aaaaa bbbbb ccccc  dddddd1  eeeeee2
                             aaaaa bbbbb ccccc  eeeeee2  dddddd1
 
-      Alt _                 inject !$   (last arg previous cmd)
+      Esc _                 inject !$   (last arg previous cmd)                      BASH: Y      ZSH: Y
 
       ^ Alt y               inject !!:1 (1st  arg previous cmd)
 
       Alt 2 ^ Alt y         inject !!:2 (2nd  arg previous cmd)   3,4,.....
 
-======================================================== SEARCH HISTORY
+======================================================== SEARCH HISTORY              BASH: Y      ZSH: Y
 
 
     ^r        enter in reverse search  (and keep going if repeated)

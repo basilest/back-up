@@ -1,65 +1,88 @@
 
-     docker & containers are high levels usage of
-     what was already available since evere in Linux with:
+   All started with LXC = Linux Container
+        https://en.wikipedia.org/wiki/LXC
+        https://github.com/lxc/lxc
+        https://linuxcontainers.org/
+
+        2008 - IBM / Google / ...
+
+   Which can do the same docker stuff known nowadays
+   with similar commands, which means
+   LXC provides  isolated environments for applications
+   combining the kernel's cgroups and isolated namespaces.
+
+   LXC relies on the Linux kernel cgroups functionality that was released in version 2.6.24
+   and on namespace isolation functionality, which is integrated into the mainline Linux kernel.
+
+   It's now shipped with LXD, as container manager to provide a better user experience.
 
 
-      1/2 Namespaces        are about ISOLATION
-                            having multi indipendent operating systems inside an hypervisor
+   Docker was first implemented on top of LXC, but
+   it was made optional in v0.9 and support was dropped in Docker v1.10.
 
-                            Linux namespaces                                .----.
-                                          Process ID                pid     | c  |<---- so a container
-                                          Network                   net     | o  |      has its own
-                                          Files system/mount        mnt     | n  |      root file system
-                                          Inter-proc comms          ipc     | t  |      network
-                                          UTS                       uts     | a  |      users
-                                          User                      user    | .  |      process tree
-                                                                            '----'      ...
-
-
-      2/2 Control Groups    are about grouping objects in setting limits
-                            so that different containers can share democratically
-                            the same resources:
-                                      tot disk each
-                                      tot CPU  each
-                                       ...
+   Docker substituted LXC (to stay indipendent) with 'libcontainer'
+   so doing the same low level kernel interactions but with full control of the interfaces
+   as, before, changes in LXC proved to break the up layers of Docker.
 
 
 
-
-                               > docker CLI              ex. docker container run ....
-                                     |
-        ------------------           |
-     D  |                   .--------------------.
-        |                   |       API          |       ex.  /containers/create
-     O  |                   |                    |
-        |                   '--------------------'
-     C  |                            |
-        |                            |
-     K  |                            |
-        |                   .--------------------.
-     E  |                   |  docker daemon     |      The REST CRUD API (over gRPC / unix socket)
-        |                   |                    |          ex. it's on listening and receives the instructions
-     R  |                   '--------------------'              which are routed to containerd
-        |                            |
-        |                            |
-        |                   .--------------------.
-        |                   |  containerd        |     supervisor of the containers
-     E  |                   |                    |     Manages their lifecycle:
-        |                   '--------------------'     (start | stop | pause | .. )  (*1)
-     N  |           ___________/  |   . . .  \__________     ex. prepare the image to give to runc (which will CREATE the container)
-        |          /              |                     \
-     G  |   ______/_______________|______________________\________________________________________________________________________
-        |   .----------.     .----------.            .----------.                                                 KERNEL SPACE
-     I  |   |  shim    |     |  shim    |  . . .     |  shim    | enable daemonless containers                    where
-        |   |          |     |          |            |          |                                                 the actual
-     N  |   '----------'     '----------'            '----------'                                                 containers
-        |   .----------.     .----------.            .----------.                                                      =
-     E  |   |  runc    |     |  runc    |  . . .     |  runc    | runtime code (of the container)  (*2)           distinct/ isolated
-        |   |          |     |          |            |          | (interface to kernel primitives)                resources
-        |   '----------'     '----------'            '----------'                                                 start
-        |
-        |   .----------.     .----------.            .----------.
-        |   |          |     |          |  . . .     |          |   CONTAINERS (RUNNING)
+       1/2 Namespaces        are about ISOLATION                      _________________________________________.
+                             having multi indipendent operating systems inside an hypervisor                   |
+                                                                                                               |
+                             Linux namespaces                                .----.                            |
+                                           Process ID          pid           | c  |<---- so a container        |
+                                           Network             net           | o  |      has its own           |
+                                           Files system/mount  mnt           | n  |      root file system      |
+                                           Inter-proc comms    ipc           | t  |      network               |
+                                           UTS                 uts           | a  |      users                 |
+                                           User                user          | .  |      process tree          |
+                                                                             '----'      ...                   |
+|                                                                                                              |-------- > -------------.
+|                                                                                                              |                        |
+|      2/2 Control Groups    are about grouping objects and setting limits                                     |                        |
+|           (cgroups)        so that different containers can share democratically                             |                        |
+|                            the same resources:                                                               |                        |
+|                                      tot disk each                                                           |                        |
+|                                      tot CPU  each                                                           |                        |
+|                                       ...                                                                    |                        |
+|                             (so a "container" is an OS area where resources usage are limited)               |                        |
+|                                                                     _________________________________________|                        |
+|                                                                                                                                       |
+|                                                                                                                                       |
+|                              > docker CLI              ex. $ docker container run ....                                                |
+|                                    |                                                                                                  |
+|       ------------------           |                                                                                                  |
+|    D  |                   .--------------------.                                                                                      |
+|       |                   |       API          |       ex.  /containers/create                                                        |
+|    O  |                   |                    |                                                                                      |  This is used
+|       |                   '--------------------'                                                                                      |  here
+|    C  |                            |                                                                                                  |  to achive
+|       |                            |_REST  POST /vX.X/containers/create HTTP/1.1                                                      |  the real
+|    K  |                            |                                                                                                  |  containerisation
+|       |                   .--------------------.                                                                                      |  'under the hood'
+|    E  |                   |  docker daemon     |      The REST CRUD API (over gRPC / unix socket)                                     |
+|       |                   |                    |          ex. it's on listening and receives the instructions                         |
+|    R  |                   '--------------------'              which are routed to containerd                                          |
+|       |                            |_gPRC / unix socket                                                                               |
+|       |                            |                                                                                                  |
+|       |                   .--------------------.                                                                                      |
+|       |                   |  containerd        |     supervisor of the containers                                                     |
+|    E  |                   |                    |     Manages their lifecycle:                                                         |
+|       |                   '--------------------'     (start | stop | pause | .. )  (*1)                                               |
+|    N  |           ___________/  |   . . .  \__________     ex. prepare the image to give to runc (which will CREATE the container)    |
+|       |          /              |                     \                                                                               |
+|    G  |   ______/_______________|______________________\_______________( O C I   Layer down here )______________________________      |
+|       |   .----------.     .----------.            .----------.                                                 KERNEL SPACE          |
+|    I  |   |  shim    |     |  shim    |  . . .     |  shim    | enable daemonless containers  (*3)              where                 |
+|       |   |          |     |          |            |          |                                                 the actual            |
+|    N  |   '----------'     '----------'            '----------'                                                 containers            |
+|       |   .----------.     .----------.            .----------.                                                      =                |
+|    E  |   |  runc    |     |  runc    |  . . .     |  runc    | runtime code (of the container)  (*2)           distinct/ isolated    |   runc: https://github.com/opencontainers/runc
+|       |   |          |     |          |            |          | (interface to kernel primitives)                resources             |
+|       |   '----------'     '----------'            '----------'                                                 start                 |
+|       |                                                                                                                               |
+|       |   .----------.     .----------.            .----------.                                                                       |
+|       |   |          |     |          |  . . .     |          |   CONTAINERS (RUNNING)     <------------------------------------------'
         |   |          |     |          |            |          |
         |   '----------'     '----------'            '----------'
 
@@ -92,7 +115,39 @@
                if the Docker daemon is upgraded. So pipes in the container are not affected.
                It also reports back to the Docker daemon the exit status of the container.
 
+               This allows to upgrade both "docker daemon" and/or "containerd" and have then
+               the still-running-containrs to resync/realign once the upgrade is done.
 
+              $ docker version
+                                Client:
+                                 Cloud integration: v1.0.22
+                                 Version:           20.10.13
+                                 API version:       1.41
+                                 Go version:        go1.16.15
+                                 Git commit:        a224086
+                                 Built:             Thu Mar 10 14:08:44 2022
+                                 OS/Arch:           darwin/amd64
+                                 Context:           default
+                                 Experimental:      true
+
+                                Server: Docker Desktop 4.6.0 (75818)
+                                 Engine:
+                                  Version:          20.10.13
+                                  API version:      1.41 (minimum version 1.12)
+                                  Go version:       go1.16.15
+                                  Git commit:       906f57f
+                                  Built:            Thu Mar 10 14:06:05 2022
+                                  OS/Arch:          linux/amd64
+                                  Experimental:     false
+               -------------->   containerd:
+                                  Version:          1.5.10
+                                  GitCommit:        2a1d4dbdb2a1030dc5b01e96fb110a9d9f150ecc
+               -------------->   runc:
+                                  Version:          1.0.3
+                                  GitCommit:        v1.0.3-0-gf46b6ba
+                                 docker-init:
+                                  Version:          0.19.0
+                                  GitCommit:        de40ad0
 --------------------------------------------------------------------------------
   The term [Docker] can refer to 3 different things:
 
@@ -131,7 +186,7 @@
 
             1. engine      $ docker         --version
             2. compose     $ docker-compose --version
-            3. machine     $ docker-machine --version
+            3. machine     $ docker-machine --version    Docker Machine has been deprecated. Please use Docker Desktop instead
 
 
 __________________________________________________________________________________________________
@@ -217,7 +272,7 @@ ________________________________________________________________________________
 |                                 .   up                 Create and start containers
 |                                 .   version            Show the Docker-Compose version information
 |
-|     docker-machine --version      ___
+|     docker-machine --version      ___                                                        Docker Machine has been deprecated. Please use Docker Desktop instead
 |                                      \__ docker-machine version 0.16.1, build cce350d7
 |
 |__________________________________________________________________________________________________
@@ -272,14 +327,23 @@ ________________________________________________________________________________
                     I cannot delete an image till some of its containers
                     are still running
 
-                   A container is also defined as:
-                   "Isolated area of an OS with resource usage limits applied"
+                   A container is also defined as:                                                         __This is the "execution" (writable) Layer which a container
+                   "Isolated area of an OS with resource usage limits applied"                            /       adds on top of the IMAGE
+                                                                                                         /
+                   NOTE: I can have + containers running from the SAME image.                   -----------------
+                         They are indipendent. The image has a READONLY filesystem               .-------------.
+                         so when every container writes to the filesystem it writes              |  ---------  |   IMAGE with its READONLY
+                         in its own space, which will not be saved back to the image             |  ---------  |   Layers
+                         when the container is closed.                                           '-------------'
 
-                   NOTE: I can have + containers running from the SAME image.
-                         They are indipendent. The image has a READONLY filesystem
-                         so when every container writes to the filesystem it writes
-                         in its own space, which will not saved back to the image
-                         when the container is closed.
+                         COPY ON WRITE:   If a container must write any Image content, because the IMAGE
+                                          is READONLY, it
+                                                   1) copies the content into its own writable layer
+                                                   2) writes/changes it.
+
+                       | Until a container is not deleted, (ex. a STOP / RESTART) |
+                       | its 'execution' Layer contains/preserves all the changes | <----- NOTE
+                       | so they are not lost until a $ docker container rm       |
 
       diff with VM:  VM               any VM includes its own full-blown OS
                      Containers       All containers on a single host share a single OS.
@@ -342,7 +406,7 @@ ________________________________________________________________________________
 
                     docker volume prune
 
-      BIND MOUNT: I can expose (both in read and/or write) the local host filesystem to the container.
+      BIND MOUNT: I can expose (in read and/or write) the local host filesystem to the container.
 
          - docker volume
 
@@ -364,57 +428,21 @@ ________________________________________________________________________________
                 local               b92a3eb392b476b17378bd439809cea50b8c3ef173ade3d1bd2ef63dbe628e37
                 local               fes-administration-scripts
                 local               portainer_data
-|__________________________________________________________________________________________________
------------------------------------------ STORAGE DRIVER
 
-           Docker can manage the file systems of a container
-           with a STORAGE DRIVER.
-           There are differnt in Linux (for Windows only 1: windowsfilter)
-               . aufs             (the original and oldest)
-               . overlay2         (the best choice)
-               . devicemapper
-               . btrfs
-               . zfs
 
-           When Docker is started it looks what to use
-           reading
-                /etc/docker/daemon.json
-           where there is a config block like this:
-                   {
-                      "storage-driver": "overlay2"
-                   }
-           till Docker is not restarted I cannot use
-           a different STORAGE DRIVER, but all the images and containers are
-           managed by this.
-           They are stored in
-                “/var/lib/docker/<storage-driver>/...”
-           so if I change the STORAGE DRIVER I change the place
-           where Docker looks, and I see nomore my previous images.
-           To change the STORAGE DRIVER means doing a
-                   docker save                    # save locally
-                   docker push                    # to save remotely
-                   change STORAGE DRIVER          # vi /etc/docker/daemon.json
-                   start docker
-                   docker pull                    # retrieve locally
-
-           To see the running STORAGE DRIVER just
-                   docker info
-
-                          ...
-                          Storage Driver: overlay2
-                          ...
-
+  NOTE: the file system inside a container (ex. ubuntu FS) can be different from the file system on the host (Centos)
+        so they are separate things.
 |__________________________________________________________________________________________________
 
 
               R E G I S T R Y   /  R E P O  :  I M A G E  (called TAG)
 
-                     docker.io  /   redis   :  latest
-                     docker.io  /   nginx   :  1.13.5
-
-        If omitted REGISTRY: default "docker.io"
-        If omitted IMAGE   : default "latest"
-
+                     docker.io  /   redis   :  latest                      so actually 'redis' is NOT an image, it's a repo
+                     docker.io  /   nginx   :  1.13.5                      the image is redis:latest
+                                                                           It's clear then that a
+        If omitted REGISTRY: default "docker.io"                                $ docker image pull redis -a
+        If omitted IMAGE   : default "latest"                              will puul ALL the images out off  repo 'redis'
+                                                                           (which actually means to pull ALL the layers)
                      ex:
                         docker image pull docker.io/redis:4.0.1
 
@@ -430,9 +458,17 @@ ________________________________________________________________________________
              {API} |
                    |
                    |
-                  pull
+                  pull                            FAT MANIFEST: is a list of manifests (listing the available manifests for different architectures (Mac, Power PC, ...))
+                                                                $ docker image pull   is retrieving, as first step, he FAT MANIFEST in order to the get
+                                                                  the proper IMAGE MANIFEST, which will then contain the LIST OF LAYERS to pull down.
 
-        1 image = stack of + layers   PLUS  1 manifest file  (containing: - the list of layers (and their digest/hash) +
+        1 image =  . set of
+                          - OS files / libraries
+                          - App specific files
+                          - 1 manifest file
+                     put as a stack of + layers.
+                              ^^^^^^^^^^^^^^^^^
+                     The manifest file is a JSON file containing  the list of layers (and their digest/hash) +
                                                                           - env vars +
                          ________ digest1     .-----.                     - exposed ports +
                          ________ digest2     | txt |                       ...
@@ -440,27 +476,119 @@ ________________________________________________________________________________
                                                digest
 
 
-        - layer --> digest            Every layer has is digest/hash which specifies its autenticity
+        - layer --> digest            Every layer has its digest/hash which specifies its autenticity
 
         - the manifest --> digest     The image manifest has also its digest/hash,
-                                      so that the image as a whole is assured to be autentic
+                                      so that the image as a whole is assured to be authentic
                                       as all the layers digests are written inside
                                       so if everything changes (layesr/vars/ports...)
                                       the manifest digest changes too.
 
-                                      On my loval filesystsem the hashes are called
+                                      On my local filesystsem the hashes are called
                                                        CONTENT hashes
-                                      anyhow when the IMAGE is pushed to a a repo (and then pull down)
+                                      anyhow when the IMAGE is pushed to a repo
                                       the IMAGE is compressed and it has new digest called
                                                        DISTRIBUTION hashes
+                                      This is due, as said, because the push (and pull), as operations 'on-the wire' performs some compression
+                                      so the amend the hashes accodingly to keep all consistent.
 
-        - Storage Driver              it's the one that manages this digest cryptography
-                                      of the layers behind the scenes.
+
+        - Storage Driver              it magages
+                                          - the different layers (pulling them as separate entities and assemgling the image as one)
+                                          - the layers' digest cryptography.
+                                          - the file systems of a container
+
                                       I can see it with a
                                           $ docker system info | grep -i storage
 
                                                  Storage Driver: overlay2
 
+
+                                       There are differnt in Linux (for Windows only 1: windowsfilter)
+                                           . aufs             (the original and oldest)
+                                           . overlay2         (the best choice)
+                                           . devicemapper
+                                           . btrfs
+                                           . zfs
+
+                                       When Docker is started it looks what to use
+                                       reading
+                                            /etc/docker/daemon.json
+                                       where there is a config block like this:
+                                               {
+                                                  "storage-driver": "overlay2"
+                                               }
+                                       till Docker is not restarted I cannot use
+                                       a different STORAGE DRIVER, but all the images and containers are
+                                       managed by this.
+                                       They are stored in
+                                            “/var/lib/docker/<storage-driver>/...”
+                                       so if I change the STORAGE DRIVER I change the place
+                                       where Docker looks, and I see nomore my previous images.
+                                       To change the STORAGE DRIVER means doing a
+                                               docker save                    # save locally
+                                               docker push                    # to save remotely
+                                               change STORAGE DRIVER          # vi /etc/docker/daemon.json
+                                               start docker
+                                               docker pull                    # retrieve locally
+
+        - SEE THE LAYERS ON THE HOST    the layers that are listed with a
+                                                   $ docker image inspect <N/D>
+                                        ex:
+                                        "RootFS": {
+                                            "Type": "layers",
+                                            "Layers": [
+                                                "sha256:4ac8bc2cd0bed27b5d7bcdf724530b8f718618bb2e2b466a70a7136975378bc6",
+                                                "sha256:348622fdcc617bbef1a8d7ac19b47b695109164160a507f1837289a414c3a70c",
+                                                "sha256:d59769727d800c08c09f47e72906d5723958e2d7684a68ad54097ec294e80dc8",
+                                                "sha256:7a7698da17f29db593cf6d1a35127e494beb644e1819ee99d0036f12f54e694d",
+                                                "sha256:c5579a205adc296258840de0c2e452ee4c0be5b6c4e1143e93c48fac0de52e32",
+                                                "sha256:5310afbc033c0524198da12aad90f5ee8375336f06d81ab5a725a2e933133e0b",
+                                                "sha256:0356ec20fa00f7632bd43986060f53c77019e33873b644be6c2d75ffb2a0e07b"
+                                            ]
+                                         are not mapped 1 to 1 with the dirs I see inspecting the container with
+                                                   $ docker container inspect xxxx
+
+                                        ex:
+                                       "Data": {
+                                            "LowerDir": "/var/lib/docker/overlay2/1741c41e377d6029083dade934f45fea7e68ad186.........,
+                                            "MergedDir": "/var/lib/docker/overlay2/1741c41e377d6029083dade934f45fea7e68ad18688d599109eb75bc9aa096fe/merged",
+                                            "UpperDir": "/var/lib/docker/overlay2/1741c41e377d6029083dade934f45fea7e68ad18688d599109eb75bc9aa096fe/diff",
+                                            "WorkDir": "/var/lib/docker/overlay2/1741c41e377d6029083dade934f45fea7e68ad18688d599109eb75bc9aa096fe/work"
+                                        },
+                                        "Name": "overlay2"
+                                    },
+                               Even the "hash" used as dir name are different as they are random numbers for eacj container.
+                               Anyhow, even on the host (ie. Mac) I can see those container dirs:
+
+                                         /var/lib/docker/overlay2/....
+                               which are paths in the container's VM.
+
+                               In the old versions of Docker it was used 'tty' (ex. at this path:
+                                         ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+                               )
+                               and it was possible to access that terminal via screen:
+                                      screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+
+                               New versions of docker, though, use sockets. I can look for the
+                                      /debug-shell.sock
+                               and connect with nc (TCP and UDP connections and listens)
+
+                                ❯ nc -U /Users/sbasile/Library/Containers/com.docker.docker/Data//debug-shell.sock
+                                / # ls /var/lib/docker/overlay2
+                                ls /var/lib/docker/overlay2
+                                070feb5bd2c7f4617d2177389bf4bf1e91b082927c324766863002beb02258e7
+                                1285e1573330c2879705c9e20c702fdf5aa99a8bbc542a96a8cf671ebd91ba3e
+                                1741c41e377d6029083dade934f45fea7e68ad18688d599109eb75bc9aa096fe
+                                1741c41e377d6029083dade934f45fea7e68ad18688d599109eb75bc9aa096fe-init
+                                40d6e2ceedde1f343b109e8bfa0fc55a64d9e0535bf1d2e762d38cd25a135c4d
+                                4425fed44487b08408a457add5b85c5af183e380252f3137f7c8046f5cfeda86
+                                5f289151387f26a977be3376eee693624e5b16bfe20ea66f18fb351c2c4543df
+                                9d8c65dcb9fdb8834dc97a1b51a98c4965d63f6b0ebc194e15434e2ef4d4836a
+                                ac83581ad61f9618088a096873b6fc5e6babac4d929cef2e09af6f9e8efd207f
+                                cfe88b88dfc5f45452fcfab13b2a17d9cbbfb0367e3cae50290d927a1ca80984
+                                l
+                                / #
 
 
 -----------------------------------------
@@ -470,8 +598,12 @@ DOCKER FILE:
                             as ops people can look at it and understand
                             it's then the DOCUMENTATION of the app
                           . it's a file named 'Dockerfile'  (1 word & Capital D)
-                          . it's a file at the app root dir
-                          . the list of instructions are in the form
+                                                              it cannot have other names
+                                                              ("dockerfile" and "Docker file")
+                                                              it can only with the flag -f :
+                                                                 $ docker image build -f ../example/my_docfile
+                          . it's a file at the app root dir ---> $ docker image build .
+                          . the list of instructions are in the form                  ^
                                  KEY value
                             where KEY are instruction keywords (like FROM)
                             and are usually CAPITALIZED
@@ -490,7 +622,8 @@ DOCKER FILE:
                      EXPOSE  8080                      expose an image port (from the image net space)
                                                        when the container will be launched:
                                                               docker container run -d  --name anyname  -p host_port:8080  imageID
-                                                       I will choose an host port to map onto:
+                                                                                                       -p 80:8080   ....
+                                                       I will choose a host port to map onto:
                                                        which means I can reach the app from the host
                                                        as
                                                              " localhost : host_port "
@@ -498,14 +631,56 @@ DOCKER FILE:
                      ENTRYPOINT ["node", "./app.js"]   start the app which has been the main reason of building the container
                                                        NOTE: ./ means from current WORKDIR so = /src/app.js
 
+                    | ENV NAME World      <----- I can also define ENV vars in the Docker file
 
-       docker build
-                     It created an Image(/tag) from a Dockerfile whose place is given as build arg:
 
-                     docker image build -t image_name   place_wher_Dockerfile_is
-                                                                  \
-                                                                   \_____docker image build -t xxxx  .     (the place is the local file sys / cur dir)
-                                                                         docker image build -t xxxx  https://github.com/..../repo.git  (the place is remote)
+       docker build     # short for $ docker image build
+                                             ^^^^^
+                     It creates an Image(/tag) from a Dockerfile whose place is given as build arg:
+
+                     docker image build -tag image_name   place_where_Dockerfile_is      # -tag / -t :      --tag=xxxx   --tag=xxxx:v0.0.1  ...
+                     docker image build -t   image_name   place_where_Dockerfile_is
+                                                                      \
+                                                                       \_____docker image build -t xxxx  .     (the place is the local file sys / cur dir)
+                                                                             docker image build -t xxxx  https://github.com/..../repo.git  (the place is remote)
+
+                     Some instructions add a LAYER in the Image, others only METADATA (not Layers) to the Image
+                     I highlight this with an L here
+                     |
+                     |                                                  FROM        FROM+LABEL     FROM+LABEL+RUN   FROM+LABEL+RUN+COPY    FROM+LABEL+RUN+COPY+RUN
+                     L  FROM alpine                                   .--------.   .--------.     .--------.       .--------.             .--------.
+                        LABEL maintainer="nigelpoulton@hotmail.com"   '.__F___.'   '._F_L__.'     '.__R___.'       '.__C___.'             '.__R___.'
+                     L  RUN apk add --update nodejs nodejs-npm                                    .--------.       .--------.             .--------.
+                     L  COPY . /src                                                               '._F_L__.'       '.__R___.'             '.__C___.'
+                        WORKDIR /src         <---- set a DIR inside the image                                      .--------.             .--------.
+                     L  RUN npm install            (following cmds will be relative to this)                       '._F_L__.'             '.__R___.'
+                        EXPOSE 8080                                                                                                       .--------.
+                        ENTRYPOINT ["node", "./app.js"]                                                                                   '._F_L__.'
+
+
+                        comments:          a line with #
+                        syntax:            INSTRUCTION arguments     (ex   COPY . /src)      INSTRUCTIONs names are case-insensitive but usually UPPERCASED.
+
+                                           Some INSTRUCTIONs add layers.
+                                           The more the layers the slower the app ==>  group many instructions in 1
+                                                                                       ex a RUN with (&&) or line breaks (\)
+                                                                                       like in a normal unix shell
+                                           Layers are cached (like artefacts)
+                                           this means that a
+                                                   $docker build
+                                           will create a layer only if it's not found in the cache
+                                           When a layer is not found in the cache (cache miss) since then
+                                 NOTE----->THE CACHE IS NO MORE SEARCHED.
+                                           So leave the possible different layers at the end of a Docker file
+                                           and all the possible common layers at the top, so that they are (cache hits)
+
+                                           to not use the cache:
+                                           $docker image bulld --no-cache=true
+                                           $docker image bulld --squashed      #it collapses all the layers into 1
+                                                                                The image will become a single block
+                                                                                so every push/pull will move ALL (negative thing)
+                                                                                but it can be positive when I want to use that
+                                                                                as a basic image for different projects.
 
 
        MULTI STAGE BUILD     they are when a Dockerfile has more FROM:
@@ -533,7 +708,47 @@ DOCKER FILE:
                                    The benefit is that every other stages (=images) are big
                                    while the last can be a small image containing only what needed.
 
------------------------------------------
+
+
+                               |   FROM node:latest AS storefront              <----- 1 FROM so 1 Stage (this by default is numbered 0) (aliased as storefront)
+           This returns        |   WORKDIR /usr/src/atsea/app/react-app
+           2 images:           |   COPY react-app .
+            - the pulled 'FROM'|   RUN npm install
+            - the added changes| RUN npm run build
+              (maybe big)      |
+                               |   FROM maven:latest AS appserver             <----- 1 FROM so a 2nd Stage (this by default is numbered 1) (aliased as appserver)
+           This returns        |   WORKDIR /usr/src/atsea
+           other 2 images:     |   COPY pom.xml .
+            - the pulled 'FROM'|   RUN mvn -B -f pom.xml -s /usr/share/maven/ref/settings-docker.xml dependency\
+            - the added change |   :resolve
+               (maybe big)     |   COPY . .
+                               |   RUN mvn -B -s /usr/share/maven/ref/settings-docker.xml package -DskipTests
+                               |
+           This returns        |   FROM java:8-jdk-alpine AS production       <----- 1 FROM so a 3rd Stage (by default numbered 2) (aliased as production)
+           other 2 images:     |   RUN adduser -Dh /home/gordon gordon
+            - the pulled 'FROM'|   WORKDIR /static
+            - the added change |   COPY --from=storefront /usr/src/atsea/app/react-app/build/ .
+              and something    |   WORKDIR /app
+              from prev. img.  |     COPY --from=appserver /usr/src/atsea/target/AtSea-0.0.1-SNAPSHOT.jar .  <-- NOTE: I can use the previous STAGES (by their aliases) (here it's used to get/copy from)
+              but not ALL      |   ENTRYPOINT ["java", "-jar", "/app/AtSea-0.0.1-SNAPSHOT.jar"]
+              so this image    |   CMD ["--spring.profiles.active=postgres"]”
+              can be small     |
+
+           AFTER BULDING THE ABOVE DOCKER FILE I CAN THEN SEE THE 6 IMAGES:  $ docker images   (AND THEIR SIZE)
+
+----------------------------------------- COMMANDS
+
+                             NOTE ON nnnnn:   any number/id specifying an image or container can be shortened (like in git commits)
+                                              as far as it's unique. Ex 607889..... might be just 60
+
+      docker login                      to Log in this CLI session using your Docker credentials  (this will allow to push and pull to dockerhub)
+                                        note the terminology:
+                                             docker repository <----> git repository
+                                             docker push/pull  <----> git push/pull
+                                             docker image      <----> git branch     ==>  so you usually push / pull 1 IMAGE
+
+                                             a docker image is in the form:
+                                                          username / repository : tag
 
       docker image ls                   to see all the images
       docker images                     (<--  same)
@@ -650,12 +865,15 @@ DOCKER FILE:
                                         8296858250fe: Pull complete                     4
                                         24e0251a0e2c: Pull complete                     5
                                         Digest: sha256:f4691c96e6bbaa99d...28ae95a60369c506dd6e6f6ab”
-      /*----------- check this syntax
-                docker pull zookeeper
-                docker pull mesosphere/marathon
-                docker pull mesosphere/mesos-slave:1.4.2    # I specify a version
-      ----------- */
 
+                  ACTUALLY THE PULL OF 1 IMAGE IS THE PULL OF MORE LAYERS (5 in the example)
+                  THE PULL IS THE -----(API)---> call to the registry which will do:
+                                                                                     step1: Get the FAT manifest (with all the available list of different architectures)
+                                                                                     step2: Get the IMAGE manifest of the chosen architecure
+                                                                                     step3: PULL the layers
+
+
+      docker push username/repository:tag        to Upload tagged image to registry
 
       docker image inspect ubuntu:latest         the inspect command is the proper one to see the layers:
                                                  [
@@ -664,10 +882,10 @@ DOCKER FILE:
                        /                                 "RepoTags": [
    docker images:     /                                      "ubuntu:latest"
    REPOSITORY TAG IMAGE ID  CREATED  SIZE
-   ubuntu  latest bd3d4369ae                             <Snip>
-                  ^^^^^^^^^
-                                                         "RootFS": {
-                                                             "Type": "layers",
+   ubuntu  latest bd3d4369ae                             <Snip>                                                                     NOTE THIS POSSIBLE NOTATION
+                  ^^^^^^^^^                                                                                                         docker inspect -f "{{ .RootFS.Layers}}"  ubuntu:latest
+                                                         "RootFS": {                                                                               ^^^^^^^^^^^^^^^^^^^^^^
+                                                             "Type": "layers",                                                      to extract only parts of the JSON
                                                              "Layers": [
                                                                  "sha256:c8a75145fc...894129005e461a43875a094b93412",
                                                                  "sha256:c6f2b330b6...7214ed6aac305dd03f70b95cdc610",
@@ -701,6 +919,29 @@ DOCKER FILE:
                                                                            a3ed95caeb02: Already exists      <----no download
                                                                            <Snip>
                                                                            eab5aaac65de: Pull complete       <---- download
+
+
+      docker image history   web:latest                   It shows the steps of the original Docker file used.
+                                                            NOTE:
+                                                                  1. the listed instructions are in reverse order from the last to the first
+                                                                  2. the instructions creating a layer are the ones with a SIZE value > 0
+                                                                     layers can also been showed with a   $docker image inspect web:latest
+
+                                 ex:   docker image history python:2.7-slim
+
+                                    IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+                                    0dc3d8d47241        11 months ago       /bin/sh -c #(nop)  CMD ["python2"]              0B
+                                    <missing>           11 months ago       /bin/sh -c set -ex;   savedAptMark="$(apt-ma…   7.12MB    <------ not 0 ==> it's a layer
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_PIP_VERSION=18…   0B
+                                    <missing>           11 months ago       /bin/sh -c set -ex   && savedAptMark="$(apt-…   51.4MB    <------ not 0 ==> it's a layer
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_VERSION=2.7.15    0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV GPG_KEY=C01E1CAD5EA2C…   0B
+                                    <missing>           11 months ago       /bin/sh -c apt-get update && apt-get install…   6.45MB    <------ not 0 ==> it's a layer
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHONIOENCODING=UTF-8   0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PATH=/usr/local/bin:/…   0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop)  CMD ["bash"]                 0B
+                                    <missing>           11 months ago       /bin/sh -c #(nop) ADD file:dab9baf938799c515…   55.3MB    <------ not 0 ==> it's a layer    (THIS IS THE BASE LAYER)
 
 
 
@@ -738,9 +979,54 @@ DOCKER FILE:
                                            docker container stop confluentinc/cp-kafka:5.0.0
 
       docker container start            to restart a stopped(exited) container with all its previous changes intact
-      docker container exec             to run a command in an existing container
+      docker container exec             to run a command in a running container without entering its prompt (so still in the host shell)
+                                            docker container exec -it <container-name or container-id> 'command'
                                         ex
-                                            “docker container exec -it <container-name or container-id> bash”
+                                            docker container exec 6078 'echo "aaaaa" > stef.txt'
+                                            docker container exec 6078 cat stef.txt
+      Control-PQ                        if executed inside a container shell, it goes back to the host shell keeping the container running
+                                        docker container exec -it nnnnn/iiiiii   bash    to attach back (-it interactively) to the container named nnnnnn or with id iiiiii
+
+                       CMD:  it's the default command which (in the Docker file) a container will run at start
+                             ex for alpine:
+                               "Cmd":[
+                                   "/bin/sh"
+                               ],
+                             So I can start/run a container without specifying any cmd at all, becuase it will run the default from the Docker file.
+
+                             ANY command specified on the command-line (at start/run) will override the default command
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+                                      ❯ dki ls
+                                      REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+                                      perl         latest    80f3b1328344   9 days ago    890MB
+                                      alpine       latest    76c8fb57b6fc   10 days ago   5.57MB               <---- 'alpine' is 76c8fb57b6fc
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+                                      ❯ dkc run -it --name alpine_1  76                                        <---- the image is unique with just 76 (or even 7)
+                                      / # ps -efl
+                                      PID   USER     TIME  COMMAND
+                                          1 root      0:00 /bin/sh    <---- I didn't specify any cmd so this is the default launched at start
+                                          8 root      0:00 ps -efl
+                                      / # exit
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+                                      ❯ dkc run -d --name alpine_2  76 sleep 1d                                <---- I override the default with another command (sleep 1 day)
+                                      1d90a33b362c3cdd85b383944cf95a8a64060616ec9f93eede2137d32b98efb6
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+                                      ❯ dkc ls -a
+                                      CONTAINER ID   IMAGE     COMMAND      CREATED          STATUS                     PORTS     NAMES         <---- I can see my 2 containers
+                                      1d90a33b362c   76        "sleep 1d"   19 seconds ago   Up 19 seconds                        alpine_2            coming from the same image
+                                      f4a32234e008   76        "/bin/sh"    3 minutes ago    Exited (0) 2 minutes ago             alpine_1            and their starting commands
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+                                      ❯ dkc exec  1d ps -efl                                                  <----- I can see that
+                                      PID   USER     TIME  COMMAND                                                   the container with sleep 1d
+                                          1 root      0:00 sleep 1d                                                  is NOT tunning the default command (bin/sh)
+                                          7 root      0:00 ps -efl
+                                      ────────────────────────────────────────────────────────────────────────────────────────────
+
+                       ENTRYPOINT:  passed arguments on the command line are APPENDED to this.
+                             ex for alpine:
+                               "Entrypoint": null,
+
+
       docker container inspect <N/ID>   it gives detailed configuration and runtime information.
                                         It accepts container names or IDs
 
@@ -748,8 +1034,6 @@ DOCKER FILE:
 
 
       docker container kill <id>        to Force shutdown
-      Control-PQ                        to exit from the container keeping it running (....like sending in bg)
-      docker container exec -it nnnnn/iiiiii   bash       to attach back (-it interactively) to the container named nnnnnn or with id iiiiii
 
       docker container rm <hash>                         # Remove specified container from this machine
       docker container rm    $(docker container ls -a -q)   # Remove all containers
@@ -759,27 +1043,14 @@ DOCKER FILE:
       docker container run -d  --name web1  --publish 8080:8080  test:latest       creates (-d detached or in bg) a running instance (named 'web1') of the container 'test' tagged 'latest'
       docker container run -it --name ctr1  alpine:latest sh                       creates (-it interactively on fg) a running instance (named 'ctrl') of the container 'alpine' tagged 'latest'
                                                                                    and inside it executes 'sh'
-
-
-
-      docker login                      to Log in this CLI session using your Docker credentials  (this will allow to push and pull to dockerhub)
-                                        note the terminology:
-                                             docker repository <----> git repository
-                                             docker push/pull  <----> git push/pull
-                                             docker image      <----> git branch     ==>  so you usually push / pull 1 IMAGE
-
-                                             a docker image is in the form:
-                                                          username / repository : tag
-
-      docker tag <image> username/repository:tag           Tag <image> for upload to registry
-      docker push username/repository:tag                  to Upload tagged image to registry
-      docker run  username/repository:tag                  to Run image from a repository
-      docker image tag <old> <new>                         to change a tag  ex.  docker image tag web:latest nigelpoulton/web:latest
+      docker run                (same of  $docker container run)
 
       docker run
                             --name           assign a name to the container:                            ex.  --name my_container
                             -d  (--detach)   runs the container in the background of the terminal.      ex.  -d
                             -e  (--env)      sets an ENV var using a KEY=VALUE pair.                    ex.  -e KEY=VALUE    (I can add many -e flags in the cmd line)
+                                                                                                        ex.  docker container run  -e STEF=BASI -e HIRO=FUJII  -it --name cont_alipne_1  alpine:latest  sh
+                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ <--- here, otherwise doesn't work
                             --env-file       if ENV vars are in file, I can pass the full path here     ex. -env-file ./env.list
                             --ip             declare an IP address.                                     ex. --ip=10.10.9.75
                             --rm             automatically removes the container when it exits          ex. --rm
@@ -797,6 +1068,7 @@ DOCKER FILE:
                                                                                                                           /
                                                                       ex.   docker run --entrypoint "/bin/ls -al /root" debian     (wrong)
                                                                       ex.   docker run --entrypoint "/bin/ls" debian -al /root     (good)
+                                                                                                              ^^^^^^
 
                                     docker run -d -p 2181:2181 --name zookeeper zookeeper:3.4.11                       ZOOKEEPER
                                     docker run -it -d --name mesos-master -p 172.16.121.1:5050:5050                    MESOS_MASTER
@@ -829,6 +1101,50 @@ DOCKER FILE:
                                                         -e MARATHON_ZK=zk://zookeeper:2181/marathon
                                                         -e MARATHON_MASTER=zk://zookeeper:2181/mesos
                                                         mesososphere/marathon:v1.5.6
+
+
+
+
+      docker port N/I                                      gives the port exposed of the specified container
+
+      docker tag <image> username/repository:tag           Tag <image> for upload to registry
+      docker image tag <old> <new>                         to change a tag  ex.  docker image tag web:latest nigelpoulton/web:latest
+
+
+      _______________________________________________ SWARM
+
+       Since v1.12, docker releseed
+                SwarmKit                         (https://github.com/docker/swarmkit)
+       which allows to run docker in both the legacy
+                    . Single engine mode
+       and also
+                    . Swarm mode
+
+           $ docker swarm init       # I run this on 1 host, I'm entering 'swarm mode' and this host will become the 1st Manager of the swarm: The Manager LEADER
+                                     # The init also assigns a client certificate & a cluster store
+
+
+                         ----------------------------------------------------------|
+                              Cluster Store                                        |
+                         ----------------------------------------------------------|
+                            Manager           Manager           Manager            |
+                                   \            |               /                  |
+                                    \           |              /                   |   SWARM = is a SECURE CLUSTER of docker nodes
+                                      ------------------------                     |
+                                       Mutual AUTH Encryption                      |
+                                      ------------------------                     |
+                                    /           |              \                   |
+                                   /            |               \                  |
+                                                                                   |
+                            Worker            Worker            Worker             |
+                                                                                   |
+
+
+           $ docker swarm join       # we run in any other host we want to join the swarm cluster
+
+
+         Every node
+
 
 
 
@@ -920,162 +1236,12 @@ DOCKER FILE:
       docker volume create portainer_data
 
 
-------------      Dockerfile
-
-                  it cannot have other names
-                  ("dockerfile" and "Docker file")
-                  it can only with the flag -f :
-                       docker build -f ../example/my_docfile
-
-
-      . it's like a Makefile. It's used to builld an image (which I can then see with 'docker image ls')
-
-         Some instructions add a LAYER in the Image, others only METADATA (not Layers) to the Image
-         I highlight this with an L here
-         |
-         |                                                  FROM        FROM+LABEL     FROM+LABEL+RUN   FROM+LABEL+RUN+COPY    FROM+LABEL+RUN+COPY+RUN
-         L  FROM alpine                                   .--------.   .--------.     .--------.       .--------.             .--------.
-            LABEL maintainer="nigelpoulton@hotmail.com"   '.__F___.'   '._F_L__.'     '.__R___.'       '.__C___.'             '.__R___.'
-         L  RUN apk add --update nodejs nodejs-npm                                    .--------.       .--------.             .--------.
-         L  COPY . /src                                                               '._F_L__.'       '.__R___.'             '.__C___.'
-            WORKDIR /src         <---- set a DIR inside the image                                      .--------.             .--------.
-         L  RUN npm install            (following cmds will be relative to this)                       '._F_L__.'             '.__R___.'
-            EXPOSE 8080          <---- the internal image port.                                                               .--------.
-            ENTRYPOINT ["node", "./app.js"]   <----  sets the main application that the image should run                      '._F_L__.'
-
-
-            Note:  8080  is the internal image port.
-                   It is mapped during the docker run command
-                       docker run -p 80:8080   ....
-                   which maps the host-docker-local 80 port onto the image 8080
-                   If 80 is taken I can us any other available port
-
-
-            comments:          a line with #
-            syntax:            INSTRUCTION arguments     (ex   COPY . /src)      INSTRUCTIONs names are case-insensitive but usually UPPERCASED.
-
-                               Some INSTRUCTIONs add layers.
-                               The more the layers the slower the app ==>  group many instructions in 1
-                                                                           ex a RUN with (&&) or line breaks (\)
-                                                                           like in a normal unix shell
-                               Layers are cached (like artefacts)
-                               this means that a
-                                       $docker build
-                               will create a layer only if it's not found in the cache
-                               When a layer is not found in the cache (cache miss) since then
-                     NOTE----->THE CACHE IS NO MORE SEARCHED.
-                               So leave the possible different layers at the end of a Docker file
-                               and all the possible common layers at the top, so that they are (cache hits)
-
-                               to not use the cache:
-                               $docker image bulld --no-cache=true
-                               $docker image bulld --squashed      #it collapses all the layers into 1
-                                                                    The image will become a single block
-                                                                    so every push/pull will move ALL (negative thing)
-                                                                    but it can be positive when I want to use that
-                                                                    as a basic image for different projects.
-
-
-
-                               MULTI_STAGE:
-
-                             |   FROM node:latest AS storefront              <----- 1 FROM so 1 Stage (this by default is numbered 0) (aliased as storefront)
-                             |   WORKDIR /usr/src/atsea/app/react-app
-                             |   COPY react-app .
-                             |   RUN npm install
-                             |   RUN npm run build
-                             |
-                             |   FROM maven:latest AS appserver             <----- 1 FROM so a 2nd Stage (this by default is numbered 1) (aliased as appserver)
-                             |   WORKDIR /usr/src/atsea
-                             |   COPY pom.xml .
-                             |   RUN mvn -B -f pom.xml -s /usr/share/maven/ref/settings-docker.xml dependency\
-                             |   :resolve
-                             |   COPY . .
-                             |   RUN mvn -B -s /usr/share/maven/ref/settings-docker.xml package -DskipTests
-                             |
-                             |   FROM java:8-jdk-alpine AS production       <----- 1 FROM so a 3rd Stage (by default numbered 2) (aliased as production)
-                             |   RUN adduser -Dh /home/gordon gordon
-                             |   WORKDIR /static
-                             |   COPY --from=storefront /usr/src/atsea/app/react-app/build/ .
-                             |   WORKDIR /app
-                             |   COPY --from=appserver /usr/src/atsea/target/AtSea-0.0.1-SNAPSHOT.jar .  <-- NOTE: I can use the previous STAGES (by their aliases) (here it's used to get/copy from)
-                             |   ENTRYPOINT ["java", "-jar", "/app/AtSea-0.0.1-SNAPSHOT.jar"]
-                             |   CMD ["--spring.profiles.active=postgres"]”
-                             |
-                             |   Excerpt From: Nigel Poulton. “Docker Deep Dive”. Apple Books.
 
 
 
 
 
 
-      . docker image build  -t web:latest .                 it creates the image (put in my local (ex Mac) registry place
-                                                            reading the Docker file in the cur dir '.'
-
-
-
-
-
-      . docker image history   web:latest                   It shows the steps of the original Docker file used.
-                                                            NOTE:
-                                                                  1. the listed instructions are in reverse order from the last to the first
-                                                                  2. the instructions creating a layer are the ones with a SIZE value > 0
-                                                                     layers can also been showed with a   $docker image inspect web:latest
-
-                                 ex:   docker image history python:2.7-slim
-
-                                    IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
-                                    0dc3d8d47241        11 months ago       /bin/sh -c #(nop)  CMD ["python2"]              0B
-                                    <missing>           11 months ago       /bin/sh -c set -ex;   savedAptMark="$(apt-ma…   7.12MB
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_PIP_VERSION=18…   0B
-                                    <missing>           11 months ago       /bin/sh -c set -ex   && savedAptMark="$(apt-…   51.4MB
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHON_VERSION=2.7.15    0B
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV GPG_KEY=C01E1CAD5EA2C…   0B
-                                    <missing>           11 months ago       /bin/sh -c apt-get update && apt-get install…   6.45MB
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PYTHONIOENCODING=UTF-8   0B
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0B
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  ENV PATH=/usr/local/bin:/…   0B
-                                    <missing>           11 months ago       /bin/sh -c #(nop)  CMD ["bash"]                 0B
-                                    <missing>           11 months ago       /bin/sh -c #(nop) ADD file:dab9baf938799c515…   55.3MB
-
-
-
-
-
-      . docker build --tag=xxxx .              <--- it will give the default value 'latest' to the TAG column in 'docker image ls'
-      . docker build --tag=xxxx:v0.0.1 .       <--- it gives a value for the TAG column
-
-      . ex of  Dockerfile
-                    | # Use an official Python runtime as a parent image
-                    | FROM python:2.7-slim
-                    |
-                    | # Set the working directory to /app
-                    | WORKDIR /app
-                    |
-                    | # Copy the current directory contents into the container at /app
-                    | COPY . /app
-                    |
-                    | # Install any needed packages specified in requirements.txt
-                    | RUN pip install --trusted-host pypi.python.org -r requirements.txt <-------- ./requirements.txt :   | Flask
-                    |                                                                               this 2 lines file ->  | Redis
-                    | # Make port 80 available to the world outside this container
-                    | EXPOSE 80                            <------   I will be able to run my app (tagged as xxxx) with:   'docker run -p 4000:80 xxxx'
-                    |
-                    | # Define environment variable
-                    | ENV NAME World
-                    |
-                    | # Run app.py when the container launches
-                    | CMD ["python", "app.py"]    <----------  ./app.py: file where I wrote some Python code
-
-      . note Docker-syntax commands like:
-
-                     COPY
-                     EXPOSE
-                     ENV            (ENV is also used to manage proxy settings
-                                     so that my app will be able to access the network:
-
-                                          |    ENV http_proxy  host:port
-                                          |    ENV https_proxy host:port
 ------------      DNS issues
       Besides the 'ENV ...proxy' settings
       also the DNS could need to be set:
@@ -1087,15 +1253,6 @@ DOCKER FILE:
       then make docker re-source it:
 
       'sudo service docker restart'
-
-
-------------      run
-      docker run -p 4000:80 xxxx                   to run an image (tagged as xxxx) mapping localhost port 4000 to the port 80 inside the docker image
-                                                   (which was 'exposed' in the 'Dockerfile' )
-
-      docker run -d -p 4000:80 xxxx                -d to 'detach' and run in background giving back the prompt.
-
-
 
 
 ------------      docker-compose.yml
@@ -1122,133 +1279,29 @@ DOCKER FILE:
               |   webnet:
 
 
-
------------- PORTAINER    (https://portainer.readthedocs.io/en/stable/deployment.html)
-
-    docker volume create portainer_data
-    docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+----------------------------------------- LOGGING
 
 
+         Engine/ daemon:            Linux
+                                           - systemd:     journal -u docker.service
+                                           - non-systemd: /var/log/messages
 
-                  PERSISTENT DATA
+         Container/App              - Use Stdout / Stderr  (so the app dumps here)
+                                    - If the App writes to a file, assign that file to a volume to inspect it easily
+                                    - Use the docker-driver of any industrial-standard logging facility
+                                                                       ex. docker driver of Syslog
+                                                                            "       "    of Gelf
+                                                                            "       "    of Splunk
+                                                                            "       "    of Fluentd
+                                                    this external tool's docker drivers
+                                                    can be used both:
+                                                               A- specifying the logging driver in deamon.jon
+                                                               B- ovrwriting the value of A-  with the options
+                                                                 --log-driver   --log-opts
+                                                                 when starting the cotnatiner.
 
-                  By default, Portainer stores in "/data" the container's data.
-                  to keep your changes after restart/upgrade of the Portainer container
-                  I can use a bind mount on the Docker host folder:
-
-
-    docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v /path/on/host/data:/data portainer/portainer
-                                                                                                                 ^^^^^^^^^^^^^^^^^^
-
-
-
-
-
-
-
-     Install and start Zookeeper
-
-                                   docker run -d \
-                                       --net=confluent \
-                                       --name=zookeeper \
-                                       --restart=always \
-                                       -e ZOOKEEPER_CLIENT_PORT=32181 \
-                                       confluentinc/cp-zookeeper:5.0.0
-
-     Install and start Kafka
-
-                                   docker run -d \
-                                       --net=confluent \
-                                       --name=kafka \
-                                       --restart=always \                                                      This is the local host (i.e. Mac) IP
-                                       -p 29093:29093 \                                                       /
-                                       -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:32181 \                          /
-                                       -e KAFKA_ADVERTISED_LISTENERS=INSIDE://localhost:29092,OUTSIDE://172.19.68.36:29093 \
-                                       -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT \
-                                       -e KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE \
-                                       -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-                                       confluentinc/cp-kafka:5.0.0
-
-
-
-     Listing your Kafka Topics
-
-                                   docker run \
-                                       --net=confluent \
-                                       --rm confluentinc/cp-kafka:5.0.0 \
-                                       kafka-topics --list --zookeeper zookeeper:32181
-
-    Running Kafka Console Consumer
-
-                                   docker exec -it kafka /usr/bin/kafka-console-consumer --bootstrap-server localhost:29092 --topic PA_STREAMING_2 --from-beginning # Ctrl C to exit
-
-
-
-    option -v     : to mount a volume (dir or file) so that it's visible in the docker from the host filesystem.
-
-                docker run -d --name nginx -p 443:443 \
-                           -v "/nginx.ssl.conf:/etc/nginx/conf.d/default.conf" \
-                           -v "/ssl-cert.pem:/etc/nginx/certs/ssl-cert.pem" \
-                           -v "/ssl-cert.key:/etc/nginx/certs/ssl-cert.key" \
-                           nginx
-
-
-
-    option -w     : to use ENV variables;
-
-
-                The `docker run` command has -e and --env-file options to provide environments variables for processes inside the container
-
-
-    Dockerfile:
-
-
-
-                docker run -d --name nginx -p 443:443 \
-                   -v "/ssl-cert.pem:/etc/nginx/certs/ssl-cert.pem" \
-                   -v "/ssl-cert.key:/etc/nginx/certs/ssl-cert.key"\
-                   -e "NGINX_ENABLE_SSL=True" \      <------------   we want to have a config var to control how the docker is config.
-                   our-nginx
-
-
-
-                Dockerfile:
-
-                FROM nginx
-                    RUN apt-get update && \
-                        apt-get install python-dev python-setuptools
-                    RUN easy_install j2cli
-
-                    COPY nginx.conf.j2 /templates/
-                    COPY docker-entrypoint.sh /         <-----------------------   #!/bin/bash -e
-                    ENTRYPOINT ["/docker-entrypoint.sh"]                           j2 /templates/nginx.conf.j2 > /etc/nginx/conf.d/default.conf
-                    CMD ["nginx", "-g", "daemon off;"]                             exec "$@"
-
-
-
-
-
-                J2 Template
-
-                server {
-                        server_name _;
-                        {% if NGINX_ENABLE_SSL|default('False') == 'True' %}
-                        listen 443;
-                        ssl on;
-
-                        ssl_certificate /etc/ssl/certs/ssl-cert.pem;
-                        ssl_certificate_key /etc/ssl/private/ssl-cert.key;
-                        {% else %}
-                        listen 80;
-                        {% endif %}
-
-                        location / {
-                            proxy_pass http://localhost:8080;
-                        }
-                    }
-
--------------------------------------- VIDEO
-
+                                                    Almost all the logging drivers allow then to inspect the logs with:
+                                                            $ docker logs <container_id>
 
 
 

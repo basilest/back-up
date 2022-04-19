@@ -94,7 +94,7 @@ OpenID Connect is an extension of OAUTH2 to add also the AUTHENTICATION
 
       the request is an OAUTH2 msg containing some protocol information
       like:
-             . the /callback (the entry point to call when the user
+             . the /callback (the endpoint to call when the user
                               accepts/rejects to grant access to his data
                               clicking Yes/No)
              . the 'scope' (ex. 'contacts') of the access to data (google will show this
@@ -441,7 +441,7 @@ OpenID Connect is implemented adding to the starting HTTP request:
 
 
 
-      I CAN USE AS NORMAL THE ACCESS-TOKEN TO CALL THE ENTRY POIN OF /userinfo TO GET MORE INFO
+      I CAN USE AS NORMAL THE ACCESS-TOKEN TO CALL THE ENDPOINT OF /userinfo TO GET MORE INFO
 
 
 
@@ -473,42 +473,4 @@ OpenID Connect is implemented adding to the starting HTTP request:
                                      "name": "My Name",
                                      "profile_picture": "http://plus.g.co/123",
                                      ......
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
