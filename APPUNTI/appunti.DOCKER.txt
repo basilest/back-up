@@ -56,7 +56,7 @@
 |       |                   |       API          |       ex.  /containers/create                                                        |
 |    O  |                   |                    |                                                                                      |  This is used
 |       |                   '--------------------'                                                                                      |  here
-|    C  |                            |                                                                                                  |  to achive
+|    C  |                            |                                                                                                  |  to achivate
 |       |                            |_REST  POST /vX.X/containers/create HTTP/1.1                                                      |  the real
 |    K  |                            |                                                                                                  |  containerisation
 |       |                   .--------------------.                                                                                      |  'under the hood'
@@ -98,7 +98,7 @@
                          start / stop / pause CONTAINERS.
 
                Anyhow it's extensible, which means I can use it alone (light and reusable
-               for example in Kubernetes) or I can add features to manage more esaily images
+               for example in Kubernetes) or I can add features to manage more easily images
                management like push and pull.
 
                           It doesn't CREATE containers. This task is in runc.
@@ -352,7 +352,7 @@ ________________________________________________________________________________
 
                                       Anyhow thanks to the effort of Microsoft and Docker
                                       (Docker for Windows)
-                                      is possible the opposite: run Linux containers in Windows
+                                      it's possible the opposite: run Linux containers in Windows
 
                                       Docker for Mac will not give you the Docker Engine
                                       running natively on the Mac OS Darwin kernel.
@@ -441,7 +441,7 @@ ________________________________________________________________________________
                      docker.io  /   nginx   :  1.13.5                      the image is redis:latest
                                                                            It's clear then that a
         If omitted REGISTRY: default "docker.io"                                $ docker image pull redis -a
-        If omitted IMAGE   : default "latest"                              will puul ALL the images out off  repo 'redis'
+        If omitted IMAGE   : default "latest"                              will pull ALL the images out off  repo 'redis'
                                                                            (which actually means to pull ALL the layers)
                      ex:
                         docker image pull docker.io/redis:4.0.1
@@ -459,7 +459,7 @@ ________________________________________________________________________________
                    |
                    |
                   pull                            FAT MANIFEST: is a list of manifests (listing the available manifests for different architectures (Mac, Power PC, ...))
-                                                                $ docker image pull   is retrieving, as first step, he FAT MANIFEST in order to the get
+                                                                $ docker image pull   is retrieving, as first step, the FAT MANIFEST in order to the get
                                                                   the proper IMAGE MANIFEST, which will then contain the LIST OF LAYERS to pull down.
 
         1 image =  . set of
@@ -490,11 +490,11 @@ ________________________________________________________________________________
                                       the IMAGE is compressed and it has new digest called
                                                        DISTRIBUTION hashes
                                       This is due, as said, because the push (and pull), as operations 'on-the wire' performs some compression
-                                      so the amend the hashes accodingly to keep all consistent.
+                                      so they amend the hashes accodingly to keep all consistent.
 
 
         - Storage Driver              it magages
-                                          - the different layers (pulling them as separate entities and assemgling the image as one)
+                                          - the different layers (pulling them as separate entities and assembling the image as one)
                                           - the layers' digest cryptography.
                                           - the file systems of a container
 
@@ -558,7 +558,7 @@ ________________________________________________________________________________
                                         },
                                         "Name": "overlay2"
                                     },
-                               Even the "hash" used as dir name are different as they are random numbers for eacj container.
+                               Even the "hash" used as dir name are different as they are random numbers for each container.
                                Anyhow, even on the host (ie. Mac) I can see those container dirs:
 
                                          /var/lib/docker/overlay2/....
@@ -658,7 +658,7 @@ DOCKER FILE:
                         ENTRYPOINT ["node", "./app.js"]                                                                                   '._F_L__.'
 
 
-                        comments:          a line with #
+                        comment:           a line with #
                         syntax:            INSTRUCTION arguments     (ex   COPY . /src)      INSTRUCTIONs names are case-insensitive but usually UPPERCASED.
 
                                            Some INSTRUCTIONs add layers.
@@ -714,7 +714,7 @@ DOCKER FILE:
            This returns        |   WORKDIR /usr/src/atsea/app/react-app
            2 images:           |   COPY react-app .
             - the pulled 'FROM'|   RUN npm install
-            - the added changes| RUN npm run build
+            - the added changes|   RUN npm run build
               (maybe big)      |
                                |   FROM maven:latest AS appserver             <----- 1 FROM so a 2nd Stage (this by default is numbered 1) (aliased as appserver)
            This returns        |   WORKDIR /usr/src/atsea
@@ -1120,14 +1120,88 @@ DOCKER FILE:
        and also
                     . Swarm mode
 
-           $ docker swarm init       # I run this on 1 host, I'm entering 'swarm mode' and this host will become the 1st Manager of the swarm: The Manager LEADER
+           $ docker swarm init       # I run this on 1 host (ex. My mac), I'm entering 'swarm mode' and this host will become the 1st Manager of the swarm: The Manager LEADER
                                      # The init also assigns a client certificate & a cluster store
+
+                       ======================================= ex.1
+                       $ docker system info | grep -i swarm
+                             Swarm: inactive
+                       $ docker swarm init
+                       $ docker system info | grep -i swarm
+                             Swarm: active
+                       ======================================= ex.2
+                       $ docker system info > swarm.2
+                       $ docker node ls
+                       Error response from daemon: This node is not a swarm manager. Use "docker swarm init" or "docker swarm join" to connect this node to swarm and try again.
+
+                       $ docker swarm init
+                        |Swarm initialized: current node (g1bxflvzyp4d84uk2yneyee1g) is now a manager.
+                        |
+                        |To add a worker to this swarm, run the following command:                                           $ doker swarm join-token manager :   to see this string again
+                        |                                                                                                  /                                       /
+                        |    docker swarm join --token SWMTKN-1-4yenqs0r0h5debwrpng0mftijt77vnu98dzzhtmkgvaw2vugu3-34svw4nmm31wfn9tt5hd2hfqz 192.168.65.3:2377  __/
+                        |
+                        |To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+                                                                         ^^^^^^^^^^
+                                                                                NB 1 word (no space) join-token       join-token manager  (dumps the string to join as a manager)
+                                                                                                                      join-token worker   (dumps the string to join as a worker)
+
+                        This is the token
+                        SWMTKN-1-4yenqs0r0h5debwrpng0mftijt77vnu98dzzhtmkgvaw2vugu3-34svw4nmm31wfn9tt5hd2hfqz 192.168.65.3:2377
+                           |                                  |                             |
+                         fixed                             same for Managers             Managers != workers
+                                                           and workers                (All Managers =
+                                                       (it's the cluster id)           All workers =)
+
+
+                       $ sudo openssl x509 -in /var/lib/docker/swarm/certificates/swarm-node.crt -text        <----- to see the cert
+
+                       $ docker swarm update --cert-expiry 48h       # 48 hours (2 days) and the certificates will expiry
+                       $ docker system info | grep days
+                            Expiry Duration: 2 days
+
+
+                       $ docker system info > swarm.2
+                       $ vimdiff swarm.*
+                           28  Swarm: inactive                                                   |   28  Swarm: active
+                           29  Runtimes: io.containerd.runc.v2 io.containerd.runtime.v1.linux run|   29   NodeID: g1bxflvzyp4d84uk2yneyee1g
+                              -------------------------------------------------------------------|   30   Is Manager: true
+                              -------------------------------------------------------------------|   31   ClusterID: vdnqhnhk45gt8j3v4cu8l9uho
+                              -------------------------------------------------------------------|   32   Managers: 1
+                              -------------------------------------------------------------------|   33   Nodes: 1
+                              -------------------------------------------------------------------|   34   Default Address Pool: 10.0.0.0/8
+                              -------------------------------------------------------------------|   35   SubnetSize: 24
+                              -------------------------------------------------------------------|   36   Data Path Port: 4789
+                              -------------------------------------------------------------------|   37   Orchestration:
+                              -------------------------------------------------------------------|   38    Task History Retention Limit: 5
+                              -------------------------------------------------------------------|   39   Raft:
+                              -------------------------------------------------------------------|   40    Snapshot Interval: 10000
+                              -------------------------------------------------------------------|   41    Number of Old Snapshots to Retain: 0
+                              -------------------------------------------------------------------|   42    Heartbeat Tick: 1
+                              -------------------------------------------------------------------|   43    Election Tick: 10
+                              -------------------------------------------------------------------|   44   Dispatcher:
+                              -------------------------------------------------------------------|   45    Heartbeat Period: 5 seconds
+                              -------------------------------------------------------------------|   46   CA Configuration:
+                              -------------------------------------------------------------------|   47    Expiry Duration: 3 months
+                              -------------------------------------------------------------------|   48    Force Rotate: 0
+                              -------------------------------------------------------------------|   49   Autolock Managers: false
+                              -------------------------------------------------------------------|   50   Root Rotation In Progress: false
+                              -------------------------------------------------------------------|   51   Node Address: 192.168.65.3
+                              -------------------------------------------------------------------|   52   Manager Addresses:
+                              -------------------------------------------------------------------|   53    192.168.65.3:2377
+                              -------------------------------------------------------------------|   54  Runtimes: io.containerd.runtime.v1.linux runc io.containerd.runc.v
+
+                       $ docker node ls
+                        ID                            HOSTNAME         STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+                        g1bxflvzyp4d84uk2yneyee1g *   docker-desktop   Ready     Active         Leader           20.10.13
+
+                       =======================================
 
 
                          ----------------------------------------------------------|
                               Cluster Store                                        |
-                         ----------------------------------------------------------|
-                            Manager           Manager           Manager            |
+                         ----------------------------------------------------------|  3 is the minimum recommended number for Managers and also they should be odd
+                            Manager           Manager           Manager            |   as an election with 2 or an even number doesn't work
                                    \            |               /                  |
                                     \           |              /                   |   SWARM = is a SECURE CLUSTER of docker nodes
                                       ------------------------                     |
@@ -1140,13 +1214,41 @@ DOCKER FILE:
                                                                                    |
 
 
-           $ docker swarm join       # we run in any other host we want to join the swarm cluster
+           $ docker swarm join --token SWMTKN-1-4yenqs0r0h5debwrpng0mftijt77vnu98dzzhtmkgvaw2vugu3-34svw4nmm31wfn9tt5hd2hfqz 192.168.65.3:2377
+                               ^^^^^^^
+                                 NB join <space> --token
+                # we run in any other host we want to join the swarm cluster
+                # the node will be a Manager with MANAGER STATUS = Reachable (not Leader):
+
+                       $ docker node ls
+                        ID                            HOSTNAME         STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+                        g1bxflvzyp4d84uk2yneyee1g *   docker-desktop   Ready     Active         Leader           20.10.13             # minimum
+                       .......................................................................  Reachable ...............             # I add
+                       .......................................................................  Reachable ...............             # 2 other nodes so the Managers are >= 3
+
+           $ docker swarm join-token worker
+            |To add a worker to this swarm, run the following command:
+            |
+            | docker swarm join --token SWMTKN-1-4yenqs0r0h5debwrpng0mftijt77vnu98dzzhtmkgvaw2vugu3-34svw4nmm31wfn9tt5hd2hfqz 192.168.65.3:2377
+
+                       =======================================  AUTOLOCK
+
+           $ docker swarm init --autolock   # when init a new swarm                Autolock:      - Prevents restarted Manager from automatically re-joining the swarm
+           $ docker swarm update --autolock=true  # to change an existing swarm                   - Prevents accidentally restoring old copies of the swarm
+
+             |docker swarm update --autolock=true
+             |Swarm updated.
+             |To unlock a swarm manager after it restarts, run the `docker swarm unlock`
+             |command and provide the following key:
+             |
+             |    SWMKEY-1-OOu3PFx2z1xbcQFxd4OVIFEpz81TgdUCXFBJtL26yLA
+             |
+             |Please remember to store this key in a password manager, since without it you
+             |will not be able to restart the manager.
 
 
-         Every node
 
-
-
+      _______________________________________________ ORCHESTRATION
 
 
       _______________________________________________ SCALE AN APP

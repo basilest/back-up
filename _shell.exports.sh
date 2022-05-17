@@ -28,8 +28,8 @@ export NO_PROXY=${no_proxy}
 
 
 
-export PATH=".:/usr/local/bin:/Users/sbasile/bin:$PATH:/usr/local/sbin:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development"
-#echo "----------1---------------- $PATH"
+#export PATH=".:/usr/local/bin:/Users/sbasile/bin:$PATH:/usr/local/sbin:/Users/sbasile/GRADLE/gradle-2.14/bin:~/Development"
+export PATH=".:/usr/local/bin:${HOME}/bin:$PATH:/usr/local/sbin:${HOME}/Library/Python/3.8/bin"
 export GREP_OPTIONS='--exclude *\.svn* --color=auto'
 export MYCOL="30BK_31R_32G_33Y_34BL_35MG_36CY_37W"
 export EDITOR=vim
@@ -39,9 +39,9 @@ export CDPATH=".:${HOME}:${CHS_HOME}"
 export USERNAME=$(id -un)
 export MACHINENAME=$(hostname | sed -e 's/\..*//')
 export COMPUTERNAME=${MACHINENAME}
-export BEA_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12"
-export MW_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12"
-export WL_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12/wlserver_12.1"
+#export BEA_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12"                 # new mac
+#export MW_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12"                  # new mac
+#export WL_HOME="/Users/${USERNAME}/CHIPS-SHARE/bea12/wlserver_12.1"    # new mac
 export LSCOLORS=Exfxcxdxbxegedabagacad
 
 
@@ -49,9 +49,15 @@ export LSCOLORS=Exfxcxdxbxegedabagacad
 export CHS_HOME=$HOME/SingleService
 export CH_AWS_HOME=$HOME/CH_AWS
 export AWS_PAGER=""    # to avoid default pager (less on linux) for aws-cli-v2 (breaking change with v1)
-export GOPATH=$CHS_HOME/go
-export PATH=$PATH:$GOPATH/bin
-#echo "----------4---------------- $PATH"
+#  GO settings likely unecessary with Go Modules         # new mac
+#     export GOPATH=$CHS_HOME/go
+export CHGOPATH=$CHS_HOME/go/src/github.com/companieshouse/
+#     export PATH=$PATH:$GOPATH/bin
+#     #SETTINGS for GO
+#     export GO_BIN="$HOME/go"           # I define this where I copy the GO_SOURCE/bin binaries
+#     export GO_SOURCE="$HOME/go.src"    # I define this to where I clone the GO source repo
+#     export PATH="$PATH:$GO_BIN:$GO_SOURCE/bin"
+
 
 #_______________________________ <CHS-MAVEN>
 export MAVEN_REPOSITORY_SCHEME=http
@@ -64,37 +70,20 @@ export MY_CH_API=$(cat ${HOME}/.ssh/my-api.txt)
 #_______________________________ </CH_KEY_API>
 
 
-#SETTINGS for GO
-export GO_BIN="$HOME/go"           # I define this where I copy the GO_SOURCE/bin binaries
-export GO_SOURCE="$HOME/go.src"    # I define this to where I clone the GO source repo
-export PATH="$PATH:$GO_BIN:$GO_SOURCE/bin"
-#echo "----------2---------------- $PATH"
-
 #SETTINGS for GROOVY
-export GROOVY_HOME=/usr/local/opt/groovy/libexec
-export PATH="$PATH:$GROOVY_HOME/bin"
+#export GROOVY_HOME=/usr/local/opt/groovy/libexec     # new mac
+#export PATH="$PATH:$GROOVY_HOME/bin"                 # new mac
 
 #SETTINGS for PERLBREW
-export PATH="$PATH:${HOME}/perl5/perlbrew/bin"
-#echo "----------3---------------- $PATH"
+#export PATH="$PATH:${HOME}/perl5/perlbrew/bin"       # new mac
 
 ##################################################################################
 
-
-           # OLD ORACLE CLIENT 11.2
-           # export ORACLE_HOME=/usr/lib/oracle/11.2/client64
-           # export LD_LIBRARY_PATH=$ORACLE_HOME
-           # export DYLD_LIBRARY_PATH=$ORACLE_HOME
-           # export PATH=$ORACLE_HOME:$ORACLE_HOME/instantclient_12_1:$PATH
-           # export NLS_NAMES=AMERICAN_AMERICA.UTF8
-           # export TNS_ADMIN=$ORACLE_HOME
-
-# OLD ORACLE CLIENT 12.2
-export ORACLE_HOME=${HOME}/ORACLE_CLIENT_12_2/instantclient_12_2
+#export ORACLE_HOME=${HOME}/ORACLE_CLIENT_12_2/instantclient_12_2   #old Mac
+export ORACLE_HOME=${HOME}/instantclient_19_8/
 export LD_LIBRARY_PATH=$ORACLE_HOME
 export DYLD_LIBRARY_PATH=$ORACLE_HOME
 export PATH=$ORACLE_HOME:$PATH
-#echo "----------5---------------- $PATH"
 export NLS_NAMES=AMERICAN_AMERICA.UTF8
 export TNS_ADMIN=$ORACLE_HOME
 
@@ -103,8 +92,7 @@ export TNS_ADMIN=$ORACLE_HOME
 ##
 
 # MacPorts Installer addition on 2015-05-01_at_13:44:01: adding an appropriate PATH variable for use with MacPorts.
-export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
-#echo "----------6---------------- $PATH"
+#export PATH="/opt/local/bin:/opt/local/sbin:$PATH"           # new mac
 # Finished adapting your PATH environment variable for use with MacPorts.
 
 #_______________________________ <VAGRANT>
@@ -154,13 +142,12 @@ export CHL_CHDATA_DATABASE=chdatadevstb
 # Setting PATH for Python 3.6
 # The original version is saved in .bash_profile.pysave
 #PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
-PATH=" /usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
-#echo "----------7---------------- $PATH"
+#PATH=" /usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"         # new mac
+PATH="${PATH}:/Users/sbasile/Library/Python/2.7/bin"     # to find pip (installed as curl https://bootstrap.pypa.io/pip/2.7/get-pip.py | python)
 
 # Setting PATH for Python 2.7
 # The original version is saved in .bash_profile.pysave
 #PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
-#echo "----------8---------------- $PATH"
 
 
 #------------- MODULE WHICH CANNOT UPDATE MAC ONES:
@@ -169,11 +156,11 @@ PATH=" /usr/local/Cellar/python/3.7.5/Frameworks/Python.framework/Versions/3.7/b
 # parallel can cause all kinds of trouble.
 # following settings make the more up-to-dated version found first
 #------------- SET FOR CURL
-PATH="/usr/local/opt/curl/bin:$PATH"
+#PATH="/usr/local/opt/curl/bin:$PATH     # new mac"
 
 #------------- SET FOR OPENSSL-libressl
 #PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
-PATH="/usr/local/opt/openssl/bin:$PATH"
+#PATH="/usr/local/opt/openssl/bin:$PATH"        # new mac
 
 #------------- SET FOR AWS CLI (installed locally with pip3 install awscli --upgrade --user
 #PATH="$PATH:${HOME}/Library/Python/3.7/bin"
@@ -182,18 +169,19 @@ PATH="/usr/local/opt/openssl/bin:$PATH"
 
 
 
-#echo "----------8---------------- $PATH"
 PATH="${HOME}/auto_ssh":$PATH
 
 export PATH
 
 
 #export AUTO_SSH_CONFIG_MP=U2FsdGVkX19en7cv1Mv/0E1xaFgM4lvLt1Hg+o69Le8=       openssl 1.1.0
-export AUTO_SSH_CONFIG_MP=U2FsdGVkX194+LgmFDgz+0l1ttFDdfzCl6XYyyG/U4w=
+#export AUTO_SSH_CONFIG_MP=U2FsdGVkX194+LgmFDgz+0l1ttFDdfzCl6XYyyG/U4w=       openssl 1.1.1
+export AUTO_SSH_CONFIG_MP=U2FsdGVkX190lZARORuUi15KrGmc6ESk5uJxos6ncoQ=
 
 #______________________________________ PYTHON SETTINGS (virtualenv / virtualenvwrapper )
 #source /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
-source /usr/local/bin/virtualenvwrapper.sh
+#source /usr/local/bin/virtualenvwrapper.sh          # new mac
+source /Users/sbasile/Library/Python/2.7/bin/virtualenvwrapper.sh
 export WORKON_HOME=~/PYTHON_ENVS
 #workon aws-cli-on.python.3
 
@@ -211,11 +199,30 @@ export FESS_SLACK_WEBHOOK=$(cat "$HOME/.slack/FESS_SLACK_TOKEN")
 
 #GITHUB / SETTINGS for ACCESSING PUBLIC API ON GITHUB (a token avoids passwords need)
 export HOMEBREW_GITHUB_API_TOKEN=$(cat ${HOME}/GIT_CREDENTIALS/GIT_TOKEN_RW.REPO_RW.HOOKS)
+export GROOVY_HOME=/usr/local/opt/groovy/libexec    # as advised by brew upgrade
 
 
 # RUST (PACKAGE MANAGER: CARGO)
-export PATH="$HOME/.cargo/bin:$PATH"
+#export PATH="$HOME/.cargo/bin:$PATH"          # new mac
 
-export FESS_AUTH_MESOS_TOKEN='c2Jhc2lsZTpDb21lbnQuMTIz'      # get this value as: $(printf 'user:password' | base64)
+export FESS_AUTH_MESOS_TOKEN="$(head -n 1 ${HOME}/_shell.fess_auth_mesos_token)" # get this value as: $(printf 'user:password' | base64)
 
-export GROOVY_HOME=/usr/local/opt/groovy/libexec    # as advised by brew upgrade
+#______________________________________
+#  START SHARED SERVIECS AWS
+#______________________________________
+export SS_AWS_PROFILE=shared
+export SS_AWS_S3_PRE_NAME='shared-services.eu-west-2'
+export SS_AWS_S3_DIR_RELEASE="${SS_AWS_S3_PRE_NAME}.releases.ch.gov.uk/"
+export SS_AWS_S3_DIR_CONFIG="${SS_AWS_S3_PRE_NAME}.configs.ch.gov.uk"
+
+export SS_LOCAL_REPO_DIR="${HOME}/SUP/AWS_CONFIGS/ss"
+#______________________________________
+#  END SHARED SERVIECS AWS
+#______________________________________
+export AWS_DEFAULT_REGION=eu-west-2
+
+#______________________________________
+#  POSTMAN
+#______________________________________
+export MY_POSTMAN_KEY="$(head -n 1 ${HOME}/_shell.postman)"
+

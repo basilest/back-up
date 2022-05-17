@@ -679,7 +679,7 @@ ___________________________________________________________ SOME APIs
       curl -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_close
       curl -H "Content-Type: application/json" -X POST http://localhost:9200/index_name/_settings
 
-      in a _settings I have the settings usually ina JSON (ex s.json)
+      in a _settings I have the settings usually in JSON (ex s.json)
       so I will do curl -H "Content-Type: application/json" -X PUT http://localhost:9200/index_name/_settings -d @s.json
 
       NOTE: a _settings needs a sequence of

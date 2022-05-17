@@ -1,3 +1,10 @@
+#       local cmd="curl -X POST $AWS_URL_DEPLOYER --compressed -H 'Content-Type: application/x-www-form-urlencoded' --data-raw 'app-name=${1}&app-version=${2}'"
+#   AWS_URL_DEPLOYER="http://$AWS_URL_DEPLOYER/$AWS_ENV_TYPE"
+#       AWS_URL_DEPLOYER='internal-stagsbox-chs-deployer-1851409480.eu-west-2.elb.amazonaws.com'
+#       AWS_URL_DEPLOYER='internal-staging-chs-deployer-196268386.eu-west-2.elb.amazonaws.com'
+#       AWS_URL_DEPLOYER='internal-livesbox-chs-deployer-2001894612.eu-west-2.elb.amazonaws.com'
+#       AWS_URL_DEPLOYER='internal-live-chs-deployer-1014740584.eu-west-2.elb.amazonaws.com'
+#   AWS_URL_DEPLOYER=''
 #-------------------------------- FOREGROUND TPUT COLOURS
     F_FG_RED="$(tput setaf 1)"
     F_FG_GREEN="$(tput setaf 2)"
@@ -145,22 +152,12 @@ function res {
    cd "${FESS_REPO_DIR}/restart-app"
    eval_cmd $cmd
 }
-#________________________ <new settings for CHS on AWS>
-# this sources chtf to manage different version of Terraform (ex. chtf  0.8.8)
-
-# <OLD TFENV SETTING>: now tfenv comes packaged with brew:
-#                if [[ -f /usr/local/share/chtf/chtf.sh ]]; then
-#                    source "/usr/local/share/chtf/chtf.sh"
-#                fi
-#</OLD SETTINGS>
-#<NEW SETTINGS> tfenv
-#tfenv use 0.8.8      # uncomment when you need
-#</NEW SETTINGS> tfenv
-
-#Source chtf   --- terraform versions changer
+#________________________
+#<start chtf> #Source chtf   --- terraform versions changer. From the 'Caveats' of its brew install:
 if [[ -f /usr/local/share/chtf/chtf.sh ]]; then
     source "/usr/local/share/chtf/chtf.sh"
 fi
+#<end chtf>
 
 function ffh  { print -z $( fc -l 1 | awk '{$1=""}1' |fzf  ); }
 function ffv  { vi -o $( fzf -m ); }
@@ -615,7 +612,6 @@ function SQL_chips {
 
 
 function reset_proxy {
-     env | grep -i proxy | awk 'BEGIN{FS="="; l="export "} {l=l $1 "= "} END{print l}'
      local cmd=$(env | grep -i proxy | awk 'BEGIN{FS="="; l="export "} {l=l $1 "= "} END{print l}')
      eval "$cmd"
 }
@@ -661,12 +657,16 @@ function set_AWS_context {
     AWS_LOCAL_DIR_CONFIG="${HOME}/SUP/AWS_CONFIGS"
     AWS_LOCAL_SUBDIR_CONFIG=$1
     AWS_LOCAL_EC2_ENV_TYPE='live'
+    AWS_URL_DEPLOYER=''
+    AWS_MESOS_TUNNEL_PORT=
     if [[ $1 == "l" ]]
     then
         AWS_ENV_TYPE="live"
         AWS_S3_DIR_RELEASE="ch-service-live-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/live/"
         AWS_MONGO_PASS=m0ng0pr0dadm1n
+        AWS_URL_DEPLOYER='internal-live-chs-deployer-1014740584.eu-west-2.elb.amazonaws.com'
+        AWS_MESOS_TUNNEL_PORT=8010
     elif [[ $1 == "lb" ]]
     then
         AWS_ENV_TYPE="liveblue"
@@ -681,6 +681,8 @@ function set_AWS_context {
         AWS_S3_DIR_CONFIG="ch-service-live-config.ch.gov.uk/livesbox/"
         AWS_MONGO_PASS=m0ng0pr0dadm1n
         AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.live"
+        AWS_URL_DEPLOYER='internal-livesbox-chs-deployer-2001894612.eu-west-2.elb.amazonaws.com'
+        AWS_MESOS_TUNNEL_PORT=9010
     elif [[ $1 == "s" ]]
     then
         AWS_ENV_TYPE="staging"
@@ -688,6 +690,8 @@ function set_AWS_context {
         AWS_S3_DIR_RELEASE="ch-service-staging-release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/staging/"
         AWS_MONGO_PASS=m0ng0adm1n
+        AWS_URL_DEPLOYER='internal-staging-chs-deployer-196268386.eu-west-2.elb.amazonaws.com'
+        AWS_MESOS_TUNNEL_PORT=8020
     elif [[ $1 == "sb" ]]
     then
         AWS_LOCAL_EC2_ENV_TYPE='staging'
@@ -704,6 +708,8 @@ function set_AWS_context {
         AWS_S3_DIR_CONFIG="ch-service-staging-config.ch.gov.uk/stagsbox/"
         AWS_MONGO_PASS=m0ng0adm1n
         AWS_BASIC_DOMAIN="${AWS_ENV_TYPE}.staging"
+        AWS_URL_DEPLOYER='internal-stagsbox-chs-deployer-1851409480.eu-west-2.elb.amazonaws.com'
+        AWS_MESOS_TUNNEL_PORT=9020
     elif [[ $1 == "b" ]]
     then
         AWS_ENV_TYPE="bulk.live"
@@ -720,12 +726,20 @@ function set_AWS_context {
         AWS_ENV_TYPE="development"
         AWS_S3_DIR_RELEASE="release.ch.gov.uk/"
         AWS_S3_DIR_CONFIG=""
+    elif [[ $1 == "hl" ]]; then AWS_ENV_TYPE="hlive"
+    elif [[ $1 == "hs" ]]; then AWS_ENV_TYPE="hstag"
+    elif [[ $1 == "hd" ]]; then AWS_ENV_TYPE="hdev"
+    elif [[ $1 == "sh" ]]; then AWS_ENV_TYPE="shared"
     fi
+
     if [[ -z $AWS_BASIC_DOMAIN ]]; then
         AWS_BASIC_DOMAIN=${AWS_ENV_TYPE}
     fi
+    export AWS_PROFILE="$AWS_ENV_TYPE"
     AWS_ENV_KEY="${HOME}/.ssh/ch-aws-${AWS_ENV_TYPE}.pem"
     AWS_LOCAL_EC2_DESCRIBE="${AWS_LOCAL_DIR_CONFIG}/${AWS_LOCAL_SUBDIR_CONFIG}/ec2.${AWS_LOCAL_EC2_ENV_TYPE}.describe.json"
+    AWS_LOCAL_EC2_IDS="${AWS_LOCAL_DIR_CONFIG}/EC2_$1.ids."
+    AWS_URL_DEPLOYER="http://$AWS_URL_DEPLOYER/$AWS_ENV_TYPE"
 }
 #______________________________________
 function aws_is_type {
@@ -856,7 +870,8 @@ function aws_s3 {
         cd $AWS_LOCAL_DIR_CONFIG/$AWS_ENV_GIT
         if [[ $2 == "pull" ]]
         then
-            aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG . --recursive
+          # aws --profile $AWS_ENV_TYPE s3 cp s3://$AWS_S3_DIR_CONFIG . --recursive
+            aws --profile $AWS_ENV_TYPE s3 sync s3://$AWS_S3_DIR_CONFIG .
             #cd $AWS_ENV_GIT
             git status
         elif [[ $2 == "push" ]]
@@ -865,15 +880,15 @@ function aws_s3 {
             echo "files changed:\n$files_changed"
             if [[ $files_changed ]]
             then
-                echo  "push [y/n]? "
-                read  ok_to_push
-                if [[ "$ok_to_push" = "y" ]]
-                then
+               #echo  "push [y/n]? "
+               #read  ok_to_push
+               #if [[ "$ok_to_push" = "y" ]]
+               #then
                     for f in $( echo "$files_changed"| awk '{print $2}')
                     do
                         echo aws --profile $AWS_ENV_TYPE s3 cp $f s3://${AWS_S3_DIR_CONFIG}${f}
                     done
-                fi
+               #fi
             fi
         elif [[ $2 == "status" ]]
         then
@@ -887,24 +902,9 @@ function aws_s3 {
 #______________________________________
 function aws_restart_Mesos_Marathon {
     local cmd=$1   # stop / start
-    local ok=
     local sep=$(aws_domain_sep);
-    #if [[ ${AWS_ENV_TYPE} != 'staging' ]]
-    #then
-    #    for i in 1 2
-    #    do
-    #        echo "Restarting on ${AWS_ENV_TYPE} ??? Are you sure ???  [yes/-]  (remind $i of 2)"
-    #        read  ok
-    #        if [[ $ok != 'yes' ]]
-    #        then
-    #            return
-    #        fi
-    #    done
-    #fi
     for i in 1 2 3
     do
-      #ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal 'sudo stop mesos-master;sudo stop marathon;sudo start mesos-master;sudo start marathon'
-     #  ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal 'sudo stop mesos-master;sudo stop marathon'
       ssh -i $AWS_ENV_KEY  ec2-user@mesos-master${i}${sep}${AWS_BASIC_DOMAIN}.aws.internal "sudo $cmd mesos-master;sudo $cmd marathon"
     done
 }
@@ -978,6 +978,15 @@ function aws_trans_reprocess {
     fi
 }
 #______________________________________
+function ssm {
+    local EC2_ID=$2
+    #if [[ -z "$EC2_ID" ]]; then
+    #    EC2_ID=$(pbpaste | sed -n '/i-/{s/.*\(i-[a-zA-Z0-9]*\).*/\1/p;}')
+    #fi
+    local cmd="echo '----------connecting to ----------['$EC2_ID']'; aws --profile $1 ssm start-session --target  $EC2_ID"
+    eval "$cmd"
+}
+#______________________________________
 function aws_ec2 {
     local cmd=''
     if [[ $1 == "pull" ]]
@@ -991,6 +1000,19 @@ function aws_ec2 {
     elif [[ $1 == "s" ]]
     then
         cmd="aws --profile $AWS_LOCAL_EC2_ENV_TYPE ec2 describe-instances --query 'Reservations[*].Instances[].{ID:InstanceId,ST:State.Name,HOST:(Tags[?Key=="'`HostName`'"].Value)[0]} | [? @.HOST != null] | sort_by(@, &HOST)' --output table"
+    elif [[ $1 == "run" ]]   # myaws hlive ec2 run ewf-web 10
+    then                     #                 $1  $2      $3
+        cmd="aws --profile $AWS_ENV_TYPE --output text ec2 describe-instances  --query 'Reservations[*].Instances[].{ID:InstanceId,N:KeyName,T:(Tags[?Key=="'`Name`'"].Value)[0],S:State.Name}' | grep running"
+        if [[ ! -z "$2" ]]; then
+            cmd="$cmd | grep $2 | sort | tee $AWS_LOCAL_EC2_IDS$2"
+            if [[ ! -z "$3" ]]; then
+                local EC2_ID=$(sed -n -e "$3{p;q;}" < "$AWS_LOCAL_EC2_IDS$2");
+                cmd="ssm $AWS_ENV_TYPE $EC2_ID"
+              # cmd="$cmd | egrep '^ *[iI]-[a-zA-Z0-9]' |sort | sed -n -e '$3{p;q;}' | awk '"'{print $1}'"'"
+              # pbcopy <<< $(eval_cmd "$cmd")
+              # cmd="ssm $AWS_ENV_TYPE"
+            fi
+        fi
     fi
     eval_cmd "$cmd"
 }
@@ -1003,7 +1025,34 @@ function aws_sqs {
     done
 }
 #______________________________________
+function aws_mesos_tunnel {
+    local cmd=''
+    if [[ $1 == "s" ]]
+    then
+         cmd='ps -ef | grep -i mesos'
+    elif [[ $1 == "c" ]]
+    then
+        local ip=$(aws_boxes_ips 'master' 1 1 | sed -n 's/[^|]*|\(.*\)/\1/p;');                          echo "---first   master ip=$ip"
+        ip=$(ssh -i ${AWS_ENV_KEY} -oStrictHostKeyChecking=no -oConnectTimeout=5 ec2-user@$ip "curl -I -s http://${ip}:5050/master/redirect" | sed -n 's/[^0-9]*\([0-9.]*\):5050.*/\1/p;'); echo "---elected master ip=$ip"
+        cmd="ssh -f -N -M -S /tmp/mesos-tunnel-${AWS_ENV_TYPE}.sock -i $AWS_ENV_KEY -L ${AWS_MESOS_TUNNEL_PORT}:${ip}:5050 ec2-user@${ip}"
+        echo "http://localhost:${AWS_MESOS_TUNNEL_PORT}/#/"
+    fi
+    eval_cmd "$cmd"
+}
+#______________________________________
+function aws_deployer {
+    if [ -z "$2" ]; then echo '....<app-name> <version>  #ex ... officer-delta-processor  0.1.38'
+    else
+        local cmd="curl -X POST $AWS_URL_DEPLOYER --compressed -H 'Content-Type: application/x-www-form-urlencoded' --data-raw 'app-name=${1}&app-version=${2}'"
+        eval_cmd "$cmd"
+    fi
+}
+#______________________________________
 function myaws {   # support aws  (aws alone is already the https://aws.amazon.com/cli/)
+    if [[ $1 == "p" ]]; then
+        export AWS_PROFILE=$2
+        return
+    fi
     INCLUDE_MASTERS=''
 
     OPTIND=1         # Reset in case getopts has been used previously in the shell.
@@ -1018,68 +1067,56 @@ function myaws {   # support aws  (aws alone is already the https://aws.amazon.c
     [ "${1:-}" = "--" ] && shift
 
     set_AWS_context $1
-    if [[ -z $2  ]]
-    then
+    if [[ -z $2  ]]; then
         auto_help myaws 2
         return
-    elif [[ $2 == "ip" ]]
-    then
+    elif [[ $2 == "ip" ]]; then
         echo "______ [start:1] [end:24]"
         aws_box_info  "${@:3}" | nl -v 0 -n rn
-    elif [[ $2 == "ssh" ]]
-    then
+    elif [[ $2 == "ssh" ]]; then
         echo "______ [start:1] [end:24]"
         aws_ssh "${@:3}"
-    elif [[ $2 == "s3" ]]
-    then
+    elif [[ $2 == "s3" ]]; then
         aws_s3 "${@:3}"
-    elif [[ $2 == "cmd" ]]
-    then
+    elif [[ $2 == "cmd" ]]; then
         aws_rcmd "${@:3}"
-    elif [[ $2 == "cmdspace" ]]
-    then
+    elif [[ $2 == "cmdspace" ]]; then
         aws_rcmd 'df -hT' "${@:3}"
-    elif [[ $2 == "cmdcpu" ]]
-    then
+    elif [[ $2 == "cmdcpu" ]]; then
         aws_rcmd 'iostat -y -h -c' "${@:3}"
-    elif [[ $2 == "cmdapps" ]]
-    then
+    elif [[ $2 == "cmdapps" ]]; then
         aws_rcmd "ps -ef | grep mesos-logrotate-logger  | grep stdout | sed -n -e '/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}' | sort | nl" "${@:3}"
-    elif [[ $2 == "cmddir" ]]
-    then
+    elif [[ $2 == "cmddir" ]]; then
        cmd='for d in $(ps -ef | grep mesos-logrotate-logger  | grep stdout | sed -n -e "s/.*=\(\/.*\)\/stdout.*/\1/p;" ); do f=$( echo $d | sed -n -e "/\/executors\// {s/.*\/executors\/\(.*\)\.[^-]*-[^-]*-[^-]*-[^-]*-[^/]*\/.*/\1/; p;}"); printf "\n-----------$f:\n\n"; cd $d;'"$3"'; echo ""; done'
 
         aws_rcmd "$cmd"  "${@:4}"
-    elif [[ $2 == "xxx" ]]
-    then
+    elif [[ $2 == "xxx" ]]; then
         aws_output_rcmd "top -b -n 1 -c" "${@:3}"
-    elif [[ $2 == "restartMM" ]]
-    then
+    elif [[ $2 == "restartMM" ]]; then
         aws_restart_Mesos_Marathon "${@:3}"
-    elif [[ $2 == "restartApps" ]]  # (Mesos) Marathon REST API
-    then
+    elif [[ $2 == "restartApps" ]]; then  # (Mesos) Marathon REST API
         aws_marathon_rest_api "${@:3}"
-    elif [[ $2 == "ssh_kafka_brokers" ]]  # ssh to kafka brokers
-    then
+    elif [[ $2 == "ssh_kafka_brokers" ]]; then  # ssh to kafka brokers
         aws_ssh_kafka_brokers "${@:3}"
-    elif [[ $2 == "restartStreamBroker" ]]  # restart streaming brokers
-    then
+    elif [[ $2 == "restartStreamBroker" ]]; then  # restart streaming brokers
         aws_restart_Broker "${@:3}"
-    elif [[ $2 == "trans_processing" ]]  # find stuck 'processing' transactions
-    then
+    elif [[ $2 == "trans_processing" ]]; then  # find stuck 'processing' transactions
         aws_trans_processing "${@:3}"
-    elif [[ $2 == "trans_reproc" ]]  # reprocess stuck transactions
-    then
+    elif [[ $2 == "trans_reproc" ]]; then  # reprocess stuck transactions
         aws_trans_reprocess "${@:3}"
-    elif [[ $2 == "ec2" ]]  # ec2 instances
-    then
+    elif [[ $2 == "ec2" ]]; then  # ec2 instances
         aws_ec2 "${@:3}"
-    elif [[ $2 == "sqs" ]]  # ec2 instances
-    then
+    elif [[ $2 == "sqs" ]]; then  # ec2 instances
         aws_sqs "${@:3}"
-    elif [[ $2 == "inj" ]]  # inject temp AWS credentials/token
-    then
+    elif [[ $2 == "dep" ]]; then  # ec2 instances
+        aws_deployer "${@:3}"
+    elif [[ $2 == "inj" ]]; then  # inject temp AWS credentials/token
         vi -c/"[$AWS_ENV_TYPE" ~/.aws/credentials
+    elif [[ $2 == "t" ]]; then    # ssh tunnel to Mesos
+        aws_mesos_tunnel "${@:3}"
+    elif [[ $2 == "y" ]]; then  # yawsso
+        yawsso login --profile live
+        yawsso -p hstag hlive shared live staging stagsbox livesbox
     fi
 }
 #______________________________________
@@ -1293,6 +1330,48 @@ function tmux_get_panel_num {
 
     TMUX_PANEL_NUM=$(( (ROWS * (col - 1)) + row - 1 ))
 }
+function sp_init { # sp means send panel
+    local ROWS=
+    local COLS=
+    if [[ "$1" == ewf ]]; then
+         ROWS=6; COLS=2;
+     elif [[ "$1" == xml ]]; then
+         ROWS=4; COLS=2
+     fi
+     export SP_LIST=($(seq 1 $(($ROWS*$COLS-2))))
+
+     if [[ ! -z "$2"  && ! -z "$ROWS" ]]; then
+         local cmd=" myaws hlive ec2 run $1-web"
+         eval "$cmd"
+         tmux_double_split $ROWS $COLS
+         sp "$cmd" 'concat_panel_num'
+      #  sps "$1"
+      #  tmux selectp -t 0;
+      #  for i in $SP_LIST; do tmux selectp -t $i; tmux send-keys "$cmd $i" C-m;  done
+      #  tmux selectp -t 0;
+     fi
+}
+alias spc='sp clear'
+function sps { local user=$1; [ "$user "] || user='ewf'; sp 'sudo su -'; sleep 2; sp "cd ~$user";}
+function sp1 { # sp1 means send to 1 single panel (specified by $1)
+     tmux selectp -t $1;
+     if [[ "$2" == '^c' ]]; then
+         tmux send-keys C-c;
+     elif [[ "$2" == '^d' ]]; then
+         tmux send-keys C-d;
+     else
+         tmux send-keys "$2" C-m;
+     fi
+}
+function sp { # sp means send to ALL panel
+     local panel_I_am_in=$(tmux display -p -t '' '#{pane_index}')
+     for p in $SP_LIST; do
+         local cmd="$1"
+         if [[ ! -z "$2" ]]; then cmd="$cmd $p"; fi
+         sp1 "$p" "$cmd"
+         tmux selectp -t $panel_I_am_in;
+     done
+}
 #___________________
 function tmux_sendPanel_cmd {
     local panel=$1
@@ -1388,8 +1467,159 @@ function banner_chd {
 }
 function banner_ewf {
     update_banner 'ewflive@ewfweb' 'v4.orctel.internal' 10 $(as x ewf | tail -1) 'htdocs/efiling/static/banner/en/' 'ef_welcome_banner.txt'
-}
+
 #______________________________________
 #  END EDIT BANNERS
 #______________________________________
+}
+#______________________________________
+#  START SHARED SERVIECS AWS
+#______________________________________
+
+#______________________________________
+function print_choice {
+        echo "-----[$1]"
+}
+
+#______________________________________
+function ss_config_pull {
+    local service_dir=$1
+    local localdir=$1
+    if [[ -z "$service_dir" ]]; then
+          localdir="$SS_LOCAL_REPO_DIR"
+    fi
+    eval_cmd "aws --profile $SS_AWS_PROFILE s3 sync s3://${SS_AWS_S3_DIR_CONFIG}/ $localdir"
+    git status
+}
+#______________________________________
+function ss_config_push {
+    local files_changed=$(git status --porcelain )
+    echo "files changed:\n$files_changed"
+    if [[ "$files_changed" ]]
+    then
+        for f in $( echo "$files_changed"| awk '{print $2}' )
+        do
+            echo aws --profile $SS_AWS_PROFILE s3 cp $f "s3://${SS_AWS_S3_DIR_CONFIG}/$f"
+        done
+    fi
+}
+
+#______________________________________
+function ss_config_ls {
+    local s3dir="${SS_AWS_S3_DIR_CONFIG}/"
+    if [[ ! -z ${SS_SERVICE_DIR} ]]; then
+        s3dir="${s3dir}${SS_SERVICE_DIR}/"
+        if [[ ! -z ${SS_ENV} ]]; then
+            s3dir="${s3dir}${SS_ENV}/"
+        fi
+    fi
+    eval_cmd "aws --profile $SS_AWS_PROFILE s3 ls s3://$s3dir"
+}
+#______________________________________
+function ss_config_versions {
+    local v1=
+    local v1=
+    local temp_file_1='/tmp/ss_config_1'
+    local temp_file_2='/tmp/ss_config_2'
+
+    select_a_file
+
+    local key="${SS_SERVICE_DIR}/${SS_ENV}/${SS_SELECTED_FILE}"
+    local query='sort_by(Versions[?Key==`'"$key"'`],&LastModified)'
+    eval_cmd "aws  --profile $SS_AWS_PROFILE s3api list-object-versions --bucket $SS_AWS_S3_DIR_CONFIG --query '$query'"
+    echo "versions:"
+    read v1 v2
+    if [[ ! -z ${v1} ]]; then
+        eval_cmd "aws  --profile $SS_AWS_PROFILE s3api get-object --bucket $SS_AWS_S3_DIR_CONFIG --key $key --version-id $v1 $temp_file_1"
+        if [[ ! -z ${v2} ]]; then
+        eval_cmd "aws  --profile $SS_AWS_PROFILE s3api get-object --bucket $SS_AWS_S3_DIR_CONFIG --key $key --version-id $v2 $temp_file_2"
+        vimdiff $temp_file_2 $temp_file_1
+        else
+        vi "$temp_file_1"
+        fi
+    fi
+}
+#______________________________________
+alias ss='select_config_command'
+function select_config_command {
+    SS_COMMAND=$1
+    cd "$SS_LOCAL_REPO_DIR"
+    SS_ENV=
+    SS_SERVICE=
+    SS_VERSION=
+    if [[ -z  "$SS_COMMAND" ]]; then
+        PS3="choose a command: "
+        select SS_COMMAND  in 'ls' 'push' 'pull' 'versions'
+        do
+            print_choice $SS_COMMAND
+            break;
+        done
+    fi
+    if [[ "$SS_COMMAND" == 'pull' || "$SS_COMMAND" == 'push' ]]; then
+        "ss_config_$SS_COMMAND"
+    else
+        select_a_service
+    fi
+}
+#______________________________________
+function select_a_service {
+    local dirs=$(find . -type d -maxdepth 1 -exec basename {} \; | egrep -v '^\.' | sort)
+    local options=$(echo "$dirs" |sed -e 's/^chl-//; s/-configs//;')
+    PS3="choose a service: "
+    select SS_SERVICE  in $(echo "$options")
+    do
+        print_choice $SS_SERVICE
+        if [ "$SS_SERVICE" ];
+        then
+            SS_SERVICE_DIR=$(echo "$dirs"|sed -n -e "$REPLY{p;q;}")
+            select_a_env
+            break
+        else
+            echo "Invalid entry."
+        fi
+    done
+}
+#______________________________________
+function select_a_env {
+    local dirs=$(find "./$SS_SERVICE_DIR" -type d -maxdepth 2 -mindepth 1 -exec basename {} \; | sort)
+    PS3="choose an env: "
+    select SS_ENV  in $(echo "$dirs")
+    do
+        print_choice $SS_ENV
+        if [ "$SS_ENV" ];
+        then
+            echo "going to call with [$SS_COMMAND]"
+            "ss_config_$SS_COMMAND"
+            break
+        else
+            echo "Invalid entry."
+        fi
+    done
+}
+#______________________________________
+function select_a_file {
+    local files=$(find "./$SS_SERVICE_DIR/$SS_ENV" -type f -exec basename {} \; | sort)
+    PS3="choose a file: "
+    select SS_SELECTED_FILE  in $(echo "$files")
+    do
+        print_choice $SS_SELECTED_FILE
+        if [ "$SS_SELECTED_FILE" ]; then break
+        else echo "Invalid entry."
+        fi
+    done
+}
+
+#______________________________________
+#  END SHARED SERVIECS AWS
+#______________________________________
+#______________________________________
+#  ITERM2 - SHELL INTEGRATION - USER DEFINED VARS   set this in Profiles badge:  \(user.my_badge)
+#______________________________________
+function b { export MY_BADGE_1="$1" }
+
+function my_badge_val { echo "$MY_BADGE_1" }
+
+iterm2_print_user_vars() {   # this is the iterm2 API
+    iterm2_set_user_var my_badge  "$(my_badge_val)"   # this 2nd iterm2 API defines the var my_badge
+}
 

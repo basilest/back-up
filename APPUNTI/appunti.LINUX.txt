@@ -2255,7 +2255,7 @@ NOTE ON rm (unlink):
                  The result is that the file system becomes full an no du/df can tell where the space is lost
                  It's possible to see these zombie files via lsof
                  ex
-                 lsof -nP | grep '(deleted)'           # -n (avoid conversion of host names)    -P avoide conversion port names  (both makes it a bit quicker)
+                 lsof -nP | grep '(deleted)'           # -n (avoid conversion of host names)    -P avoids conversion port names  (both makes it a bit quicker)
                     rsyslogd  15512   root 1w   REG  202,1 15058180413  271276 /var/log/messages-20210617 (deleted)
                     rsyslogd  15512   root 4w   REG  202,1     1084301  262507 /var/log/maillog-20210620 (deleted)
                     rsyslogd  15512   root 5w   REG  202,1     6348556  271370 /var/log/cron-20210620 (deleted)

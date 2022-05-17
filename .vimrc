@@ -350,7 +350,7 @@ function! My_Jump_to_file(word, pathname)
     let clean_path = substitute(clean_path, "^[^0-9a-zA-Z_/]*", "", "")  "remove dirty char at the beginning and....
     let clean_path = substitute(clean_path,  "[^0-9a-zA-Z_]*$", "", "")  " ...at the end
     let cmd = "perl -I ~/bin -MpathConversion -e 'pathConversion::get_absolute_path(\"" . clean_path . "\",\"" . a:pathname . "\",1)'"
-    "echom cmd
+    echom cmd
     let file_path = system (cmd)
     "echom file_path
     :exe "split " . file_path
