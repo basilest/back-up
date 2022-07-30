@@ -71,7 +71,7 @@
                 3 bytes   = 24 bits
                 4 sextets = 24 bits
 
-                so a stream of bytes is considered in blocks of 3 bytes, which will give each 4 sextets
+                so a stream of bytes is considered in blocks of 3 bytes, which will each give 4 sextets
                 if the last block of bytes is not of 3 (ex. 1 or 2) then:
 
                 if 1: 8 bit  --> 2 sextets (12 bit) + 2 to go to 4 sextets --> 2 padding =
@@ -79,7 +79,7 @@
 
                 So note that:
                       - padding can never be more than 2.... no possible 3:  = = =
-                      - A base64 string is aleays a multiple of 4 (with the last 4 eventually padded with 1 or 2 =)
+                      - A base64 string is always a multiple of 4 (with the last 4 eventually padded with 1 or 2 =)
 
      Note Padding optional:
                 The padding character = is not essential since the number of missing bytes can be inferred

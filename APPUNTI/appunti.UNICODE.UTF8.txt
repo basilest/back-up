@@ -100,6 +100,90 @@
             fail to represent some Unicode CODE-POINTS.
             These encodings when failing produce a '?' instead of the correct Unicode symbol.
 
+---------------- UTF-8 :
+UNICODE
+CODE
+POINTS
+
+[0-127]            0 x x x  x x x x                  old ASCII 0-127 still stays in 1 byte
+                     ^^^^^^^^^^^^^^                  the HEADER is 1 bit: starting 0
+                          7
+
+
+[128-2.047]        110  x  x x x x      10   x x  x x x x     for UNICODE CODE-POINTS > 128  < 2.047
+                   ^^^  ^^^^^^^^^^      ^^   ^^^^^^^^^^^^     I need 11 bits of info. They are split
+                            5                    6            in 2 bytes:
+                            '--------------------'                - 1st: HEADER of 110   <--- which I can remember as 2-"1" -> 2 bytes
+                                    tot=11                        - 2nd: HEADER of  10   <--- header of the "continuation byte"
+
+
+ 3rd range         1110    x x x x      10  x x  x x x x     10   x x  x x x x
+                   ^^^^    ^^^^^^^      ^^  ^^^^^^^^^^^^     ^^   ^^^^^^^^^^^^
+                            4                    6                   6
+                            '--------------------'-------------------'
+                                              tot=16
+                                                              for UNICODE CODE-POINTS > 128  < 65.535
+                                                              I need 16 bits of info. They are split
+                                                              in 3 bytes:
+                                                                  - 1st: HEADER of 1110  <- which I can remember as 3-"1"-> 3 bytes
+                                                                  - 2nd: HEADER of  10   <- header of the "continuation byte"
+                                                                  - 3rd: HEADER of  10   <- header of the "continuation byte"
+...
+
+
+last range:
+
+                   1111 110 x      10  x x  x x x x   10   x x  x x x x   10  x x  x x x x   10   x x  x x x x   10   x x  x x x x
+                   ^^^^^^^^ ^      ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^
+                            1                6                   6                 6                   6                   6
+                            '----------------'-------------------'-----------------'--------------------'-----------------'
+                                                                   tot=31
+                                                              31 bits for the last block, with 6 bytes split as
+                                                              in 3 bytes:
+                                                                  - 1st: HEADER of 1111 110 <- which I can remember as 6-"1"-> 6 bytes
+                                                                  - 2nd: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 3rd: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 4th: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 5th: HEADER of  10      <- header of the "continuation byte"
+                                                                  - 6th: HEADER of  10      <- header of the "continuation byte"
+
+
+
+        NOTE 1:  UTF-8 will never send 8-"0" (8 consecutive zeros)
+                 so this avoids to send what the receiver could interpret as an "END-OF-STRING"
+                 and then potentially stops listening for the following bytes.
+
+        NOTE 2:  taking any byte from a stream, I always know if I'm in the middle of a "continuation bytes"
+                 or if I've taken a leading byte
+                 so I can look forward or backward in the stream of byte
+
+        NOTE 3:  If a byte starts with 0 it's a 1 ASCII = 1 UTF-8 single byte/char.
+
+
+                                                                                                                       1010 0011
+                                                                                                                      /''^^^^^\^
+                                                                                                                     /         \
+                                                                                                                    /         __\____
+  ex. £ = U+00A3 = 1010 0011 --> 8 bit --> 2 bytes case:  [110  x  x x x x]   [10   x x  x x x x]  --> [110 x  x x 10]    [10 10 0011] -->   C2  A3
+                                                                  5                      6                   C2               A3
+
+
+                                                                                                                0001 1111 0110 0000 0000
+                                                                                                                  ^^^^^^^        ^^^^^^^
+                                                                                                                  /         |           \
+                                                                                                                 /          |            \
+                                                                                                     _      _______       _______       _______
+  ex. 😀 = (U+1F600) Smiling Face: 0001 1111 0110 0000 0000 --> 17 bit --> 4 bytes case = [11110 x x 0] [10 01 1111]  [10 01 1000]  [10 00 0000] -->   F0 9F 98 80
+                                                                                                F0           9F            98             80
+     printf "£" | xxd      c2a3                 <---- note like the
+     printf "😀"| xxd      f09f 9880            <---- encoding inside the pipe is utf8, so xxd sees those bytes.
+
+
+     ===========================>  USE VIM TO HAVE UTF-8 REPRESENTATION QUICKLY WITH THE ABOVE:    ex to have utf8 of this line:     :.!xxd
+
+
+---------------------
+
 
    7. NORMALISATION               annex 15:  https://www.unicode.org/reports/tr15/)
        The SAME unicode char can have more representations (all called "canonically equivalent")
@@ -111,7 +195,7 @@
        each then with a different binary value, so it's possible that in a program
        I can have odd results (ex. string compare)
 
-   2 Unicode chars (2 SINGLETON) are EQUIVLENT depending of 2 types
+   2 Unicode chars (2 SINGLETON) are EQUIVLENT depending of 2 kind of 'equivalence':
 
             . CANONICAL     equivalence     (NFC)
             . COMPATIBILITY equivalence     (symbol used 'K'  Kompatibility (NFKC)  as C is already 'Composition')
@@ -151,7 +235,7 @@
 
              ḍ       (1E0D) Latin Small Letter D with Dot Below     which is also equivalent to
 
-             d + .  (0064 + 0323)
+             d + .   (0064 + 0323)
 
         so ḍ is called pre-composed
 
@@ -164,14 +248,14 @@
 
 ---------------------  DECOMPOSITION
 
-        It's the process the decompose a char (i.e. a string)
+        It's the process that decomposes a char (i.e. a string)
         in its elements.
         Also pre-composed char are 'opened'
         ex
                  ḍ      (1E0D)             is opened as
                  d + .  (0064 + 0323)
 
-        There are 2 ways to open or decompose
+        There are 2 ways to open (decompose)
 
         NFD     (opens in canonical/preserve mode)
            2⁵   (0032 + 2075)  =    2 (0032)  + ⁵ (2075)
@@ -183,7 +267,7 @@
 
 ---------------------  COMPOSITION
         It's the process to 'close' an open string
-        so if exist pre-composed char they are used to compact
+        so if exist pre-composed chars they are used to compact
         ex
 
              d + .  (0064 + 0323)             is closed as
@@ -194,7 +278,7 @@
              ḍ     +  ̇̇ (1E0D +        0307)
 
 
-             the q doesn't have any precomposed so there si no way to close/compact
+             the q doesn't have any precomposed so there is no way to close/compact
              these 3 any further:
 
              q + . +  ̇̇ (0071 + 0323 + 0307)
@@ -209,9 +293,9 @@
 
 ---------------------  NORMALISATION
 
-        Normally it's the process to Decompose (open) and Re-compose (close)
+        it's the process to Decompose (open) and Re-compose (close)
 
-        There is no different in the COMPOSITION phase,
+        There is no difference in the COMPOSITION phase,
         so the NORMALISATION
              NFC  is the close of a string opened with canonical/preserve mode NFD
              NFKC is the same close of a string which was instead opened in compaitbility mode
@@ -238,12 +322,6 @@
                 ex
                      s1       d   (0064)      s2 . (0323)
                      s1.s2    d. (0064 0323)  is different from what obtaining normalizing it: ḍ  (1E0D)
-
-
-
-
-
-
 
 
   AGAIN:
@@ -280,69 +358,109 @@
 
 
 
----------------- UTF-8 :
+
+---------------- Command line utils:
+
+     echo -e "\x54\xCE\x95\x53\xD0\xA2\x45\x52\x2E\x74\x78\x74"
+        TΕSТER.txt
 
 
-UNICODE
-CODE
-POINTS
+     ______________________________________
+     TO CONVERT FROM 1 ENCODING TO ANOTHER
+     ______________________________________
 
-[0-127]            0 x x x  x x x x                  old ASCII 0-127 still stays in 1 byte
-                     ^^^^^^^^^^^^^^                  the HEADER is 1 bit: starting 0
-                          7
-
-
-[128-2.047]        110  x  x x x x      10   x x  x x x x     for UNICODE CODE-POINTS > 128  < 2.047
-                   ^^^  ^^^^^^^^^^      ^^   ^^^^^^^^^^^^     I need 11 bits of info. They are split
-                            5                    6            in 2 bytes:
-                            '--------------------'                - 1st: HEADER of 110   <--- which I can remember as 2-"1" -> 2 bytes
-                                    tot=11                        - 2nd: HEADER of  10   <--- header of the "continuation byte"
+     iconv                   iconv  [-f from-encoding] [-t to-encoding] [inputfile]
+                             ex.
+                                 echo 'abc ß ? € à?ç' | iconv -f UTF-8 -t ASCII//TRANSLIT
 
 
- 3rd range         1110    x x x x      10  x x  x x x x     10   x x  x x x x
-                   ^^^^    ^^^^^^^      ^^  ^^^^^^^^^^^^     ^^   ^^^^^^^^^^^^
-                            4                    6                   6
-                            '--------------------'-------------------'
-                                              tot=16
-                                                              for UNICODE CODE-POINTS > 128  < 4.096
-                                                              I need 16 bits of info. They are split
-                                                              in 3 bytes:
-                                                                  - 1st: HEADER of 1110  <- which I can remember as 3-"1"-> 3 bytes
-                                                                  - 2nd: HEADER of  10   <- header of the "continuation byte"
-                                                                  - 3rd: HEADER of  10   <- header of the "continuation byte"
+          -f   --from-encoding
+          -t   --to-encoding
+          -l   --list                     list all supported encodings
+          -c                              Silently discard characters that cannot be converted instead of terminating
+          -o xxxx   --output xxxx
+          -verbose
+
+                              iconv -f UTF-8 -t ASCII//TRANSLIT
+                              iconv -l
+                              iconv -f UTF-8 -t ASCII//TRANSLIT -o out.txt in.txt
+                                                                           ^^^.^^^
+                                                                              '- input file
+
+     ______________________________________
+     TEXT  <---------->  HEX/BIN
+     ______________________________________
 
 
-...
+     xxd                    dumps in hex or binary
+                            and even the reverse
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd                                   # default hex
+          00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.
+          00000010: 3232 320a 3333 330a f09f 9880            222.333.....
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -s 4                              # start from byte 4
+          00000004: 6262 620a 6363 630a 3131 310a 3232 320a  bbb.ccc.111.222.
+          00000014: 3333 330a f09f 9880                      333.....
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -s 4 -l 6                         # from byte 4 for len 6 chars
+          00000004: 6262 620a 6363                           bbb.cc
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd  -b                               # dump in binary
+          00000000: 01100001 01100001 01100001 00001010 01100010 01100010  aaa.bb
+          00000006: 01100010 00001010 01100011 01100011 01100011 00001010  b.ccc.
+          0000000c: 00110001 00110001 00110001 00001010 00110010 00110010  111.22
+          00000012: 00110010 00001010 00110011 00110011 00110011 00001010  2.333.
+          00000018: 11110000 10011111 10011000 10000000                    ....
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -c 3                              # dump in 3 cols len
+          00000000: 6161 61  aaa
+          00000003: 0a62 62  .bb
+          00000006: 620a 63  b.c
+          00000009: 6363 0a  cc.
+          0000000c: 3131 31  111
+          0000000f: 0a32 32  .22
+          00000012: 320a 33  2.3
+          00000015: 3333 0a  33.
+          00000018: f09f 98  ...
+          0000001b: 80       .
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -u                                # uppercase
+          00000000: 6161 610A 6262 620A 6363 630A 3131 310A  aaa.bbb.ccc.111.
+          00000010: 3232 320A 3333 330A F09F 9880            222.333.....
+
+          ❯ xxd -i ttt                                                                        # read from file ttt and create C array & len
+         unsigned char ttt[] = {
+           0x61, 0x61, 0x61, 0x61, 0x61, 0x0a, 0x62, 0x62, 0x62, 0x62, 0x62, 0x62,
+           0x0a, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x0a
+         };
+         unsigned int ttt_len = 22;
+
+         ❯ xxd -i < ttt                                                                       # sligthly different: no C code, only data in 0x style
+           0x61, 0x61, 0x61, 0x61, 0x61, 0x0a, 0x62, 0x62, 0x62, 0x62, 0x62, 0x62,
+           0x0a, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x0a
 
 
-last range:
+         ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -i                                 # of course same of -i <
+          0x61, 0x61, 0x61, 0x0a, 0x62, 0x62, 0x62, 0x0a, 0x63, 0x63, 0x63, 0x0a,
+          0x31, 0x31, 0x31, 0x0a, 0x32, 0x32, 0x32, 0x0a, 0x33, 0x33, 0x33, 0x0a,
+          0xf0, 0x9f, 0x98, 0x80
 
-                   1111 110 x      10  x x  x x x x   10   x x  x x x x   10  x x  x x x x   10   x x  x x x x   10   x x  x x x x
-                   ^^^^^^^^ ^      ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^  ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^   ^^   ^^^^^^^^^^^^
-                            1                6                   6                 6                   6                   6
-                            '----------------'-------------------'-----------------'--------------------'-----------------'
-                                                                   tot=31
-                                                              31 bits for the last block, with 6 bytes split as
-                                                              in 3 bytes:
-                                                                  - 1st: HEADER of 1111 110 <- which I can remember as 6-"1"-> 6 bytes
-                                                                  - 2nd: HEADER of  10      <- header of the "continuation byte"
-                                                                  - 3rd: HEADER of  10      <- header of the "continuation byte"
-                                                                  - 4th: HEADER of  10      <- header of the "continuation byte"
-                                                                  - 5th: HEADER of  10      <- header of the "continuation byte"
-                                                                  - 6th: HEADER of  10      <- header of the "continuation byte"
+         ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -ps                                # postcript style   (also -p / -postcript / -plain)
+          6161610a6262620a6363630a3131310a3232320a3333330af09f9880
 
 
-
-        NOTE 1:  UTF-8 will never send 8-"0" (8 consecutive zeros)
-                 so this avoids to send what the receiver could interpret as an "END-OF-STRING"
-                 and then potentially stops listening for the following bytes.
-
-        NOTE 2:  taking any byte from a stream, I always know if I'm in the middle of a "continuation bytes"
-                 or if I've taken a leading byte
-                 so I can look forward or backward in the stream of byte
-
-        NOTE 3:  If a byte starts with 0 it's a 1 ASCII = 1 UTF-8 single byte/char.
-
+         ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -g 0                              |  group 0 (no group)
+          00000000: 6161610a6262620a6363630a3131310a  aaa.bbb.ccc.111.                       |
+          00000010: 3232320a3333330af09f9880          222.333.....                           |
+                                                                                             |
+         ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -g 1                              |  group 1 (space every 1 byte)
+          00000000: 61 61 61 0a 62 62 62 0a 63 63 63 0a 31 31 31 0a  aaa.bbb.ccc.111.        |
+          00000010: 32 32 32 0a 33 33 33 0a f0 9f 98 80              222.333.....            |
+                                                                                             |
+         ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -g 2                              |  group 2 (space every 2 bytes)
+          00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.                |
+          00000010: 3232 320a 3333 330a f09f 9880            222.333.....                    |
 
 
 

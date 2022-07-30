@@ -687,6 +687,7 @@ ___________________________________________________________ SOME APIs
                       . _settings
                       . _open
 
+___________________________________________________________ SOME APIs
 ___________________________________________________________ SNAPSHOT
 
       to save the content of Elasticsearch DB into a snapshot "backup1"

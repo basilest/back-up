@@ -1,3 +1,155 @@
+  ./A.java:
+   __________________________________
+   |public class A {
+   |
+   |    public static void main(String []args) {       <----- "public static void main(String args[])"  the mandatory entry-point of every Java program.
+   |       System.out.println("Hello World");
+   |    }
+   | }
+   |_________________________________
+
+   javac A.java          --->   A.class              # javac compiler. It produces bytecode
+   java  A               --->   Hello World          # java  JVM/java virtual machone. It runs the bytecode. Note it's not java A.class  but just java A
+                                                                                                                                 ^^^^^^
+
+   o  the file (A.java) must have the same name of the public class in there (A)
+   o  there is only 0 or 1 public class in each file .java     (and 1+  non-public classes)
+                           ^^^^^^
+   o  package .....         (if present) must be at the top    \______   package & imports apply to ALL classes (1 public + many non-public) of the file
+   o  import  .....         (if present) must be right after   /
+
+
+------ Java Modifiers
+
+    ___________________________
+    Access Modifiers:
+
+                              classes     interfaces    variables       methods      methods & Inheritance
+
+      default                                                                                                 without any access control modifier, visibility is to any other class in the same package.     ex String a;
+
+
+      private                    X           X                                                                visibility only inside the class (class & interfaces cannot be PRIVATE)  ex. private String a;
+                                                                                      not inherited at all
+
+
+      public                                                                                                  visibility from everywhere (where anyhow the class must be 1st imported:  import ...A) ex. public static void main(String[] arguments) {
+                                                                                      must be public
+                                                                                      in all subclasses.
+
+
+      protected                  X           X                                                                visibility only in (any class some package) + (SUBLASSES in different packages) (class & interfaces cannot be PROTECTED)  ex. protected String a;
+                                                                                      must either be
+                                                                                           protected or public
+                                                                                      in subclasses;
+                                                                                      they cannot be private.
+
+
+    ___________________________
+    Non Access Modifiers:
+
+                              classes     interfaces    variables       methods
+
+      static                     X           X
+
+
+      final                   cannot be                 can be init      cannot be
+                              subclassed                only once        overridden
+                                                                         (in subclasses)
+
+
+      abstract                can only be                                it has no
+                              extended                                   implementation
+                              (I cannot create                           (which will be
+                              an instance)                                in subclasses)
+
+
+      synchronized               X           X           X               can be accessed by
+       (thread)                                                          only one thread
+                                                                         at a time.
+
+      volatile                                        before reading
+       (thread)                                       the value of
+                                                      var in a thread
+                                                      it is first merged
+                                                      from main memory
+                                                      (where other threads
+                                                       might have changed it)
+
+
+
+
+
+------ Java Variables
+
+    Local Variables
+              o vars inside functions
+              o they live on the stack
+              o no-default-value assigned when not-init
+
+    Class Variables (Static Variables)
+              vars inside a class (and outside of any methods) declared static
+               __________________________________                       ^^^^^^
+               |public class A {
+               |
+               |   static int i = 0;
+               |
+               |    method1 () {
+               |       ...
+               |    }
+               | }
+               |_________________________________
+              o there is only 1 for ALL the objects of the class (they share that value)
+              o they are created in static-memory when the prog starts.
+              o they are accessed as   ClassName.VariableName.
+
+    Instance Variables (Non-static Variables)
+              o vars inside a class (and outside of any methods) NOT declared static
+                                                                              ^^^^^^
+              o they live on the heap
+              o the have default-value when not-init (int: 0 / bool: false / class: null)
+
+
+------ Java Enums
+
+       enum FreshJuiceSize{ SMALL, MEDIUM, LARGE }
+       FreshJuiceSize size;
+
+
+------ Conctructors
+
+       o  every CLASS must have 1 (constructor)
+       o  if I don't write 1, JAVA will create 1 by default (that initializes all member variables to zero)
+       o
+
+
+     public class A {
+          public A() {                  // constructor with no args
+          }
+
+          public A(String name) {       // constructor with 1 arg String
+          }
+     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ----------------------------------------------------------------------------------------------------
 JAVA: more installations on a mac
 ----------------------------------------------------------------------------------------------------

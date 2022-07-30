@@ -488,16 +488,23 @@ ____________________________________________________________
     To set an option off: set +o    (ex set +o vi)
 
 
-    set -e     stops a script on any errors (errors on any command or the LAST command of a pipeline))
+    set -o errexit   (or set -e)
+    set -o pipefail  (no short version)
+    set -o nounset   (or set -u)
+
+
+    set -e     if any of the commands in the script fails for any reason, the entire script fails.
+               NOTE: errors on any command  OR  the LAST command of a pipeline
                I can append a  || true for those rare cases where you don't want a failing command to exit.
                ex
                foo || true            # this will cause a --> foo: command not found (and $? 127)
                echo "bar"             # I will see the "bar"  (the previous line didn't exit the script)
 
-    set -o pipefail     the $? of the pipeline is not the default exit code of the LAST
+    set -o pipefail     The whole script will fail & exit if one of the pipe command fails.
+                        The $? of the pipeline is not the default exit code of the LAST
                         but it will be the $? of the rightmost failed command
 
-    set -u     treat unset var as error and the exit the script
+    set -u     exits the script if any variable is not set
 
 
     shopt    is a new builtin to set/unset even more options.
@@ -2091,6 +2098,8 @@ ____________________________________________________________
         -s  compress to 1 any sequance of more chars
 
          $ cat file1 | tr a-z A-Z               convert to UPPERCASE
+           much better  to use '[:lower:]' '[:upper:]'
+                       tr '[:upper:]' '[:lower:]' ex. echo Å | tr '[:upper:]' '[:lower:]' gives å
          $ cat file1 | tr -s '[:blank:]'        more spaces are zipped into 1
          $ cat file1 | tr -dc '[:print:]\n'     delete all non printing char (preserve only \n)
 ____________________________________________________________

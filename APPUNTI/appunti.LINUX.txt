@@ -55,6 +55,34 @@ ex.
                                                                                          ---- 2 sec ----
                                                                                          "b"
 
+ grep   --line-buffered
+                            without that flag a pipe lile this
+                            bash generator.bash | grep line | .... <----- this last command after the grep will not receive the input linearly but in pages (buffered)
+
+ sed    --unbuffered
+
+
+ In general the best solution is to use "stdbuf"      (stdbuf is not POSIX, but part of GNU-coreutils)
+              bash generator.bash | stdbuf -o0 grep line |
+
+
+ stdbuf --options  command          <---- run 'command' with modified buffering
+
+-i, --input=MODE     Adjust standard input  stream buffering
+-o, --output=MODE    Adjust standard output stream buffering
+-e, --error=MODE     Adjust standard error  stream buffering
+
+MODE
+    = `L' stream will be line buffered. (invalid with standard input)
+    = `0' unbuffered.
+    =  a number which may be followed by one of the following: KB 1000, K 1024, MB 1000*1000, M 1024*1024, and so on for G, T, P, E, Z, Y.
+       In this case the corresponding stream will be fully buffered with the buffer size set to MODE bytes.
+
+NOTE: If COMMAND adjusts the buffering of its standard streams (`tee' does for e.g.) then that will override corresponding settings changed by `stdbuf'.
+Also some filters (like `dd' and `cat' etc.) don't use streams for I/O, and are thus unaffected by `stdbuf' settings.
+
+
+
 --------------------------------------------------- USER INFO
 user info (like name, password, default shell ....)
      can be changed with the commands:

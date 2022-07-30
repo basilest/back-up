@@ -37,7 +37,7 @@
    JOBS
         \
          \_______ is a collection of more TASKS  (a sequence of separate scripts)
-                                  - t1: pull from git
+                                  - t1  pull from git
                                   - t2  compile
                                   - t3  upload to S3
                                   - t4  send email/slack
@@ -51,35 +51,107 @@
          \_______ are the different executions of the same pipeline
                   which are logged and kept on the server to inspection / historical logs
 
----------------------------------------------------
 
 
-             CONCOURSE ARCHITECTURES
+--------------------------------------------------- CONCOURSE ARCHITECTURE
+                3 parts:
 
-                                                     - Web UI
-            [PostresSQL] ------------  [ Web Nodes]  - API                    <----- Web Nodes are the BRAIN of Concourse
-                                            |        - Pipeline scheduler            and can be scaled on different servers
+              (1)  web nodes: are the BRAIN of Concourse and can be scaled on different servers
+                              don't store any state
+                              use the DB to retrieve any info
+
+              (2)  worker nodes: are the executors.
+                                 I can scale adding more workers to many pipelines
+
+              (3)  postsgr SQL DB
+
+
+                 (3)                        (1)      - Web UI
+            [PostresSQL] ------------  [ Web Nodes]  - API                    <----- Web Nodes
+                                            |        - Pipeline scheduler
                                             |        - Worker registration
                                             |
                                             |
                                        [Worker Nodes] - Container Management API ----> Containers
-                                                      - Volume    Management API ----> Volumes
-
+                                           (2)        - Volume    Management API ----> Volumes
 
 ---------------------------------------------------
+Concourse is distributed as a single concourse binary
+
+Images are pulled from docker hub by default
+
+
+---------------------------------------------------   FLY  (Concourse CLI)
+
+       install:
+                  1 way:   copy 1 binary directly in /usr/local/bin
+
+                  2 way:   package manager (brew install fly)
+
+
+fly -t tutorial login -c http://localhost:8080 -u test -p test
+
+
+    fly -t tutorial workers
+        name          containers  platform  tags  team  state    version  age
+        1da9055b4a3b  0           linux     none  none  running  2.4      13m33s
+
+
+    fly -t tutorial set-pipeline -p hello-world -c hello-world.yml
+
+                           jobs:
+                             job hello-world-job has been added:
+                           + name: hello-world-job
+                           + plan:
+                           + - config:
+                           +     image_resource:
+                           +       name: ""
+                           +       source:
+                           +         repository: busybox
+                           +       type: registry-image
+                           +     platform: linux
+                           +     run:
+                           +       args:
+                           +       - Hello world!
+                           +       path: echo
+                           +   task: hello-world-task
+
+                           pipeline name: hello-world
+
+                           apply configuration? [yN]: y
+            ---------->    pipeline created!
+                           you can view your pipeline here: http://localhost:8080/teams/main/pipelines/hello-world
+
+                           the pipeline is currently paused. to unpause, either:
+                             - run the unpause-pipeline command:
+                               fly -t tutorial unpause-pipeline -p hello-world
+                             - click play next to the pipeline in the web ui
+
+
+    fly -t tutorial unpause-pipeline -p hello-world
+
+    fly -t tutorial trigger-job --job hello-world/hello-world-job --watch
+
+
+
+
+
+
+
+
+
 
          fly     targets
+
+                                             always    --target ... (or -t ...)
+                                                       It might seem annoying to always need to specify a target,
+                                                       but it helps ensure to not trigger a job on the wrong Concourse instance. It will save from hurting yourself
 
          fly  --target  ps login
          fly  --target  ps status
          fly  --target  ps execute          --config  task1.yml
          fly  --target  ps set-pipeline     --config  pipeline.yml  --pipeline   mypipe
-
-
-
-
-------------------------------- fly  (Concourse CLI)
-
+         fly  --target  ps jobs                                     --pipeline   mypipe
 
 
             ~/.bash_profile
@@ -95,14 +167,6 @@ fly -t platform-common        login -c https://ci.platform.aws.chdev.org/ -n com
 fly -t platform-team-aardvark login -c https://ci.platform.aws.chdev.org/ -n team-aardvark -b
 fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n development   -b
 
-
-
-  FLY:
-
-       install:
-                  1 way:   copy 1 binary directly in /usr/local/bin
-
-                  2 way:   package manager (brew cask install fly)
 
 
             fly --target tutorial login --concourse-url http://127.0.0.1:8080 -u admin -p admin
@@ -211,7 +275,8 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
 
-            ╰─ fly -t platform-common bs                    # builds      List builds data (aliases: bs)
+            ╰─ fly -t platform-common bs       # builds      List builds data (aliases: bs)
+
             id     pipeline/job                                              build  status     start                     end                       duration   team
             59449  chs-delta-api/cidev-api-tests                             1      started    2021-06-17@11:43:17+0100  n/a                       1m53s+     team-aardvark
             59448  ois-tuxedo-configs/build-staging-configs                  1      started    2021-06-17@11:43:14+0100  n/a                       1m56s+     team-platform
@@ -422,36 +487,6 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
                 9. BUILD:  the list of a steps really executed during a PIPELINE run.
 
 
----------------------------------------------------   CONCOURSE ARCHITECTURE
-
-                3 parts:
-
-                a. web node
-                b. worker node
-                c. postsgr SQL DB
-
-
-        a. web node:  it is the brain
-                      it doesn't store any state
-                      it uses the DB to retrieve any info
-
-        b. worker node: it's the executor.
-                        I can scale adding more workers to many pipelines
-
----------------------------------------------------   FLY
-
-        > fly targets
-
-        > fly --target ps login
-
-        > fly --target ps status
-
-        > fly --target ps execute  --config  task1.yml
-
-        > fly --target ps set-pipeline  --ipeline mypipe   --config pipeline.yml
-
-        > fly --target ps jobs  --pipeline mypipe
-
 ---------------------------------------------------
         docker-compose up
 ---------------------------------------------------
@@ -546,18 +581,6 @@ build successfully aborted
 ╰─
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ---------------------------------------------------
 ---------------------------------------------------
 ---------------------------------------------------
@@ -610,44 +633,4 @@ build successfully aborted
 ---------------------------------------------------
 ---------------------------------------------------
 ---------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

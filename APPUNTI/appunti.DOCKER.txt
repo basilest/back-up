@@ -1,4 +1,471 @@
+--------------------------------------------------------------------------------------------------------------
 
+    Usage:  docker [OPTIONS] COMMAND
+
+    A self-sufficient runtime for containers
+
+    Options:
+          --config string      Location of client config files (default
+                               "/Users/sbasile/.docker")
+      -c, --context string     Name of the context to use to connect to the
+                               daemon (overrides DOCKER_HOST env var and
+                               default context set with "docker context use")
+      -D, --debug              Enable debug mode
+      -H, --host list          Daemon socket(s) to connect to
+      -l, --log-level string   Set the logging level
+                               ("debug"|"info"|"warn"|"error"|"fatal")
+                               (default "info")
+          --tls                Use TLS; implied by --tlsverify
+          --tlscacert string   Trust certs signed only by this CA (default
+                               "/Users/sbasile/.docker/ca.pem")
+          --tlscert string     Path to TLS certificate file (default
+                               "/Users/sbasile/.docker/cert.pem")
+          --tlskey string      Path to TLS key file (default
+                               "/Users/sbasile/.docker/key.pem")
+          --tlsverify          Use TLS and verify the remote
+      -v, --version            Print version information and quit
+
+    Management Commands:
+M -  1   builder     Manage builds
+M -  2   buildx*     Docker Buildx (Docker Inc., v0.8.2)
+M -  3   compose*    Docker Compose (Docker Inc., v2.6.1)
+M -  4   config      Manage Docker configs
+M -  5   container   Manage containers
+M -  6   context     Manage contexts
+M -  7   extension*  Manages Docker extensions (Docker Inc., v0.2.7)
+M -  8   image       Manage images
+M -  9   manifest    Manage Docker image manifests and manifest lists
+M - 10   network     Manage networks
+M - 11   node        Manage Swarm nodes
+M - 12   plugin      Manage plugins
+M - 13   sbom*       View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc., 0.6.0)
+M - 14   scan*       Docker Scan (Docker Inc., v0.17.0)
+M - 15   secret      Manage Docker secrets
+M - 16   service     Manage services
+M - 17   stack       Manage Docker stacks
+M - 18   swarm       Manage Swarm
+M - 19   system      Manage Docker
+M - 20   trust       Manage trust on Docker images
+M - 21   volume      Manage volumes
+
+    Commands:
+C -  1   attach      Attach local standard input, output, and error streams to a running container
+C -  2   build       Build an image from a Dockerfile
+C -  3   commit      Create a new image from a container's changes
+C -  4   cp          Copy files/folders between a container and the local filesystem
+C -  5   create      Create a new container
+C -  6   diff        Inspect changes to files or directories on a container's filesystem
+C -  7   events      Get real time events from the server
+C -  8   exec        Run a command in a running container
+C -  9   export      Export a container's filesystem as a tar archive
+C - 10   history     Show the history of an image
+C - 11   images      List images
+C - 12   import      Import the contents from a tarball to create a filesystem image
+C - 13   info        Display system-wide information
+C - 14   inspect     Return low-level information on Docker objects
+C - 15   kill        Kill one or more running containers
+C - 16   load        Load an image from a tar archive or STDIN
+C - 17   login       Log in to a Docker registry
+C - 18   logout      Log out from a Docker registry
+C - 19   logs        Fetch the logs of a container
+C - 20   pause       Pause all processes within one or more containers
+C - 21   port        List port mappings or a specific mapping for the container
+C - 22   ps          List containers
+C - 23   pull        Pull an image or a repository from a registry
+C - 24   push        Push an image or a repository to a registry
+C - 25   rename      Rename a container
+C - 26   restart     Restart one or more containers
+C - 27   rm          Remove one or more containers
+C - 28   rmi         Remove one or more images
+C - 29   run         Run a command in a new container
+C - 30   save        Save one or more images to a tar archive (streamed to STDOUT by default)
+C - 31   search      Search the Docker Hub for images
+C - 32   start       Start one or more stopped containers
+C - 33   stats       Display a live stream of container(s) resource usage statistics
+C - 34   stop        Stop one or more running containers
+C - 35   tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+C - 36   top         Display the running processes of a container
+C - 37   unpause     Unpause all processes within one or more containers
+C - 38   update      Update configuration of one or more containers
+C - 39   version     Show the Docker version information
+C - 40   wait        Block until one or more containers stop, then print their exit codes
+
+    Run 'docker COMMAND --help' for more information on a command.
+
+============================================
+M -  1   builder     Manage builds
+============================================
+M -  2   buildx*     Docker Buildx (Docker Inc., v0.8.2)
+============================================
+M -  3   compose*    Docker Compose (Docker Inc., v2.6.1)
+============================================
+M -  4   config      Manage Docker configs
+============================================
+M -  5   container   Manage containers
+============================================
+M -  6   context     Manage contexts
+============================================
+M -  7   extension*  Manages Docker extensions (Docker Inc., v0.2.7)
+============================================
+M -  8   image       Manage images
+============================================
+M -  9   manifest    Manage Docker image manifests and manifest lists
+============================================
+M - 10   network     Manage networks
+============================================
+M - 11   node        Manage Swarm nodes
+============================================
+M - 12   plugin      Manage plugins
+============================================
+M - 13   sbom*       View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc., 0.6.0)
+============================================
+M - 14   scan*       Docker Scan (Docker Inc., v0.17.0)
+============================================
+M - 15   secret      Manage Docker secrets
+============================================
+M - 16   service     Manage services
+============================================
+M - 17   stack       Manage Docker stacks
+============================================
+M - 18   swarm       Manage Swarm
+============================================
+M - 19   system      Manage Docker
+
+  df          Show docker disk usage
+  events      Get real time events from the server
+  info        Display system-wide information
+  prune       Remove unused data
+
+  df          Show docker disk usage
+          --format string   Pretty-print images using a Go template
+      -v, --verbose         Show detailed information on space usage
+
+
+      $ docker system df
+
+            TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+            Images          73        47        11.99GB   5.371GB (44%)
+            Containers      72        51        1.383GB   57.24MB (4%)
+            Local Volumes   5         5         374.1MB   0B (0%)
+            Build Cache     9         0         0B        0B
+
+      $ docker system df -v
+
+            Images space usage:
+
+            REPOSITORY                                                                           TAG                                                                          IMAGE ID       CREATED         SIZE      SHARED SIZE   UNIQUE SIZE   CONTAINERS
+            <none>                                                                               <none>                                                                       328647fd8af2   7 hours ago     503.6MB   311.3MB       192.2MB       0
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/confirmation-statement-web        latest                                                                       e0803249f600   19 hours ago    142.7MB   141.4MB       1.212MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/confirmation-statement-web        tilt-7dcb8d375e2e4e4c                                                        7dcb8d375e2e   3 days ago      142.6MB   141.4MB       1.209MB       0
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/confirmation-statement-web        tilt-7cf768cb69b3383e                                                        7cf768cb69b3   8 days ago      142.4MB   141.4MB       917.1kB       0
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/ch.gov.uk                         latest                                                                       a3d6f2179122   2 weeks ago     622.1MB   575.8MB       46.27MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/filing-notification-sender        latest                                                                       10dfc3936a95   4 weeks ago     310.3MB   299.5MB       10.75MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/filing-resource-handler           latest                                                                       2d1050ad8107   5 weeks ago     310.2MB   299.5MB       10.74MB       1
+            concourse/concourse                                                                  latest                                                                       91654967dbda   5 weeks ago     1.802GB   0B            1.802GB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/api.ch.gov.uk                     latest                                                                       08aa4d048f4a   5 weeks ago     625.3MB   575.8MB       49.45MB       1
+            mongo                                                                                4                                                                            4efbd72d3ba6   5 weeks ago     443.4MB   0B            443.4MB       1
+            perl_fess                                                                            latest                                                                       215e640eb40e   7 weeks ago     1.413GB   890.3MB       522.6MB       0
+            hubproxy.docker.internal:5000/docker/desktop-kubernetes                              kubernetes-v1.24.1-cni-v0.8.5-critools-v1.24.2-cri-dockerd-v0.2.1-1-debian   6bfc2d7ab254   7 weeks ago     360.9MB   0B            360.9MB       0
+            postgres                                                                             latest                                                                       5b21e2e86aab   7 weeks ago     376.1MB   0B            376.1MB       1
+            registry                                                                             2                                                                            773dbf02e42e   8 weeks ago     24.11MB   5.529MB       18.58MB       0
+            redis                                                                                6-alpine                                                                     57c580553a4d   8 weeks ago     25.51MB   5.529MB       19.98MB       1
+            k8s.gcr.io/kube-apiserver                                                            v1.24.1                                                                      e9f4b425f919   8 weeks ago     129.7MB   3.845MB       125.9MB       2
+            k8s.gcr.io/kube-proxy                                                                v1.24.1                                                                      beb86f5d8e6c   8 weeks ago     109.9MB   0B            109.9MB       2
+            k8s.gcr.io/kube-scheduler                                                            v1.24.1                                                                      18688a72645c   8 weeks ago     50.99MB   3.845MB       47.15MB       2
+            k8s.gcr.io/kube-controller-manager                                                   v1.24.1                                                                      b4ea7e648530   8 weeks ago     119.4MB   3.845MB       115.5MB       2
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payments.api.ch.gov.uk            latest                                                                       9ff38f0bfd14   2 months ago    27.72MB   5.581MB       22.13MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-kafka-api                     latest                                                                       07acb28a8fcd   2 months ago    16.66MB   5.581MB       11.07MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/eric                              latest                                                                       b7b2b1ab0106   2 months ago    308.7MB   299.5MB       9.161MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-psc-api                       latest                                                                       36eafc01691d   2 months ago    610.6MB   575.8MB       34.82MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/account.ch.gov.uk                 latest                                                                       f9636b930454   2 months ago    596.3MB   575.8MB       20.45MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-company-profile-api           latest                                                                       c2af88cf1087   2 months ago    610.8MB   575.8MB       35.01MB       0
+            k8s.gcr.io/etcd                                                                      3.5.3-0                                                                      aebe758cef4c   3 months ago    299.5MB   2.362MB       297.1MB       2
+            perl                                                                                 latest                                                                       80f3b1328344   3 months ago    890.3MB   890.3MB       0B            0
+            alpine                                                                               latest                                                                       76c8fb57b6fc   3 months ago    5.575MB   0B            5.575MB       0
+            bitnami/kafka                                                                        2                                                                            ec9c62095562   4 months ago    584.7MB   0B            584.7MB       1
+            .....
+            .....
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payments.web.ch.gov.uk            latest                                                                       4ad0e025940f   52 years ago    259MB     224.4MB       34.52MB       1
+            169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/document-render-from-html5        latest                                                                       7cc53b65a4f9   52 years ago    142.9MB   0B            142.9MB       1
+
+            Containers space usage:
+
+            CONTAINER ID   IMAGE                                                                                       COMMAND                  LOCAL VOLUMES   SIZE      CREATED          STATUS                     NAMES
+            1bb532b201d7   8c2c38aa676e                                                                                "/kube-vpnkit-forwar…"   0               0B        2 minutes ago    Up 2 minutes               k8s_vpnkit-controller_vpnkit-controller_kube-system_0222da31-8245-4d5c-ba45-358f4283572c_176
+            366dce830059   8c2c38aa676e                                                                                "/kube-vpnkit-forwar…"   0               0B        19 minutes ago   Exited (2) 2 minutes ago   k8s_vpnkit-controller_vpnkit-controller_kube-system_0222da31-8245-4d5c-ba45-358f4283572c_175
+            f8e2e32d3908   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/confirmation-statement-web:latest        "node /app/bin/www.j…"   0               0B        7 hours ago      Up 7 hours                 confirmation-statement-web
+            678f9e990d22   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payments-admin-web:latest                "java -cp /app/resou…"   0               32.8kB    7 hours ago      Up 7 hours                 docker-chs-development-payments-admin-web-1
+            35ac621ac332   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/document-render-service:latest           "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 docker-chs-development-document-render-service-1
+            c245a8f90d86   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/document-render-from-html5:latest        "java -Djava.securit…"   0               0B        7 hours ago      Exited (1) 7 hours ago     docker-chs-development-document-render-from-html5-1
+            f34958ee3598   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/document-render-assets-registry:latest   "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 docker-chs-development-document-render-assets-registry-1
+            9a115ba6129b   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payments.web.ch.gov.uk:latest            "java -cp /app/resou…"   0               32.8kB    7 hours ago      Up 7 hours                 payments-web
+            7fa0c1f86d68   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payments.api.ch.gov.uk:latest            "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 payments-api
+            3ad7c8947e81   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payment-reconciliation-consumer:latest   "/app/app"               0               0B        7 hours ago      Up 7 hours                 payment-reconciliation-consumer
+            b72d9e696fe4   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/payment-processed-consumer:latest        "/app/app"               0               0B        7 hours ago      Up 7 hours                 payment-processed-consumer
+            c96df68cb85d   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/confirmation-statement-api:latest        "java -cp @/app/jib-…"   0               32.8kB    7 hours ago      Up 7 hours                 confirmation-statement-api
+            f990b495b7ad   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/filing-processed-tx-updater:latest       "/app/app -broker-ad…"   0               0B        7 hours ago      Up 7 hours                 filing-processed-tx-updater
+            4fa799a9aef9   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/filing-resource-handler:latest           "/app/app -broker-ad…"   0               0B        7 hours ago      Up 7 hours                 filing-resource-handler
+            f83c3d53174a   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/transactions.api.ch.gov.uk:latest        "java -cp /app/resou…"   0               32.8kB    7 hours ago      Up 7 hours                 transactions-api-ch-gov-uk
+            f903252cc1ec   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/oracle-query-api:latest                  "java -cp /app/resou…"   0               32.8kB    7 hours ago      Up 7 hours                 oracle-query-api
+            272904b42861   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/filing-notification-sender:latest        "/app/app -broker-ad…"   0               0B        7 hours ago      Up 7 hours                 filing-notification-sender
+            e7a53b081d27   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/company-lookup.web.ch.gov.uk:latest      "java -Djava.securit…"   0               32.8kB    7 hours ago      Up 7 hours                 docker-chs-development-company-lookup-web-ch-gov-uk-1
+            bba18e4a9c60   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-psc-api:latest                       "sh -c 'PERL5LIB=loc…"   0               0B        7 hours ago      Up 7 hours                 docker-chs-development-chs-psc-api-1
+            884143f6f513   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-kafka-api:latest                     "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 chs-kafka-api
+            b01b328e3164   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-email-sender:latest                  "/app/app"               0               0B        7 hours ago      Exited (0) 7 hours ago     docker-chs-development-chs-email-sender-1
+            db4caf5005e4   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-notification-api:latest              "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 docker-chs-development-chs-notification-api-1
+            e821bce39af6   mailhog/mailhog:latest                                                                      "MailHog"                0               0B        7 hours ago      Up 7 hours                 docker-chs-development-mailhog-1
+            b07bf14977d8   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-company-detail-cache:latest          "/app/app -bind-addr…"   0               0B        7 hours ago      Exited (1) 7 hours ago     chs-company-detail-cache
+            cb36d846f55a   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chips-filing-consumer:latest             "java -cp /app/resou…"   0               32.8kB    7 hours ago      Up 7 hours                 chips-filing-consumer
+            160f64e254c8   bitnami/kafka:2                                                                             "/opt/bitnami/script…"   0               1.26GB    7 hours ago      Up 7 hours                 docker-chs-development-kafka-1
+            30bfae22cd74   bitnami/zookeeper:3                                                                         "/opt/bitnami/script…"   0               67.1MB    7 hours ago      Up 7 hours                 docker-chs-development-zookeeper-1
+            b7bd42d6724f   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/chs-kafka-schemas:latest                 "/docker-entrypoint.…"   0               1.09kB    7 hours ago      Up 7 hours                 docker-chs-development-chs-kafka-schemas-1
+            c336033c5f38   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/ch.gov.uk:latest                         "sh -c 'PERL5LIB=loc…"   0               0B        7 hours ago      Up 7 hours                 docker-chs-development-ch-gov-uk-1
+            23bcfc249fcf   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/barcode-generator:latest                 "/app/app -bind-addr…"   0               0B        7 hours ago      Up 7 hours                 barcode-generator
+            0b2279f959da   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/api.ch.gov.uk:latest                     "sh -c 'PERL5LIB=loc…"   0               0B        7 hours ago      Up 7 hours                 api-ch-gov-uk
+            4e7df3be41c7   elasticsearch:6.8.13                                                                        "/usr/local/bin/dock…"   0               189kB     7 hours ago      Up 7 hours                 docker-chs-development-elasticsearch-1
+            be5398584175   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/account.ch.gov.uk:latest                 "sh -c 'PERL5LIB=loc…"   0               71.3kB    7 hours ago      Up 7 hours                 docker-chs-development-account-ch-gov-uk-1
+            7bdf9dd48f83   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/cdn.ch.gov.uk:latest                     "/docker-entrypoint.…"   0               1.09kB    7 hours ago      Up 7 hours                 docker-chs-development-cdn-ch-gov-uk-1
+            8632514436fe   mongo:4                                                                                     "docker-entrypoint.s…"   2               0B        7 hours ago      Up 7 hours                 docker-chs-development-mongo-1
+            52c38941fed8   169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/eric:latest                              "/app/app -bind-addr…"   0               15.1kB    7 hours ago      Up 7 hours                 docker-chs-development-eric-1
+            dc94bb9eb789   redis:6-alpine                                                                              "docker-entrypoint.s…"   1               0B        7 hours ago      Up 7 hours                 docker-chs-development-redis-1
+            f4a9548ffaf1   traefik:v2.2                                                                                "/entrypoint.sh --ap…"   0               0B        7 hours ago      Up 7 hours                 chs-ingress-proxy
+            825d62ef98f6   99f89471f470                                                                                "/storage-provisione…"   0               0B        7 hours ago      Up 7 hours                 k8s_storage-provisioner_storage-provisioner_kube-system_2d7402da-488f-4988-ad79-e313c8a98cb8_11
+            164fe7097066   a4ca41631cc7                                                                                "/coredns -conf /etc…"   0               0B        7 hours ago      Up 7 hours                 k8s_coredns_coredns-6d4b75cb6d-7pnlq_kube-system_bbdc0e75-79b0-49c5-9fc7-624d684c5418_6
+            d4d1ffe4e14d   a4ca41631cc7                                                                                "/coredns -conf /etc…"   0               0B        7 hours ago      Up 7 hours                 k8s_coredns_coredns-6d4b75cb6d-5zhfb_kube-system_9c630978-d374-41f9-977e-33d5df50313b_6
+            8064013b677d   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_coredns-6d4b75cb6d-7pnlq_kube-system_bbdc0e75-79b0-49c5-9fc7-624d684c5418_6
+            30301d2c4612   beb86f5d8e6c                                                                                "/usr/local/bin/kube…"   0               2.29kB    7 hours ago      Up 7 hours                 k8s_kube-proxy_kube-proxy-mcqt8_kube-system_e073aa81-7176-4744-a707-3e52df4fea37_6
+            14d417cdf4cf   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_coredns-6d4b75cb6d-5zhfb_kube-system_9c630978-d374-41f9-977e-33d5df50313b_6
+            94b1ed8c0c07   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_kube-proxy-mcqt8_kube-system_e073aa81-7176-4744-a707-3e52df4fea37_6
+            3c56fe521fde   99f89471f470                                                                                "/storage-provisione…"   0               0B        7 hours ago      Exited (1) 7 hours ago     k8s_storage-provisioner_storage-provisioner_kube-system_2d7402da-488f-4988-ad79-e313c8a98cb8_10
+            862e09697bd5   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_vpnkit-controller_kube-system_0222da31-8245-4d5c-ba45-358f4283572c_6
+            417e9342a069   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_storage-provisioner_kube-system_2d7402da-488f-4988-ad79-e313c8a98cb8_6
+            4a5f10268505   aebe758cef4c                                                                                "etcd --advertise-cl…"   0               0B        7 hours ago      Up 7 hours                 k8s_etcd_etcd-docker-desktop_kube-system_2449ddc0985e3be8dd23ffc4d12cb53b_6
+            18dc1d40d138   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_etcd-docker-desktop_kube-system_2449ddc0985e3be8dd23ffc4d12cb53b_6
+            77fa58962c27   b4ea7e648530                                                                                "kube-controller-man…"   0               0B        7 hours ago      Up 7 hours                 k8s_kube-controller-manager_kube-controller-manager-docker-desktop_kube-system_bd266f9c253c9118b45703bf4302488d_6
+            40c95fd227e0   e9f4b425f919                                                                                "kube-apiserver --ad…"   0               0B        7 hours ago      Up 7 hours                 k8s_kube-apiserver_kube-apiserver-docker-desktop_kube-system_6f74d5bdfeda1c15af1b3f27e176ae41_6
+            863b178bbf2d   18688a72645c                                                                                "kube-scheduler --au…"   0               0B        7 hours ago      Up 7 hours                 k8s_kube-scheduler_kube-scheduler-docker-desktop_kube-system_8f6e5e140446545893b1ac5a088630f3_6
+            1f3f95ce9324   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_kube-apiserver-docker-desktop_kube-system_6f74d5bdfeda1c15af1b3f27e176ae41_6
+            4748acca4f54   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_kube-scheduler-docker-desktop_kube-system_8f6e5e140446545893b1ac5a088630f3_6
+            1d8e8b7d24ae   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        7 hours ago      Up 7 hours                 k8s_POD_kube-controller-manager-docker-desktop_kube-system_bd266f9c253c9118b45703bf4302488d_6
+            50dc0a8facb4   a4ca41631cc7                                                                                "/coredns -conf /etc…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_coredns_coredns-6d4b75cb6d-5zhfb_kube-system_9c630978-d374-41f9-977e-33d5df50313b_5
+            655f0f4ca203   a4ca41631cc7                                                                                "/coredns -conf /etc…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_coredns_coredns-6d4b75cb6d-7pnlq_kube-system_bbdc0e75-79b0-49c5-9fc7-624d684c5418_5
+            08bdc3187ae9   beb86f5d8e6c                                                                                "/usr/local/bin/kube…"   0               2.29kB    22 hours ago     Exited (255) 7 hours ago   k8s_kube-proxy_kube-proxy-mcqt8_kube-system_e073aa81-7176-4744-a707-3e52df4fea37_5
+            348f1411970a   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_coredns-6d4b75cb6d-7pnlq_kube-system_bbdc0e75-79b0-49c5-9fc7-624d684c5418_5
+            ad5dfac1e1f2   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_coredns-6d4b75cb6d-5zhfb_kube-system_9c630978-d374-41f9-977e-33d5df50313b_5
+            3809b7d42902   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_kube-proxy-mcqt8_kube-system_e073aa81-7176-4744-a707-3e52df4fea37_5
+            ede982c0b0c5   aebe758cef4c                                                                                "etcd --advertise-cl…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_etcd_etcd-docker-desktop_kube-system_2449ddc0985e3be8dd23ffc4d12cb53b_5
+            00bf7cb1f5dd   e9f4b425f919                                                                                "kube-apiserver --ad…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_kube-apiserver_kube-apiserver-docker-desktop_kube-system_6f74d5bdfeda1c15af1b3f27e176ae41_5
+            30dd69e5cabc   18688a72645c                                                                                "kube-scheduler --au…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_kube-scheduler_kube-scheduler-docker-desktop_kube-system_8f6e5e140446545893b1ac5a088630f3_5
+            228d813ceebc   b4ea7e648530                                                                                "kube-controller-man…"   0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_kube-controller-manager_kube-controller-manager-docker-desktop_kube-system_bd266f9c253c9118b45703bf4302488d_5
+            0ebed7a64b18   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_kube-controller-manager-docker-desktop_kube-system_bd266f9c253c9118b45703bf4302488d_5
+            93c301dd006b   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_etcd-docker-desktop_kube-system_2449ddc0985e3be8dd23ffc4d12cb53b_5
+            528a08b88905   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_kube-scheduler-docker-desktop_kube-system_8f6e5e140446545893b1ac5a088630f3_5
+            6759d1b80bc5   k8s.gcr.io/pause:3.7                                                                        "/pause"                 0               0B        22 hours ago     Exited (255) 7 hours ago   k8s_POD_kube-apiserver-docker-desktop_kube-system_6f74d5bdfeda1c15af1b3f27e176ae41_5
+            1da9055b4a3b   concourse/concourse                                                                         "dumb-init /usr/loca…"   1               9B        5 weeks ago      Exited (255) 5 weeks ago   concourse_concourse_1
+            ca30499a0896   postgres                                                                                    "docker-entrypoint.s…"   1               57.2MB    5 weeks ago      Exited (255) 5 weeks ago   concourse_concourse-db_1
+
+            Local Volumes space usage:
+
+            VOLUME NAME                                                        LINKS     SIZE
+            43270715819db5a6d17d14a8f7e2aa88096b34f79244cdf1c8aad11412bc0f73   1         318.8MB
+            ec9d380a8374913dac47d86d5461cf52725ddc8cfcf36c7c0ffb12dcf2abff24   1         0B
+            1329267dd4e1cf69b4cc055ba84014ea307649bb45f64acaaa39a706db60ad67   1         55.3MB
+            dd0cc20b7e70f262df33f87e6aa8364404e642844d7d4f1e392bff119423474e   1         277B
+            97137be47b81a0cac7de26bfda4cfdf015c3b5b522e451615c8dffab49bd1d99   1         0B
+
+            Build cache usage: 0B
+
+            CACHE ID       CACHE TYPE   SIZE      CREATED        LAST USED     USAGE     SHARED
+            kejnwjhqwdse   regular      0B        2 months ago   6 weeks ago   20        true
+            wrf1c5xqu1uv   regular      0B        2 months ago   6 weeks ago   20        true
+            wibojjc0ydan   regular      0B        2 months ago   6 weeks ago   20        true
+            jf76x2sv1s3g   regular      0B        2 months ago   6 weeks ago   20        true
+            i9hpd2qr8fjp   regular      0B        2 months ago   6 weeks ago   20        true
+            r8jwqqlqdwnp   regular      0B        2 months ago   6 weeks ago   20        true
+            tcaf07zlxt1i   regular      0B        2 months ago   6 weeks ago   20        true
+            wxgyw5r5tqts   regular      523MB     7 weeks ago    6 weeks ago   2         true
+            fjc8tt82563i   regular      0B        7 weeks ago    6 weeks ago   2         true
+
+  events      Get real time events from the server
+          -f, --filter filter   Filter output based on conditions provided
+              --format string   Format the output using the given Go template
+              --since string    Show all events created since timestamp
+              --until string    Stream events until this timestamp
+
+      $ docker system events --since "2022-07-21"
+
+
+
+  info        Display system-wide information
+
+      $ docker system info
+
+            Client:
+             Context:    default
+             Debug Mode: false
+             Plugins:
+              buildx: Docker Buildx (Docker Inc., v0.8.2)
+              compose: Docker Compose (Docker Inc., v2.6.1)
+              extension: Manages Docker extensions (Docker Inc., v0.2.7)
+              sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc., 0.6.0)
+              scan: Docker Scan (Docker Inc., v0.17.0)
+
+            Server:
+             Containers: 71
+              Running: 64
+              Paused: 0
+              Stopped: 7
+             Images: 92
+             Server Version: 20.10.17
+             Storage Driver: overlay2
+              Backing Filesystem: extfs
+              Supports d_type: true
+              Native Overlay Diff: true
+              userxattr: false
+             Logging Driver: json-file
+             Cgroup Driver: cgroupfs
+             Cgroup Version: 2
+             Plugins:
+              Volume: local
+              Network: bridge host ipvlan macvlan null overlay
+              Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+             Swarm: locked
+             Runtimes: io.containerd.runc.v2 io.containerd.runtime.v1.linux runc
+             Default Runtime: runc
+             Init Binary: docker-init
+             containerd version: 10c12954828e7c7c9b6e0ea9b0c02b01407d3ae1
+             runc version: v1.1.2-0-ga916309
+             init version: de40ad0
+             Security Options:
+              seccomp
+               Profile: default
+              cgroupns
+             Kernel Version: 5.10.104-linuxkit
+             Operating System: Docker Desktop
+             OSType: linux
+             Architecture: x86_64
+             CPUs: 6
+             Total Memory: 7.676GiB
+             Name: docker-desktop
+             ID: ELD5:PLRE:JTJO:NZXE:QPMR:KYJL:XSN6:STJR:5DT4:JY4G:LRVZ:DBF7
+             Docker Root Dir: /var/lib/docker
+             Debug Mode: false
+             HTTP Proxy: http.docker.internal:3128
+             HTTPS Proxy: http.docker.internal:3128
+             No Proxy: hubproxy.docker.internal
+             Registry: https://index.docker.io/v1/
+             Labels:
+             Experimental: false
+             Insecure Registries:
+              hubproxy.docker.internal:5000
+              127.0.0.0/8
+             Live Restore Enabled: false
+
+  prune       Remove unused data
+  docker system prune
+============================================
+M - 20   trust       Manage trust on Docker images
+============================================
+M - 21   volume      Manage volumes
+
+  create      Create a volume
+  inspect     Display detailed information on one or more volumes
+  ls          List volumes
+  prune       Remove all unused local volumes
+  rm          Remove one or more volumes
+
+  docker volume create      --help
+  docker volume inspect     --help
+  docker volume ls          --help
+  docker volume prune       --help
+  docker volume rm          --help
+
+============================================
+
+    Commands:
+============================================
+C -  1   attach      Attach local standard input, output, and error streams to a running container
+============================================
+C -  2   build       Build an image from a Dockerfile
+============================================
+C -  3   commit      Create a new image from a container's changes
+============================================
+C -  4   cp          Copy files/folders between a container and the local filesystem
+============================================
+C -  5   create      Create a new container
+============================================
+C -  6   diff        Inspect changes to files or directories on a container's filesystem
+============================================
+C -  7   events      Get real time events from the server
+============================================
+C -  8   exec        Run a command in a running container
+============================================
+C -  9   export      Export a container's filesystem as a tar archive
+============================================
+C - 10   history     Show the history of an image
+============================================
+C - 11   images      List images
+============================================
+C - 12   import      Import the contents from a tarball to create a filesystem image
+============================================
+C - 13   info        Display system-wide information
+============================================
+C - 14   inspect     Return low-level information on Docker objects
+============================================
+C - 15   kill        Kill one or more running containers
+============================================
+C - 16   load        Load an image from a tar archive or STDIN
+============================================
+C - 17   login       Log in to a Docker registry
+============================================
+C - 18   logout      Log out from a Docker registry
+============================================
+C - 19   logs        Fetch the logs of a container
+============================================
+C - 20   pause       Pause all processes within one or more containers
+============================================
+C - 21   port        List port mappings or a specific mapping for the container
+============================================
+C - 22   ps          List containers
+============================================
+C - 23   pull        Pull an image or a repository from a registry
+============================================
+C - 24   push        Push an image or a repository to a registry
+============================================
+C - 25   rename      Rename a container
+============================================
+C - 26   restart     Restart one or more containers
+============================================
+C - 27   rm          Remove one or more containers
+============================================
+C - 28   rmi         Remove one or more images
+============================================
+C - 29   run         Run a command in a new container
+============================================
+C - 30   save        Save one or more images to a tar archive (streamed to STDOUT by default)
+============================================
+C - 31   search      Search the Docker Hub for images
+============================================
+C - 32   start       Start one or more stopped containers
+============================================
+C - 33   stats       Display a live stream of container(s) resource usage statistics
+============================================
+C - 34   stop        Stop one or more running containers
+============================================
+C - 35   tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+============================================
+C - 36   top         Display the running processes of a container
+============================================
+C - 37   unpause     Unpause all processes within one or more containers
+============================================
+C - 38   update      Update configuration of one or more containers
+============================================
+C - 39   version     Show the Docker version information
+============================================
+C - 40   wait        Block until one or more containers stop, then print their exit codes
+============================================
+
+--------------------------------------------------------------------------------------------------------------
    All started with LXC = Linux Container
         https://en.wikipedia.org/wiki/LXC
         https://github.com/lxc/lxc
@@ -61,11 +528,11 @@
 |    K  |                            |                                                                                                  |  containerisation
 |       |                   .--------------------.                                                                                      |  'under the hood'
 |    E  |                   |  docker daemon     |      The REST CRUD API (over gRPC / unix socket)                                     |
-|       |                   |                    |          ex. it's on listening and receives the instructions                         |
-|    R  |                   '--------------------'              which are routed to containerd                                          |
-|       |                            |_gPRC / unix socket                                                                               |
-|       |                            |                                                                                                  |
-|       |                   .--------------------.                                                                                      |
+|       |                   |                    |          ex. it's on listening and receives the instructions     <---------------------- NOTE it's the daemon to process a Dockerfile
+|    R  |                   '--------------------'              which are routed to containerd                                          |        The CLI passes Dockerfile + context (filesystem path)
+|       |                            |_gPRC / unix socket                                                                               |        The daemon will produce many intermediate
+|       |                            |                                                                                                  |        images (1 after each Dockerfile instruction)
+|       |                   .--------------------.                                                                                      |        Eventually it will remove the intermediate steps/images.
 |       |                   |  containerd        |     supervisor of the containers                                                     |
 |    E  |                   |                    |     Manages their lifecycle:                                                         |
 |       |                   '--------------------'     (start | stop | pause | .. )  (*1)                                               |
@@ -459,7 +926,7 @@ ________________________________________________________________________________
                    |
                    |
                   pull                            FAT MANIFEST: is a list of manifests (listing the available manifests for different architectures (Mac, Power PC, ...))
-                                                                $ docker image pull   is retrieving, as first step, the FAT MANIFEST in order to the get
+                                                                $ docker image pull   is retrieving, as first step, the FAT MANIFEST in order to get
                                                                   the proper IMAGE MANIFEST, which will then contain the LIST OF LAYERS to pull down.
 
         1 image =  . set of
@@ -504,7 +971,7 @@ ________________________________________________________________________________
                                                  Storage Driver: overlay2
 
 
-                                       There are differnt in Linux (for Windows only 1: windowsfilter)
+                                       There are differnt "Storage Driver" in Linux (for Windows only 1: windowsfilter)
                                            . aufs             (the original and oldest)
                                            . overlay2         (the best choice)
                                            . devicemapper
@@ -593,7 +1060,7 @@ ________________________________________________________________________________
 
 -----------------------------------------
 DOCKER FILE:
-                          . it's the list of instructions to build an image
+                          . it's the list of instructions to build an image ($ docker build)
                           . it's the meeting point between devs & ops people
                             as ops people can look at it and understand
                             it's then the DOCUMENTATION of the app
@@ -736,6 +1203,207 @@ DOCKER FILE:
 
            AFTER BULDING THE ABOVE DOCKER FILE I CAN THEN SEE THE 6 IMAGES:  $ docker images   (AND THEIR SIZE)
 
+
+
+
+    ------------------------
+    (Dockerfile)  "CONTEXT":      The docker "build" (which is sent to the daemon) receives:
+
+                                        - 1 Dockerfie
+                                        - 1 context
+
+                                  the context is the 'filesystem' where the Dockerfile is located.
+                                  Any instruction in the Dockerfile cannot access files outside of its context.
+                                  (Ex. I cannot use ../ to refer files in upper level to where th Dockerfile is)
+
+                                        $ docker build .      <--- the context is .
+
+                                  context rules:
+                                         - it can be a LOCAL filesystem path or a GIT URL
+                                         - it includes everything nested (eg. LOCAL sub dirs or GIT submodules (ex other repos)
+                                         - .dockerignore can limit the context (those files/dirs) will not be passed to the daemon
+
+    ------------------------
+    BuildKit                 is the new daemon.
+                             $ docker build ....               <---- this uses the old daemon
+                             $ docker buildx                   <---- new    (>= version 18.09)
+                             $ DOCKER_BUILDKIT=1 docker build  <----- still new
+
+                             The new build has more features.
+                             It parallelise build stages
+                             It detects & skips unsused build stages
+
+    ------------------------
+    Parser directives   (only in BuildKit)
+
+                    - # syntax=docker/dockerfile:1   <---- or any other image
+                    - # escape=`
+
+          The above are the 2 available parser directives.
+
+          - parser directives have the form #.....  but they are not comment
+          - parser directives do not add layers to the build, and will not be shown as a build step.
+          - by convention lowercase (remember Dockerfile is case insensitive)
+          - a blank line/ a comment / any other command,  stop the chance to add a parser directive line
+          - they must then be the first 1 or 1-2 lines (before FROM)
+
+
+                    - # syntax=docker/dockerfile:1   <---- or any other image  (syntax=example.com/user/repo:tag@sha256:abcdef...)
+
+                      This line specifies the image for the parser which will parse the Dockerfile.
+                      This allows anyone who build the image to rely on the same parser/features
+
+                      NOTE: being an image I can pull and inspect it:
+
+                        $ docker image pull docker/dockerfile:1
+                        1: Pulling from docker/dockerfile
+                        09768fef35f2: Pull complete
+                        Digest: sha256:443aab4ca21183e069e7d8b2dc68006594f40bddf1b15bbd83f5137bd93e80e2
+                        Status: Downloaded newer image for docker/dockerfile:1
+                        docker.io/docker/dockerfile:1
+
+
+
+                        $ dki inspect 84495a15555d:
+
+                        {
+                            "Id": "sha256:84495a15555de1a8f4738f58268fa8949547068198f8d0fa2a3e3a693d7f923f",
+                            "RepoTags": [
+                                "docker/dockerfile:1"
+                            ],
+                            "RepoDigests": [
+                                "docker/dockerfile@sha256:443aab4ca21183e069e7d8b2dc68006594f40bddf1b15bbd83f5137bd93e80e2"
+                            ],
+                            "Parent": "",
+                            "Comment": "buildkit.dockerfile.v0",
+                            "Created": "2022-05-06T17:12:00.383251665Z",
+                            ....
+                            "Config": {
+                                ...
+                                "Env": [
+                                    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                                ],
+                                "Cmd": null,
+                                "WorkingDir": "/",
+                                "Entrypoint": [
+                                    "/bin/dockerfile-frontend"  <------------------- HERE THE EXE
+                                ],
+                            }
+                            ...
+                        }
+
+                       Docker images can be (stable:
+                                                       docker/dockerfile:1   <--- the best option (it will always download the latest version 1)
+                                                       docker/dockerfile:1.2      it will download all pacthes (1.2.x)
+                                                       docker/dockerfile:1.2.1    immutable: never updated
+                                            or labs:
+                                                       docker/dockerfile:labs          latest release on labs channel
+                                                       docker/dockerfile:1-labs        same as dockerfile:1 stable, with labs features enabled
+                                                       docker/dockerfile:1.2-labs       "          "      1.2        "                    "
+                                                       docker/dockerfile:1.2.1-labs    immutable
+
+
+                    - # escape=`
+
+                    This specifies the char to be used for escaping chars (which of course is by default the '\')
+                    This is only useful in Windows where the \ is normally clashing with pathnames.
+
+
+    ------------------------
+    ENV
+                       It allows to defined vars to be used throughout in the Dockerfile, like they would in a shell script.
+                                FROM busybox
+                                ENV FOO=/bar
+                                WORKDIR ${FOO}   # WORKDIR /bar
+
+                       both $FOO or ${FOO} syntax allowed
+
+                       Still in bash style, it's possible to return alternative values when the var is undef:
+
+                                ${FOO:-word}     return $FOO when defined, otherwise 'word'
+                                ${FOO:+word}     return 'word' if defined, otherwsie the empty string.
+
+                       NOTE: the value doesn't change during 1 instr. It keeps the value all along:
+
+                                ENV abc=hello
+                                ENV abc=bye def=$abc    <---- same instr. def is  'hello'
+                                ENV ghi=$abc            <---- 'bye'
+
+
+    ------------------------
+    .dockerignore
+                               # comment
+                               */temp*             any file/dir named temp.... directly under root-context  (1 level under)
+                               */*/temp*           same but (2 levels under)
+                               temp?               usual 1 char
+                               **/*.go             ** means any number of dirs (0 included)
+                               !README.md          !  means exclude (so ignore README.md file)
+
+                               NOTE: As usual "the last wins".
+                                            *.md                            *.md
+                                            !README*.md                     README-secret.md
+                                            README-secret.md                !README*.md
+
+                                                ^                                ^
+                                                |                                |
+                                         here README-secret.md comes          here !README*.md comes
+                                         last. So README-secret.md is in      last. So README-secret.md is out
+
+    ------------------------
+    FROM                      FROM [--platform=<platform>] <image> [AS <name>]
+                                                                                               FROM perl                   syntax 'image'
+                                                                                               FROM ubuntu:18.04           syntax 'image:tag'     (tag missing --> 'latest')
+                                                                                               FROM myimage@56acde80       syntax 'image@digest'  (dig missing --> 'latest')
+
+                                    --platform=linux/amd64
+                                    --platform=linux/arm64
+                                    --platform=windows/amd64
+
+                              There can be many FROM as per multi-stages Dockerfile (where the alias AS <name> becomes useful)
+
+                              Every FROM resets ANY previous instructions/vars/args/....
+
+    ------------------------
+    ARG                       The only instr. that can precede a FROM.
+                              It defines a var whose scope is the FROM line only.
+                              To be used after the FROM it must be 'declared' again with the name only:
+
+                                            ARG  CODE_VERSION=latest   <--- defined                       ARG VERSION=latest         <---  defined
+                                            FROM base:${CODE_VERSION}  <--- scope                         FROM busybox:$VERSION      <---  scope
+                                            CMD  /code/run-app                                            ARG VERSION                <---  'declared'-exported-after-FROM
+                                                                                                          RUN echo $VERSION > image_version  <---- I can use again (scope extended)
+                                            FROM extras:${CODE_VERSION} <--- still FROM scope
+                                            CMD  /code/run-extras
+
+
+
+
+    ------------------------
+    RUN                       RUN /bin/bash -c 'source $HOME/.bashrc; echo $HOME'     <---- this is called 'shell' format. It's a plain text single command line (default /bin/sh -c)
+                              RUN ["/bin/bash", "-c", "echo hello"]                   <---- this is called 'exec'  format. It's a JSON in the form ["executable", "param1", "param2" ....]
+
+
+                              - The RUN 'commits' the image after the change. It creates a new image.
+                                This is like git: generating commits conforms to the core concepts of Docker:
+                                                  commits are cheap and containers can be created from any point in an image’s history, (like source control)
+
+
+
+
+
+
+
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
+    ------------------------
 ----------------------------------------- COMMANDS
 
                              NOTE ON nnnnn:   any number/id specifying an image or container can be shortened (like in git commits)
@@ -844,6 +1512,8 @@ DOCKER FILE:
       docker search alpine --filter "is-automated=true"    gives only repo with automated builds
 
       docker image build -t test:latest .      reads in the current dir the 'Dockerfile' and creates a container called 'test' and tagged 'latest'
+                                               note. I can tag the same images in more repositories, ie. a list of -t
+                                                           docker build   -t  shykes/myapp:1.0.2   -t  shykes/myapp:latest .
 
       docker image pull alpine:latest          it pulls from Docker Hub the repo alpine image 'latest'
                                                alpine is a light Linux distro (about 4MB) perfect for containers and its quick boot time.
@@ -1018,7 +1688,7 @@ DOCKER FILE:
                                       ────────────────────────────────────────────────────────────────────────────────────────────
                                       ❯ dkc exec  1d ps -efl                                                  <----- I can see that
                                       PID   USER     TIME  COMMAND                                                   the container with sleep 1d
-                                          1 root      0:00 sleep 1d                                                  is NOT tunning the default command (bin/sh)
+                                          1 root      0:00 sleep 1d                                                  is NOT running the default command (bin/sh)
                                           7 root      0:00 ps -efl
                                       ────────────────────────────────────────────────────────────────────────────────────────────
 

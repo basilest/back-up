@@ -1,0 +1,126 @@
+
+  Kubernetes symbo: K8
+
+  Kubernetes    =   Orchestration tool developed by Google
+                    to manage (hundreds / thousands) containers
+                    to achieve
+                        - Availability:       No downtime
+                        - Scalability:        Up/down
+                        - Disaster Recovery:  backup / restore data
+
+
+
+                      .--------.
+                      | Master |
+                      | Node(s)|
+                      '--------'
+
+           ======================================
+                  virtual network
+           ======================================
+
+           .--------.   .--------.   .--------.
+           | Worker |   | Worker |   | Worker |
+           |        |   |        |   |        |
+           | [c][c] |   | [c][c] |   | [c]    |        [c] : containers
+           '--------'   '--------'   '--------'
+
+
+
+
+       Worker nodes:            . where applications run
+                                . they have an agent running (Kubelet) which allows
+                                  the worker nodes to communicate with the
+                                  cluster (other workers or master node(s))
+
+       1 or + master node(s)
+                              o API server:
+                                          - a container itself
+                                          - I can interasct via:
+                                                     UI   (graphical dashboard)
+                                                     API  to use in my scripts
+                                                     CLI  terminal
+
+                              o Control Manager:  keeps track of what's happening in the cluster
+
+                              o Scheduler: like Mesos, allocates/deploys looking at
+                                           the situation of the resources (ex. 30% used Node1, 60% used Nodes2, ...)
+
+                              o etcd:  keeps stored the full configuration (what's what in the cluster and containers)
+                                       so a snapshot in time of this call allow the recovery after a disaster
+
+
+       Worker nodes are 'bigger' than master(s) in the sens they have more resources due to having to run many containers
+
+       Master nodes are critical though, as without masters I loose the cluster, so usually masters should be redundant (2,3..)
+
+
+       POD    .  is the smallest unit
+              .  is a layer on top of each application/container.
+                 (ex. in a container [c] with:
+                                           [A]    1 application
+                                           [DB]   1 database
+                      I can configure that as:
+                                           [A]    1 POD  (1 IP address)
+                                           [DB]   1 POD  (1 IP address)
+
+              .  K8 interacts not with containers but with their abstraction layer(POD)
+                 so K8 can orchestrate not only docker containers
+
+
+       IP     . the IP addresses in the virtual network are not assigned to containers but to PODS
+                so  IP ---> POD    yes
+                    IP ---> [c]    false
+
+       POD-s are ephimeral. If the [c] or the POD crashes, a new POD is deployed
+       (like in Mesos, if a service crashes on slave2, it's redeployed on slave19)
+       The IP address of a POD is then ephimeral, to as it changes at each restart.
+
+
+       SERVICE  they are the unmutable way to identify ephimeral PODS (like the services in Mesos)
+                as having the IP changing on every running instance of POD the service name
+                always identifies the POD wherever it is.
+
+       like in Mesos I can identify a service allows to identify the ephimeral  POD (
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
