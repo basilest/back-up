@@ -1410,6 +1410,10 @@ ____________________________________________________________
                      echo ${b-2}   #2          b is undefined
                      echo ${b:-2}  #2
 
+      NOTE: if I want to assign to set a var with a default:
+      T=${T=val}
+      ex T=${T=$(date +%j%H%M%S)}
+
      -------------- ARRAY
 
       DECLARATION (& ASSIGNMENT)

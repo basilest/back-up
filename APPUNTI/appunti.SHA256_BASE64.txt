@@ -24,14 +24,17 @@
                 6	000110	G	22	010110	W	38	100110	m	54	110110	2
                 7	000111	H	23	010111	X	39	100111	n	55	110111	3
                 8	001000	I	24	011000	Y	40	101000	o	56	111000	4
-                9	001001	J	25	011001	Z	41	101001	p	57	111001	5
+                9	001001	J	25	011001	Z	41	101001	p	57	111001	5        <----- [A-Za-z0-9]   62 symbols
                 10	001010	K	26	011010	a	42	101010	q	58	111010	6
                 11	001011	L	27	011011	b	43	101011	r	59	111011	7
                 12	001100	M	28	011100	c	44	101100	s	60	111100	8
                 13	001101	N	29	011101	d	45	101101	t	61	111101	9
-                14	001110	O	30	011110	e	46	101110	u	62	111110	+
-                15	001111	P	31	011111	f	47	101111	v	63	111111	/
+                14	001110	O	30	011110	e	46	101110	u	62	111110	+   <-------  plus these                   can be:  -  (hypen)
+                15	001111	P	31	011111	f	47	101111	v	63	111111	/   <-------  2 symbols.  Tot 62+2=64               _  (underscore)
                 Padding	=
+                                                                            ^                                                    ^
+                                                                            |                                                    |
+                                                                       (StdEncoding)                                        (URLEncoding)
 
 
 
@@ -49,18 +52,31 @@
      -------------------------
      Note that ASCII range != BASE 64
 
-              ex.     M a n      ASCII  0100 1101   0110 0001   0110 1101
+              ex.     M a n      ASCII  0100 1101   0110 0001   0110 1100
                                             M           a           n
 
                                  in 6-bit chunks:
-                                        010011 010110 000101 101101
-                                          T      W      F      t
+                                        010011 010110 000101 101100
+                                          T      W      F      u
 
 
      -------------------------
      Note the decimal index in the table:
           the numerical (decimal) index in the table (ex 31 = 011111, which maps an f)
-          is used to get the value.
+          is used to get the value:
+
+              2^6 = 2^3 x 2^3 or otherwsie 6 bits: xxxxxx are 2 of 3:  xxx xxx
+              where each xxx is an OCTAL number.
+              Ex
+                                     in 6-bit chunks:
+                                            010011 010110 000101 101100
+
+                                     in 3-bit chunks:
+                                            010 011 010 110 000 101 101 110
+                                             2   3   2   6   0   5   5   6  (octal)
+
+                                             23   26   05  56   (groupped in 2 (octal digits))
+                                             19   22   05  46   (decimal)  <------------------------ these are the index in the Table:  T W F u
 
 
      -------------------------
@@ -87,8 +103,21 @@
                 An exception anyhow is when multiple Base64 encoded files have been CONCATENATED.
 
 
-N2UyNDBkZTc0ZmIxZWQwOGZhMDhkMzgwNjNmNmE2YTkxNDYyYTgxNQ==
-fiQN50+x7Qj6CNOAY/amqRRiqBU
+----------- get base64 on commandline:
+
+  1)
+        $ base64 -i jake.zip -o jake.zip.base64
+
+          Note that bad64 might add a "\n" every count char. (to have the output on more lines)
+          To not add these \n check the flag on the system:
+
+          ex linux: -w 0
+             Mac:
+                     -b count     (ex -b 0  no \n)
+                     --break=count
+
+  1)
+        $ openssl base64 -A -in jake.zip -out jake.zip.base64
 
 
 ================================================================================
