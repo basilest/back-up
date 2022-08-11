@@ -281,38 +281,36 @@ NOTATIONS:
   |                            |              [remote "origin"]
   |                            |                    url = https://github.com/companieshouse/chl-database.git
   |                            |                    git config -l | grep -i url
-  |
-  |
-  | git config --list --show-origin            this is useful to know each settings from which of the possible config file come from:
-  |
-  |                                         file:/usr/local/etc/gitconfig	credential.helper=osxkeychain
-  |                                         file:/Users/sbasile/.gitconfig	user.name=sbasile-ch
-  |                                         file:/Users/sbasile/.gitconfig	user.email=sbasile@companieshouse.gov.uk
-  |                                         file:/Users/sbasile/.gitconfig	core.editor=/usr/bin/vim
-  |                                         file:/Users/sbasile/.gitconfig	core.pager=cat
-  |                                         file:/Users/sbasile/.gitconfig	core.autocrlf=false
-  |                                         file:/Users/sbasile/.gitconfig	core.excludesfile=/Users/sbasile/.gitignore
-  |                                         file:/Users/sbasile/.gitconfig	merge.tool=vimdiff
-  |                                         file:/Users/sbasile/.gitconfig	alias.l=log --all    --graph --pretty='format:%Cgreen%h%Creset %Cblue%ad%Creset%C(bold)%C(yellow)%d%Creset %C(white)%s%Creset %Cblue%an%Creset' --date=relative
-  |                                         file:/Users/sbasile/.gitconfig	alias.show-graph=log --graph --abbrev-commit --pretty=oneline
-  |                                         file:/Users/sbasile/.gitconfig	alias.s=status
-  |                                         file:/Users/sbasile/.gitconfig	alias.d=diff
-  |                                         file:/Users/sbasile/.gitconfig	alias.f=commit -m 'found changes'
-  |                                         file:/Users/sbasile/.gitconfig	alias.c=commands
-  |                                         file:/Users/sbasile/.gitconfig	alias.co=checkout
-  |                                         file:/Users/sbasile/.gitconfig	alias.cd=checkout develop
-  |                                         file:/Users/sbasile/.gitconfig	alias.cm=checkout master
-  |                                         file:/Users/sbasile/.gitconfig	alias.dc=diff --cached
-  |                                         file:/Users/sbasile/.gitconfig	alias.b=branch
-  |                                         file:/Users/sbasile/.gitconfig	alias.ba=branch -a
-  |                                         file:/Users/sbasile/.gitconfig	http.postbuffer=524288000
-  |                                         file:/Users/sbasile/.gitconfig	push.default=simple
-  |                                         file:/Users/sbasile/.gitconfig	remote.origin.prune=true
-  |                                         file:/Users/sbasile/.gitconfig	url.https://sbasile-ch:ghp_tc..................................@github.com/.insteadof=https://github.com/
-  |                                         file:/Users/sbasile/.gitconfig	url.https://sbasile-ch:ghp_tc..................................@github.com/.insteadof=git@github.com:
-  |                                         file:/Users/sbasile/.gitconfig	url.git@github.com:.insteadof=https://github.com/
-
-
+  |                            |
+  |                            |
+  |git config -l --show-origin |           this is useful to know each setting from which of the possible config file comes from:
+  |                            |
+  |                            |             file:/usr/local/etc/gitconfig	credential.helper=osxkeychain
+  |                            |             file:/Users/sbasile/.gitconfig	user.name=sbasile-ch
+  |                            |             file:/Users/sbasile/.gitconfig	user.email=sbasile@companieshouse.gov.uk
+  |                            |             file:/Users/sbasile/.gitconfig	core.editor=/usr/bin/vim
+  |                            |             file:/Users/sbasile/.gitconfig	core.pager=cat
+  |                            |             file:/Users/sbasile/.gitconfig	core.autocrlf=false
+  |                            |             file:/Users/sbasile/.gitconfig	core.excludesfile=/Users/sbasile/.gitignore
+  |                            |             file:/Users/sbasile/.gitconfig	merge.tool=vimdiff
+  |                            |             file:/Users/sbasile/.gitconfig	alias.l=log --all    --graph --pretty='format:%Cgreen%h%Creset %Cblue%ad%Creset%C(bold)%C(yellow)%d%Creset %C(white)%s%Creset %Cblue%an%Creset' --date=relative
+  |                            |             file:/Users/sbasile/.gitconfig	alias.show-graph=log --graph --abbrev-commit --pretty=oneline
+  |                            |             file:/Users/sbasile/.gitconfig	alias.s=status
+  |                            |             file:/Users/sbasile/.gitconfig	alias.d=diff
+  |                            |             file:/Users/sbasile/.gitconfig	alias.f=commit -m 'found changes'
+  |                            |             file:/Users/sbasile/.gitconfig	alias.c=commands
+  |                            |             file:/Users/sbasile/.gitconfig	alias.co=checkout
+  |                            |             file:/Users/sbasile/.gitconfig	alias.cd=checkout develop
+  |                            |             file:/Users/sbasile/.gitconfig	alias.cm=checkout master
+  |                            |             file:/Users/sbasile/.gitconfig	alias.dc=diff --cached
+  |                            |             file:/Users/sbasile/.gitconfig	alias.b=branch
+  |                            |             file:/Users/sbasile/.gitconfig	alias.ba=branch -a
+  |                            |             file:/Users/sbasile/.gitconfig	http.postbuffer=524288000
+  |                            |             file:/Users/sbasile/.gitconfig	push.default=simple
+  |                            |             file:/Users/sbasile/.gitconfig	remote.origin.prune=true
+  |                            |             file:/Users/sbasile/.gitconfig	url.https://sbasile-ch:ghp_tc..................................@github.com/.insteadof=https://github.com/
+  |                            |             file:/Users/sbasile/.gitconfig	url.https://sbasile-ch:ghp_tc..................................@github.com/.insteadof=git@github.com:
+  |                            |             file:/Users/sbasile/.gitconfig	url.git@github.com:.insteadof=https://github.com/
   | git config --help
   | git config --global user.name                              # gets the current value
   | git config --global user.name "Jon Loeliger"               # sets the value
