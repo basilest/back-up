@@ -1,12 +1,28 @@
 
-  Kubernetes symbo: K8
+  Kubernetes symbo: K8    (K8s as an abbreviation results from counting the 8 letters between the "K" and the "s".
+                                              Kubernetes
+                                               12345678
 
   Kubernetes    =   Orchestration tool developed by Google
                     to manage (hundreds / thousands) containers
-                    to achieve
+
+                .   It's lkke Mesos/Marathon plus more features
+                       - restarts automatically failed containers
+                       - scale up/ down
+                       - I can define CPU/RAM for container  (which the scheduler will use to allocate on the available Worker nodes)
+
+                                    more features:
+
+                       - I can mount file systems
+                       - load balancer: If traffic to a container is high, Kubernetes is able to load balance
+                       - Secrets and config management:  Kubernetes lets me store sensitive info, (i.e  passwords, OAuth tokens, and SSH keys, ...).
+
+                .   So in the ends it allows toto achieve:
+
                         - Availability:       No downtime
                         - Scalability:        Up/down
                         - Disaster Recovery:  backup / restore data
+
 
 
 
@@ -36,7 +52,7 @@
        1 or + master node(s)
                               o API server:
                                           - a container itself
-                                          - I can interasct via:
+                                          - I can interact via:
                                                      UI   (graphical dashboard)
                                                      API  to use in my scripts
                                                      CLI  terminal
@@ -46,11 +62,12 @@
                               o Scheduler: like Mesos, allocates/deploys looking at
                                            the situation of the resources (ex. 30% used Node1, 60% used Nodes2, ...)
 
-                              o etcd:  keeps stored the full configuration (what's what in the cluster and containers)
-                                       so a snapshot in time of this call allow the recovery after a disaster
+                              o etcd:  it keeps the full configuration (what's what in the cluster and containers)
+                                       (as key-value pair config)
+                                       Aa snapshot in time of this call allows the recovery after a disaster
 
 
-       Worker nodes are 'bigger' than master(s) in the sens they have more resources due to having to run many containers
+       Worker nodes are 'bigger' than master(s) in the sense they have more resources due to having to run many containers
 
        Master nodes are critical though, as without masters I loose the cluster, so usually masters should be redundant (2,3..)
 
@@ -74,14 +91,14 @@
 
        POD-s are ephimeral. If the [c] or the POD crashes, a new POD is deployed
        (like in Mesos, if a service crashes on slave2, it's redeployed on slave19)
-       The IP address of a POD is then ephimeral, to as it changes at each restart.
+       The IP address of a POD is then ephimeral, as it changes at each restart.
 
 
        SERVICE  they are the unmutable way to identify ephimeral PODS (like the services in Mesos)
                 as having the IP changing on every running instance of POD the service name
                 always identifies the POD wherever it is.
 
-       like in Mesos I can identify a service allows to identify the ephimeral  POD (
+
 
 
 

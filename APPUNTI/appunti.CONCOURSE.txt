@@ -5,6 +5,7 @@
 
 
 
+
 ---------------------------------------------------
 
 
@@ -13,8 +14,8 @@
                                                          ....
                                                          )
 
-         YAML ________ (start)------- pipeline
-         file                             \
+         YAML ________ (start)------- pipeline                                 note the declarative feature
+         file                             \                                    to stay in 1 YAML file
                                            \
                                              (task1) executed
                                              (task2) in ephemeral containers
@@ -49,8 +50,7 @@
    BUILDS
         \
          \_______ are the different executions of the same pipeline
-                  which are logged and kept on the server to inspection / historical logs
-
+                  which are logged and kept on the server for inspection / historical logs
 
 
 --------------------------------------------------- CONCOURSE ARCHITECTURE
@@ -67,7 +67,7 @@
 
 
                  (3)                        (1)      - Web UI
-            [PostresSQL] ------------  [ Web Nodes]  - API                    <----- Web Nodes
+            [PostgreSQL] ------------  [ Web Nodes]  - API                    <----- Web Nodes
                                             |        - Pipeline scheduler
                                             |        - Worker registration
                                             |
@@ -81,6 +81,11 @@ Concourse is distributed as a single concourse binary
 Images are pulled from docker hub by default
 
 
+---------------------------------------------------   EDITOR - VISUAL STUDIO CODE
+   A pipelines = YAML files ---> just 1 editor is OK
+
+   VISUAL STUDIO CODE has a nice plugin callwd "Pivotal"
+
 ---------------------------------------------------   FLY  (Concourse CLI)
 
        install:
@@ -88,8 +93,497 @@ Images are pulled from docker hub by default
 
                   2 way:   package manager (brew install fly)
 
+-------------- MORE VERSIONS:
 
-fly -t tutorial login -c http://localhost:8080 -u test -p test
+            ╰─ fly -t platform-common teams
+            fly version (7.1.0) is out of sync with the target (6.7.1). to sync up, run the following:
+
+                fly -t platform-common sync
+
+            cowardly refusing to run due to significant version discrepancy
+
+      ╰─ which fly
+      /usr/local/bin/fly
+
+
+      /usr/local/bin/fly --version
+      7.1.0
+
+            ╰─ fly -t platform-common sync                  # <------- THIS IS GOING TO OVERWRITE MY SYSTEM MORE UPDATED 7.1.0 /usr/local/bin/fly <---- THIS WILL BECOME 6.7.1 !!!!!!!!!!
+            downloading fly from https://ci.platform.aws.chdev.org...
+
+            fly v6.7.1 [================================================] 52.0MiB/52.0MiB
+            done
+
+      /usr/local/bin/fly --version
+      6.7.1 <------------------------------------------ NOTE
+
+     It's then better to rename and link to have more and swap on the fly:
+
+     ❯ ls -l /usr/local/bin/fly*
+
+            lrwxr-xr-x  1 sbasile  admin        33 15 Jun 20:04 /usr/local/bin/fly -> /usr/local/Caskroom/fly/7.7.1/fly
+            -rwxr-xr-x  1 sbasile  admin  54525092 15 Jun 20:13 /usr/local/bin/fly.6.7.1
+            -rwxr-xr-x@ 1 sbasile  admin  66525872 15 Jun 20:07 /usr/local/bin/fly.7.7.1
+            -rwxr-xr-x  1 sbasile  admin  69263392 15 Jun 23:26 /usr/local/bin/fly.7.8.1
+
+
+-------------- ~/.flyrc
+
+            ❯ bat ~/.flyrc
+            ───────┬───────────────────────────────────────────────────────────
+                   │ File: /Users/sbasile/.flyrc
+                   │ Size: 491 B
+            ───────┼───────────────────────────────────────────────────────────
+               1   │ targets:
+               2   │   platform-common:
+               3   │     api: https://ci.platform.aws.chdev.org
+               4   │     team: common
+               5   │     token:
+               6   │       type: bearer
+               7   │       value: 5k9ZX3s2ADxpJJjGqkcm2kn63GAuf6tiAAAAAA
+               8   │   platform-team-thundercats:
+               9   │     api: https://ci.platform.aws.chdev.org
+              10   │     team: team-thundercats
+              11   │     token:
+              12   │       type: bearer
+              13   │       value: 5k9ZX3s2ADxpJJjGqkcm2kn63GAuf6tiAAAAAA
+              14   │   tutorial:
+              15   │     api: http://localhost:8080
+              16   │     team: main
+              17   │     token:
+              18   │       type: bearer
+              19   │       value: 3rA6sDj8RUzUgIIAP9s5qnSJ1coxrqtiAAAAAA
+            ───────┴───────────────────────────────────────────────────────────
+
+         This file shouldn't be edited by hand
+
+
+-----------------------FLY cmds
+         fly     targets
+         fly -t platform-team-thundercats login -c https://ci.platform.aws.chdev.org/ -n team-thundercats
+         fly -t platform-common status
+         fly -t platform-common teams
+         fly -t platform-team-thundercats get-pipeline -p efs-submission-api | vi -         # see yaml
+         fly -t platform-common bs                                                          # builds      List builds data (aliases: bs)
+         fly -t platform-common abort-build -b 59427                                        # abort a build (alias: ab)
+         fly -t platform-common ps -a                                                       # list the configured pipelines (alias: ps) <---- better with option -a /  --all
+         fly -t platform-common jobs  -p payment-reconciler                                 # get lists of jobs
+-----------------------
+         fly     targets
+
+                                    $ fly targets
+                                      name                       url                                team              expiry
+                                      platform-common            https://ci.platform.aws.chdev.org  common            Wed, 23 Jun 2021 06:05:43 UTC
+                                      platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Wed, 23 Jun 2021 06:05:43 UTC
+                                      tutorial                   http://127.0.0.1:8080              main              Sun, 30 Aug 2020 21:31:44 UTC
+
+                 targets are just aliases to specify the pair info:
+                                     - long URL (of concourse server)
+                                     - team with which I'm authenticated.
+
+                                      Any command must always specify a target:
+
+                                             --target ... (or -t ...)
+                                      It might seem annoying to always need to specify a target,
+                                      but it helps ensure to not trigger a job on the wrong Concourse instance. It will save from hurting yourself
+
+
+                 as targets are aliases I can specify what I want. ex:
+                        fly -t platform-team-element  login -c https://ci.platform.aws.chdev.org -n team-element
+                        fly -t tcc                    login -c https://ci.platform.aws.chdev.org -n team-element
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                            this is relevant part. The free chosen "tcc" shorter name
+                                                            works like the longer 'platform-team-element' as they are both
+                                                            just aliases
+-----------------------
+         fly -t <target>  login -c <concourse url> -n <team>  -b                   -n / --team-name
+
+                                     fly -t tutorial               login --concourse-url http://127.0.0.1:8080 -u admin -p admin
+                                     fly -t platform-common        login -c https://ci.platform.aws.chdev.org/ -n common        -b
+                                     fly -t platform-team-aardvark login -c https://ci.platform.aws.chdev.org/ -n team-aardvark -b
+                                     fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n development   -b
+
+                                     $ fly -t platform-team-thundercats login -c https://ci.platform.aws.chdev.org/ -n team-thundercats
+                                     logging in to team 'team-thundercats'
+
+                                     navigate to the following URL in your browser:
+
+                                       https://ci.platform.aws.chdev.org/login?fly_port=53302
+
+                                     or enter token manually (input hidden):
+                                     target saved
+
+                 if behind a proxy requiring client cert:
+                                                            fly -t example login -c https://ci-example.com \
+                                                                --client-cert ./client.pem \
+                                                                --client-key ./client.key
+
+                 If SSL url, but without a cert signed by a trusted CA, I can use the --ca-cert flag
+                 so that fly can trust the connection, like so:
+
+                                                            fly -t example login -c https://ci.example.com --ca-cert ./ca.crt
+
+                 This will read ./ca.crt and save it into ~/.flyrc so I don't have to pass it on every login.
+
+-----------------------
+         fly -t <target>  logout                  # I explicitly logout from a target, without waiting for the token to expiry in 1 day.
+         fly              logout -a               # logout from all accounts
+-----------------------
+         fly -t example delete-target                   to remove a target from ~/.flyrc b
+         fly delete-target -a                           To delete all targets
+
+
+-----------------------
+         fly completion --shell bash    to dump the autocompletion for the desired shell.
+
+                                     $ source <(fly completion --shell bash)
+                                     $ source <(fly completion --shell zsh)
+
+
+-----------------------
+         fly -t platform-common status      #  Login status
+
+                                     $ fly -t platform-common status
+                                       logged in successfully
+
+-----------------------
+         fly -t platform-common userinfo
+
+                                     $ fly -t platform-common userinfo|sed -e 's/,/\
+                                       pipe quote>                /g'
+
+                                            sbasile  common/member
+                                                           live/member
+                                                           service-chips/pipeline-operator
+                                                           service-chips/viewer
+                                                           service-chl/pipeline-operator
+                                                           service-chl/viewer
+                                                           team-aardvark/pipeline-operator
+                                                           team-aardvark/viewer
+                                                           team-amido/pipeline-operator
+                                                           team-amido/viewer
+                                                           team-apollo/pipeline-operator
+                                                           team-apollo/viewer
+                                                           team-architects/pipeline-operator
+                                                           team-architects/viewer
+                                                           team-celestial/pipeline-operator
+                                                           team-celestial/viewer
+                                                           team-csi/pipeline-operator
+                                                           team-csi/viewer
+                                                           team-datascience/pipeline-operator
+                                                           team-datascience/viewer
+                                                           team-dsai/pipeline-operator
+                                                           team-dsai/viewer
+                                                           team-harmonia/pipeline-operator
+                                                           team-harmonia/viewer
+                                                           team-infrastructure/pipeline-operator
+                                                           team-infrastructure/viewer
+                                                           team-pa/pipeline-operator
+                                                           team-pa/viewer
+                                                           team-performance-analysis/viewer
+                                                           team-phoenix/pipeline-operator
+                                                           team-phoenix/viewer
+                                                           team-platform/pipeline-operator
+                                                           team-platform/viewer
+                                                           team-spartacus/pipeline-operator
+                                                           team-spartacus/viewer
+                                                           team-synergy/pipeline-operator
+                                                           team-synergy/viewer
+                                                           team-thunderbirds/member
+                                                           team-thunderbirds/pipeline-operator
+                                                           team-thunderbirds/viewer
+                                                           team-thundercats/pipeline-operator
+                                                           team-thundercats/viewer
+                                                           team-tiny-rebels/pipeline-operator
+                                                           team-tiny-rebels/viewer
+                                                           team-titans/pipeline-operator
+                                                           team-titans/viewer
+                                                           team-toro-loco/pipeline-operator
+                                                           team-toro-loco/viewer
+                                                           team-ucd/pipeline-operator
+                                                           team-ucd/viewer
+
+
+-----------------------
+         fly -t platform-common teams                 # teams List the configured teams (alias: t)
+
+                                     $ fly -t platform-common teams                 # teams List the configured teams (alias: t)
+                                       name
+                                       common
+                                       live
+                                       team-aardvark
+                                       team-amido
+                                       team-apollo
+                                       team-architects
+                                       team-celestial
+                                       team-csi
+                                       team-dsai
+                                       team-harmonia
+                                       team-infrastructure
+                                       team-pa
+                                       team-phoenix
+                                       team-platform
+                                       team-spartacus
+                                       team-synergy
+                                       team-thunderbirds
+                                       team-thundercats
+                                       team-tiny-rebels
+                                       team-titans
+                                       team-toro-loco
+-----------------------
+         fly -t platform-team-thundercats get-pipeline -p efs-submission-api | vi -         # see yaml
+
+                                     $ fly -t platform-team-thundercats get-pipeline -p efs-submission-api
+
+                                          ...<---- ALL THE YAML WILL BE SHOWN HERE
+-----------------------
+         fly -t platform-common bs      # builds      List builds data (aliases: bs)
+
+                                     $ fly -t platform-common bs
+
+                                     id     pipeline/job                                              build  status     start                     end                       duration   team
+                                     59449  chs-delta-api/cidev-api-tests                             1      started    2021-06-17@11:43:17+0100  n/a                       1m53s+     team-aardvark
+                                     59448  ois-tuxedo-configs/build-staging-configs                  1      started    2021-06-17@11:43:14+0100  n/a                       1m56s+     team-platform
+                                     59447  chs-delta-api/aard1-api-tests                             1      started    2021-06-17@11:43:51+0100  n/a                       1m19s+     team-aardvark
+                                     59446  company-search-consumer/apollo1                           2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
+                                     59445  company-search-consumer/cidev                             2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
+                                     59444  search.api.ch.gov.uk/apollo1-api-tests                    46     succeeded  2021-06-17@11:42:21+0100  2021-06-17@11:44:43+0100  2m22s      team-apollo
+                                     59443  search.api.ch.gov.uk/apollo1                              64     succeeded  2021-06-17@11:41:19+0100  2021-06-17@11:41:58+0100  39s        team-apollo
+                                     59442  search.api.ch.gov.uk/docker-build                         59     started    2021-06-17@11:41:19+0100  n/a                       3m51s+     team-apollo
+                                     59441  search.api.ch.gov.uk/release                              59     succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:41:16+0100  3m53s      team-apollo
+                                     59440  company-search-consumer/release                           2      succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:42:08+0100  4m45s      team-apollo
+                                     59439  data-reconciliation/analyse-pull-request                  71     succeeded  2021-06-17@11:35:09+0100  2021-06-17@11:39:16+0100  4m7s       team-thunderbirds
+                                     59438  efs-submission-web/analyse-pull-request                   55     succeeded  2021-06-17@11:34:24+0100  2021-06-17@11:40:12+0100  5m48s      team-thundercats
+                                     59437  search.api.ch.gov.uk/test-analyse                         62     succeeded  2021-06-17@11:34:23+0100  2021-06-17@11:37:06+0100  2m43s      team-apollo
+                                     59436  company-search-consumer/build-test-analyse                2      succeeded  2021-06-17@11:33:40+0100  2021-06-17@11:37:04+0100  3m24s      team-apollo
+                                     59435  efs-submission-api/analyse-pull-request                   71     succeeded  2021-06-17@11:31:00+0100  2021-06-17@11:35:33+0100  4m33s      team-thundercats
+                                     59434  efs-submission-api/api-tests                              45     succeeded  2021-06-17@11:30:50+0100  2021-06-17@11:32:07+0100  1m17s      team-thundercats
+                                     59433  chs-delta-api/cidev                                       7      succeeded  2021-06-17@11:29:52+0100  2021-06-17@11:30:36+0100  44s        team-aardvark
+                                     59432  chs-delta-api/api-tests                                   1      succeeded  2021-06-17@11:26:58+0100  2021-06-17@11:29:44+0100  2m46s      team-aardvark
+                                     59431  chs-configs/synchronise-to-s3                             497    succeeded  2021-06-17@11:25:49+0100  2021-06-17@11:28:04+0100  2m15s      common
+                                     59430  artifact-adminsites/build-ewfadmin-artifact               1      failed     2021-06-17@11:17:32+0100  2021-06-17@11:20:40+0100  3m8s       team-infrastructure
+                                     59429  efs-submission-web/analyse-pull-request                   54     succeeded  2021-06-17@11:16:09+0100  2021-06-17@11:21:05+0100  4m56s      team-thundercats
+                                     59428  efs-submission-web/analyse-pull-request                   53     succeeded  2021-06-17@10:43:35+0100  2021-06-17@10:49:42+0100  6m7s       team-thundercats
+                                     59427  ewf-terraform/staging-plan                                130    pending    n/a                       n/a                       n/a        team-infrastructure
+                                     59426  api-sdk-node/release                                      63     succeeded  2021-06-17@10:02:42+0100  2021-06-17@10:06:17+0100  3m35s      common
+                                     59425  api-sdk-node/unit-testing                                 46     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:02:30+0100  1m14s      common
+                                     59424  api-sdk-node/security-check                               32     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:01:40+0100  24s        common
+                                     59416  data-reconciliation/analyse-pull-request                  70     succeeded  2021-06-17@09:37:54+0100  2021-06-17@09:44:10+0100  6m16s      team-thunderbirds
+                                     59415  data-reconciliation/analyse-pull-request                  69     succeeded  2021-06-17@09:30:42+0100  2021-06-17@09:34:42+0100  4m0s       team-thunderbirds
+                                     59412  data-reconciliation/analyse-pull-request                  68     failed     2021-06-17@09:26:08+0100  2021-06-17@09:29:52+0100  3m44s      team-thunderbirds
+                                     59411  efs-submission-web/automation-tests                       24     started    2021-06-17@09:25:58+0100  n/a                       2h19m12s+  team-thundercats
+                                     59410  efs-submission-web/docker-build                           31     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:27:09+0100  1m51s      team-thundercats
+                                     59409  efs-submission-web/tcats1                                 43     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:25:49+0100  31s        team-thundercats
+                                     59407  efs-submission-web/release                                44     succeeded  2021-06-17@09:20:20+0100  2021-06-17@09:25:09+0100  4m49s      team-thundercats
+                                     59404  efs-submission-web/test-analyse                           45     succeeded  2021-06-17@09:14:51+0100  2021-06-17@09:20:10+0100  5m19s      team-thundercats
+                                     59403  api-sdk-node/pull-request-analysis                        154    succeeded  2021-06-17@09:14:25+0100  2021-06-17@09:17:21+0100  2m56s      common
+                                     59402  data-reconciliation/tbirds1-apply                         55     succeeded  2021-06-17@09:10:58+0100  2021-06-17@09:11:17+0100  19s        team-thunderbirds
+                                     59401  data-reconciliation/tbirds1-plan                          65     succeeded  2021-06-17@09:09:21+0100  2021-06-17@09:10:57+0100  1m36s      team-thunderbirds
+                                     59400  data-reconciliation/release                               29     succeeded  2021-06-17@09:03:13+0100  2021-06-17@09:09:07+0100  5m54s      team-thunderbirds
+                                     59399  extensions-web/vulnerability-audit                        323    failed     2021-06-17@09:02:37+0100  2021-06-17@09:05:08+0100  2m31s      team-toro-loco
+                                     59398  file-transfer-api/vulnerability-audit                     295    failed     2021-06-17@09:01:22+0100  2021-06-17@09:05:23+0100  4m1s       common
+                                     59397  ch.gov.uk/cidev                                           44     succeeded  2021-06-17@09:00:19+0100  2021-06-17@09:00:53+0100  34s        common
+                                     59396  ch.gov.uk/cidev                                           43     aborted    n/a                       2021-06-17@09:00:19+0100  n/a        common
+                                     59395  ch-account-ui/system-test-dev                             44     failed     2021-06-17@08:55:43+0100  2021-06-17@09:01:49+0100  6m6s       team-amido
+                                     59394  ch-account-ui/development-deploy                          83     succeeded  2021-06-17@08:55:03+0100  2021-06-17@08:55:33+0100  30s        team-amido
+                                     59393  data-reconciliation/build-test-analyse                    30     succeeded  2021-06-17@08:54:56+0100  2021-06-17@09:02:38+0100  7m42s      team-thunderbirds
+                                     59392  ch-account-ui/development-apply                           77     succeeded  2021-06-17@08:54:23+0100  2021-06-17@08:54:50+0100  27s        team-amido
+                                     59391  ch-account-ui/development-build                           82     succeeded  2021-06-17@08:50:20+0100  2021-06-17@08:54:07+0100  3m47s      team-amido
+                                     59390  ch-account-ui/development-plan                            79     succeeded  2021-06-17@08:48:17+0100  2021-06-17@08:50:16+0100  1m59s      team-amido
+                                     59389  ch-account-ui/testing                                     92     succeeded  2021-06-17@08:44:22+0100  2021-06-17@08:48:10+0100  3m48s      team-amido
+                                     59388  applications.api.identity.ch.gov.uk/analyse-pull-request  147    succeeded  2021-06-17@08:28:30+0100  2021-06-17@08:32:54+0100  4m24s      team-celestial
+
+         fly -t platform-common bs  -p payment-reconciler
+
+                                     $ fly -t platform-common bs  -p payment-reconciler
+
+                                     id     pipeline/job                           build  status     start                     end                       duration  team
+                                     36879  payment-reconciler/staging-plan        6      pending    n/a                       n/a                       n/a       common
+                                     36875  payment-reconciler/staging-plan        5      pending    n/a                       n/a                       n/a       common
+                                     35761  payment-reconciler/cidev-apply         7      succeeded  2020-11-02@15:26:49+0000  2020-11-02@15:27:46+0000  57s       common
+                                     35758  payment-reconciler/cidev-plan          7      succeeded  2020-11-02@15:24:58+0000  2020-11-02@15:26:01+0000  1m3s      common
+                                     35735  payment-reconciler/rebel1-apply        3      succeeded  2020-11-02@14:27:37+0000  2020-11-02@14:28:29+0000  52s       common
+                                     35733  payment-reconciler/rebel1-plan         4      succeeded  2020-11-02@14:21:56+0000  2020-11-02@14:23:30+0000  1m34s     common
+                                     35730  payment-reconciler/cidev-apply         6      succeeded  2020-11-02@14:06:13+0000  2020-11-02@14:07:03+0000  50s       common
+                                     35729  payment-reconciler/cidev-plan          6      succeeded  2020-11-02@14:04:43+0000  2020-11-02@14:06:11+0000  1m28s     common
+                                     35728  payment-reconciler/release             7      succeeded  2020-11-02@14:02:13+0000  2020-11-02@14:04:41+0000  2m28s     common
+                                     35726  payment-reconciler/build-test-analyse  10     succeeded  2020-11-02@14:00:22+0000  2020-11-02@14:02:12+0000  1m50s     common
+                                     35600  payment-reconciler/rebel1-apply        2      succeeded  2020-11-02@09:17:13+0000  2020-11-02@09:18:16+0000  1m3s      common
+                                     35596  payment-reconciler/rebel1-plan         3      succeeded  2020-11-02@09:14:33+0000  2020-11-02@09:16:13+0000  1m40s     common
+                                     35555  payment-reconciler/cidev-apply         5      succeeded  2020-10-30@14:34:14+0000  2020-10-30@14:34:45+0000  31s       common
+                                     35554  payment-reconciler/cidev-plan          5      succeeded  2020-10-30@14:33:04+0000  2020-10-30@14:34:05+0000  1m1s      common
+                                     35553  payment-reconciler/release             6      succeeded  2020-10-30@14:31:13+0000  2020-10-30@14:32:59+0000  1m46s     common
+                                     35552  payment-reconciler/build-test-analyse  9      succeeded  2020-10-30@14:29:53+0000  2020-10-30@14:31:06+0000  1m13s     common
+                                     35273  payment-reconciler/cidev-apply         4      succeeded  2020-10-29@14:48:41+0000  2020-10-29@14:49:21+0000  40s       common
+                                     35272  payment-reconciler/cidev-plan          4      succeeded  2020-10-29@14:47:40+0000  2020-10-29@14:48:38+0000  58s       common
+                                     35271  payment-reconciler/release             5      succeeded  2020-10-29@14:45:50+0000  2020-10-29@14:47:39+0000  1m49s     common
+                                     35270  payment-reconciler/build-test-analyse  8      succeeded  2020-10-29@14:45:00+0000  2020-10-29@14:45:44+0000  44s       common
+                                     35269  payment-reconciler/build-test-analyse  7      failed     2020-10-29@14:43:50+0000  2020-10-29@14:44:22+0000  32s       common
+                                     35248  payment-reconciler/build-test-analyse  6      failed     2020-10-29@14:13:43+0000  2020-10-29@14:14:26+0000  43s       common
+                                     34780  payment-reconciler/build-test-analyse  5      failed     2020-10-28@09:33:33+0000  2020-10-28@09:34:51+0000  1m18s     common
+                                     31970  payment-reconciler/rebel1-apply        1      succeeded  2020-10-12@15:31:45+0100  2020-10-12@15:35:09+0100  3m24s     common
+                                     31969  payment-reconciler/cidev-apply         3      succeeded  2020-10-12@15:29:35+0100  2020-10-12@15:30:04+0100  29s       common
+                                     31967  payment-reconciler/rebel1-plan         2      succeeded  2020-10-12@15:28:15+0100  2020-10-12@15:29:22+0100  1m7s      common
+                                     31966  payment-reconciler/cidev-plan          3      succeeded  2020-10-12@15:28:05+0100  2020-10-12@15:29:31+0100  1m26s     common
+                                     31964  payment-reconciler/release             4      succeeded  2020-10-12@15:26:14+0100  2020-10-12@15:28:03+0100  1m49s     common
+                                     31963  payment-reconciler/build-test-analyse  4      succeeded  2020-10-12@15:25:24+0100  2020-10-12@15:26:08+0100  44s       common
+                                     31962  payment-reconciler/rebel1-plan         1      failed     2020-10-12@15:23:54+0100  2020-10-12@15:24:59+0100  1m5s      common
+                                     26677  payment-reconciler/staging-apply       3      succeeded  2020-09-01@16:58:48+0100  2020-09-01@16:59:18+0100  30s       common
+                                     26676  payment-reconciler/staging-plan        4      succeeded  2020-09-01@16:57:07+0100  2020-09-01@16:58:30+0100  1m23s     common
+                                     26675  payment-reconciler/cidev-apply         2      succeeded  2020-09-01@16:55:27+0100  2020-09-01@16:55:50+0100  23s       common
+                                     26672  payment-reconciler/cidev-plan          2      succeeded  2020-09-01@16:54:27+0100  2020-09-01@16:55:23+0100  56s       common
+                                     26669  payment-reconciler/release             3      succeeded  2020-09-01@16:52:07+0100  2020-09-01@16:54:20+0100  2m13s     common
+                                     26668  payment-reconciler/build-test-analyse  3      succeeded  2020-09-01@16:51:16+0100  2020-09-01@16:52:00+0100  44s       common
+                                     26663  payment-reconciler/staging-apply       2      succeeded  2020-09-01@16:39:25+0100  2020-09-01@16:39:43+0100  18s       common
+                                     26662  payment-reconciler/staging-apply       1.2    aborted    n/a                       2020-09-01@16:39:15+0100  n/a       common
+                                     26658  payment-reconciler/staging-apply       1.1    failed     2020-09-01@16:37:04+0100  2020-09-01@16:37:47+0100  43s       common
+                                     26652  payment-reconciler/staging-apply       1      failed     2020-09-01@16:05:50+0100  2020-09-01@16:06:12+0100  22s       common
+                                     26659  payment-reconciler/staging-plan        3.1    succeeded  2020-09-01@16:38:14+0100  2020-09-01@16:39:04+0100  50s       common
+                                     26651  payment-reconciler/staging-plan        3      succeeded  2020-09-01@16:04:20+0100  2020-09-01@16:05:16+0100  56s       common
+                                     26645  payment-reconciler/staging-plan        2.1    failed     2020-09-01@15:22:21+0100  2020-09-01@15:22:35+0100  14s       common
+                                     26617  payment-reconciler/staging-plan        2      failed     2020-09-01@13:43:46+0100  2020-09-01@13:44:14+0100  28s       common
+                                     26605  payment-reconciler/staging-plan        1.2    failed     2020-09-01@13:29:44+0100  2020-09-01@13:30:14+0100  30s       common
+                                     26592  payment-reconciler/staging-plan        1.1    failed     2020-09-01@13:20:33+0100  2020-09-01@13:20:59+0100  26s       common
+                                     26591  payment-reconciler/staging-plan        1      failed     2020-09-01@13:14:22+0100  2020-09-01@13:15:15+0100  53s       common
+                                     26590  payment-reconciler/cidev-apply         1      succeeded  2020-09-01@13:13:22+0100  2020-09-01@13:13:54+0100  32s       common
+                                     26589  payment-reconciler/cidev-plan          1      succeeded  2020-09-01@13:11:52+0100  2020-09-01@13:13:13+0100  1m21s     common
+                                     26588  payment-reconciler/release             2      succeeded  2020-09-01@13:09:31+0100  2020-09-01@13:11:50+0100  2m19s     common
+
+
+-----------------------
+         fly -t platform-common abort-build -b 59427     # abort a build (alias: ab)
+
+                                     $ fly -t platform-common abort-build -b 59427  #  abort-build     Abort a build (alias: ab)
+                                       build successfully aborted
+
+                                     $ fly -t platform-common ab  --job payment-reconciler/staging-plan --build 5
+
+-----------------------
+         fly -t platform-common ps -a              # list the configured pipelines (alias: ps) <---- better with option -a /  --all
+         fly -t platform-common pipelines -a
+
+                                     $ fly -t platform-common ps -a
+
+                                         name                                          team                       paused  public  last updated
+                                         account.ch.gov.uk                             common                     no      yes     2022-07-28 15:54:07 +0100 BST
+                                         account.ch.gov.uk-deps                        common                     no      yes     2020-11-13 08:59:00 +0000 GMT
+                                         alpha-key-library                             common                     no      yes     2020-10-08 16:03:24 +0100 BST
+                                         api-sdk-go                                    common                     no      yes     2020-11-13 08:59:49 +0000 GMT
+                                         api-sdk-java                                  common                     no      yes     2020-11-13 09:00:08 +0000 GMT
+                                         api-sdk-node                                  common                     no      yes     2022-07-06 10:53:06 +0100 BST
+                                         api-security-java                             common                     no      yes     2020-11-13 09:01:24 +0000 GMT
+                                         api.ch.gov.uk                                 common                     no      yes     2022-01-11 15:24:27 +0000 GMT
+                                         api.ch.gov.uk-deps                            common                     no      yes     2021-07-21 09:18:19 +0100 BST
+                                         barcode-generator                             common                     no      yes     2022-01-05 16:26:45 +0000 GMT
+                                         cdn.ch.gov.uk                                 common                     no      yes     2021-10-08 15:39:46 +0100 BST
+                                         ch-kafka                                      common                     no      yes     2020-11-13 09:02:12 +0000 GMT
+                                         ...
+                                         uri-web                                       common                     no      yes     2020-11-13 09:35:03 +0000 GMT
+                                         web-security-java                             common                     no      yes     2020-11-13 09:35:28 +0000 GMT
+                                         web-security-node                             common                     no      yes     2021-05-17 13:24:12 +0100 BST
+                                         webhook-token-generator                       common                     no      yes     2020-09-03 09:25:53 +0100 BST
+                                         matomo-build                                  live                       yes     yes     2021-09-08 08:29:58 +0100 BST
+                                         psc-discrepancy-parser                        live                       no      yes     2021-12-22 13:46:36 +0000 GMT
+                                         chips-e2e-test-pipeline                       service-chips              no      yes     2022-07-29 15:43:41 +0100 BST
+                                         chips-sonar-analysis                          service-chips              no      yes     2022-05-12 15:32:31 +0100 BST
+                                         abridged.accounts.api.ch.gov.uk               team-aardvark              no      yes     2021-04-13 14:25:32 +0100 BST
+                                         abridged.accounts.web.ch.gov.uk               team-aardvark              no      yes     2021-04-13 14:33:37 +0100 BST
+                                         ...
+                                         lfp-pay-api-core                              team-aardvark              yes     yes     2021-04-14 08:01:17 +0100 BST
+                                         ch-account-ui                                 team-amido                 no      yes     2022-02-17 14:45:02 +0000 GMT
+                                         ...
+                                         ch-bcrypt-hash-generate                       team-amido                 no      yes     2022-01-27 11:53:56 +0000 GMT
+                                         certificates.orders.api.ch.gov.uk             team-apollo                no      yes     2022-03-01 11:04:42 +0000 GMT
+                                         ...
+                                         search.web.ch.gov.uk                          team-apollo                no      yes     2021-11-12 08:12:04 +0000 GMT
+                                         applications.api.identity.ch.gov.uk           team-celestial             no      yes     2021-01-22 10:46:35 +0000 GMT
+                                         ...
+                                         psc-discrepancies.web.ch.gov.uk               team-celestial             yes     yes     2021-10-15 08:08:37 +0100 BST
+                                         ami-docker                                    team-csi                   no      yes     2021-06-24 11:23:59 +0100 BST
+                                         ...
+                                         staffware-web-admin                           team-csi                   no      yes     2022-08-09 17:41:24 +0100 BST
+                                         do-success                                    team-datascience           no      no      2021-11-12 14:35:39 +0000 GMT
+                                         bcrypt-hash-check                             team-harmonia              no      yes     2022-01-13 12:05:33 +0000 GMT
+                                         ...
+                                         transaction-search-tool                       team-harmonia              no      yes     2022-01-10 09:38:50 +0000 GMT
+                                         admin-sites-terraform                         team-infrastructure        no      yes     2022-02-09 08:39:02 +0000 GMT
+                                         ...
+                                         ais-tuxedo-stack                              team-infrastructure        no      yes     2022-07-14 11:00:05 +0100 BST
+                                         ivp2-tesseract-poc                            team-pa                    yes     yes     2020-09-25 10:23:55 +0100 BST
+                                         ...
+                                         tesseract-base-image                          team-pa                    no      yes     2021-08-19 11:31:27 +0100 BST
+                                         ami-metrics-platform                          team-performance-analysis  yes     no      2021-11-11 11:28:04 +0000 GMT
+                                         ...
+                                         performance-analysis-artifact                 team-performance-analysis  no      yes     2022-02-09 09:46:33 +0000 GMT
+                                         dissolution-api                               team-phoenix               no      yes     2022-08-09 12:03:18 +0100 BST
+                                         ...
+                                         payments.web.ch.gov.uk                        team-phoenix               no      yes     2021-10-01 12:28:57 +0100 BST
+                                         advanced-search-terraform                     team-platform              no      yes     2021-11-23 13:07:03 +0000 GMT
+                                         ...
+                                         zookeeper-ami                                 team-platform              no      yes     2022-02-17 14:45:18 +0000 GMT
+                                         bris-api                                      team-spartacus             no      yes     2020-11-18 16:53:07 +0000 GMT
+                                         ...
+                                         user.web.identity.ch.gov.uk                   team-spartacus             no      yes     2020-11-18 16:52:09 +0000 GMT
+                                         afd-chips-image-service                       team-thunderbirds          yes     no      2020-12-14 11:51:13 +0000 GMT
+                                         ...
+                                         admin.orders.web.ch.gov.uk                    team-thunderbirds          no      no      2022-07-28 12:30:08 +0100 BST
+                                         configurable-api-caller-terraform             team-thundercats           no      yes     2021-10-15 10:08:46 +0100 BST
+                                         ...
+                                         tpa-register-api                              team-thundercats           no      yes     2022-07-13 15:26:05 +0100 BST
+                                         cdn-rebel1                                    team-tiny-rebels           no      yes     2020-09-08 10:47:23 +0100 BST
+                                         ...
+                                         suppression-web                               team-tiny-rebels           no      yes     2020-12-22 10:03:53 +0000 GMT
+                                         bankrupt-officer-search-api                   team-titans                no      yes     2021-06-01 09:44:26 +0100 BST
+                                         ...
+                                         strike-off-objections-web                     team-titans                no      yes     2021-06-02 10:11:23 +0100 BST
+                                         chips-rest-interfaces-consumer                team-toro-loco             no      yes     2022-06-17 11:41:45 +0100 BST
+                                         ...
+                                         register-an-overseas-entity-web               team-toro-loco             yes     no      2022-03-14 10:29:49 +0000 GMT
+                                         promo-artifact-build-deploy                   team-ucd                   no      yes     2022-02-09 08:48:13 +0000 GMT
+                                         aws-dsr-infrastructure-terraform              secure                     no      yes     2022-01-12 15:07:11 +0000 GMT
+
+-----------------------
+         fly -t platform-common jobs  -p payment-reconciler        # get lists of jobs
+
+                                     $ fly -t platform-common jobs  -p payment-reconciler
+                                       name                paused  status     next
+                                       create-webhooks     no      succeeded  n/a
+                                       delete-webhooks     no      n/a        n/a
+                                       build-test-analyse  no      succeeded  n/a
+                                       release             no      succeeded  n/a
+                                       cidev-plan          no      succeeded  n/a
+                                       cidev-apply         no      succeeded  n/a
+                                       cidev-destroy       no      n/a        n/a
+                                       aard1-plan          no      n/a        n/a
+                                       aard1-apply         no      n/a        n/a
+                                       aard1-destroy       no      n/a        n/a
+                                       apollo1-plan        no      n/a        n/a
+                                       apollo1-apply       no      n/a        n/a
+                                       apollo1-destroy     no      n/a        n/a
+                                       tcats1-plan         no      n/a        n/a
+                                       tcats1-apply        no      n/a        n/a
+                                       tcats1-destroy      no      n/a        n/a
+                                       staging-plan        no      succeeded  pending
+                                       staging-apply       no      succeeded  n/a
+                                       staging-destroy     no      n/a        n/a
+                                       rebel1-plan         no      succeeded  n/a
+                                       rebel1-apply        no      succeeded  n/a
+                                       rebel1-destroy      no      n/a        n/a
+-----------------------
+        fly -t platform-team-aardvark workers
+                                        name             containers  platform  tags  team  state    version  age
+                                        ip-10-50-17-115  127         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-116  165         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-119  158         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-155  137         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-172  157         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-19   149         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-230  185         linux     none  none  running  2.2      201d
+                                        ip-10-50-17-250  173         linux     none  none  running  2.2      201d
+
+-----------------------
+
 
 
     fly -t tutorial workers
@@ -136,40 +630,12 @@ fly -t tutorial login -c http://localhost:8080 -u test -p test
 
 
 
-
-
-
-
-
-         fly     targets
-
-                                             always    --target ... (or -t ...)
-                                                       It might seem annoying to always need to specify a target,
-                                                       but it helps ensure to not trigger a job on the wrong Concourse instance. It will save from hurting yourself
-
-         fly  --target  ps login
-         fly  --target  ps status
          fly  --target  ps execute          --config  task1.yml
          fly  --target  ps set-pipeline     --config  pipeline.yml  --pipeline   mypipe
          fly  --target  ps jobs                                     --pipeline   mypipe
 
 
-            ~/.bash_profile
-                export no_proxy="chs-dev,localhost,*.aws.chdev.org"
-                export NO_PROXY=$no_proxy
 
-Fly authentication
-
-against (e.g. Platform or Sandbox)
-
-fly -t <target>               login -c <concourse url>                    -n <team>        -b
-fly -t platform-common        login -c https://ci.platform.aws.chdev.org/ -n common        -b
-fly -t platform-team-aardvark login -c https://ci.platform.aws.chdev.org/ -n team-aardvark -b
-fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n development   -b
-
-
-
-            fly --target tutorial login --concourse-url http://127.0.0.1:8080 -u admin -p admin
             fly -t       tutorial execute -c task_ubuntu_uname.yml
             fly -t       tutorial e       -c task_ubuntu_uname.yml
 
@@ -177,94 +643,6 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
 
-            ╰─ bat ~/.flyrc
-            ───────┬─────────────────────────────────────────────────────
-                   │ File: /Users/sbasile/.flyrc
-            ───────┼─────────────────────────────────────────────────────
-               1   │ targets:
-               2   │   tutorial:
-               3   │     api: http://127.0.0.1:8080
-               4   │     team: main
-               5   │     token:
-               6   │       type: bearer
-               7   │       value: YJLz5Sn0r+k7rKIbArE3pdWEUGPAGkxfAAAAAA
-            ───────┴─────────────────────────────────────────────────────
-
-
-
-
-            ╰─ fly targets
-            name                       url                                team              expiry
-            platform-common            https://ci.platform.aws.chdev.org  common            Wed, 23 Jun 2021 06:05:43 UTC
-            platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Wed, 23 Jun 2021 06:05:43 UTC
-            ps                         http://localhost:8080              main              Tue, 10 Nov 2020 23:16:38 UTC
-            tutorial                   http://127.0.0.1:8080              main              Sun, 30 Aug 2020 21:31:44 UTC
-
-
-            ╰─ fly -t platform-common teams
-            fly version (7.1.0) is out of sync with the target (6.7.1). to sync up, run the following:
-
-                fly -t platform-common sync
-
-            cowardly refusing to run due to significant version discrepancy
-
-      ╰─ which fly
-      /usr/local/bin/fly
-
-
-      /usr/local/bin/fly --version
-      7.1.0
-
-            ╰─ fly -t platform-common sync                  # <------- THIS IS GOING TO OVERWRITE MY SYSTEM MORE UPDATED 7.1.0 /usr/local/bin/fly <---- THIS WILL BECOME 6.7.1 !!!!!!!!!!
-            downloading fly from https://ci.platform.aws.chdev.org...
-
-            fly v6.7.1 [================================================] 52.0MiB/52.0MiB
-            done
-
-      /usr/local/bin/fly --version
-      6.7.1 <------------------------------------------ NOTE
-
-            ╰─ fly -t platform-common teams                 # teams List the configured teams (aliases: t)
-            name
-            common
-            live
-            team-aardvark
-            team-amido
-            team-apollo
-            team-architects
-            team-celestial
-            team-csi
-            team-dsai
-            team-harmonia
-            team-infrastructure
-            team-pa
-            team-phoenix
-            team-platform
-            team-spartacus
-            team-synergy
-            team-thunderbirds
-            team-thundercats
-            team-tiny-rebels
-            team-titans
-            team-toro-loco
-
-            ╰─ fly -t platform-common status                #  status     Login status
-            logged in successfully
-
-            ╰─ fly -t platform-team-thundercats login -c https://ci.platform.aws.chdev.org/ -n team-thundercats
-            logging in to team 'team-thundercats'
-
-            navigate to the following URL in your browser:
-
-              https://ci.platform.aws.chdev.org/login?fly_port=53302
-
-            or enter token manually (input hidden):
-            target saved
-
-
-            ╰─ fly -t platform-team-thundercats get-pipeline -p efs-submission-api
-
-              ...<---- ALL THE YAML WILL BE SHOWN HERE
 
             cd /Users/sbasile/SUP/CONCOURSE/ci-pipelines/scripts
             ╰─ ./set-pipeline -t platform-common  -p efs-submission-api
@@ -275,362 +653,457 @@ fly -t sandbox-development    login -c https://ci.sandbox.aws.chdev.org/  -n dev
 
 
 
-            ╰─ fly -t platform-common bs       # builds      List builds data (aliases: bs)
-
-            id     pipeline/job                                              build  status     start                     end                       duration   team
-            59449  chs-delta-api/cidev-api-tests                             1      started    2021-06-17@11:43:17+0100  n/a                       1m53s+     team-aardvark
-            59448  ois-tuxedo-configs/build-staging-configs                  1      started    2021-06-17@11:43:14+0100  n/a                       1m56s+     team-platform
-            59447  chs-delta-api/aard1-api-tests                             1      started    2021-06-17@11:43:51+0100  n/a                       1m19s+     team-aardvark
-            59446  company-search-consumer/apollo1                           2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
-            59445  company-search-consumer/cidev                             2      started    2021-06-17@11:42:22+0100  n/a                       2m48s+     team-apollo
-            59444  search.api.ch.gov.uk/apollo1-api-tests                    46     succeeded  2021-06-17@11:42:21+0100  2021-06-17@11:44:43+0100  2m22s      team-apollo
-            59443  search.api.ch.gov.uk/apollo1                              64     succeeded  2021-06-17@11:41:19+0100  2021-06-17@11:41:58+0100  39s        team-apollo
-            59442  search.api.ch.gov.uk/docker-build                         59     started    2021-06-17@11:41:19+0100  n/a                       3m51s+     team-apollo
-            59441  search.api.ch.gov.uk/release                              59     succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:41:16+0100  3m53s      team-apollo
-            59440  company-search-consumer/release                           2      succeeded  2021-06-17@11:37:23+0100  2021-06-17@11:42:08+0100  4m45s      team-apollo
-            59439  data-reconciliation/analyse-pull-request                  71     succeeded  2021-06-17@11:35:09+0100  2021-06-17@11:39:16+0100  4m7s       team-thunderbirds
-            59438  efs-submission-web/analyse-pull-request                   55     succeeded  2021-06-17@11:34:24+0100  2021-06-17@11:40:12+0100  5m48s      team-thundercats
-            59437  search.api.ch.gov.uk/test-analyse                         62     succeeded  2021-06-17@11:34:23+0100  2021-06-17@11:37:06+0100  2m43s      team-apollo
-            59436  company-search-consumer/build-test-analyse                2      succeeded  2021-06-17@11:33:40+0100  2021-06-17@11:37:04+0100  3m24s      team-apollo
-            59435  efs-submission-api/analyse-pull-request                   71     succeeded  2021-06-17@11:31:00+0100  2021-06-17@11:35:33+0100  4m33s      team-thundercats
-            59434  efs-submission-api/api-tests                              45     succeeded  2021-06-17@11:30:50+0100  2021-06-17@11:32:07+0100  1m17s      team-thundercats
-            59433  chs-delta-api/cidev                                       7      succeeded  2021-06-17@11:29:52+0100  2021-06-17@11:30:36+0100  44s        team-aardvark
-            59432  chs-delta-api/api-tests                                   1      succeeded  2021-06-17@11:26:58+0100  2021-06-17@11:29:44+0100  2m46s      team-aardvark
-            59431  chs-configs/synchronise-to-s3                             497    succeeded  2021-06-17@11:25:49+0100  2021-06-17@11:28:04+0100  2m15s      common
-            59430  artifact-adminsites/build-ewfadmin-artifact               1      failed     2021-06-17@11:17:32+0100  2021-06-17@11:20:40+0100  3m8s       team-infrastructure
-            59429  efs-submission-web/analyse-pull-request                   54     succeeded  2021-06-17@11:16:09+0100  2021-06-17@11:21:05+0100  4m56s      team-thundercats
-            59428  efs-submission-web/analyse-pull-request                   53     succeeded  2021-06-17@10:43:35+0100  2021-06-17@10:49:42+0100  6m7s       team-thundercats
-  ------->  59427  ewf-terraform/staging-plan                                130    pending    n/a                       n/a                       n/a        team-infrastructure
-            59426  api-sdk-node/release                                      63     succeeded  2021-06-17@10:02:42+0100  2021-06-17@10:06:17+0100  3m35s      common
-            59425  api-sdk-node/unit-testing                                 46     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:02:30+0100  1m14s      common
-            59424  api-sdk-node/security-check                               32     succeeded  2021-06-17@10:01:16+0100  2021-06-17@10:01:40+0100  24s        common
-            59416  data-reconciliation/analyse-pull-request                  70     succeeded  2021-06-17@09:37:54+0100  2021-06-17@09:44:10+0100  6m16s      team-thunderbirds
-            59415  data-reconciliation/analyse-pull-request                  69     succeeded  2021-06-17@09:30:42+0100  2021-06-17@09:34:42+0100  4m0s       team-thunderbirds
-            59412  data-reconciliation/analyse-pull-request                  68     failed     2021-06-17@09:26:08+0100  2021-06-17@09:29:52+0100  3m44s      team-thunderbirds
-            59411  efs-submission-web/automation-tests                       24     started    2021-06-17@09:25:58+0100  n/a                       2h19m12s+  team-thundercats
-            59410  efs-submission-web/docker-build                           31     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:27:09+0100  1m51s      team-thundercats
-            59409  efs-submission-web/tcats1                                 43     succeeded  2021-06-17@09:25:18+0100  2021-06-17@09:25:49+0100  31s        team-thundercats
-            59407  efs-submission-web/release                                44     succeeded  2021-06-17@09:20:20+0100  2021-06-17@09:25:09+0100  4m49s      team-thundercats
-            59404  efs-submission-web/test-analyse                           45     succeeded  2021-06-17@09:14:51+0100  2021-06-17@09:20:10+0100  5m19s      team-thundercats
-            59403  api-sdk-node/pull-request-analysis                        154    succeeded  2021-06-17@09:14:25+0100  2021-06-17@09:17:21+0100  2m56s      common
-            59402  data-reconciliation/tbirds1-apply                         55     succeeded  2021-06-17@09:10:58+0100  2021-06-17@09:11:17+0100  19s        team-thunderbirds
-            59401  data-reconciliation/tbirds1-plan                          65     succeeded  2021-06-17@09:09:21+0100  2021-06-17@09:10:57+0100  1m36s      team-thunderbirds
-            59400  data-reconciliation/release                               29     succeeded  2021-06-17@09:03:13+0100  2021-06-17@09:09:07+0100  5m54s      team-thunderbirds
-            59399  extensions-web/vulnerability-audit                        323    failed     2021-06-17@09:02:37+0100  2021-06-17@09:05:08+0100  2m31s      team-toro-loco
-            59398  file-transfer-api/vulnerability-audit                     295    failed     2021-06-17@09:01:22+0100  2021-06-17@09:05:23+0100  4m1s       common
-            59397  ch.gov.uk/cidev                                           44     succeeded  2021-06-17@09:00:19+0100  2021-06-17@09:00:53+0100  34s        common
-            59396  ch.gov.uk/cidev                                           43     aborted    n/a                       2021-06-17@09:00:19+0100  n/a        common
-            59395  ch-account-ui/system-test-dev                             44     failed     2021-06-17@08:55:43+0100  2021-06-17@09:01:49+0100  6m6s       team-amido
-            59394  ch-account-ui/development-deploy                          83     succeeded  2021-06-17@08:55:03+0100  2021-06-17@08:55:33+0100  30s        team-amido
-            59393  data-reconciliation/build-test-analyse                    30     succeeded  2021-06-17@08:54:56+0100  2021-06-17@09:02:38+0100  7m42s      team-thunderbirds
-            59392  ch-account-ui/development-apply                           77     succeeded  2021-06-17@08:54:23+0100  2021-06-17@08:54:50+0100  27s        team-amido
-            59391  ch-account-ui/development-build                           82     succeeded  2021-06-17@08:50:20+0100  2021-06-17@08:54:07+0100  3m47s      team-amido
-            59390  ch-account-ui/development-plan                            79     succeeded  2021-06-17@08:48:17+0100  2021-06-17@08:50:16+0100  1m59s      team-amido
-            59389  ch-account-ui/testing                                     92     succeeded  2021-06-17@08:44:22+0100  2021-06-17@08:48:10+0100  3m48s      team-amido
-            59388  applications.api.identity.ch.gov.uk/analyse-pull-request  147    succeeded  2021-06-17@08:28:30+0100  2021-06-17@08:32:54+0100  4m24s      team-celestial
-
-
-            ╰─ fly -t platform-common abort-build -b 59427  #  abort-build     Abort a build (aliases: ab)
-            build successfully aborted
-
-
-
-            ╰─ fly -t platform-common ps                    # pipelines        List the configured pipelines (aliases: ps) <---- better with option -a /  --all
-            name                             paused  public  last updated
-            account.ch.gov.uk                no      yes     2020-11-13 08:58:49 +0000 GMT
-            account.ch.gov.uk-deps           no      yes     2020-11-13 08:59:00 +0000 GMT
-            alpha-key-library                no      yes     2020-10-08 16:03:24 +0100 BST
-            api-helper-java                  no      yes     2020-11-13 08:59:14 +0000 GMT
-            api-sdk-go                       no      yes     2020-11-13 08:59:49 +0000 GMT
-            api-sdk-java                     no      yes     2020-11-13 09:00:08 +0000 GMT
-            api-sdk-manager-java-library     no      yes     2020-11-13 09:00:21 +0000 GMT
-            api-sdk-node                     no      yes     2020-12-08 17:29:13 +0000 GMT
-            api-security-java                no      yes     2020-11-13 09:01:24 +0000 GMT
-            api.ch.gov.uk                    no      yes     2020-11-12 15:19:56 +0000 GMT
-            api.ch.gov.uk-deps               no      yes     2020-10-09 08:37:36 +0100 BST
-            barcode-generator                no      yes     2020-11-13 09:01:49 +0000 GMT
-            bulk-image-load                  yes     yes     2020-09-03 09:13:24 +0100 BST
-            cdn.ch.gov.uk                    no      yes     2020-11-13 09:02:02 +0000 GMT
-            ch-kafka                         no      yes     2020-11-13 09:02:12 +0000 GMT
-            ch-sdk-node                      no      yes     2020-11-13 09:02:24 +0000 GMT
-            ch-structured-logging-node       no      no      2020-10-09 18:55:50 +0100 BST
-            ch.gov.uk                        no      yes     2020-11-13 09:02:34 +0000 GMT
-            ch.gov.uk-deps                   no      yes     2021-05-10 16:46:47 +0100 BST
-            chips-filing-consumer.yml        no      yes     2020-09-14 06:59:16 +0100 BST
-            chips-image-service              no      yes     2020-09-14 07:05:29 +0100 BST
-            chips-prosecution-api            yes     yes     2020-09-03 09:14:15 +0100 BST
-            chips-tuxedo-proxy               no      yes     2020-11-13 09:03:06 +0000 GMT
-            chs-appointments-api             no      yes     2020-11-13 09:04:16 +0000 GMT
-            chs-appointments-api-deps        no      yes     2020-11-13 09:04:26 +0000 GMT
-            chs-backend                      no      yes     2021-01-07 15:25:51 +0000 GMT
-            chs-backend-deps                 no      yes     2021-04-27 13:01:04 +0100 BST
-            chs-company-profile-api          yes     yes     2020-11-13 09:04:40 +0000 GMT
-            chs-company-profile-api-deps     no      yes     2020-11-13 09:05:21 +0000 GMT
-            chs-configs                      no      yes     2021-04-19 11:49:54 +0100 BST
-            chs-exemption-api                yes     yes     2020-11-13 09:05:39 +0000 GMT
-            chs-exemption-api-deps           no      yes     2020-11-13 09:06:11 +0000 GMT
-            chs-go-avro-schemas              yes     yes     2020-11-13 09:11:53 +0000 GMT
-            chs-integrity-checker            no      yes     2020-11-13 09:14:26 +0000 GMT
-            chs-kafka-api                    no      yes     2020-09-16 06:04:36 +0100 BST
-            chs-monitor-consumer             no      yes     2020-09-14 07:31:51 +0100 BST
-            chs-monitor-gui                  no      yes     2020-11-13 09:14:51 +0000 GMT
-            chs-monitor-gui-deps             no      yes     2021-05-10 16:46:31 +0100 BST
-            chs-psc-api                      no      yes     2021-06-03 08:28:30 +0100 BST
-            chs-psc-api-deps                 no      yes     2020-11-13 09:15:46 +0000 GMT
-            chs-queue-api                    no      yes     2020-11-13 09:15:58 +0000 GMT
-            chs-queue-api-deps               no      yes     2020-11-13 09:16:14 +0000 GMT
-            chs-registers-api                yes     yes     2020-11-13 09:16:21 +0000 GMT
-            chs-registers-api-deps           no      yes     2020-11-13 09:16:43 +0000 GMT
-            chs-streaming-api                no      yes     2020-11-13 09:16:53 +0000 GMT
-            chs-transform-api                no      yes     2020-11-14 10:29:23 +0000 GMT
-            chs-transform-api-deps           no      yes     2020-11-13 09:17:57 +0000 GMT
-            chs.go                           no      yes     2020-11-13 09:18:42 +0000 GMT
-            common-web-java                  no      yes     2020-11-13 09:19:00 +0000 GMT
-            company-lookup.web.ch.gov.uk     no      yes     2020-11-13 09:19:21 +0000 GMT
-            dapperdox.developer.ch.gov.uk    no      yes     2020-11-30 14:06:37 +0000 GMT
-            dev-dashboard-backend            no      yes     2020-11-13 09:20:10 +0000 GMT
-            dev-dashboard-web                no      yes     2020-11-13 09:20:30 +0000 GMT
-            developer.ch.gov.uk              no      yes     2021-06-08 16:49:47 +0100 BST
-            developer.ch.gov.uk-deps         no      yes     2021-06-03 17:30:40 +0100 BST
-            doc-template-sync                yes     yes     2020-09-03 09:16:53 +0100 BST
-            doc1-producer                    no      yes     2020-11-13 09:21:17 +0000 GMT
-            document-render-assets-registry  yes     yes     2020-11-13 09:21:28 +0000 GMT
-            document-render-from-html5       yes     yes     2020-09-03 09:17:02 +0100 BST
-            document-render-service          no      yes     2020-09-14 07:41:16 +0100 BST
-            document-request.web.ch.gov.uk   no      yes     2020-11-13 09:22:04 +0000 GMT
-            email-producer-java              no      yes     2020-10-15 13:19:53 +0100 BST
-            encryption-java-library          no      yes     2020-09-03 09:17:39 +0100 BST
-            envconf                          yes     yes     2020-11-13 09:23:22 +0000 GMT
-            environment-reader-library       no      yes     2020-11-13 09:23:31 +0000 GMT
-            environment-staging              yes     yes     2020-11-11 14:47:43 +0000 GMT
-            eric                             no      yes     2020-11-13 09:23:52 +0000 GMT
-            file-delivery-api                no      yes     2020-11-13 09:24:07 +0000 GMT
-            file-transfer-api                no      yes     2020-11-02 10:43:39 +0000 GMT
-            global-resource-check            no      yes     2020-11-14 10:23:27 +0000 GMT
-            go-sdk-manager                   no      yes     2020-11-13 09:24:41 +0000 GMT
-            go-session-handler               yes     yes     2020-11-13 09:24:47 +0000 GMT
-            gofigure                         yes     yes     2020-11-13 09:25:01 +0000 GMT
-            gotools                          yes     yes     2020-11-13 09:25:09 +0000 GMT
-            htmlform                         yes     yes     2020-11-13 09:25:46 +0000 GMT
-            image-regeneration               yes     yes     2020-09-03 09:20:46 +0100 BST
-            image-sender                     no      yes     2020-09-03 09:20:50 +0100 BST
-            ixbrl-renderer-service           no      yes     2020-11-13 09:25:59 +0000 GMT
-            java-session-handler             no      yes     2020-11-13 09:26:13 +0000 GMT
-            kafka-models                     no      yes     2020-11-13 09:26:24 +0000 GMT
-            letter-producer                  no      yes     2020-11-13 09:26:46 +0000 GMT
-            node-session-handler             no      yes     2020-10-12 16:27:36 +0100 BST
-            payment-reconciliation-consumer  no      yes     2020-11-13 09:27:37 +0000 GMT
-            postcode-lookup                  no      yes     2021-03-12 12:33:56 +0000 GMT
-            private-api-sdk-go               no      yes     2020-11-13 09:27:58 +0000 GMT
-            private-api-sdk-java             no      yes     2020-11-13 09:28:06 +0000 GMT
-            private-api-sdk-node             no      yes     2020-11-13 09:28:21 +0000 GMT
-            prosecution-case                 yes     yes     2020-09-03 09:21:22 +0100 BST
-            prosecution-event-handler        yes     yes     2020-09-03 09:21:25 +0100 BST
-            prosecution-web                  yes     yes     2020-09-03 09:21:30 +0100 BST
-            psc-discrepancies.api.ch.gov.uk  no      yes     2021-02-22 09:44:23 +0000 GMT
-            psc-discrepancies.web.ch.gov.uk  no      yes     2021-02-26 17:56:29 +0000 GMT
-            psc-discrepancy-parser           no      yes     2020-11-13 09:30:02 +0000 GMT
-            renderer-template-deployment     yes     yes     2020-09-03 09:23:39 +0100 BST
-            resource-change-publisher        no      yes     2020-11-13 09:30:12 +0000 GMT
-            rest-service-common-library      no      yes     2020-11-13 09:30:37 +0000 GMT
-            restoration-calculator-service   no      yes     2020-11-13 09:30:51 +0000 GMT
-            s3-av-scanner                    no      yes     2020-11-02 13:15:26 +0000 GMT
-            sdk-manager-java                 no      yes     2020-11-13 09:31:28 +0000 GMT
-            stream-router                    no      yes     2020-11-13 09:32:27 +0000 GMT
-            structured-logging               no      yes     2020-11-13 09:32:37 +0000 GMT
-            test-data-generator              no      yes     2021-04-19 12:51:20 +0100 BST
-            test-data-generator-stack        yes     yes     2020-11-13 09:33:54 +0000 GMT
-            test-data-stack                  yes     yes     2020-10-27 10:52:40 +0000 GMT
-            transactions.api.ch.gov.uk       no      yes     2020-11-30 07:41:17 +0000 GMT
-            transactions.web.ch.gov.uk       no      yes     2021-04-09 16:54:58 +0100 BST
-            uri-web                          no      yes     2020-11-13 09:35:03 +0000 GMT
-            web-security-java                no      yes     2020-11-13 09:35:28 +0000 GMT
-            web-security-node                no      yes     2021-05-17 13:24:12 +0100 BST
-            webhook-token-generator          no      yes     2020-09-03 09:25:53 +0100 BST
-
-
-
-  CONCOURSE:
-
-       $ wget https://concourse-ci.org/docker-compose.yml
-       $ docker-compose up -d
-       Creating docs_concourse-db_1 ...
-       Creating docs_concourse-db_1 ... done
-       Creating docs_concourse_1 ...
-       Creating docs_concourse_1 ... done
 
 
 
 
 
----------------------------------------------------   BUILDING BLOCKS
-
-                1. YAML  inputs:    so I can keep under source control
-                2. CONTAINERS:      tasks runs in containers
-                3. STATELESS:       concourse is itself stateless.
-                                    To work on states, it then uses some:
-
-                                 4. RESOURCES: they are the data moving between jobs
-
-                                 5. TYPES (of RESOURCES):  every resource has a type:
-                                                           - git
-                                                           - amazon S3
-                                                           ....
-                                                           - I can create my own (extensible)
-                6. TASKS:  they are the SMALLEST unit of execution
-                           a job executed in a container
-
-                7. JOBS:   they are built of more TASKS moving RESOURCES
-
-                8. PIPELINE: a series of JOBS
-
-                9. BUILD:  the list of a steps really executed during a PIPELINE run.
+------------------------------- CONCOURSE CH
 
 
----------------------------------------------------
-        docker-compose up
----------------------------------------------------
-> fly -t platform-common jobs  -p payment-reconciler
-name                paused  status     next
-create-webhooks     no      succeeded  n/a
-delete-webhooks     no      n/a        n/a
-build-test-analyse  no      succeeded  n/a
-release             no      succeeded  n/a
-cidev-plan          no      succeeded  n/a
-cidev-apply         no      succeeded  n/a
-cidev-destroy       no      n/a        n/a
-aard1-plan          no      n/a        n/a
-aard1-apply         no      n/a        n/a
-aard1-destroy       no      n/a        n/a
-apollo1-plan        no      n/a        n/a
-apollo1-apply       no      n/a        n/a
-apollo1-destroy     no      n/a        n/a
-tcats1-plan         no      n/a        n/a
-tcats1-apply        no      n/a        n/a
-tcats1-destroy      no      n/a        n/a
-staging-plan        no      succeeded  pending
-staging-apply       no      succeeded  n/a
-staging-destroy     no      n/a        n/a
-rebel1-plan         no      succeeded  n/a
-rebel1-apply        no      succeeded  n/a
-rebel1-destroy      no      n/a        n/a
+sandbox
+    web       ssh -i ~/.ssh/development-sandbox.pem ubuntu@master.ci.sandbox.aws.chdev.org
+    worker 1  ssh -i ~/.ssh/development-sandbox.pem ubuntu@worker-1.ci.sandbox.aws.chdev.org
+
+Development
+
+    web      ssh -i ~/.ssh/development-infrastructure.pem ubuntu@master.ci.platform.aws.chdev.org
+    worker 1 ssh -i ~/.ssh/development-infrastructure.pem ubuntu@worker-1.ci.platform.aws.chdev.org
 
 
----------------------------------------------------
-╰─ fly -t platform-common bs  -p payment-reconciler
-id     pipeline/job                           build  status     start                     end                       duration  team
-36879  payment-reconciler/staging-plan        6      pending    n/a                       n/a                       n/a       common
-36875  payment-reconciler/staging-plan        5      pending    n/a                       n/a                       n/a       common
-35761  payment-reconciler/cidev-apply         7      succeeded  2020-11-02@15:26:49+0000  2020-11-02@15:27:46+0000  57s       common
-35758  payment-reconciler/cidev-plan          7      succeeded  2020-11-02@15:24:58+0000  2020-11-02@15:26:01+0000  1m3s      common
-35735  payment-reconciler/rebel1-apply        3      succeeded  2020-11-02@14:27:37+0000  2020-11-02@14:28:29+0000  52s       common
-35733  payment-reconciler/rebel1-plan         4      succeeded  2020-11-02@14:21:56+0000  2020-11-02@14:23:30+0000  1m34s     common
-35730  payment-reconciler/cidev-apply         6      succeeded  2020-11-02@14:06:13+0000  2020-11-02@14:07:03+0000  50s       common
-35729  payment-reconciler/cidev-plan          6      succeeded  2020-11-02@14:04:43+0000  2020-11-02@14:06:11+0000  1m28s     common
-35728  payment-reconciler/release             7      succeeded  2020-11-02@14:02:13+0000  2020-11-02@14:04:41+0000  2m28s     common
-35726  payment-reconciler/build-test-analyse  10     succeeded  2020-11-02@14:00:22+0000  2020-11-02@14:02:12+0000  1m50s     common
-35600  payment-reconciler/rebel1-apply        2      succeeded  2020-11-02@09:17:13+0000  2020-11-02@09:18:16+0000  1m3s      common
-35596  payment-reconciler/rebel1-plan         3      succeeded  2020-11-02@09:14:33+0000  2020-11-02@09:16:13+0000  1m40s     common
-35555  payment-reconciler/cidev-apply         5      succeeded  2020-10-30@14:34:14+0000  2020-10-30@14:34:45+0000  31s       common
-35554  payment-reconciler/cidev-plan          5      succeeded  2020-10-30@14:33:04+0000  2020-10-30@14:34:05+0000  1m1s      common
-35553  payment-reconciler/release             6      succeeded  2020-10-30@14:31:13+0000  2020-10-30@14:32:59+0000  1m46s     common
-35552  payment-reconciler/build-test-analyse  9      succeeded  2020-10-30@14:29:53+0000  2020-10-30@14:31:06+0000  1m13s     common
-35273  payment-reconciler/cidev-apply         4      succeeded  2020-10-29@14:48:41+0000  2020-10-29@14:49:21+0000  40s       common
-35272  payment-reconciler/cidev-plan          4      succeeded  2020-10-29@14:47:40+0000  2020-10-29@14:48:38+0000  58s       common
-35271  payment-reconciler/release             5      succeeded  2020-10-29@14:45:50+0000  2020-10-29@14:47:39+0000  1m49s     common
-35270  payment-reconciler/build-test-analyse  8      succeeded  2020-10-29@14:45:00+0000  2020-10-29@14:45:44+0000  44s       common
-35269  payment-reconciler/build-test-analyse  7      failed     2020-10-29@14:43:50+0000  2020-10-29@14:44:22+0000  32s       common
-35248  payment-reconciler/build-test-analyse  6      failed     2020-10-29@14:13:43+0000  2020-10-29@14:14:26+0000  43s       common
-34780  payment-reconciler/build-test-analyse  5      failed     2020-10-28@09:33:33+0000  2020-10-28@09:34:51+0000  1m18s     common
-31970  payment-reconciler/rebel1-apply        1      succeeded  2020-10-12@15:31:45+0100  2020-10-12@15:35:09+0100  3m24s     common
-31969  payment-reconciler/cidev-apply         3      succeeded  2020-10-12@15:29:35+0100  2020-10-12@15:30:04+0100  29s       common
-31967  payment-reconciler/rebel1-plan         2      succeeded  2020-10-12@15:28:15+0100  2020-10-12@15:29:22+0100  1m7s      common
-31966  payment-reconciler/cidev-plan          3      succeeded  2020-10-12@15:28:05+0100  2020-10-12@15:29:31+0100  1m26s     common
-31964  payment-reconciler/release             4      succeeded  2020-10-12@15:26:14+0100  2020-10-12@15:28:03+0100  1m49s     common
-31963  payment-reconciler/build-test-analyse  4      succeeded  2020-10-12@15:25:24+0100  2020-10-12@15:26:08+0100  44s       common
-31962  payment-reconciler/rebel1-plan         1      failed     2020-10-12@15:23:54+0100  2020-10-12@15:24:59+0100  1m5s      common
-26677  payment-reconciler/staging-apply       3      succeeded  2020-09-01@16:58:48+0100  2020-09-01@16:59:18+0100  30s       common
-26676  payment-reconciler/staging-plan        4      succeeded  2020-09-01@16:57:07+0100  2020-09-01@16:58:30+0100  1m23s     common
-26675  payment-reconciler/cidev-apply         2      succeeded  2020-09-01@16:55:27+0100  2020-09-01@16:55:50+0100  23s       common
-26672  payment-reconciler/cidev-plan          2      succeeded  2020-09-01@16:54:27+0100  2020-09-01@16:55:23+0100  56s       common
-26669  payment-reconciler/release             3      succeeded  2020-09-01@16:52:07+0100  2020-09-01@16:54:20+0100  2m13s     common
-26668  payment-reconciler/build-test-analyse  3      succeeded  2020-09-01@16:51:16+0100  2020-09-01@16:52:00+0100  44s       common
-26663  payment-reconciler/staging-apply       2      succeeded  2020-09-01@16:39:25+0100  2020-09-01@16:39:43+0100  18s       common
-26662  payment-reconciler/staging-apply       1.2    aborted    n/a                       2020-09-01@16:39:15+0100  n/a       common
-26658  payment-reconciler/staging-apply       1.1    failed     2020-09-01@16:37:04+0100  2020-09-01@16:37:47+0100  43s       common
-26652  payment-reconciler/staging-apply       1      failed     2020-09-01@16:05:50+0100  2020-09-01@16:06:12+0100  22s       common
-26659  payment-reconciler/staging-plan        3.1    succeeded  2020-09-01@16:38:14+0100  2020-09-01@16:39:04+0100  50s       common
-26651  payment-reconciler/staging-plan        3      succeeded  2020-09-01@16:04:20+0100  2020-09-01@16:05:16+0100  56s       common
-26645  payment-reconciler/staging-plan        2.1    failed     2020-09-01@15:22:21+0100  2020-09-01@15:22:35+0100  14s       common
-26617  payment-reconciler/staging-plan        2      failed     2020-09-01@13:43:46+0100  2020-09-01@13:44:14+0100  28s       common
-26605  payment-reconciler/staging-plan        1.2    failed     2020-09-01@13:29:44+0100  2020-09-01@13:30:14+0100  30s       common
-26592  payment-reconciler/staging-plan        1.1    failed     2020-09-01@13:20:33+0100  2020-09-01@13:20:59+0100  26s       common
-26591  payment-reconciler/staging-plan        1      failed     2020-09-01@13:14:22+0100  2020-09-01@13:15:15+0100  53s       common
-26590  payment-reconciler/cidev-apply         1      succeeded  2020-09-01@13:13:22+0100  2020-09-01@13:13:54+0100  32s       common
-26589  payment-reconciler/cidev-plan          1      succeeded  2020-09-01@13:11:52+0100  2020-09-01@13:13:13+0100  1m21s     common
-26588  payment-reconciler/release             2      succeeded  2020-09-01@13:09:31+0100  2020-09-01@13:11:50+0100  2m19s     common
+                fly -t platform-common               login -n common             -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-aardvark        login -n team-aardvark      -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-apollo          login -n team-apollo        -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-celestial       login -n team-celestial     -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-creed           login -n team-creed         -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-harmonia        login -n team-harmonia      -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-pa              login -n team-pa            -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-phoenix         login -n team-phoenix       -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-platform        login -n team-platform      -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-spartacus       login -n team-spartacus     -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-synergy         login -n team-synergy       -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-thunderbirds    login -n team-thunderbirds  -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-thundercats     login -n team-thundercats   -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-tiny-rebels     login -n team-tiny-rebels   -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-toro-loco       login -n team-toro-loco     -c https://ci.platform.aws.chdev.org/ -b
+                fly -t platform-team-titans          login -n team-titans        -c https://ci.platform.aws.chdev.org/ -b
 
-╭─   11032   192.168.0.3  sbasile@pd12671   ~/ci/s     master 
-╰─
-
----------------------------------------------------
-╰─ fly -t platform-common ab  --job payment-reconciler/staging-plan --build 5
-build successfully aborted
-
-╭─   11041   192.168.0.3  sbasile@pd12671   ~/ci/s     master 
-╰─
+                fly -t sandbox-development           login -n development        -c https://ci.sandbox.aws.chdev.org/ -b     for sandbox, there are no scrum teams so auth. is with "development" team:
 
 
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
----------------------------------------------------
 
+            o   view pipeline                fly -t platform-common  get-pipeline       --pipeline my-pipeline
+            o   pause a pipeline             fly -t platform-common  pause-pipeline     --pipeline my-pipeline
+            o   unpause a pipeline           fly -t platform-common  unpause-pipeline   --pipeline my-pipeline
+            o   destroy a pipeline           fly -t platform-common  destroy-pipeline   --pipeline my-pipeline
+            o   set a pipeline               fly -t platform-common  set-pipeline       --config ./my-pipeline.yml  --pipeline my-pipeline
+            o   validate pipeline locally    fly                     validate-pipeline  --config ./my-pipeline.yml  --strict
+            o   trigger a build              fly -t platform-common  trigger-job        -j my-pipeline/build-test-master              # pipeline / job
+            o   view build log               fly -t platform-common  watch              -j my-pipeline/build-test-master 4
+
+
+repo  https://github.com/companieshouse/ci-pipelines/tree/master/templates/environment
+dir   /scripts
+
+Deploy pipeline to Concourse: ./set-pipeline -t <concourse target>     -p <name of your pipeline>
+
+                              ./set-pipeline -t platform-common        -p new_pipeline
+                              ./set-pipeline -t platform-team-aardvark -p new_pipeline
+
+Log into Concourse (Platform / Sandbox) and you should see your pipeline but it will be paused.
+To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <name of your pipeline>
+
+                             ./unpause-pipeline -t platform-common -p new_pipeline
+                             ./unpause-pipeline -t platform-team-aardvark -p new_pipeline
+    ________________________________________________________
+
+    Resources:                          https://github.com/companieshouse/ci-concourse-resources
+    Concourse parameters available      https://github.com/companieshouse/aws-common-infrastructure-terraform
+
+    ________________________________________________________   AUTO TRIGGER ON MERGE TO master
+
+          Trunk Based Development.
+                                  - no develop branch
+                                  - Concourse starts building when a branch is merged into master
+                                  - the gitHub repo must have
+                                                        Settings>Collaborators & teams>Add a team
+                                                        For Platform builds, add Admin for Automation Users
+                                                        For Sandbox builds,  add Read  for Read Only Automation Users
+                                  - the gitHub repo must have ~/.version
+                                  - LDAP permissions: Each Team in Concourse has it's own corresponding LDAP group that you will need to be added to.
+                                                      Ask a member of the Platform team to log a ServiceNow call for you as this needs to be done by the BITS team.
+
+
+
+
+
+    ________________________________________________________ WEBHOOK
+
+    /api/v1/teams/ TEAM_NAME /pipelines/ PIPELINE_NAME      /resources/  RES_NAME /check/webhook?webhook_token=WEBHOOK_TOKEN
+
+    /api/v1/teams/development/pipelines/ci-marathon-deployer/resources/source-code/check/webhook?webhook_token=YTlkOTg2YjVhOThmNzQ2YmI4NTkyZGI4
+
+
+
+
+
+
+    ________________________________________________________ WELL KNOWN PORTS
+
+    https://github.com/companieshouse/ch-service-ansible/blob/master/group_vars/all/vars
+
+
+
+
+
+    ________________________________________________________  STATE REPOS
+
+      dev:             https://github.com/companieshouse/ci-development-state
+      staging/live:    https://github.com/companieshouse/ci-production-state
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+
+───────┬──────────────────────────────────────────────────────────────────────────────────
+       │ File: hello-world.yml
+       │ Size: 608 B
+───────┼──────────────────────────────────────────────────────────────────────────────────
+   1   │ jobs:                                    <---------- top-level key: "jobs": to list the jobs (order doesn't matter)
+   2   │ - name: hello-world-job     <---- 1st (and only) job
+   3   │   plan:                     <---- "name" and "plan" are the only MANDATORY attributes of a 'job'
+   4   │   - task: hello-world-task   <--- the plan is an ORDERED list of steps. Here we have only 1 step: "task"
+   5   │     config:                                                                            . each step runs in 1 container (job with 5 steps --> 5 containers)
+   6   │       # Tells Concourse which type of worker this task should run on
+   7   │       platform: linux
+   8   │       # This is one way of telling Concourse which container image to use for a
+   9   │       # task. We'll explain this more when talking about resources
+  10   │       image_resource:
+  11   │         type: registry-image
+  12   │         source:
+  13   │           repository: busybox # images are pulled from docker hub by default
+  14   │       # The command Concourse will run inside the container
+  15   │       # echo "Hello world!"
+  16   │       run:
+  17   │         path: echo
+  18   │         args: ["Hello world!"]
+───────┴──────────────────────────────────────────────────────────────────────────────────
+
+           each step runs in 1 container (job with 5 steps --> 5 containers)
+
+           Concourse containers are Linux (busybox images)
+
+           fly -t my_target workers    to see the workers for my pipeline
+    ________________________________________________________
+           fly -t tutorial set-pipeline -p hello-world -c hello-world.yml
+                                                \_________________________________ this is just the name I'll see in the dashboard
+                    jobs:
+                      job hello-world-job has been added:
+                    + name: hello-world-job
+                    + plan:
+                    + - config:
+                    +     image_resource:
+                    +       name: ""
+                    +       source:
+                    +         repository: busybox
+                    +       type: registry-image
+                    +     platform: linux
+                    +     run:
+                    +       args:
+                    +       - Hello world!
+                    +       path: echo
+                    +   task: hello-world-task
+
+                    pipeline name: hello-world
+
+        --------->  apply configuration? [yN]: y
+                    pipeline created!
+                    you can view your pipeline here: http://localhost:8080/teams/main/pipelines/hello-world
+
+                    the pipeline is currently paused. to unpause, either:
+                      - run the unpause-pipeline command:
+                        fly -t tutorial unpause-pipeline -p hello-world
+                      - click play next to the pipeline in the web ui
+
+    ________________________________________________________
+    fly -t tutorial unpause-pipeline -p hello-world
+
+                    unpaused 'hello-world'
+    ________________________________________________________
+     fly -t tutorial trigger-job --job hello-world/hello-world-job --watch
+
+                    started hello-world/hello-world-job #1
+
+                    initializing
+                    initializing check: image
+                    selected worker: eede94fa529f
+                    selected worker: eede94fa529f
+                    fetching busybox@sha256:09439c073bd3eb029a91c72eff2c0d9f12ab9c84f66bdef360fcf3f91a81bf7c
+                    aa49f28a0db9 [======================================] 755.4KiB/755.4KiB
+                    selected worker: eede94fa529f
+                    running echo Hello world!
+                    Hello world!
+                    succeeded
+
+    ________________________________________________________  INPUTS / OUTPUTS
+
+         In/out are directories (artifacts)  that get passed between steps.
+
+
+                    --- a/hello-world.yml
+                    +++ b/hello-world.yml
+                    @@ -11,8 +11,8 @@ jobs:
+                             type: registry-image
+                             source:
+                               repository: busybox # images are pulled from docker hub by default
+                    -      # The command Concourse will run inside the container
+                    -      # echo "Hello world!"
+                    +      outputs:
+                    +      - name: the-artifact
+                           run:
+                    -        path: echo
+                    -        args: ["Hello world!"]
+                    +        path: ls
+                    +        args: ["-lF"]
+
+
+    fly -t tutorial set-pipeline -p hello-world -c hello-world.yml
+                    jobs:
+                      job hello-world-job has changed:
+                      name: hello-world-job
+                      plan:
+                      - config:
+                          image_resource:
+                            name: ""
+                            source:
+                              repository: busybox
+                            type: registry-image
+                    +     outputs:
+                    +     - name: the-artifact                <-------------- I define 1 out (it will be an artifact [named "the-artifact"]
+                          platform: linux                                      mounted inside the container)
+                          run:                                                 The named artifact is kept, in case other tasks need it as an input.
+                            args:
+                    -       - Hello world!
+                    -       path: echo
+                    +       - -lF
+                    +       path: ls
+                        task: hello-world-task
+
+                    pipeline name: hello-world
+
+                    apply configuration? [yN]: y
+                    configuration updated
+
+    fly -t tutorial trigger-job --job hello-world/hello-world-job --watch
+                    started hello-world/hello-world-job #2
+
+                    initializing
+                    initializing check: image
+                    selected worker: eede94fa529f
+                    selected worker: eede94fa529f
+                    fetching busybox@sha256:ef320ff10026a50cf5f0213d35537ce0041ac1d96e9b7800bafd8bc9eff6c693
+                    50783e0dfb64 [======================================] 755.1KiB/755.1KiB
+                    selected worker: eede94fa529f
+                    running ls -lF
+                    total 0
+                    succeeded
+
+
+    fly -t tutorial trigger-job --job hello-world/hello-world-job --watch
+                    started hello-world/hello-world-job #3
+
+                    initializing
+                    initializing check: image
+                    selected worker: eede94fa529f
+                    selected worker: eede94fa529f
+                    fetching busybox@sha256:09439c073bd3eb029a91c72eff2c0d9f12ab9c84f66bdef360fcf3f91a81bf7c
+                    aa49f28a0db9 [======================================] 755.4KiB/755.4KiB
+                    selected worker: eede94fa529f
+                    running ls -lF
+                    total 4
+                    drwxr-xr-x    2 root     root          4096 Aug 19 13:55 the-artifact/    <---- dir here
+                    succeeded
+
+    fly -t tutorial set-pipeline -p hello-world -c hello-world.yml
+                    jobs:
+                      job hello-world-job has changed:
+                      name: hello-world-job
+                      plan:
+                      - config:
+                          image_resource:
+                            name: ""
+                            source:
+                              repository: busybox
+                            type: registry-image
+                          outputs:
+                          - name: the-artifact
+                          platform: linux
+                          run:
+                            args:
+                    -       - -lF
+                    -       path: ls
+                    +       - -cx
+                    +       - |
+                    +         ls -l .
+                    +         echo "hello from another step!" > the-artifact/message    <---- output produced
+                    +       path: sh
+                        task: hello-world-task
+                    + - config:
+                    +     image_resource:
+                    +       name: ""
+                    +       source:
+                    +         repository: busybox
+                    +       type: registry-image
+                    +     inputs:                                     <---- input
+                    +     - name: the-artifact
+                    +     platform: linux
+                    +     run:
+                    +       args:
+                    +       - -cx
+                    +       - |
+                    +         ls -l .
+                    +         cat the-artifact/message                <---- consuming
+                    +       path: sh
+                    +   task: read-the-artifact
+
+                    pipeline name: hello-world
+
+
+    ________________________________________________________ RESOURCES
+
+     To see what resources are available (in my Concourse / target):
+
+         fly -t tutorial workers --details
+                    eede94fa529f  0  linux  none  none  running  2.4  2h13m  127.0.0.1:40385  http://127.0.0.1:44775  0  bosh-io-release, bosh-io-stemcell,
+                                                                                                                         cf, docker-image, git, github-release,
+                                                                                                                         hg, mock, pool, registry-image, s3, semver,
+                                                                                                                         time, tracker
+                                                                                                                                     ^
+                                                                                                                                     |
+                                                                                                                                     |
+                                                                                                                            resources available
+    ________________________________________________________ RESOURCE VERSIONS
+
+     When a new version is emitted by a resource, that is how Concourse knows to start triggering jobs.
+
+     A version is any way that a resource can be uniquely identified. Ex the SHA in Git
+
+              { "ref": "04194bfc880c457a5b00f07db78d0532620414cc" }
+
+
+    ________________________________________________________ RESOURCE ARE DOCK IMAGES (with 3 exe)
+
+     The 3 exe inside the image (representing the Resource) are:
+
+           /opt/resource/check - implicitly run when a job contains a
+                                             get step.
+                                 Its responsibility is to find new versions.
+
+           /opt/resource/in -    run in a get step.
+                                 Its input is a version (from a check or put step) and
+                                 retrieves the files representing that version.
+
+           /opt/resource/out -   run in a put step.
+                                 Generates a new version, (usually based on some input generated by another job step).
+                                 This may mean sending something (ex.  commits to a git repo).
+
+
+
+     NOTE: if I want that Concourse captures anything (i.e. the new 'versions' of things) I must follow
+           the resource interface (check, get, put). Anything 'committed' to the outside world of the resource
+           without following this, will be missed.
+
+
+            +++ b/hello-world.yml
+            @@ -1,18 +1,21 @@
+            +resources:                       <--------  keyword
+            +- name: repo                                Right after 'resources:' I add all the resources I need
+            +  type: git                                 (here just 1: 'git'). The param to configure for each resource
+            +  source:                                                         are specified in the REAME of that resource
+            +    uri: https://github.com/concourse/examples.git                For git the 'source' with the repo's url.
+            +
+             jobs:
+             - name: hello-world-job
+               plan:
+            +  - get: repo                    <-------- Here I can connect a resource with the keyword ('get')  and
+            +    trigger: true                          I tell to trigger this job when new versions are emitted
+               - task: hello-world-task
+                 config:
+
+    ________________________________________________________ check_every
+
+     Concourse by default check resources every 1 min.
+
+     As in a pipeline there could be many resources, this could cause problems to the external services (ex. DDOS)
+     In this situations a best way is to use weebhooks, which instruct the external system to call Concourse
+     each time en event say it's time to do so (ex. a new commit to a Git repo).
+
+    ________________________________________________________ fly inspect
+
+    Given every resource (which is an image running in a container) I can inspect
+    that container from its url:
+
+    ex:
+            fly -t tutorial intercept -u http://localhost:8080/teams/main/pipelines/hello-world/resources/repo
+            bash-5.1#        <------ I'm inside the container (I can see the files ...)
+
+    ________________________________________________________ custom resources
+
+    Remember, a resource is a container image. So to pull in a new resource type you need to tell Concourse where
+    to pull the image from.
+    This is done by using the built-in
+                registry-image
+    resource.
+    ex:
+           resource_types:
+            # declare the new resource type
+            - name: rss
+              type: registry-image  <--------
+              source:
+                repository: suhlig/concourse-rss-resource
+                tag: latest
+
+
+
+
+    A xatalog of resource types:  https://resource-types.concourse-ci.org/
+
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________
+    ________________________________________________________

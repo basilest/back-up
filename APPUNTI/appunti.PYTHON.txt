@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 interpreter:
 tiv@stiv-GP60-2PE:~$ python
 Python 2.7.8 (default, Oct 20 2014, 15:05:19)
@@ -885,6 +878,1128 @@ ________________________________________ Decorators
              while def 'outer(fun_to_cut)' remains equal, 1 arg only
 
 
+________________________________________
+
+Python:
+                  Interpreted         (like perl)
+
+                  anhhoe there are tools (like
+                                             - pyexe
+                                             - pyinstaller
+                                         ) which compile into 1 native executable
+
+                  1st release       1991
+                  2.0               2000       (support Unicode & other features)
+                  3.0               2008       (not backward compat.)
+
+Philosophy
+                  Beautiful is better than  ugly             <---------- these points are actually 20
+                  Explicit        >         implicit                     called "The Zen of Python"
+                  Simple          >         complex                      I can see them from inside the REPL
+                  Complex         >         complicated                  typing:  >>> import this
+                  Readability counts
+
+P E P             Python Enhancement Proposal                   to submit (to the community) extensions to the design
+
+________________________________________
+flask             to have a web server listening
+                  ex:
+                            ───────┬───────────────────────────────────────
+                                   │ File: service.py
+                                   │ Size: 201 B
+                            ───────┼───────────────────────────────────────
+                               1   │ from flask import Flask
+                               2   │ app = Flask(__name__)
+                               3   │
+                               4   │ @app.route("/")
+                               5   │ def hello():
+                               6   │         return "Hello Woorld!"
+                               7   │
+                               8   │ @app.route("/user/<username>")
+                               9   │ def show_user(username):
+                              10   │         return "User: %s" % username
+                            ───────┴───────────────────────────────────────
+
+                  $ FLASK_APP=service.py  flask run
+
+________________________________________
+django            to have a web server listening
+                  ex:
+                            $ django-admin startproject mysite              # creates a structure for a new project (files & tree of dirs)
+
+                                         .
+                                         |___ mnage.py
+                                         |___ mysite
+                                             |___ __init__.py
+                                             |___ settings.py
+                                             |___ urls.py
+                                             |___ wsgi.py
+
+                  $ python3 manage.py runserver         # il will run the proj(server) on default port 8000
+________________________________________
+pypi          python package index    (like cpan for perl)
+________________________________________
+
+python        binary to:
+                         - executing 1 file
+                         - rudimentary REPL    (Read / Eval / Print / Loop)
+
+pip           pip-installs-packages
+
+iphyton       very robust interative shell   (much feature-rich than the bultin REPL)
+
+________________________________________
+python 2 vs 3
+              python 2:        python    pip     ipython
+                               python2   pip2    ipython2
+
+              python 3:        python3   pip3    ipython3
+________________________________________
+REPL
+
+in python3:
+import imp           <------- deprecated
+import importlib     <------- use this
+
+            they reload a module which maybe was changed.
+            ex of usage
+                         importlib.reload(mymodule)             # ex the file mymodule.py was edited on disk
+
+in python2:
+            call directly the builtin function  'reload'
+                         reload(mymodule)            <------- no more supported in python3
+_           the underscore has a special meaning only in REPL (not in general in python)
+            and it means (the last value)
+            ex:
+                    >>> x = 5
+                    >>> x
+                    5
+                    >>> 3 * x
+                    15
+                    >>> -
+                    15
+                    >>> _ * 2
+                    30
+
+print       print "aaaaaa"          ok in python2 (without parentesis is allowed)
+            print ('aaaaaa')        Mandatory in python3 (allowed in python2)
+
+indentetion       4 spaces
+________________________________________
+ipython
+            > %load_ext autoreload
+            > %autoreload 2                    <---- these 2 instructions allow to have the autoreload (like in Tilt)
+                                                     so much better than the explicit reloads in REPL
+________________________________________
+input         function to get value from the user
+              ex
+                      print ("gimme a value")
+                      resp = input()
+________________________________________
+import
+                 >>> import math               # syntax to import a module.
+                                                 notice: an import executes the module (eg. it there are function calls they are executed)
+                                                 anyhow if I import it again, everything is skipped.
+                                                 In the end multiple imports are not multiple executions.
+                                                 If I use a debugger I can see that at the first import the code is executed.
+                                                 Each 'def' statement (which defines a function) is a stoppable breakpoint
+                                                 because it's a statement which binds code to a name (of the function)
+                                                 On a next import these def will not be then stoppable breakpoints
+                 >>> help (math)               # syntax to dump the exported functions of the module (its' documentation)
+                                               ex of output:
+
+                                                       | Help on module math:
+                                                       |
+                                                       | NAME
+                                                       |     math
+                                                       |
+                                                       | MODULE REFERENCE
+                                                       |     https://docs.python.org/3.8/library/math
+                                                       |
+                                                       |     The following documentation is automatically generated from the Python
+                                                       |     source files.  It may be incomplete, incorrect or include features that
+                                                       |     are considered implementation detail and may vary between Python
+                                                       |     implementations.  When in doubt, consult the module reference at the
+                                                       |     location listed above.
+                                                       |
+                                                       | DESCRIPTION
+                                                       |     This module provides access to the mathematical functions
+                                                       |     defined by the C standard.
+                                                       |
+                                                       | FUNCTIONS
+                                                       |     acos(x, /)
+                                                       |         Return the arc cosine (measured in radians) of x.
+                                                       |
+                                                       |     acosh(x, /)
+                                                       |         Return the inverse hyperbolic cosine of x.
+                                                       |
+                                                       |     asin(x, /)
+                                                       |         Return the arc sine (measured in radians) of x.
+                                                       |
+                                                       |     ...
+
+                 >>> help (math.acos)                           # syntax to dump the help only for that module function
+                 >>> from math import acos                      # syntax to import only parts (here function acos) of the module
+                                                                  this allows to write directly 'acos' instead of the explicit fully qualified name: 'math.acos'
+                 >>> from math import (f1, f2, f3)              # syntax to import a list of functions. The parentheses are optional
+                 >>> from math import *                         # syntax to import anything
+                 >>> from math import factorial as fac          # to assign an alias to the imported function (so I can just call it 'fac')
+
+________________________________________
+__name__         special var which allows to detect if the file is run as a script  (ex $ python my_file.py)
+                 or is imported in another module:   import my_file
+
+                 ex my_file.py:
+                         ......
+                         print (__name__)
+                                                     if executed as $ python my_file.py will print "__main__"
+                                                     if imported it will print "my_file"
+                 so it's common to see this:
+
+                 if __name == '__main__':
+                    ....       <---------------------this code will be executed only if the file is called as a script
+
+         N.B.  __name__ it's also an attribute of functions
+               see dir() below
+________________________________________
+argv    (sys)
+                 import sys
+                 ...
+                 sys.argv[1]     # the 1st arg passed
+________________________________________
+//                       truncate a divison to an integer
+                         >>> 11 / 3
+                         3.6666666666666665
+                         >>> 11 // 3
+                         3
+________________________________________
+SCALAR TYPES
+
+               int
+                                10
+                                0n10             2       binary
+                                0o10             8       octal
+                                0x10            16       exad.
+                                int(3.5)         3       construct
+                                int("456")     456       string conversion
+                                int("1000",3)   27       any base (here base 3)
+
+               float            IEEE-754  double precision:
+                                                    53 bits of binary precision --> 15-16 significant digits in decimal
+
+                                3.345
+                                3e8          300,000,000.0        exponential
+                                float(7)                 7
+                                float("1.618")       1.618        string conversion
+                                float("nan")           nan
+                                float("inf")           inf        infinitive
+                                float("-inf")         -inf        negative "
+
+               None             a = None
+                                a is None            True
+
+               bool             True
+                                False
+                                                        True                               False
+                                __________________________________________________________________________________________________
+                                                bool(42)                                  bool(0)
+                                                bool(-1)                                  bool(0.0)
+                                                bool(3.16)
+                                                bool("abc")          string               bool("")         empty string
+                                                bool([1,4,9])        list                 bool([])         empty list
+
+________________________________________
+COLLECTION TYPES
+               str
+               bytes
+               list             usual array
+               dict
+
+     __________________
+     str
+                                sequence of Unicodes
+
+                                "aaa"                           both quoting allowed
+                                'aaa'
+
+                                """ This is                     3 double quotes for multiline strings
+                                    a multiline
+                                    string"""
+
+                                ''' This is                     3 single quotes do the same
+                                    a multiline
+                                    string'''
+
+                                "111\n222\n333"                 usual \n
+                                '111\n222\n333'                 same. This is unsual!
+
+                                \\                              escape backslash
+                                \'                              escape single quote
+                                \"                              escape doube quote
+                                \ooo                            octal num
+                                \xhh                            exad  num
+                                \N{name}                        Unicode by name
+                                \uxxxx                          Unicode by 16-bit val
+                                \Uxxxxxxxx                      Unicode by 32-bit val
+
+                                path = r'C:\Users\Merlin\Documents\'     raw string: they have the raw value of literally whatever
+                                                                         between r'     and '
+
+                                str(496)                        string conversions
+                                str(6.02e23)
+
+                                s = 'parrot'                    notice how I can
+                                s[4]        'o'                 access the single 'chars'
+                                                                which anyhow are still strings (of 1):
+                                                                  type(s[4])  ----> gives <class 'str'>
+
+
+           concatenation        "aaa" "bbb"      aaabbb      /   also "aaa" + "bbb"
+
+           * op                 >>> a=5*"-"              * operator  (notice it works on both sides (left/right))
+                                >>> a
+                                '-----'
+                                >>> a="+"*5
+                                >>> a
+                                '+++++'
+
+
+
+           join                 >>> a = '-'.join(['1','2','3'])  <-------- join  (it's on the separator object)
+                                >>> a
+                                '1-2-3'
+                                >>> a = '-:.'.join(['1','2','3'])
+                                >>> a
+                                '1-:.2-:.3'
+                                >>> a = ''.join(['1','2','3'])
+                                >>> a
+                                '123'
+
+           split                >>> "1-2-3".split('-')
+                                ['1', '2', '3']
+
+
+                                >>> "unforgetable".partition('forget')  <------- partition
+                                ('un', 'forget', 'able')
+                                >>> departure, sep, arrival = "London:Edinburg".partition(':')
+                                >>> departure
+                                'London'
+                                >>> arrival
+                                'Edinburg'
+
+
+           format               >>> a = "this {0} and that {1}".format(56, "abc")
+                                >>> a
+                                'this 56 and that abc'
+                                >>> a = "....{} .... {} ....".format(a,b)        when it's clear, I can skip 0 and 1 ....
+                                >>> a = "... {lat} .... {long}..".format(lat="60N", long="5E")    I can name the args
+                                >>> a = "... {pos[0]} .... {pos[1]}..".format(pos=(5,6,7))        I cas address a tupla
+
+                                import math
+                                >>> a = "... {m.pi} .... {m.e}..".format(m=math)                  I cas address a module
+
+
+           f-strings            val = 20
+                                f'....{val}..'                         <----------- f-strings   f' ...'   or double quote too: f" ..."
+                                f'....{some_function()}..'                          have been added to Python to allow
+                                                                                    a quick interpolation. Syntax  f'....{..} ...'
+
+
+     __________________
+     bytes
+                                sequence of bytes (ASCII range)
+
+                                b'stefano'             notice the syntax of   b'......'
+                                b"stefano"             I can use " instead of '
+
+                                d = b'parrot due'
+                                d[4]          'o'
+
+                                d.split()     [b'parrot', b'due']
+
+
+               str <--------> byte            encode/decode
+
+                                                    str ---(encode)-----> byte      ex:    s = "a not ä"
+                                                                                           data  = s.encode('utf8')
+                                                                                           data
+                                                                                           b'a not \xc3\xa4'
+
+                                                    str <--(decode)------ byte      ex:    data =  b'a not \xc3\xa4'
+                                                                                           s = s.decode('utf8')
+                                                                                           s
+                                                                                           "a not ä"
+     __________________
+     list                    usual array
+
+                                [1, 9, 8]            note a last comma is allowed like in perl [1,9,8,]
+                                []                   empty list
+                                list ("apple")      ['a','p','p','l','e']       constrcutor to create a list from a collection (ex a string)
+
+                                [-1]                last elem
+                                [-2]                second last
+
+           slices               s=[3,186,4431,55,2]
+                                s[1:3]              [186,4431]    slice    (note is start:stop with start included & stop excluded)
+                                s[1:-1]             [186,4431,55]
+                                s[2:]               [186,4431,55,2]
+                                s[:2]               [3,186]
+           copy                 s[:]                this gives the whole list. It's useful to copy a list, not by reference but by value:
+           (shallow)                                             r = s     this is the default by ref
+                                                                 s = s[:]  this creates a separate copy
+                                                    2 other ways to copy are
+                                                                 r = s.copy()
+                                                                 r = list(s)
+                                                    NOTE: all the copies are shallow copies (not deep, just the first level)
+                                                            >>> a=[[1,2], [3,4]]
+                                                            >>> a[0]
+                                                            [1, 2]
+                                                            >>> b=a[:]
+                                                            >>> b
+                                                            [[1, 2], [3, 4]]
+                                                            >>> a
+                                                            [[1, 2], [3, 4]]
+                                                            >>> a[0][1]=88
+                                                            >>> a
+                                                            [[1, 88], [3, 4]]
+                                                            >>> b
+                                                            [[1, 88], [3, 4]]
+
+                                                    To have a full nested copy:
+                                                            import copy
+                                                            b=copy.deepcopy(a)
+
+
+           * op                 >>> a=[[1,2]]*3   <---------- *
+                                >>> a
+                                [[1, 2], [1, 2], [1, 2]]   <---- be careful, the repetition again acts as a shallow copy:
+                                >>> a[0][1]=88
+                                >>> a
+                                [[1, 88], [1, 88], [1, 88]]
+
+
+           index                >>> a=['aaa','bbb','fox','ccc','fox','fox']    <----- index & count
+                                >>> a.index('fox')                             <----- note: only the 1st encountered
+                                2
+           count                >>> a.count('fox')
+                                3
+
+
+           in / not in          >>> "ccc" in a
+                                True
+                                >>> "ccc" not in a
+                                False
+
+
+           del                  >>> del a[2]    <------ del by passing the index
+                                >>> a
+                                ['aaa', 'bbb', 'ccc', 'fox', 'fox']
+
+
+           remove               >>> a=['aaa','bbb','fox','ccc','fox','fox']   <----- remove by value (not only the 1st encountered)
+                                >>> a.remove('fox')
+                                >>> a
+                                ['aaa', 'bbb', 'ccc', 'fox', 'fox']
+
+
+           insert               >>> a.insert(2,"new")
+                                >>> a
+                                ['aaa', 'bbb', 'new', 'ccc', 'fox', 'fox']
+
+
+           extending            >>> m=[2,1,3]
+                                >>> n=[4,7,11]
+                        +       >>> k = m + n
+                                >>> k
+                                [2, 1, 3, 4, 7, 11]
+                                >>> k += [18,29,47]
+                                >>> k
+                                [2, 1, 3, 4, 7, 11, 18, 29, 47]
+                        extend  >>> k.extend([0,55])
+                                >>> k
+                                [2, 1, 3, 4, 7, 11, 18, 29, 47, 0, 55]
+
+
+           reverse              >>> k.reverse()    <----------- note it changes in place    use z = reversed (k) to leave k unmodified
+                                >>> k                                                               ^^^^^^^^
+                                [55, 0, 47, 29, 18, 11, 7, 4, 3, 1, 2]
+
+           sort                 >>> k.sort()       <----------- sane, it also changes in place. So z = sorted (k)
+                                >>> k                                                                  ^^^^^^
+                        <       [0, 1, 2, 3, 4, 7, 11, 18, 29, 47, 55]
+                                >>> k.sort(reverse=True)
+                        >       >>> k
+                                [55, 47, 29, 18, 11, 7, 4, 3, 2, 1, 0]
+
+                                >>> def stef(a,b):
+                                ...    if a > b:
+                                ...       return -1
+                                ...    elif a == b:
+                                ...       return 0
+                                ...    else:
+                                ...       return 1
+                                ...
+                                >>> stef (4,5)
+                                1
+                                >>> stef (4,3)
+                                -1
+                                >>> stef (4,4)
+                                0
+                                >>> k
+                                [2, 1, 3, 4, 7, 11, 18, 29, 47, 0, 55]
+                                >>> from functools import cmp_to_key
+                                >>> stef_k = cmp_to_key(stef)
+                                >>> k.sort(key=stef_k)
+                                >>> k
+                                [55, 47, 29, 18, 11, 7, 4, 3, 2, 1, 0]
+
+
+
+     __________________
+     dict
+                                the hashes
+                                a = {'k1': 'v1', 'k2':'v2'}
+                                {}                        empty dict
+                                b = a['k1']               [] operator like normal array
+                                L = list(a)               ['k1', 'k2']   returns the keys
+                                L = list(a.keys())           "    "         "      "   "
+                                L = list(a.values())      ['v1', 'v2']   returns the values
+
+
+           dict                 >>> a = [('k1','v1'),('k2','v2')]
+                                >>> a
+                                [('k1', 'v1'), ('k2', 'v2')]
+                                >>> b = dict(a)   <------------------- creates a hash from a list
+                                >>> b
+                                {'k1': 'v1', 'k2': 'v2'}
+
+                                >>> x = dict (a=1, b=2)                other syntax allowed
+                                >>> x
+                                {'a': 1, 'b': 2}
+
+           copy                 like for lists, there are 2 ways:
+
+                                b = a.copy()
+                                b = dict (a)
+
+           update               to extend/add/replace
+                                __________________ add __________________            ____________ replace __________________
+                                >>> b
+                                {'k1': 'v1', 'k2': 'v2'}
+                                >>> c={'k3':5, 'k4':0}                               >>> c={'k3':5, 'k2':0}
+                                >>> b.update(c)                                      >>> b.update(c)
+                                >>> b                                                >>> b
+                                {'k1': 'v1', 'k2': 'v2', 'k3': 5, 'k4': 0}           {'k1': 'v1', 'k2': 0, 'k3': 5, 'k4': 0}
+
+
+                                or even just directly:
+
+                                >>> b['k8']=99
+                                >>> b
+                                {'k1': 'v1', 'k2': 0, 'k3': 5, 'k8': 99}
+
+
+           items                returns both keys & values (like 'enumerate' for 'range')
+
+                                >>> b.items()
+                                dict_items([('k1', 'v1'), ('k2', 0), ('k3', 5), ('k8', 99)])
+
+                                this is possibly used in a loop:
+
+                                           for k, v  in b.items():
+                                              ...
+
+
+           in                   check if the key is/is not present:
+           not in               >>> 'k1' in b
+                                True
+
+           del                  >>> b
+                                {'k1': 'v1', 'k2': 0, 'k3': 5, 'k8': 99}
+                                >>> del b['k8']
+                                >>> b
+                                {'k1': 'v1', 'k2': 0, 'k3': 5}
+
+
+
+
+________________________________________
+CONTROL LOOPS
+
+
+              if True:                  if bool("eggs"):          if "eggs":
+                     print("ok")
+              else:     <----- note even the else has the ':'
+              elif .... :
+
+
+              while .... :
+
+
+              break           <--- as usual
+
+              cities = ["London", "New York", "Paris", "Oslo"]
+              for c in cities:                                      notice if a cycle on a dict I cycle on the keys
+                    print (c)
+________________________________________
+FUNCTIONS
+             def my_fun(x):                  def is a statement which binds a code (block) to a name (of the function)
+                 ...
+                                    <---------- if there is no return, it returns 'None'
+
+             def my_func(x,y,z=5)            I can specify 'default' values for arg
+                                             args with defaults must stay at the end of the list, so after any other arg without default.
+
+                                             note: as the 'def' statements are executed only once (when the module is first imported)
+                                                   any default-arg is evaluated at the 1st time and then never changed.
+                                                   This is usually fine, but if not considered properly can give wrong code
+                                                   ex
+                                                         import time
+                                                         time.ctime()     # this gives 'now' time 'Sun Nov 13 19:43:48 2022'
+                                                         def my_func(arg=time.ctime()):    <---- arg will not change on next calls
+                                                              ....
+
+             count = 0         <-------- this is a global var
+             def my_func(c):
+                 count = c     <------ this is a local var overshadowing the global
+
+             def my_func(c):
+                 global count  <--- this is how to use global var inside a func
+                 count = c
+________________________________________
+COMMENTS
+             #              <---- to the end of line
+________________________________________
+pass         no operation. it's like  ':' in the shell
+________________________________________
+_       (underscore)
+
+        o like in Go it is the unused value
+                    >>> departure, _, arrival = "London:Edinburg".partition(':')
+
+        o can be found used as a loop var:
+                    while _ < 10:
+                        print(_, end = ' ')
+                        _ += 1
+
+        o separate digits (any base)
+                    million = 1_000_000
+                    binary = 0b_0010
+                    octa = 0o_64
+                    hexa = 0x_23_ab
+
+        o may preclude module names to be used when the module is imported
+
+                    def func():
+                        ..
+
+                    def _private_func():    <---------- this will not be accessible with a
+                        ..                                       from mu_module import *
+                                                        but accessible with
+                                                                 import my_module
+                                                                     ..
+                                                                     my_module._private_func
+
+
+        o REPL:   in the REPL it holds the value of the last expression
+                    >>> 9+5
+                    14
+                    >>> _
+                    14
+________________________________________
+docstrings
+             are """ .... """ strings (so 1 or more lines text)
+             immediately after a declaration  (ex after a function or immediately at the top of the module/file)
+             ex:
+                            def my_fun (x):
+                                """ the func does
+                                    something
+                                    and exit """
+
+             some tools (ex Sphinx) can parse the code and produce the usual HTML documentation.
+             (note on Sphinx: The Linux kernel's documentation subsystem underwent changes in 2016.
+              Starting in the 4.7 cycle, Sphinx was adopted)
+
+             In the REPL the help() does the same, so it prints those docstrings
+
+             Another way to see them is to use the attribute __doc__ (which is avialble everywhere as everything is an object)
+
+             The text has its own syntax ex:
+                                """ ........
+                                    Args:
+                                         arg1: ....
+                                         arg2: ...
+                                    Returns:
+                                         ....
+                                    """
+             so that the HTML is styled.
+
+________________________________________
+OBJECTS AND TYPES           (Everything is an object)
+
+        >>>  x = 1000
+        >>>  id(x)         <-------------- id()     gives a unique reference which maps a name (var) to a value int.1000
+             4301474256                             It's not to be thought as the mem address. It is just a number to identify a relationship
+        >>>  y = 500
+        >>>  id(y)
+             4301475248
+        >>>  y = x
+        >>>  id(y)
+             4301474256
+        >>>  x is y
+             True
+        >>>  x is None
+             False
+        >>>  x += 2
+        >>>  id(x)         <-------------- id()     if x maps a new int: int.1000 --> int.2, then the id() is a completely new one
+             4301474272                             This highlights that id() must not be thought as a mem address
+
+
+            x ---> int.5        x ---> int.5           x       int.5            int.5  & int.2 no more mapped to anything
+                                         +              \                       will be garbage-collected
+                                       int.2             |     int.2
+                                                         |
+                                                         '-->  int.7
+
+            with this logic an equal assignment operator '='
+            ex like in x = 5
+            should never be thought as a copy by value but just
+            a map betweeen a name and an object
+
+            This is then actually like a copy by reference
+            as shown with this
+
+                    >>> a = [1,2,3]
+                    >>> a
+                    [1, 2, 3]
+                    >>> b = a
+                    >>> b
+                    [1, 2, 3]
+                    >>> b[2]=8
+                    >>> a
+                    [1, 2, 8]     <------- a also is changed
+                                                           ---------> the same is expected when passing arg to a function
+                                                                      the function receives them 'by reference' so it can
+                                                                      modify the caller's vars
+
+                                                                      even the "return" (in a function) passes back references
+            a var is then not a box holding a value
+            but a named reference to an object.
+
+            This also clarifies the difference in '==' and 'is'
+                    >>> a=[4,5,6]
+                    >>> b=[4,5,6]
+                    >>> a == b
+                    True
+                    >>> a is b
+                    False
+
+________________________________________
+type()
+          __________________________________
+          >>> import xxx
+          >>> type(xxx)
+              <class 'module'>
+          __________________________________
+
+          >>> def my_func(x):
+                ...
+          >>> type(my_func)
+              <class 'function'>
+          __________________________________
+
+          >>> x=8
+          >>> type(x)
+          <class 'int'>
+          __________________________________
+
+
+
+________________________________________
+dir()     list the attributes of a type
+
+          __________________________________
+          >>> import math
+          >>> dir(math)
+          ['__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'acos', 'acosh',
+           'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'comb', 'copysign', 'cos', 'cosh', 'degrees',
+           'dist', 'e', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum',
+           'gamma', 'gcd', 'hypot', 'inf', 'isclose', 'isfinite', 'isinf', 'isnan', 'isqrt', 'ldexp', 'lgamma',
+           'log', 'log10', 'log1p', 'log2', 'modf', 'nan', 'perm', 'pi', 'pow', 'prod', 'radians', 'remainder',
+           'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'tau', 'trunc']
+          __________________________________
+
+          >>> def stef(x):
+                ...
+          >>> dir(stef)
+          ['__annotations__', '__call__', '__class__', '__closure__', '__code__', '__defaults__', '__delattr__',
+           '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__get__', '__getattribute__', '__globals__',
+           '__gt__', '__hash__', '__init__', '__init_subclass__', '__kwdefaults__', '__le__', '__lt__', '__module__', '__name__',
+           '__ne__', '__new__', '__qualname__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+
+          >>> print (stef.__name__) <-------- __name__
+          stef
+          __________________________________
+
+          >>> x=8
+          >>> dir(x)
+          ['__abs__', '__add__', '__and__', '__bool__', '__ceil__', '__class__', '__delattr__', '__dir__', '__divmod__',
+           '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getnewargs__',
+           '__gt__', '__hash__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__le__', '__lshift__', '__lt__',
+           '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__',
+           '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__round__',
+           '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__',
+           '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__xor__', 'as_integer_ratio', 'bit_length', 'conjugate', 'denominator',
+           'from_bytes', 'imag', 'numerator', 'real', 'to_bytes']
+          __________________________________
+
+
+
+________________________________________
+Bult-in COLLECTIONS
+            tuple
+            range
+            set
+     __________________
+     tuple               like lists(i.e. array) but instead of [] they use ()   (which can also be omitted)
+
+                         a = ("Norway", 4.953, 3)           ()-omitted --> a = "Norway", 4.953, 3
+                         a[0]    -->  'Norway'
+                         len(a)  -->  3
+
+                         a + (6,8)      --> to concatenate/add
+                         for i in a:    --> I can cycle
+                         a * 3          --> to make it 3 times longer, replicating itself 3 times.
+
+                         a = ((220, 284), ....)
+                         a[0][1]   --> 284           They can be on more nested levels
+
+
+                     N.B.  the difference between
+                             a = (391)            a is an integer. The parenthesis are interpreted as mathematical grouping/precedence expression
+                             b = (391,)           a tuple of 1
+
+                                >>> type (a)
+                                <class 'int'>
+                                >>> type (b)
+                                <class 'tuple'>
+
+                         a=()    the empty tuple
+                         (a, b, (c,d))) = (4,(3,(2,1)))        overcomplicated example to show that like in perl I can use a tuple to assign
+                                                               more values to more vars.  This in python is called unpacking a tuple
+                         (a,b) = (b,a)                         example of how to use the unpacking to swap to vars
+
+
+                         tuple ([1,8,7])  --> (1,8,7)          example of usage of tuple function (a list into a tuple)
+                         tuple ("abc")    --> ('a','b','c')       "                 "        "    (a string into a sequence of chars)
+
+
+                         5 in     (3,5,11,4)  --> True         'in'
+                         5 not in (3,5,11,4)  --> False        'not in'
+
+
+     __________________
+     range               they are a numerical progression of INTEGERS
+                            >>> for i in range(5):
+                            ...     print(i)
+                            ...
+                            0
+                            1
+                            2
+                            3
+                            4
+           range            >>> list(range(5))
+                            [0, 1, 2, 3, 4]
+                            >>> list(range(5,10))
+                            [5, 6, 7, 8, 9]
+                            >>> list(range(5,10,2))
+                            [5, 7, 9]
+
+
+           enumerate        >>> t = [4,5,6]
+                            >>> for p in enumerate(t):        <--------- enumerate: returns index and value
+                            ...    print(p)
+                            ...
+                            (0, 4)
+                            (1, 5)
+                            (2, 6)
+                            >>> for i, v in enumerate(t):
+                            ...   print (f'{i} : {v}')
+                            ...
+                            0 : 4
+                            1 : 5
+                            2 : 6
+
+     __________________
+     set                 they are like hashes (using {}) but just values (not keys)
+                         The values are unique
+
+                            >>> s = {1,2,5,8}
+                            >>> s
+                            {8, 1, 2, 5}
+                            >>> type (s)
+                            <class 'set'>
+                            >>> s = {1,2,5,8,8,8,8,8,8,2,2,2,5,5,5,5}    <---- note: dupliocate are removed
+                            >>> s
+                            {8, 1, 2, 5}
+
+
+           set              >>> a=[1,2,5,8,8,8,8,8,8,2,2,2,5,5,5,5]      <---- same. Duplicates will go
+                            >>> s = set(a)
+                            >>> s
+                            {8, 1, 2, 5}
+
+           empty set        >>> s={}  <--------- I cannot use this syntax (already reserved for dict)
+                            >>> type (s)
+                            <class 'dict'>
+                            >>> s=set()   <---- I use this
+                            >>> type (s)
+                            <class 'set'>
+
+
+           in / not in      >>> 8 in s
+                            True
+
+           add              >>> s                      To add 1 elem.
+                            {8, 1, 2, 5}
+                            >>> s.add(88)   <--------- if I add something already in, I don't have errors
+                            >>> s
+                            {1, 2, 5, 8, 88}
+
+           update           >>> s                      To add 1 or MORE  elems.
+                            {8, 1, 2, 5}
+                            >>> s.update([6,9,12])
+                            >>> s
+                            {1, 2, 5, 6, 8, 9, 12}
+
+           remove           s.remove(8)       it errors         if the elem is NOT present
+                            s.discard(8)      it DOESN'T error  "  "   "    "  "     "
+
+           copy             s2 = s.copy()
+           (shallow)
+
+
+           union
+           intersection
+           difference
+           symmetric_difference     only in 1 of the 2 sets (not both)
+           issubset
+           issuperset
+           isdisjoint
+                            >>> some_strings = {'aaa','bbb'}
+                            >>> colors = {'blue', 'white', 'green', 'black', 'grey', 'yellow', 'red', 'orange', 'pink', 'brown'}
+                            >>> eyes = {'green', 'brown', 'black', 'blue'}
+                            >>> hairs = {'grey', 'white', 'black', 'red', 'yellow', 'brown'}
+                            >>> u = eyes.union(hairs)
+                            >>> u        ^^^^^
+                            {'blue', 'black', 'white', 'brown', 'red', 'yellow', 'grey', 'green'}
+                            >>> i = eyes.intersection(hairs)
+                            >>> i        ^^^^^^^^^^^^
+                            {'brown', 'black'}
+                            >>> d1 = eyes.difference(hairs)
+                            >>> d1        ^^^^^^^^^^
+                            {'blue', 'green'}
+                            >>> d2 = hairs.difference(eyes)
+                            >>> d2         ^^^^^^^^^^
+                            {'yellow', 'red', 'white', 'grey'}
+                            >>> sd = hairs.symmetric_difference(eyes)
+                            >>> sd         ^^^^^^^^^^^^^^^^^^^^
+                            {'blue', 'white', 'red', 'yellow', 'grey', 'green'}
+                            >>> eyes.issubset(colors)
+                            True     ^^^^^^^^
+                            >>> hairs.issubset(colors)
+                            True      ^^^^^^^^
+                            >>> colors.issuperset(eyes)
+                            True       ^^^^^^^^^^
+                            >>> colors.isdisjoint(some_strings)
+                            True       ^^^^^^^^^^
+
+________________________________________
+PROTOCOLS                  (like the interfaces)
+                           set of operations that a type must support.
+
+                              must support                                     str    list   dict   range  tuple  set    bytes
+        ________________________________________________________________________________________________________________________
+        Container             item in     container                          |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |
+                              item not in container                          |      |      |      |      |      |      |      |
+                                                                             |      |      |      |      |      |      |      |
+        Sized                 len(..)                                        |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |
+                                                                             |      |      |      |      |      |      |      |
+        Iterable              for item in iterable                           |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |  Y   |
+                                                                             |      |      |      |      |      |      |      |
+        Sequence              item = sequence[integer]                       |  Y   |  Y   |      |  Y   |  Y   |      |  Y   |
+                              i    = sequence.index(item)                    |      |      |      |      |      |      |      |
+                              c    = sequence.count(item)                    |      |      |      |      |      |      |      |
+                              r    = reversed (sequence)                     |      |      |      |      |      |      |      |
+                                                                             |      |      |      |      |      |      |      |
+                              must also be Container / Sized / iterable      |      |      |      |      |      |      |      |
+                                                                             |      |      |      |      |      |      |      |
+        Mutable Sequence                                                     |      |  Y   |      |      |      |      |      |
+        Mutable Set                                                          |      |      |      |      |      |  Y   |      |
+        Mutable Mapping                                                      |      |      |  Y   |      |      |      |      |
+                                                                             |      |      |      |      |      |      |      |
+________________________________________
+EXCEPTIONS
+           The built-in exceptions are:
+
+                            BaseException
+                             +-- SystemExit
+                             +-- KeyboardInterrupt
+                             +-- GeneratorExit
+                             +-- Exception
+                                  +-- StopIteration
+                                  +-- StopAsyncIteration
+                                  +-- ArithmeticError
+                                  |    +-- FloatingPointError
+                                  |    +-- OverflowError
+                                  |    +-- ZeroDivisionError
+                                  +-- AssertionError
+                                  +-- AttributeError
+                                  +-- BufferError
+                                  +-- EOFError
+                                  +-- ImportError
+                                  |    +-- ModuleNotFoundError
+                                  +-- LookupError
+                                  |    +-- IndexError
+                                  |    +-- KeyError  <------------------- ex access a hash with a key which doesn't exist
+                                  +-- MemoryError                            try:
+                                  +-- NameError               (*)                ..
+                                  |    +-- UnboundLocalError                 except KeyError:
+                                  +-- OSError                                    ..
+                                  |    +-- BlockingIOError
+                                  |    +-- ChildProcessError
+                                  |    +-- ConnectionError
+                                  |    |    +-- BrokenPipeError
+                                  |    |    +-- ConnectionAbortedError
+                                  |    |    +-- ConnectionRefusedError
+                                  |    |    +-- ConnectionResetError
+                                  |    +-- FileExistsError
+                                  |    +-- FileNotFoundError
+                                  |    +-- InterruptedError
+                                  |    +-- IsADirectoryError
+                                  |    +-- NotADirectoryError
+                                  |    +-- PermissionError
+                                  |    +-- ProcessLookupError                                 (*) these kind of very high level errors
+                                  |    +-- TimeoutError                                           (i.e. a syntax errors just means there are typos in the file
+                                  +-- ReferenceError                                                    so they are expected to be found during the very first test)
+                                  +-- RuntimeError                                                should never be caught
+                                  |    +-- NotImplementedError
+                                  |    +-- RecursionError
+                                  +-- SyntaxError             (*)
+                                  |    +-- IndentationError   (*)
+                                  |         +-- TabError
+                                  +-- SystemError
+                                  +-- TypeError
+                                  +-- ValueError
+                                  |    +-- UnicodeError
+                                  |         +-- UnicodeDecodeError
+                                  |         +-- UnicodeEncodeError
+                                  |         +-- UnicodeTranslateError
+                                  +-- Warning
+                                       +-- DeprecationWarning
+                                       +-- PendingDeprecationWarning
+                                       +-- RuntimeWarning
+                                       +-- SyntaxWarning
+                                       +-- UserWarning
+                                       +-- FutureWarning
+                                       +-- ImportWarning
+                                       +-- UnicodeWarning
+                                       +-- BytesWarning
+                                       +-- EncodingWarning
+                                       +-- ResourceWarning
+        _____________________
+        syntax
+
+          try                                               try
+              ..                                                ..
+          except TypeError:             group               except (TypeError, KeyError, ValueError):       except (TypeError, KeyError, ValueError) as e:
+              ..                  <---     +    --->            ..                                              print(f"{e!r}"                       ^^^^
+          except KeyError:               exp.                                                                            |                   like an alias
+              ..                                                                                                         |____________________________|
+          except ValueError:
+
+
+
+          finally:
+             ..
+
+
+
+        _____________________
+        raise              to raise an exception.
+
+                   raise   Without args:  raise
+                           it forwards the same exception received (so without args it's expected to stay inside the block of 'except':
+                                                             except ....:
+                                                                 ..
+                                                                 raise
+                                                            )
+                   raise eeeeee   (ex 'raise ValueError('some error happened here')') the exception specified is triggered.
+
+        _____________________
+        LBYL vs EAFP            LBYL: Look before you leap  (standard in C/Perl/... this way I list/manage a lot of error cases
+                                                                                                           and I must forward errors and the caller check
+                                                                                                           the return values)
+                                EAFP: Easier to ask forgiviness than permission (this is the python way. I focus only on the sunny day
+                                      and I intercept any error in the exception block)
+                    try:
+                              process_file(f)    <---------- I don't list/manage all possible errors (file non found/ file is a dir/ file content wrong ....
+                    except OSError as e:           <-------- I just trap them all here.
+                              print (f'Error: {e}')
+
+        _____________________
+        example   (importing/doing things     differently)
+
+                    try:
+                          import mod1       (ex we are on Windows)
+
+                          ..
+                    except ImportError:
+                          import mod2       (we are on Linux)
+                          ..
+
+________________________________________
+ITERATABLEs & ITERATORs
+
+        COMPREHENSIONS  (they are the map / grep in Perl)
+
+                    ITERATABLE:
+
+
+                    ITERATOR:
+
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
 ________________________________________
 ________________________________________
 ________________________________________

@@ -197,7 +197,7 @@
                                         mail:                                       |
                                           sender_name: sender_prod                  |
 
-                                      common_settings: &common_settings        |_____ the solution is the add a reference for each section (1 here)
+                                      common_settings: &common_settings        |_____ the solution is to add a reference for each section (1 here)
                                          input_location: common_input          |
                                          output_location: dev_location         |
                                          mail_defaults: &mail_defaults         | ____ (1 here)

@@ -20,6 +20,18 @@
          zope-ftp    8021/tcp       # zope management by ftp
 
 -------------------------------
+     MOST USED COMMANDS
+-------------------------------
+1. ifconfig:    used to view and configure the network interface of the system.
+2. ping:        used to check the connection to another host on the network.
+3. traceroute:  used to trace the path of a packet through the network.
+4. netstat:     used to view the network statistics of the system.
+5. ip:          used to view and configure the IP address of the system.
+6. route:       used to view and configure the routing table of the system.
+7. nslookup:    used to resolve domain names into IP addresses.
+8. dig:         used to query DNS servers for information about domain names.
+
+-------------------------------
      SW ARCHITECTURE
 -------------------------------
 
@@ -66,7 +78,7 @@ linux command to dump the arp cache: arp
 
 
     arp -d      to delete an entry   (ex. arp -i eth3 -d 192.168.100.17)
-    arp -s      (or --set)   to add 1 entry (ex. arp -s 192.168.100.17 -i eth3 -D eth3 pub)
+    arp -s      (or --set)    to add 1 entry (ex. arp -s 192.168.100.17 -i eth3 -D eth3 pub)
 
 -------------------------------
      ROUTING TABLES

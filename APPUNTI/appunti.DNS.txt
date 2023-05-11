@@ -87,7 +87,7 @@
 -------------------------------
      DNS
 -------------------------------
-sometimes on a Mac ther are errors of hostname resolutions:
+sometimes on a Mac there are errors of hostname resolutions:
 ex:
 
    ssh: Could not resolve hostname chl-prod-bep4.ch.gov.uk: nodename nor servname provided, or not known
@@ -205,4 +205,40 @@ fix:
                               into a DNS record.
                               ex:
                               "this record is used to implement the Sender Policy Framework and DomainKeys specifications."
+
+
+
+
+
+Each DOMAIN NAME has a DNS ZONE that links it to DNS servers
+
+DNS lookup or
+DNS resolution process        NAME -----> IP
+
+                        steps are:
+                                     . in cache ?
+                                       Y: good, take it
+                                                                     caches are:
+                                                                                 local plain text file 'hosts'
+                                                                                 browser cache
+                                                                                 internet service provider (ISP) cache
+
+                                     . N: send a DNS request to a network of 4 DNS servers:
+
+                                      |   1. DNS resolver or
+                so the only CACHE     |      recursive resolver   : it's the 1st server to be contacted.
+                is here ------------> |                             It forwards the request down the line ( --> Root Nameserver) and then it will
+                                      |                             be the one to send back the answer
+                                      |                             If there is an entry in its CACHE --> return directly
+                                      |
+                                      |   2. Root Nameserver:
+                                      |                             it only gives to the DNS resolver the top-level domain (TLD) server to contact
+                                      |                             (ex. .com)
+                                      |
+                                      |   3. top-level domain (TLD)   they are the servers for each top domain:
+                                      |                               ex.  .com, .org, .online, and .net
+                                      |
+                                      |   4. Authoritative Nameserver or
+                                      |      authoritative DNS server        is the final authority in the DNS resolution process.
+                                                                   It stores all information including the IP address.
 

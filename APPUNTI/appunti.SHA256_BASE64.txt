@@ -120,6 +120,16 @@
         $ openssl base64 -A -in jake.zip -out jake.zip.base64
 
 
+
+  TO DECODE:  echo QWxhZGRpbjpvcGVuIHNlc2FtZQ== | base64 --decode
+              base64 --decode <<< 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+              base64 -d       <<< 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+
+              openssl enc -base64 -d <<< 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+
+
+
+
 ================================================================================
                                 S H A
 ================================================================================

@@ -21,3 +21,26 @@ Grouping
 
           sed  's/^([A-Za-z]+-[0-9]+).*$/\1/'
 
+
+Inserting a file
+          '/aaaa/ r file.txt's
+
+           ❯ sed  -e '/id_rsa/ {                       <--- 1. when you find a line containing ir_rsa
+                                 r patch.txt                2. source file patch.txt and print
+                                 d ;}' a                    3. delete the line
+
+
+           On most versions of sed (but not all), the 'r' (read) and 'w' (write) commands must be followed by EXACTLY 1 space,
+           then the filename, and then terminated by a newline.
+           Any additional characters before or after the filename are interpreted as part of the filename. Thus
+
+                /RE/r  insert.me
+
+           will try to locate a file called ' insert.me' (note the leading space!).
+           If the file was not found, most versions of sed say nothing, not even an error message.
+
+           When sed scripts are used on the command line, every 'r' and 'w' must be the last command in that part of the script. Thus,
+
+                   sed -e '/regex/{r insert.file;d;}' source         # will fail
+                   sed -e '/regex/{r insert.file' -e 'd;}' source    # will succeed
+

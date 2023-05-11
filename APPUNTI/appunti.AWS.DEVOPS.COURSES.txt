@@ -942,3 +942,614 @@ Advanced·2h 15m·June 26, 2019
 
        5 AWS Cloud Security
 ---------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AWS Cloud Practitioner Learning Path:
+    4 courses:
+              1/4   Foundamental Cloud Concepts for AWS
+              2/4   Understand AWS Core Services
+              3/4   Introduction to Security & Architecture on AWS
+              4/4   AWS Ceryified Cloud Practitioner Exam Prep
+
+_________________________________________________________
+              1/4   Foundamental Cloud Concepts for AWS
+
+                _________________________________________________________
+                    - set AWS account (personal)/  credit card - free tier
+                    - activate
+                    - set budget alarm
+                                              from my name in the corner --> Billing Dashboard
+                                              Then "Create a Budget" and set an amount
+                                              email or phone num
+
+                    - Traditional Data Center
+                                             Large up-front investment
+                                             Forecast demand is difficult
+                                             Slow to deploy servers
+                                             Maintaining expensive
+                                             Security
+
+                    - Benefit Cloud (Computing)
+                                             Variable costs
+                                             Massive economy of scale (without maintenance)
+                                             Stop guessing capacity --> more agility & speed
+                                             Global (America or Asia) in minutes
+
+                                    Which are defined in these 3 AWS concepts:
+
+                                    "ELASTICITY":  "ability to ACQUIRE resources as I need them
+                                                    and to RELEASE when no longer needed.
+                                                    I also want to do this AUTOMATICALLY"
+
+                                    "RELIABILITY": "ability to provide FUNCTIONALITY (to users) when needed"
+
+                                    "AGILITY":     " - reduce costs for trying new ideas
+                                                     - reduce maintenance
+                                                     - improve security
+                                                     - access to emerging technologies"
+
+
+                _________________________________________________________
+                    - TYPES of Cloud (Computing)  / (MODELS)
+
+                      first an AWS definition of
+                      "Cloud (Computing)":  "on-demand delivery of
+                                                       - computer power
+                                                       - DB storage
+                                                       - applications
+                                                       - other IT resources
+                                             through a cloud services platform
+                                             via the internet with
+                                             PAY-AS-YOU-GO
+                                             pricing"
+
+                                      Here 3 "MODELS":
+
+
+                         MAXIMUM                                                              MINIMUM
+                         CONTROL  <|===========================|===========================|> MAINTENANCE
+                                 (IaaS)                     (PaaS)                       (Saas)
+                              Infrastructure              Platform                        Software
+                              AS A SERVICE                AS A SERVICE                    AS A SERVICE
+
+
+                              they are computers         I have both the HW               I pay for a service
+                              in the cloud               and some MIDDLEWAREs             in the cloud (ex Microsoft Office/ gmail/ slack)
+                              where I deploy             (dev envs, ex Kubernetes)        without bothering of any
+                              my service                  so SW that I use without        underlying
+                              (I can control the OS      bothering of the licences        CONFIGURATION
+                               stop/start ....)
+
+
+
+                                      Different Cloud DEPLOYMENT Models:
+                                                Plublic Cloud:   ex AWS
+                                                On-Prem:         the Cloud-like platform is on on-prem servers
+                                                Hybrid:          mix of both
+
+
+
+                _________________________________________________________
+                    - AWS Global Infrastructure       (https://aws.amazon.com/about-aws/global-infrastructure/  for visually see the Global infrastructure)
+
+                        it's built of 3 elements:
+
+
+                         REGIONS                each region --> specific geographic location  (currently 22 regions. USA: 7)
+
+                                                each region has a CLUSTER of data centers (2+)
+
+                                                Some REGIONS are public,  some are not (ex governments)
+
+
+                         AVAILABILITY ZONES     These are the CLUSTERS,
+                                                1 AVAILANILITY zone = 1+ data center
+
+                                                So 1 REGION = 2+ AVAILANILITY zones    (<---- NB. at least 2)
+                                                                                       Ex REGION WEST VIRGINIA = 6 AZ
+
+                                                69 = total of AVAILANILITY zones worldwide
+
+
+                                       us-east-2a              u   s    -    e   a   s   t    -    2   a
+                                                              High level         Sub-area      Region  AZ      <---- NB. the AZ is a 'letter'
+                                                              AREA                             Number
+                                                              |=====================================|
+                                                                          REGON NAME
+                                                              |=========================================|
+                                                                          AZ    NAME
+
+
+
+                         EDGE LOCATIONS         They are cache nodes                (currently > 200 worldwide, and expanding at ~ 10/13 each year)
+                                                stored in AWS data centers or 3rd party data center.
+                                                They store a copy of the info (origin)
+                                                in order to serve it quickly.
+                                                Ex If a copy of a S3 doc stored in India is asked in USA and it's avilable in 1 edge location
+                                                   closer than in India, it will be served from there (decreases the latency)
+                                                   Note also that 1 read from S3 is billed 1
+                                                   Edge location reads aren't billed, so 100 USA users reading from 1 edge location
+                                                   wouldn't cause a 100 billing from S3 to the AWS customers owning that S3.
+
+                                                Used in :
+                                                               CDN  (CloudFront)
+                                                               DNS  (Route 53)
+                _________________________________________________________
+                    - Economics (of the Cloud)
+
+                         CapEx (Capitalized Expenditure)    is the up-front (usually big) cost of fixed assets (building/servers/other equipments)
+                         OpEx  (Operating   Expenditure)    day to day costs
+
+                      Key is handling Demand:  decrease Unused Capacity / avoid Demand over Capacity
+                      2 tools in AWS:
+
+                            o AWS Cost Explorer  (Console or cli-API)
+                                                  - provides breakdown by service or by cost tag
+                                                  - provides forecast for the next 3 months (based on the previous trend)
+                                                  - gives recommendations for cost optimization
+
+                            o AWS Budgets (uses data from AWS Cost Explorer)
+
+                      Other tools:
+                            o AWS TCO Calculator: (TCO = Total Cost Ownership) to determine costs saved when moving a project to the Cloud (https://calculator.aws/#/addService)
+                            o AWS Pricing Calculator:  to calculate the cost of running a specific AWS infrastructure
+
+
+                      AWS Resource Tags:  they are Metadata that I can assign to any AWS resource to help modelling the costs.
+                                          because cost reports (ex AWS Cost Explorer) can be groupped by tags.
+
+                      AWS Organisations:  AWS allows to create a 'master' account (AWS Organisation) which can manage
+                                          multiple nested different accounts.
+
+                _________________________________________________________
+                    - Support (AWS Infrastructure)
+
+                         o AWS Support                      provided in different tiers (based on need & scope)
+                         o AWS Personal Health Dashboard    provides alerts & remediation guidance when AWS is experiencing events which may impact my infrastructure
+                         o AWS Trusted Advisor              automated tool to check my AWS usage against best practices
+                                                                       - Cost Optimisation
+                                                                       - Performance
+                                                                       - Security
+                                                                       - Fault Tolerance
+                                                                       - Service Limits
+
+
+                         o AWS Support Plam Tiers vary in:
+                              - Communication Method (email or phone call)
+                              - Response Time
+                              - Cost
+                              - Type of Guidance Offered
+
+                           BASIC SUPPORT   - No Monthly Cost: access to Tusted Advisor (7 core checks) & Personal Health Dashboard
+                           AWS DEVELOPER  SUPPORT    Business hours email support   ($29/month)   (1 max email contact (the one registered))
+                           AWS BUSINESS   SUPPORR    24x7 phone & email support     ($100/month)    Tusted Advisor full set of checks | 24x7 phone/chat/email to support Engineer | unlimited contacts | support 3rd party SW
+                           AWS ENTERPRICE SUPPORR    designed Technical Account Manager (TAM) / concierge support team ($15.000/month)
+
+
+                                                                               S U P P O R T    R E S P O N S E     T I M E
+
+                                                                                 DEVELOPER            BUSINESS            ENTERPRICE
+            General question              ---> General Guidance                   24 Business h        24 h                  24 h
+            System with some problems     ---> System Impaired                    12    "     h        12 h                  12 h
+            Live system with some problems---> Production System Impaired                               4 h                   4 h
+            Live system down completely   ---> Production system down                                   1 h                   1 h
+                                               Business-Critical System Down                                                 15 min
+
+
+
+                         o Helps for AWS from
+                                 AWS Quick Starts
+                                 AWS Partner Network Consulting Partners   (3rd party contractors certified)
+                                 AWS Professional Services
+
+
+_________________________________________________________
+              2/4   Understand AWS Core Services
+                _________________________________________________________
+                    - Interacting with AWS
+
+                        - AWS Console
+                        - AWS Cli
+                        - AWS SDK  (available for different programming languages)
+
+                        Currently there are 150+ AWS services
+
+                        . I login as (root) or (iam) <-- better
+                        . I select a region
+                        . I select the service I want       NB. for some services (ex Route 53) the region DOESN'T matter
+                                                                (it's specified as 'Global')
+                                                                as they are GLOBAL services
+
+
+                        . From "my user" in the right-up menu, I select "My credentials"
+                          to create 1 Access Key:
+                                     Access Key ID:       AKAIAJ.....2TA
+                                     Secret Access Key:   sNah1Chlr1Q......................T4A/F
+
+                          which I can use to configure 1 profile:
+
+                                  $ aws configure --profile test1
+
+                                   AWS Access KEY ID [None]: AKAIAJ.....2TA
+                                   AWS Secret Access Key [None]: sNah1Chlr1Q......................T4A/F
+                                   Defult region name [None]: us-east-1
+                                   Default output format [None]: json
+                _________________________________________________________
+                    - Compute Services
+
+                        - They are the Virtual Machines (EC2) to manage workloads  (ex. web FE / DB / ....)
+
+                        o EC2
+                        o Elastic Beanstalk     (platform for scaling and deploying web services)
+                        o Lambda
+
+                            ________________
+                            o EC2
+                                   - Instance Types
+                                                                processor / memory / storage type     (cannot be changes without downtime)
+
+                                                                . General purpose
+                                                                . Compute, memory, storage optimised
+                                                                . Accelerated computing
+
+                                   - Root Device Type
+                                                                . Instance Store (ephemeral storage that is physically attached to the host where the VM is running)
+                                                                . Elastic Block Store (EBS) (persistent storage, separate from the host/VM) <--- to always prefer
+                                   - Amazon Machine Image (AMI)
+                                                                . Template for EC2 instance including (os/ config/ data)
+                                                                . Can be shared among AWS accounts
+                                   - Purchase Options
+                                                                . On Demand    expensive, I buy now to use now
+                                                                . Reserved     discount over on-demand if I commit to a specific period of time
+                                                                                     - Standard       (all upfront / partial up-front / No upfront)
+                                                                                     - Convertible    (allows to change during the contract (years) period)
+                                                                                     - Scheduled      (contract in specific period of time)
+                                                                . Saving Plans   Similar to Reserved, but I cannot reserve Capacitay
+                                                                                 (useful to run Lambda or Fargate)
+                                                                . Spot           Spot-price like stock exchange values.
+                                                                . Dedicated Host
+                            ________________
+                            o Elastic Beanstalk     (platform for scaling and deploying web services)
+                                                    It allows to deploy an app on EC2s
+                                                    without needing to go step by step.
+                                                    It has less customisation than managing the EC2 directly
+                                                    but with its set of main default config, can let me forget about this level.
+
+                                                    - automate the process of deploying and scaling workloads on EC2 (PaaS)
+
+                                                    - Handles
+                                                              provisioning (deployment)
+                                                              load balancing/
+                                                              scaling/
+                                                              monitoring/
+                                                              EC2 Customisation/
+
+                                                    - Support specific set of technologies
+                                                               Java
+                                                               .Net
+                                                               PHP
+                                                               Node
+                                                               Python
+                                                               Ruby
+                                                               Go
+                                                               Docker  <---- via Doker I can extned to more stuff (than the above)
+
+                                                    - Only pay for the services that I leverage
+
+                                o Ex to deploy a prepared Node.js app (an artefact .zip)
+                                  form AWS console/Elastic Beanstalk, I just "Upload" the app and it will be running in seconds
+                                  with a link to access is publically, menu to see the logs, the monitoring, to add alarmrs ....
+                            ________________
+                            o Lambda
+                                   - I can run code wihout povisioning infrastructure
+                                   - it's the considered the PRIMARY service when thinking of SERVERLESS architecture
+                                   - I'm charged for the execution time
+                                   - I can chose to have 128 MB  or up to 3.008 MB of ram
+                                   - it's integrated inside AWS (so I can call S3 or other services without issues)
+                                   - it's possible to write event-driven code (according to events received from AWS)
+
+
+                _________________________________________________________
+                    - Content and Network Delivery Services
+
+                        o Amazon VPC & Direct Connect
+                        o Riute 53
+                        o Elastic Load Balancer (ELB)
+                        o Cloud Frond & API Gateway
+                        o AWS Global Accelerator
+
+                            ________________
+                            o Amazon VPC & Direct Connect
+                                   - Virtual Private Cloud (VPC)   it's my private slice of the cloud
+                                                                   my private network.
+
+                                                                        - Enable virtual networks in AWS  (both IPv4/6)
+                                                                          (this means:
+                                                                              IP address range
+                                                                              Subnets
+                                                                                    - public
+                                                                                    - private (NAT)
+                                                                              Route table
+                                                                              Network Gateways)
+
+                                                                   NB. I can have more VPC connected together
+
+                                   - AWS Direct Connect   it allows to establish a dedicated network connection from my data center to AWS
+                            ________________
+                            o Riute 53
+                                   - Domain name Service  (DNS)
+                                               as per DNS, a change might take hours to propagate
+                                   - Global (among any region)
+                                   - Highly available
+                                               I can configure a fail-over route, so that if my server X in America
+                                               goes down, traffic will be routed to server Y in Argentina
+                                               (again, R.53 is global)
+                            ________________
+                            o Elastic Load Balancer (ELB)
+
+                                   - distributes traffic across more servers
+                                   - Integrates with (EC2/ ECS/ Lambda)
+                                   - Supportis + AZ in a region
+                                   - Classic LB / Application (ALB) or Network (NLB)
+
+                                         Vertical Scaling       I move to a bigger EC2 (ex micro --> xlarge)
+                                                                the problem is that I have downtime (shutting down and booting)
+
+                                         Horizontal Scaling     I use the ELB to distribute the load
+
+                            ________________
+                            o Cloud Frond & API Gateway
+                                   - Cloud Frond          Content Delivery Network (CDN)
+
+                                                        . relies on the edge locations
+                                                        . includes security features:
+                                                                    AWS Shield (for DDoS)
+                                                                    WAF
+                                   - API Gateway        . Fully managed API-management service
+                                                        . provides monitoring and metrics on API calls
+                                                        . support both VPC and on-prem private application
+
+                            ________________
+                            o AWS Global Accelerator
+                                   - network service that sends my user's traffic through AWS
+                                     improving performance by up to 60%
+
+                                     Utilises IP that route to edge locations  (which are nearer --> less latency)
+                                     Can route to many AWS resources:
+                                                 Load Balancers  (NLB / ALB)
+                                                 EC2
+                                     It's useful when:
+                                                 traffic is not HTTP (ex UDP/ VOIP/ ...)
+                                                 static IP (not via DNS)
+                                                 Instant fail-over
+
+                _________________________________________________________
+                    - File Storage Services
+                            ________________
+                            o AWS S3  (Simple Storage Service)
+
+                                      - in S3 files are objects in buckets
+                                      - S3 stores data across multiple AZ
+                                      - S3 enables URL access to files
+                                                            When I create the bucket I set it as public (and I confirm that it's ok to the warning)
+                                                            I turn on the read permission of every file that I want to be publicaly accessible
+                                      - S3 can serve a statis website
+                                                            As above, I create the bucket as public
+                                                            I provide an index.html (whose read permission I open );
+                                      - provides more storage CLASSES for my data:
+                                                            S3-Standard:   the default. It's for frequent accessed data
+                                                            S3-Intelligent-tiering: automatically moves the data to the correct class based on usage
+                                                            S3-Standard-IA: (Infrequent Access) for data not accessed frequently (still accessible across + AZ)
+                                                                            (less cost with same resilience)
+                                                            S3-One-Zone-IA: (Infrequent Access) stored/accessible in 1 AZ only   (even less cost (but less resilience))
+
+                                    S3 Transfer Acceleration:  feature that can be enabled PER BUCKET
+                                                               to otimise the upload using Edge locat. (Cloudfront)
+                            ________________
+                            o AWS S3 Glacier
+                                    for storing data which don't require frequent access
+                                    (ex receipts from customers. Doc that I mjst keep for example 1 year
+                                        but usually I don't need to access frequently).
+
+                                    I pay for num of GB retrieved
+
+                                    To access these data I can opt for quick access or
+                                    for access at specified "retrieval times" (so not immediately but cheaper)
+
+                                                             S3 Glacier            S3 Galcier Deep Archive
+                                                          __________________________________________________
+                                   minimum keep time           3 months                   6 months
+                                   retrieve time               min or hours                hours
+                                   cheaper than S3             5 times                    23 times
+
+
+                            ________________
+                            o AWS Elastic Block Store  (EBS)
+
+                                  - it's a storage block designed to be connected to 1 EC2
+                                  - it can scale up to petabites of data
+                                  - support different volume types
+                                                . General purpose SSD           general workload
+                                                . Provisioned IOPS SSD          high performance volumes
+                                                . Throughuput optimized HDD     frequently accessed data
+                                                . Cold HHD                      non frequently accessed
+                                  - can have encryption
+                                  - spans + AZ
+                                  - supports tacking spashot of my data.
+
+                            ________________
+                            o AWS Elastic File System  (EFS)
+                                    It's a fully managed NETWORK file system with
+                                    most of the features of EBS (+ AZ/ petabite)
+
+                                    While EBS can be connected to only 1 EC2
+                                    EFS, as a NETWORK file system, can be mounted on + EC2 ( and even across + AZ)
+
+                                    EBS supports only Linux
+
+                                    FSX is the solution for Windows:
+                                             - Fully managed native Windos File System:
+                                                          . SMB support
+                                                          . Acrive Directory
+                                                          . Windows NTFS
+                            ________________
+                            o AWS Snowball
+                                    Service to physically migrate petabyte of data to AWS
+
+                                    A device is delivered by AWS.
+                                    I connect the device to my network and I copy data onto it
+                                    The device is returned by local carrier
+                                    AWS receives and loads my data into S3
+                            ________________
+                            o AWS Snowmobile
+                                    Service to physically migrate exabyte of data to AWS
+
+                                    Same of Snowball, but a ruggedised shipping container
+                                    is delivered to my address.
+
+                _________________________________________________________
+                    - DB Seervices and Utilities
+                            ________________
+                            o Amazon RDS   (Relational Database Service)
+
+                                   . Fully managed RDS (patch / backup / recovery)
+                                   . + AZ
+                                   . inside 1 VPC
+                                   . supports SSD & IOPS SSD
+                                   . MySQL / PostgresSQL / MariaDB / Oracle / Amazon Aurora
+
+                            ________________
+                            o Amazon Aurora
+                                   . (MySQL & PostgresSQL)-compatible RDS built for the cloud
+                            ________________
+                            o Amazon DynamoDB
+                                   . Fully managed NoSQL DB
+                                   . provides both key-value and document DB
+                                   . enables extremely low tanecy and virtually any scale
+                                   . auto scaled based on configuration
+                                   . Offers in-memory cache (DynamoDB Accelerator (DAX))
+                                   . Can handle
+                                             - 10 trillion requests/day
+                                             - 20 millions requests/sec
+                            ________________
+                            o Amazon Elasticach
+                                   . Fully managed in-memory DB
+                                   . supports both Redis & Memcached
+
+                                Common use cases:
+                                        . manage a DB layer cache
+                                        . manage sessions
+                            ________________
+                            o Amazon Redshift
+                                   . Scalable data warehouse service
+                                   . Support petabyte warehousing of data
+                                   . offers encryption
+                                   . with 'Redshift Spectrum' I can query exabite of data from S3
+                            ________________
+                            o AWS Database Migration Service  (DMS)
+                                   . I can move my onprem DB to AWS
+                                   . it supports 1-time and continual migration of data
+                                   . I only pay for the actual compute leverage used in the process
+                _________________________________________________________
+                    - App Integration Services
+                            ________________
+                            o Amazon SNS    (Simple Notification Service)
+
+                                   . Fully managed messaging service
+                                   . It works like kafka: I can organise my info per topics
+                                     and I can have pub/sub  (publishers-producers / subscribers-consumers)
+                                   . support SMS/email
+
+                            ________________
+                            o Amazon SQS
+                                   . Fully managed message queue service
+                                   . up to 256 KB payload
+                                   . messages stored up to 14 days (2 weeks)
+                            ________________
+                            o AWS Step Functions
+                                   . supports serverless architecture
+                                   . charged per state transition
+                                   . Workflow is defined using "Amazon States Language"
+
+
+                _________________________________________________________
+                    - Management and Governance Services
+                            ________________
+                           o AWS CloudTrail                                                                      |
+                                  . it tracks ALL the actions I do in AWS                                        |
+                                    (in the console, via CLI or SDK)                                             |
+                                  . These logs are in the region they occur                                      | audit trail
+                                  . These logs are stored in S3                                                  |
+                                  . So if it's turned on it costs money                                          |
+                           ________________
+                           o Amazon CloudWatch                                                                   |
+                                  . monitoring and management service                                            |
+                                  . collects logs, metrcics, events from AWS services                            |
+                                  . enables ALARMS based on metrics                                              |
+                                  . provides visualtsation for metrcis                                           |
+                                  . I can create my custom dashboards                                            | track
+                           ________________                                                                      |
+                           o AWS Config                                                                          |
+                                  . keeps monitored my AWS config                                                |
+                                  . keeps an history of these configurations                                     |
+                                  . works against rules that I can customise                                     |
+                                  . this means it can act remediation steps if a config becomes out of my rules  |
+                                  . works with AWS Organisations, so cross-account/cross-region                  |
+                           ________________
+                           o AWS Systems Manager                                                                 |
+                                  . I can view operational data of multiple AWS services                         |
+                                  . I can automate operational tasks across my AWS resources                     | operational insights
+                                  . I has multiple tools which I can use                                         |
+                                  . it can store parameters securely                                             |
+                           ________________
+                           o AWS CloudFormation                                                                  |
+                                  . it allows to provision my infrastructure via TEMPLATES (YAML or JSON)        |
+                                    (infrastructure as code)                                                     | Automation
+                                  . this allows to skip both the AWS console or CLI scripts                      |
+                                  . manages the dependency between resources                                     |
+                           ________________                                                                      |
+                           o AWS OpsWorks
+                                  . it provides managed instances of Chef and Puppet                             |
+                                  . they can manage the configuration that I want on my servers                  |
+                                  . it can work in a Hybrid architecture (both cloud & on-prem)                  |
+                                  . it gives 3 services:                                                         |
+                                               AWS OpsWorks for Chef Automate                                    |
+                                               AWS OpsWorks for Puppet Enterprise                                |
+                                               AWS OpsWorks Stacks                                               |
+                           ________________                                                                      |
+                           o AWS Control Tower
+                                  . to create a multi-account environment (used by AWS Organisations)            |
+                                  . centralises users across all AWS accounts                                    |
+                                  . allows to create accounts based on templates                                 | AWS Organisations leveraging
+                                  . allows 'Guardrails' on accounts to keep track that there are                 |
+                                    no exception in all the accounts|                                            |
+                                  . provides a unified dashboard                                                 |
+
+_________________________________________________________
+              3/4   Introduction to Security & Architecture on AWS
+_________________________________________________________
+              4/4   AWS Ceryified Cloud Practitioner Exam Prep
+_________________________________________________________
+
+
+
+
+
+
+
+
+
+
+

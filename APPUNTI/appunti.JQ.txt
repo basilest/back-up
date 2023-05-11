@@ -10,3 +10,9 @@
                               jq -r ....   secure-mongo-db1.live.aws.internal
 
     jq '.[] | select(.location=="Stockholm")'  filter only entries with a field equal a value
+
+
+    jq '.[] | .login, .id'   to select only the fields I want (here 2 fields "login" "id")
+
+
+    -c                       if I want the fields to be printed in 1 LINE instead of on each separate line

@@ -12,7 +12,7 @@ WAI-ARIA
 
              It defines bunch of markup extensions.
              without affecting the core functionality (as if a user agent does not understand
-             those tgas/attributes it will just skip them):
+             those tags/attributes it will just skip them):
 
              ex:
                  <ul role="menu">
@@ -50,9 +50,9 @@ LABELS       <label> in HTML adds info to a supposed linked <input> (or similar 
                         <input type="text">
 
 
-             DIV          Regardless of what roles is assigned they are never "labelable" elements  (but this rule is a work in progress)
+             DIV          Regardless of what role is assigned they are never "labelable" elements  (but this rule is a work in progress)
                           <label>
-                                user name <div  role="combobox"></div>       # doesn't work, iso the <lable> remains WITHOUT an 'accessible name.'
+                                user name <div  role="combobox"></div>       # doesn't work, so the <lable> remains WITHOUT an 'accessible name.'
                           </label>
 
 

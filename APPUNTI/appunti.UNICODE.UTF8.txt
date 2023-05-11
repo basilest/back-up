@@ -110,7 +110,7 @@ POINTS
                           7
 
 
-[128-2.047]        110  x  x x x x      10   x x  x x x x     for UNICODE CODE-POINTS > 128  < 2.047
+[128-2.047]        110  x  x x x x      10   x x  x x x x     for UNICODE CODE-POINTS > 128  < 2.047     (2^11:2048 - 0-2047)
                    ^^^  ^^^^^^^^^^      ^^   ^^^^^^^^^^^^     I need 11 bits of info. They are split
                             5                    6            in 2 bytes:
                             '--------------------'                - 1st: HEADER of 110   <--- which I can remember as 2-"1" -> 2 bytes
@@ -122,7 +122,7 @@ POINTS
                             4                    6                   6
                             '--------------------'-------------------'
                                               tot=16
-                                                              for UNICODE CODE-POINTS > 128  < 65.535
+                                                              for UNICODE CODE-POINTS > 2.047  < 65.535
                                                               I need 16 bits of info. They are split
                                                               in 3 bytes:
                                                                   - 1st: HEADER of 1110  <- which I can remember as 3-"1"-> 3 bytes
@@ -149,15 +149,25 @@ last range:
 
 
 
-        NOTE 1:  UTF-8 will never send 8-"0" (8 consecutive zeros)
-                 so this avoids to send what the receiver could interpret as an "END-OF-STRING"
-                 and then potentially stops listening for the following bytes.
-
-        NOTE 2:  taking any byte from a stream, I always know if I'm in the middle of a "continuation bytes"
+        NOTE 1:  taking any byte from a stream, I always know if I'm in the middle of a "continuation bytes"
                  or if I've taken a leading byte
                  so I can look forward or backward in the stream of byte
 
-        NOTE 3:  If a byte starts with 0 it's a 1 ASCII = 1 UTF-8 single byte/char.
+        NOTE 2:  If a byte starts with 0 it's a 1 ASCII = 1 UTF-8 single byte/char.
+
+
+Modified UTF-8   it's the standard (originated in Java) which avoids having EVER the ASCII NUL ( 8-"0" (8 consecutive zeros))
+                 This avoids to send what the receiver could interpret as an "END-OF-STRING"
+                 and then potentially stops listening for the following bytes.
+
+                 The null character (U+0000) is then the only ASCII value which comes encoded BY DEFINITION in 2 bytes:
+
+                         11000000 10000000 (hex C0 80), instead of 00000000 (hex00)
+                         ...^^^^^ ..^^^^^^
+
+                 In the end:
+                 Modified UTF-8  never contains any actual null bytes (ALL '0')
+
 
 
                                                                                                                        1010 0011
@@ -195,14 +205,14 @@ last range:
        each then with a different binary value, so it's possible that in a program
        I can have odd results (ex. string compare)
 
-   2 Unicode chars (2 SINGLETON) are EQUIVLENT depending of 2 kind of 'equivalence':
+   2 Unicode chars (2 SINGLETON) are EQUIVLENT depending of 2 kinds of 'equivalence':
 
             . CANONICAL     equivalence     (NFC)
             . COMPATIBILITY equivalence     (symbol used 'K'  Kompatibility (NFKC)  as C is already 'Composition')
 
     A.CANONICAL     equivalence      it's the real scrict one (the default: NFC)
                                      meaning that the 2 chars must be the same on video
-                                     even if they have
+                                     even if they have:
 
                                       - different code points
                                          ANGSTROM SIGN      U+212B ( Å ) =  U+00C5 ( Å )  LATIN CAPITAL LETTER A WITH RING ABOVE
@@ -287,7 +297,7 @@ last range:
              The composition respects ANYHOW ALSO AN ORDER
              so for example
 
-             q +  ̇̇ + . (0071 + 0307 + 0323)  remains 3 shorts but the composition changes the ordering as
+             q +  ̇̇ + . (0071 + 0307 + 0323)  remains len 3  but the composition changes the ordering as
              q + . +  ̇̇ (0071 + 0323 + 0307)
 
 
@@ -394,6 +404,8 @@ last range:
 
      xxd                    dumps in hex or binary
                             and even the reverse
+
+                            note: the new lines (\n) are shown as (dot) .
 
           ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd                                   # default hex
           00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.

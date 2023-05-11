@@ -362,7 +362,8 @@ M - 19   system      Manage Docker
              Live Restore Enabled: false
 
   prune       Remove unused data
-  docker system prune
+      $ docker system prune
+
 ============================================
 M - 20   trust       Manage trust on Docker images
 ============================================
@@ -441,6 +442,170 @@ C - 27   rm          Remove one or more containers
 C - 28   rmi         Remove one or more images
 ============================================
 C - 29   run         Run a command in a new container
+
+    Usage:  docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+    Run a command in a new container
+
+    Options:
+          --add-host list                  Add a custom host-to-IP mapping
+                                           (host:ip)
+      -a, --attach list                    Attach to STDIN, STDOUT or STDERR
+          --blkio-weight uint16            Block IO (relative weight),
+                                           between 10 and 1000, or 0 to
+                                           disable (default 0)
+          --blkio-weight-device list       Block IO weight (relative device
+                                           weight) (default [])
+          --cap-add list                   Add Linux capabilities
+          --cap-drop list                  Drop Linux capabilities
+          --cgroup-parent string           Optional parent cgroup for the
+                                           container
+          --cgroupns string                Cgroup namespace to use
+                                           (host|private)
+                                           'host':    Run the container in
+                                           the Docker host's cgroup namespace
+                                           'private': Run the container in
+                                           its own private cgroup namespace
+                                           '':        Use the cgroup
+                                           namespace as configured by the
+                                                      default-cgroupns-mode
+                                           option on the daemon (default)
+          --cidfile string                 Write the container ID to the file
+          --cpu-period int                 Limit CPU CFS (Completely Fair
+                                           Scheduler) period
+          --cpu-quota int                  Limit CPU CFS (Completely Fair
+                                           Scheduler) quota
+          --cpu-rt-period int              Limit CPU real-time period in
+                                           microseconds
+          --cpu-rt-runtime int             Limit CPU real-time runtime in
+                                           microseconds
+      -c, --cpu-shares int                 CPU shares (relative weight)
+          --cpus decimal                   Number of CPUs
+          --cpuset-cpus string             CPUs in which to allow execution
+                                           (0-3, 0,1)
+          --cpuset-mems string             MEMs in which to allow execution
+                                           (0-3, 0,1)
+      -d, --detach                         Run container in background and <---------------------------------------------------
+                                           print container ID
+          --detach-keys string             Override the key sequence for
+                                           detaching a container
+          --device list                    Add a host device to the container
+          --device-cgroup-rule list        Add a rule to the cgroup allowed
+                                           devices list
+          --device-read-bps list           Limit read rate (bytes per second)
+                                           from a device (default [])
+          --device-read-iops list          Limit read rate (IO per second)
+                                           from a device (default [])
+          --device-write-bps list          Limit write rate (bytes per
+                                           second) to a device (default [])
+          --device-write-iops list         Limit write rate (IO per second)
+                                           to a device (default [])
+          --disable-content-trust          Skip image verification (default true)
+          --dns list                       Set custom DNS servers
+          --dns-option list                Set DNS options
+          --dns-search list                Set custom DNS search domains
+          --domainname string              Container NIS domain name
+          --entrypoint string              Overwrite the default ENTRYPOINT
+                                           of the image
+      -e, --env list                       Set environment variables <---------------------------------------------------------
+          --env-file list                  Read in a file of environment variables <-------------------------------------------
+          --expose list                    Expose a port or a range of ports
+          --gpus gpu-request               GPU devices to add to the
+                                           container ('all' to pass all GPUs)
+          --group-add list                 Add additional groups to join
+          --health-cmd string              Command to run to check health
+          --health-interval duration       Time between running the check
+                                           (ms|s|m|h) (default 0s)
+          --health-retries int             Consecutive failures needed to
+                                           report unhealthy
+          --health-start-period duration   Start period for the container to
+                                           initialize before starting
+                                           health-retries countdown
+                                           (ms|s|m|h) (default 0s)
+          --health-timeout duration        Maximum time to allow one check to
+                                           run (ms|s|m|h) (default 0s)
+          --help                           Print usage
+      -h, --hostname string                Container host name
+          --init                           Run an init inside the container
+                                           that forwards signals and reaps
+                                           processes
+      -i, --interactive                    Keep STDIN open even if not attached <----------------------------------------------
+          --ip string                      IPv4 address (e.g., 172.30.100.104)
+          --ip6 string                     IPv6 address (e.g., 2001:db8::33)
+          --ipc string                     IPC mode to use
+          --isolation string               Container isolation technology
+          --kernel-memory bytes            Kernel memory limit
+      -l, --label list                     Set meta data on a container
+          --label-file list                Read in a line delimited file of labels
+          --link list                      Add link to another container
+          --link-local-ip list             Container IPv4/IPv6 link-local
+                                           addresses
+          --log-driver string              Logging driver for the container
+          --log-opt list                   Log driver options
+          --mac-address string             Container MAC address (e.g.,
+                                           92:d0:c6:0a:29:33)
+      -m, --memory bytes                   Memory limit
+          --memory-reservation bytes       Memory soft limit
+          --memory-swap bytes              Swap limit equal to memory plus
+                                           swap: '-1' to enable unlimited swap
+          --memory-swappiness int          Tune container memory swappiness
+                                           (0 to 100) (default -1)
+          --mount mount                    Attach a filesystem mount to the
+                                           container
+          --name string                    Assign a name to the container
+          --network network                Connect a container to a network
+          --network-alias list             Add network-scoped alias for the
+                                           container
+          --no-healthcheck                 Disable any container-specified
+                                           HEALTHCHECK
+          --oom-kill-disable               Disable OOM Killer
+          --oom-score-adj int              Tune host's OOM preferences (-1000
+                                           to 1000)
+          --pid string                     PID namespace to use
+          --pids-limit int                 Tune container pids limit (set -1
+                                           for unlimited)
+          --platform string                Set platform if server is
+                                           multi-platform capable
+          --privileged                     Give extended privileges to this
+                                           container
+      -p, --publish list                   Publish a container's port(s) to <--------------------------------------------------
+                                           the host
+      -P, --publish-all                    Publish all exposed ports to
+                                           random ports
+          --pull string                    Pull image before running
+                                           ("always"|"missing"|"never")
+                                           (default "missing")
+          --read-only                      Mount the container's root
+                                           filesystem as read only
+          --restart string                 Restart policy to apply when a
+                                           container exits (default "no")
+          --rm                             Automatically remove the container
+                                           when it exits
+          --runtime string                 Runtime to use for this container
+          --security-opt list              Security Options
+          --shm-size bytes                 Size of /dev/shm
+          --sig-proxy                      Proxy received signals to the
+                                           process (default true)
+          --stop-signal string             Signal to stop a container
+                                           (default "SIGTERM")
+          --stop-timeout int               Timeout (in seconds) to stop a
+                                           container
+          --storage-opt list               Storage driver options for the
+                                           container
+          --sysctl map                     Sysctl options (default map[])
+          --tmpfs list                     Mount a tmpfs directory
+      -t, --tty                            Allocate a pseudo-TTY <--------------------------------------------------------------
+          --ulimit ulimit                  Ulimit options (default [])
+      -u, --user string                    Username or UID (format:
+                                           <name|uid>[:<group|gid>])
+          --userns string                  User namespace to use
+          --uts string                     UTS namespace to use
+      -v, --volume list                    Bind mount a volume
+          --volume-driver string           Optional volume driver for the
+                                           container
+          --volumes-from list              Mount volumes from the specified
+                                           container(s)
+      -w, --workdir string                 Working directory inside the container
 ============================================
 C - 30   save        Save one or more images to a tar archive (streamed to STDOUT by default)
 ============================================
@@ -1098,9 +1263,6 @@ DOCKER FILE:
                      ENTRYPOINT ["node", "./app.js"]   start the app which has been the main reason of building the container
                                                        NOTE: ./ means from current WORKDIR so = /src/app.js
 
-                    | ENV NAME World      <----- I can also define ENV vars in the Docker file
-
-
        docker build     # short for $ docker image build
                                              ^^^^^
                      It creates an Image(/tag) from a Dockerfile whose place is given as build arg:
@@ -1111,8 +1273,16 @@ DOCKER FILE:
                                                                        \_____docker image build -t xxxx  .     (the place is the local file sys / cur dir)
                                                                              docker image build -t xxxx  https://github.com/..../repo.git  (the place is remote)
 
-                     Some instructions add a LAYER in the Image, others only METADATA (not Layers) to the Image
-                     I highlight this with an L here
+                     IMAGE-builds (from Dockrfile) are assembled as READ-ONLY layers.
+                     Every command (in the Dockerfile) is executed/committed and this can create a new layer or not. (ex LABEL doesn't create)
+                     The instructions which do not add  a LAYER in the Image, can then add only METADATA.
+                     Every new layer is kept in a cache for future builds.
+                     Before creating a new layer then, a search in the cache is performed. If nothing is found,(cache miss) then it will be created.
+
+                     When building an image I can opt to never look at available layers, but create each one afresh:
+                                         docker build --no-cache=true ...
+                                                      ^^^^^^^^^^^^^^^
+                     Layer
                      |
                      |                                                  FROM        FROM+LABEL     FROM+LABEL+RUN   FROM+LABEL+RUN+COPY    FROM+LABEL+RUN+COPY+RUN
                      L  FROM alpine                                   .--------.   .--------.     .--------.       .--------.             .--------.
@@ -1214,7 +1384,7 @@ DOCKER FILE:
 
                                   the context is the 'filesystem' where the Dockerfile is located.
                                   Any instruction in the Dockerfile cannot access files outside of its context.
-                                  (Ex. I cannot use ../ to refer files in upper level to where th Dockerfile is)
+                                  (Ex. I cannot use ../ to refer to files up 1 level (respect to where the Dockerfile is)
 
                                         $ docker build .      <--- the context is .
 
@@ -1230,8 +1400,8 @@ DOCKER FILE:
                              $ DOCKER_BUILDKIT=1 docker build  <----- still new
 
                              The new build has more features.
-                             It parallelise build stages
-                             It detects & skips unsused build stages
+                               -  parallelise build stages
+                               -  detect & skip unsused build stages
 
     ------------------------
     Parser directives   (only in BuildKit)
@@ -1251,7 +1421,7 @@ DOCKER FILE:
                     - # syntax=docker/dockerfile:1   <---- or any other image  (syntax=example.com/user/repo:tag@sha256:abcdef...)
 
                       This line specifies the image for the parser which will parse the Dockerfile.
-                      This allows anyone who build the image to rely on the same parser/features
+                      This allows anyone who builds the image to rely on the same parser/features
 
                       NOTE: being an image I can pull and inspect it:
 
@@ -1311,12 +1481,12 @@ DOCKER FILE:
 
     ------------------------
     ENV
-                       It allows to defined vars to be used throughout in the Dockerfile, like they would in a shell script.
+                       It allows to define vars to be used throughout the Dockerfile, like in a shell script.
                                 FROM busybox
                                 ENV FOO=/bar
                                 WORKDIR ${FOO}   # WORKDIR /bar
 
-                       both $FOO or ${FOO} syntax allowed
+                       both syntax allowed: $FOO  ${FOO}
 
                        Still in bash style, it's possible to return alternative values when the var is undef:
 
@@ -1329,6 +1499,11 @@ DOCKER FILE:
                                 ENV abc=bye def=$abc    <---- same instr. def is  'hello'
                                 ENV ghi=$abc            <---- 'bye'
 
+                       docker run --env <key>=<value>   <---- this overrides any Dockerfile ENV
+
+                       docker inspect   # to see all ENV
+                                        # this, because ENV vars persist in the image (this can cause unexpected issues
+                                        # when the image is reused as parent image
 
     ------------------------
     .dockerignore
@@ -1361,11 +1536,55 @@ DOCKER FILE:
 
                               There can be many FROM as per multi-stages Dockerfile (where the alias AS <name> becomes useful)
 
-                              Every FROM resets ANY previous instructions/vars/args/....
+                              Every FROM
+                                    - defines a scope (like a normal function does) so
+                                    - it resets ANY previous instructions/vars/args/....
 
     ------------------------
-    ARG                       The only instr. that can precede a FROM.
-                              It defines a var whose scope is the FROM line only.
+    ARG                       They are like ENV, vars which can be used, and whose value can be overridden via command line (with --build-arg <varname>=<value>)
+
+                                           FROM busybox
+                                            ARG user1
+                                            ARG buildno
+
+                              docker --build-arg user1=sbasile ......
+                                     ^^^^^^^^^^^
+
+                              ____________________
+                              DEFAULT:        defaults can be added, so there is a value if nothing is passed at build-time.
+
+                              FROM busybox
+                                ARG user1=someuser
+                                ARG buildno=1
+                                # ...
+
+
+                              ____________________
+                              INIT:    The time at which an ARG has a value is from the line where it's defined (not at command-line time)
+
+                                         1   FROM busybox
+                                         2   USER ${user:-some_user}    <---- $user is not defined here (so USER is 'some_user')
+                                         3   ARG user                   <---- it's defined here (line 3)
+
+
+                              ____________________
+                              SCOPE:    ARG goes out of scope at the end of its FROM (the build stage where it was defined).
+                                        To use an arg in multiple stages, each stage must include the ARG instruction.
+
+                                            FROM busybox
+                                                ARG SETTINGS
+                                                RUN ./run/setup $SETTINGS
+
+                                            FROM busybox
+                                                ARG SETTINGS
+                                                RUN ./run/other $SETTINGS
+
+
+                              ____________________
+                              SPECIAL SCOPE:
+
+                              ARG is the only instr. that can precede a FROM.
+                              When it's  BEFORE the FROM, its scope is the FROM line only, but it can be extended to the FROM block:
                               To be used after the FROM it must be 'declared' again with the name only:
 
                                             ARG  CODE_VERSION=latest   <--- defined                       ARG VERSION=latest         <---  defined
@@ -1375,34 +1594,294 @@ DOCKER FILE:
                                             FROM extras:${CODE_VERSION} <--- still FROM scope
                                             CMD  /code/run-extras
 
+                              ARG do not persist (like ENV) in the final image.
+                              This avoids the side effects which ENV-peristing var might have.
 
+
+                              ____________________
+                              ENV vs ARG      if ENV and ARG has the same name (clash) ENV will win.
+
+
+                              ____________________
+                              PREDEFINED ARG:      following args can be referenced in a Dockerfile without any previous ARG definition. They still need to be passed
+                                                   in the normal way (ex. docker build --build-arg HTTPS_PROXY=https://my-proxy.example.com )
+
+                                                        HTTP_PROXY
+                                                        http_proxy
+                                                        HTTPS_PROXY
+                                                        https_proxy
+                                                        FTP_PROXY
+                                                        ftp_proxy
+                                                        NO_PROXY
+                                                        no_proxy
+                                                        ALL_PROXY
+                                                        all_proxy
 
 
     ------------------------
     RUN                       RUN /bin/bash -c 'source $HOME/.bashrc; echo $HOME'     <---- this is called 'shell' format. It's a plain text single command line (default /bin/sh -c)
                               RUN ["/bin/bash", "-c", "echo hello"]                   <---- this is called 'exec'  format. It's a JSON in the form ["executable", "param1", "param2" ....]
 
+                              o  There can be as many RUN commands as I like in a Dockerfile.
+                              o  RUN commands are executed DURING the image build (static)
+
 
                               - The RUN 'commits' the image after the change. It creates a new image.
                                 This is like git: generating commits conforms to the core concepts of Docker:
-                                                  commits are cheap and containers can be created from any point in an image’s history, (like source control)
+                                                  commits are cheap and containers can be created from any point in an image’s history.
+
+                                NOTE: this image/commit  will be reused by other builds. The cache is skipped if
+                                            - docker build --no-cache
+                                            - ADD or COPY commands after RUN. ADD & COPY invalidate the cached image
 
 
 
+                              - RUN --mount=[type=<TYPE>][,option=<value>[,option=<value>]...]
+
+                                      with buildx it's possible to mount part of the host filesystem even out of the context.
+                                      This mounts are not 'backed' saved in the image. They are available per instr. level (each RUN).
+                                      This is useful in cases like
+                                           secrets  (e.g. AWS)
+                                           tokens   (e.g. SSH)
+                                      Actually there are different types just to allow these scenarios:
+                                                . type=secret
+                                                               1. I will build like this:     docker buildx build --secret id=aws,src=$HOME/.aws/credentials  .
+                                                               2. I can RUN mount as          FROM python:3       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                                                                RUN pip install awscli
+                                                                                                RUN --mount=type=secret,id=aws,target=/root/.aws/credentials \   <------------
+                                                                                                    aws s3 cp s3://... ...
+                                                . type=ssh
+                                                               1. I will build like this:      eval $(ssh-agent)
+                                                                                               ssh-add ~/.ssh/id_rsa
+                                                                                               ..... input passphrase here ......
+                                                                                               docker buildx build --ssh default=$SSH_AUTH_SOCK .
+
+                                                               2. I can RUN mount as           RUN --mount=type=ssh \
+                                                                                               ssh -q -T git@gitlab.com 2>&1 | tee /hello
+
+    ------------------------
+    CMD                       CMD ["executable", "param1", "param2" ....]      <---- 'exec'  format (JSON) ex:  CMD ["/bin/bash", "-c", "echo hello"]
+                              CMD command param1 param2                        <---- 'shell' format. It's a plain text single command line (which will be executed prepended as '/bin/sh -c' so inside a c-shell)
+                                                                                             ex:  CMD echo "This is a test." | wc -
+                              CMD ["param1","param2"]                          <---- this is when it's used together with ENTRYPOINT (which contains the exec to run) while CMD contains only the args
+                                                                                     ex:
+                                                                                        FROM ubuntu
+                                                                                        ENTRYPOINT ["top", "-b"]
+                                                                                        CMD ["-c"]                  -------> it will be executed  'top -b -c'
+
+                                                                                     NOTE: ENTRYPOINT & CMD together are assembled ONLY when they are both in exec (JSON) format.
 
 
+                              o  There can be only 1 CMD command in a Dockerfile.  (if there are more, the last wins)
+                              o  CMD commands are executed at container start-up (dynamic)
+    ------------------------
+    ENTRYPOINT                ENTRYPOINT ["executable", "param1", "param2" ....]    <---- 'exec'  format (JSON) ex:  ENTRYPOINT ["top", "-b"]
+                                                                                             - further args specified as
+                                                                                                     o CMD ["param1","param2"] <------ CMD in exec (JSON) format
+                                                                                                     o $ docker run ..... <image> xxxxx xxxxx xxxxx    <---- anything after image name in a $ docker run
+                                                                                               are appended to the ENTRYPOINT
+                                                                                               Note: this append works only for ENTRYPOINT in exec (JSON) format
+                                                                                               Note:  $ docker run ... xxxx xxxxx will override any args of CMD ["....."]
+
+                              ENTRYPOINT command param1 param2                      <---- 'shell' format. It's a plain text single command line (which will be executed prepended as '/bin/sh -c' so inside a c-shell)
+                                                                                           ex.
+                                                                                                        ENTRYPOINT top -b
+
+                                                                                          Being run inside a shell means that the executable will not be the container’s PID 1 - and
+                                                                                          will not receive Unix signals (ex. HUP INT QUIT TERM)
+                                                                                          so it will not receive a SIGTERM from $ docker stop <container>.
+                                                                                          This can be sorted prepending the command with an 'exec'
+
+                                                                                                        ENTRYPOINT exec top -b
+                                                                                                                   ~~~~
+                                                                                          Note: in this shell format both CMD and $ docker run <image> xxxx xxxxx will be ignored.
+
+                              o  Dockerfile should specify at least 1 CMD or 1 ENTRYPOINT
+                              o  setting ENTRYPOINT will reset CMD to an empty value (if CMD is defined in the parent/base image), so if any CMD is desired, it must be defined in the current image.
+                                 (ex. alpine (CMD '/bin/sh'
+                                      ubuntu (CMD '/bin/bash'
+                                      debian (CMD '/bin/bash')
+
+                                      or this to see the CMD of all my images
+                                      while read -u 9 image_n image_v do echo "-----------[$image_n][$image_v]"; docker image inspect "${image_n}:${image_v}" | grep -A 1 -wi "cmd"; done 9< <(dki ls -a | sed -e '/none/{d;}; 1d; p;'|sort -u)
+
+
+              --entrypoint:    this flag of "$ docker run ...."  will override any ENTRYPOINT (specified in the Dockerfile)
+                               ex.
+                                     docker run -it --entrypoint /bin/bash [docker_image]    will run an interactive shell
+
+
+                                                                                             shell format                            exec format
+                                                                                             ignores any:                            appends any:
+                                                                                                . $docker run                           . $docker run
+                                                                                                . CMD                                   . CMD
+                                                                                                    |                                       |
+                                                                                                    |                                       |
+                                                                                                    |                                       |
+                                                                                                    V                                       V
+                                                             No ENTRYPOINT                    ENTRYPOINT my_progE argE            ENTRYPOINT [“my_progE”, “argE”]
+
+                            No CMD                           error, not allowed               /bin/sh -c my_progE argE               my_progE argE
+                            CMD [“my_progC”, “argC”]         my_progC argC                    /bin/sh -c my_progE argE               my_progE argE argC  argC
+                            CMD [“argC1”, “argC2”]           argC1 argC2                      /bin/sh -c my_progE argE               my_progE argE argC1 argC2
+                            CMD my_progC argC                /bin/sh -c my_progC argC         /bin/sh -c my_progE argE               my_progE argE /bin/sh -c my_progC argC
+                                                                                                                                                     \
+                                                                                                                                                      \_____ note that this is quite useless:
+                                                                                                                                                             /bin/sh -c my_progC argC will be considered 4 further args
+                                                                                                                                                             for the exe my_progE.
+                                                                                                                                                             Ex tried with 'ls' and it turns out:
+                                                                                                    > dk ps -a
+                                                                                                    CONTAINER ID   IMAGE      COMMAND                  CREATED          STATUS                      PORTS     NAMES
+                                                                                                    dd094b7f77b1   alpine.1   "ls -l /bin/sh -c ./…"   15 seconds ago   Exited (0) 14 seconds ago             my_test_1
+
+    ------------------------
+    LABEL                     To add metadata in the image (for documentation). It's a list of key=value
+                              ex:
+                                      LABEL   multi.label1="value1"    multi.label2="value2"    other="value3"
+                                  or also
+                                      LABEL   multi.label1="value1" \
+                                              multi.label2="value2" \
+                                              other="value3"
+
+          > docker image inspect traefik:v2.2
+            .....
+            "Labels": {
+                "org.opencontainers.image.description": "A modern reverse-proxy",
+                "org.opencontainers.image.documentation": "https://docs.traefik.io",
+                "org.opencontainers.image.title": "Traefik",
+                "org.opencontainers.image.url": "https://traefik.io",
+                "org.opencontainers.image.vendor": "Containous",
+                "org.opencontainers.image.version": "v2.2.11"
+            }
+            .....
+
+    ------------------------
+    EXPOSE                    EXPOSE <port>[/<protocol>]       protocol tcp (default) or udp
+
+                                   EXPOSE 80
+                                   EXPOSE 80/udp
+
+                              The EXPOSE instruction in the Dockerfile does not actually publish the port.
+                              It functions as a type of documentation.
+                              The real publish is done on the command line
+
+                                       docker run -p 80:80/tcp -p 80:80/udp
+
+                              which can then also override the ports specified with EXPOSE.
+
+                              The -p links port explicitly (host/container)
+                              the -P maps the Dockerfile exposed ports to any random high-ordered host port
+
+                              > docker port    it's useful to see the mapping in place in a container
 
 
     ------------------------
+    ADD                       ADD [--chown=<user>:<group>] <src>... <dest>
+    COPY
+                              ex:
+                                   ADD hom* /mydir/                                                   ADD --chown=55:mygroup files* /somedir/    <----- without ids
+                                   ADD hom?.txt /mydir/                                               ADD --chown=bin        files* /somedir/           a lookup is expected
+                                   ADD test.txt /absoluteDir/                                         ADD --chown=1          files* /somedir/           in /etc/passwd   (lookup for 'bin')
+                                   ADD test.txt relativeDir/       (relative to WORKDIR)              ADD --chown=10:11      files* /somedir/              /etc/group    (lookup for 'mygroup')
+
+
+                                   o the <src> can be a URL. Anyhow as ADD doesn't provide any authentication
+                                     a "RUN curl/wget ...." might be needed before
+                                   o as the 'context' (list of dirs/files)  is sent to the daemon, I cannot ADD outside of that context (ex:  ADD ../file)
+                                   o ADD dir ...     (it doesn't create dir, but copies its content: dir/* )
+
+                               COPY syntax matches ADD.
+                               The difference is that COPY does less.
+                               ADD can copy from URL and ADD with a zip will unpack it into a dir (while COPY will only copy it)
+
+
     ------------------------
+    VOLUME                     VOLUME ["/data"]                  array syntax
+                               VOLUME /var/log /var/db           plain string syntax
+
+                               A volume created in a Docker file creates an 'anonymous' volume on the host.
+                               In the container is a dir containing everything which was stored there BEFORE the VOLUME instruction.
+
+                                        RUN mkdir /myvol                             <---- create dir
+                                        RUN echo "hello world" > /myvol/greeting     <---- add some data BEFORE,
+                                        VOLUME /myvol                                <----  the VOLUME instruction
+
     ------------------------
+    USER                       USER <user>[:<group>]           # use strings
+                               USER <UID>[:<GID>]              # use ids
+
+                                       ex: USER patrick
+
+                               The USER instruction sets the user name (or UID) and optionally the user group (or GID) to use for the remainder of the current stage.
+                               The specified user is for RUN instructions / ENTRYPOINT /  CMD
+
     ------------------------
+    WORKDIR                    Sets the working dir (creating it if not present).
+                               If not specified, the default working dir, in a container, is '/'
+
+                                               WORKDIR /a
+                                               WORKDIR b
+                                               WORKDIR c
+                                               RUN pwd           <------------ note that is /a/b/c
+
+
+                              I can overwrite it on the command line of a 'run' with
+                                      -w="", --workdir=""
     ------------------------
+    ONBUILD                   this is useful when building 1 image which will be used as a base to build other images,
+
+                                                ONBUILD ADD . /app/src
+                                                ONBUILD RUN /usr/local/bin/python-build --dir /app/src
+
+                              It could be pre-pended to any command (except FROM).
+                              The list of all the pre-pended commands will be executed (in the same order) whenever
+                              a
+                                      docker build
+                              (of a child image) will use that image as base one..
+
     ------------------------
+    STOPSIGNAL               STOPSIGNAL signal         (ex STOPSIGNAL SIGKILL)   (default: STOPSIGNAL SIGTERM)
+
+                             on receiving this signal the container will exit.
+
+                             Whatever the value, it could be overridden at "docker run ...."
+                                       docker run --stop-signal SIGKILL
+
     ------------------------
+    HEALTHCHECK              HEALTHCHECK [OPTIONS] CMD command   # check container health by running a command inside the container (note CMD is a keyword)
+                             HEALTHCHECK NONE                    # disable any healthcheck inherited from the base image
+
+                             whatever the command to run (ex. shell script) it must return:
+                                           0  success
+                                           1  fail
+                             ex.
+                                    HEALTHCHECK --interval=5m --timeout=3s \
+                                      CMD curl -f http://localhost/ || exit 1
+
+                             options:                        DEFAULT
+                                    ______________________________________
+                                    --interval=DURATION       30s         num sec between checks
+                                    --timeout=DURATION        30s         if no answer after this timeout --> unhealthy
+                                    --start-period=DURATION   0s          extra time before starting (container with long boot time)
+                                    --retries=N               3           num consecutive fail ---> unhealthy
+
     ------------------------
+    SHELL                    SHELL ["executable", "parameters"]     to specify a shell different from the default ["/bin/sh", "-c"]
+
     ------------------------
-    ------------------------
+    Here-Documents:          like in a shell:       (from > docker/dockerfile:1.4)
+
+                                # syntax=docker/dockerfile:1        # syntax=docker/dockerfile:1        # syntax=docker/dockerfile:1
+                                FROM debian                         FROM debian                         FROM python:3.6
+                                RUN <<EOT                           RUN <<EOT bash                      RUN <<EOT
+                                  mkdir -p foo/bar                    apt-get update                    #!/usr/bin/env python
+                                EOT                                   apt-get install -y vim            print("hello world")
+                                                                    EOT                                 EOT
+
+
+                               no interpreter specified:            bash specified                      python specified as shebang
+                               default SHELL used.
+
     ------------------------
 ----------------------------------------- COMMANDS
 
