@@ -13,6 +13,16 @@
   '-------------------------------------------------------------------
 
 
+Note: there is/was the command 'ascii' but now even if not available
+      anymore in Mac OS and some Ubuntu versions, still everywhere there is its 'man' page
+       > man ascii
+      which prints the ascii table, and can also refer to its file
+      i.e. in Mac OS the file
+                          /usr/share/misc/ascii
+
+
+
+
    1. Unix / K&R / The C Programming Language : everything was very simple.
 
       - The only characters that mattered were good old unaccented English letters:
@@ -405,18 +415,53 @@ Modified UTF-8   it's the standard (originated in Java) which avoids having EVER
      xxd                    dumps in hex or binary
                             and even the reverse
 
-                            note: the new lines (\n) are shown as (dot) .
+                            note: any char different from the printable ASCII [0-9a-zA-Z.,;:'"[{=+-_........] are shown as (dot) .
+                                  so the ASCII no printable part (included the new line \n) and any other unicode are shown '.'
+
+
+                            NB. The numbers for the args (ex. -s or -l)
+                                can be specified in
+                                      decimal     -s 20
+                                      hex         -s 0x14
+                                      octal       -s 024
+                                                                    Usage:
+                                                                           xxd [options] [infile [outfile]]
+                                                                        or
+                                                                           xxd -r [-s [-]offset] [-c cols] [-ps] [infile [outfile]]
+                                                                    Options:
+                                                                        -a          toggle autoskip: A single '*' replaces nul-lines. Default off.
+                                                                        -b          binary digit dump (incompatible with -ps,-i,-r). Default hex.
+                                                                        -C          capitalize variable names in C include file style (-i).
+                                                                        -c cols     format <cols> octets per line. Default 16 (-i: 12, -ps: 30).
+                                                             ------>    -E          show characters in EBCDIC. Default ASCII.
+                                                             ------>    -e          little-endian dump (incompatible with -ps,-i,-r).
+                                                                        -g          number of octets per group in normal output. Default 2 (-e: 4).
+                                                                        -h          print this summary.
+                                                                        -i          output in C include file style.
+                                                                        -l len      stop after <len> octets.
+                                                             ------>    -o off      add <off> to the displayed file position.
+                                                                        -ps         output in postscript plain hexdump style.
+                                                                        -r          reverse operation: convert (or patch) hexdump into binary.
+                                                                        -r -s off   revert with <off> added to file positions found in hexdump.
+                                                             ------>    -d          show offset in decimal instead of hex.
+                                                                        -s [+][-]seek  start at <seek> bytes abs. (or +: rel.) infile offset.
+                                                                        -u          use upper case hex letters.
+                                                                        -v          show version: "xxd V1.10 27oct98 by Juergen Weigert".
+
+
 
           ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd                                   # default hex
           00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.
           00000010: 3232 320a 3333 330a f09f 9880            222.333.....
 
           ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -s 4                              # start from byte 4
-          00000004: 6262 620a 6363 630a 3131 310a 3232 320a  bbb.ccc.111.222.
-          00000014: 3333 330a f09f 9880                      333.....
+          00000004: 6262 620a 6363 630a 3131 310a 3232 320a  bbb.ccc.111.222.                   Note a negative number (-s -10) reads from the END
+          00000014: 3333 330a f09f 9880                      333.....                           xxd -s -10 < a.txt
+                                                                                                to dump LAST 10 bytes of a.txt
 
-          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -s 4 -l 6                         # from byte 4 for len 6 chars
-          00000004: 6262 620a 6363                           bbb.cc
+
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -s 4 -l 6                         # from byte 4 for len 6 chars    (ex xxd -l 10 < a.txt
+          00000004: 6262 620a 6363                           bbb.cc                                                             to dump FIRST 10 bytes of a.txt)
 
           ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd  -b                               # dump in binary
           00000000: 01100001 01100001 01100001 00001010 01100010 01100010  aaa.bb
@@ -425,7 +470,7 @@ Modified UTF-8   it's the standard (originated in Java) which avoids having EVER
           00000012: 00110010 00001010 00110011 00110011 00110011 00001010  2.333.
           00000018: 11110000 10011111 10011000 10000000                    ....
 
-          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -c 3                              # dump in 3 cols len
+          ❯ printf "aaa\nbbb\nccc\n111\n222\n333\n😀" | xxd -c 3                              # dump in 3 cols len    (INSTEAD OF THE DEFAULT 16 bytes / 8 cols of words)
           00000000: 6161 61  aaa
           00000003: 0a62 62  .bb
           00000006: 620a 63  b.c
@@ -474,6 +519,58 @@ Modified UTF-8   it's the standard (originated in Java) which avoids having EVER
           00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.                |
           00000010: 3232 320a 3333 330a f09f 9880            222.333.....                    |
 
+       ----------------- R E V E R S E
+
+       the cool part is the option
+                 -r
+       which converts from the numbers to text
+               printf "aaa\nbbb\nccc\n111\n222\n333><;:'\n😀\n" |  xxd | xxd -r
+                aaa
+                bbb
+                ccc
+                111
+                222
+                333><;:'
+                😀
+
+          If the 1st col with the offset is missing (so there is just the payload:
+
+          THIS :
+              6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.
+              3232 320a 3333 330a f09f 9880            222.333.....
+
+          INSTEAD OF THIS :
+              00000000: 6161 610a 6262 620a 6363 630a 3131 310a  aaa.bbb.ccc.111.
+              00000010: 3232 320a 3333 330a f09f 9880            222.333.....
+
+          )
+          THEN I RUN:    > xxd -r -p      (-p stays for plain hex, so when I have just the payload hex values)
+
+       ex. of use might be inside vi
+           when opening a file of numbers
+           where I just type:
+                    :%!xxd -r
+
+       ----------------- E D I T
+       I can edit a file of numbers, ex:
+
+          00000000: 61 61 61 0a 62 62 62 0a 63 63 63 0a 31 31 31 0a  aaa.bbb.ccc.111.
+          00000010: 32 32 32 0a 33 33 33 0a f0 9f 98 80              222.333.....
+
+       with a normal editor, preserving the cols (ex 16 byte cols or 8 word cols)
+       and then reassemble with -r
+
+       Ex, if there are "hidden" Unicode I can remove them
+       ex.
+           I have a file a.txt with the following line, where there is a bell sound (ASCII 07) between the o & r of Lorem
+                  "Lorem ipsum dolor sit amet,"  ......
+
+           > xxd a.txt
+                    00000000: 4c6f 0772 656d 2069 7073 756d 2064 6f6c  Lo.rem ipsum dol
+                                   ^^                                    ^
+                                  07 ASCII bell sound                    |
+                                                                       this is the non-printable byte (bell sound 07)
 
 
-
+hexdump
+hexedit

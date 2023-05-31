@@ -1,15 +1,23 @@
 ------------------------------ WHAT IS NODE
 
-    Node.js is a RUNTIME ENV (live Java Virtual Machine) which allows torun JS on the server.
-            (it's ibuilt on Google Chrome's V8 JavaScript Engine)
+    Node.js is a RUNTIME ENV (like Java Virtual Machine) which allows to run JS on the server.
+            (it's built on Google Chrome's V8 JavaScript Engine)
 
 
-    so node files are  .js
+    so node files are  .js      because node is not a LANGUAGE but a RUNTIME ENV. The Language is JS
 
     node     is the cmd on the command line to run the RUNTIME ENV executing the passed  .js:
+             (the same exact thing that I do for "java MyClass"
+              with the difference that java requires a compiled class (produced by javac)
+              while node env uses the JIT compiler (Just-in-time) which, like for an interpreted language,
+              compiles on the fly small portions of code that are just about to be executed)
+
         .--------------------
         |   > node   file.js
-        '--------------------
+        '--------------------      or also:
+                                        node <<< "a=1+3; console.log(a);"
+                                        4
+
 
                           Example of a web-server listening on 8080 and serving a static page:
 
@@ -250,7 +258,7 @@
 
          . it's the metadata of my project.
          . it's always required
-         . it's a json whcih these basic fields:  (note: "npm init" creates this)
+         . it's a json with these basic fields:  (note: "npm init" creates this)
 
 
                             {
@@ -275,7 +283,7 @@
                               "bugs": {
                                 "url": "https://github.com/sbasile-ch/cinema-tickets/issues"
                               },
-                     6        "devDependencies": {         // npm automatically installs all these dependencies in folder node_module
+                     6        "devDependencies": {         // npm automatically installs all these dependencies in folder node_modules
                                 "jest": "^29.3.1",
                                 "mocha": "^10.0.0"
                               }
@@ -364,7 +372,7 @@
 ------------------------------ Events
 
         node has a built-in module, called "events",
-        where you can create-, fire-, and listen for- my own events.
+        where I can create-, fire-, and listen for- my own events.
 
 
             var events = require('events');
@@ -372,7 +380,7 @@
 
 --------- EventEmitter  obj
 
-        all event properties and methods (ex 'emit() method to fire an event)
+        all event properties and methods (ex method 'emit()  to fire an event)
         are an instance of an EventEmitter object.
 
 
@@ -393,7 +401,7 @@
             eventEmitter.emit('scream');             //I can decide when to fire the 'scream' event.
             ^^^^^^^^^^^
 
-     NOTE: All objects (eg xx) which emit events are the instances of events.EventEmitter whose methods are:
+     NOTE: All objects (eg xx) which emit events are instances of events.EventEmitter whose methods are:
 
               xx.addListener (event, listener)      . 'on' is an alias for 'addListener'.
               xx.on          (event, listener)      . They add a listenerat the END of the listeners array
@@ -456,9 +464,9 @@
              It can support concurrency via events and callbacks.
 
        Any async Node bult-in function (ex ffff) has as the LAST arg a CALLBACK function
-       which has as
-                    - 1st arg 'err'
-                    - following args any content
+       which has:
+                    - as 1st arg 'err'
+                    - as following args any content
 
        here the pattern:            ____________________________ the LAST arg is a callback function ...
                                    /
@@ -517,19 +525,189 @@
 
 
 
+------------------------------ BUFFER
+
+      'Buffer' is the class to manage bytes arrays (i.e. for binary data manipulation)
+
+           CREATION:           var buf = new Buffer(10);
+                               var buf = new Buffer([10, 20, 30, 40, 50]);
+                               var buf = new Buffer("Simply Easy Learning", "utf-8");   // other econdings:  "ascii", "utf8", "utf16le", "ucs2", "base64" or "hex".
+
+           LEN                 var buffer = new Buffer('TutorialsPoint');
+                               buffer.length        // 14
+
+           WRITE               buf.write(string [, offset]  [, length]    [, encoding])
+                                                  default:0    how many    default: utf8
+
+                                   ex. len = buf.write("Simply Easy Learning");
+
+           READ                buf.toString([encoding][, start][, end])
+
+                                   ex. buf.toString('ascii',0,5)     // 'Simpl'
+
+
+
+           CONCAT              var buffer1 = new Buffer('TutorialsPoint ');
+                               var buffer2 = new Buffer('Simply Easy Learning');
+                               var buffer3 = Buffer.concat([buffer1,buffer2]);  // TutorialsPoint Simply Easy Learning
+
+
+           COPY                buf.copy(targetBuffer[, targetStart][, sourceStart][, sourceEnd])
+
+                               var buffer1 = new Buffer('ABC');
+                               var buffer2 = new Buffer(3);
+                               buffer1.copy(buffer2);
+
+
+           SLICE               buf.slice([start][, end])
+
+                               var buffer1 = new Buffer('TutorialsPoint');
+                               var buffer2 = buffer1.slice(0,9);
+
+
+           COMPARE             returns the usual   < 0   = 0     > 0
+
+                               var buffer1 = new Buffer('ABC');
+                               var buffer2 = new Buffer('ABCD');
+                               var result = buffer1.compare(buffer2);        < 0
+
+
+           TO JSON             buf.toJSON(buf);
+
+                                    { type: 'Buffer',
+                                       data:
+                                       [
+                                          83,
+                                          105,
+                                          109,
+                                          112,
+                                          ..
+                                          103
+                                       ]
+                                    }
+
+
+
+------------------------------ STREAM
+
+      from the 'fs' module I can create 'Streams'
+      ex. fs.createReadStream('input.txt');
+
+      which can connect a source and a destination, piping anc chaining.
+
+      They are instances of 'EventEmitter'
+      and driven mainly by these events:
+          o  data    − fired when there is data available to read.
+          o  end     − fired when there is no more data to read.
+          o  error   − fired on errors
+          o  finish  − fired when all the data has been flushed
+
+
+      ______________________________________________________________________________________ READ EXAMPLE
+      var readerStream = fs.createReadStream('input.txt');
+
+        readerStream.setEncoding('UTF8');
+        readerStream.on('data',  function(chunk) { data += chunk; });
+        readerStream.on('end',   function()      { console.log(data); });
+        readerStream.on('error', function(err)   { console.log(err.stack); });
+
+
+      ______________________________________________________________________________________ WRITE EXAMPLE
+      var writerStream = fs.createWriteStream('output.txt');
+
+        writerStream.write(data,'UTF8');
+        writerStream.end();     // Mark the end of file
+        writerStream.on('finish', function()    { console.log("Write completed."); });
+        writerStream.on('error',  function(err) { console.log(err.stack); });
+
+      ______________________________________________________________________________________ PIPE EXAMPLE
+      var readerStream = fs.createReadStream(  'input.txt');
+      var writerStream = fs.createWriteStream('output.txt');
+
+        readerStream.pipe(writerStream);
+
+      ______________________________________________________________________________________ CHAINING EXAMPLE
+      var fs = require("fs");
+      var zlib = require('zlib');
+
+        __________________________________________ EX COMPRESS
+        fs.createReadStream('input.txt')
+           .pipe(zlib.createGzip())
+           .pipe(fs.createWriteStream('input.txt.gz'));
+
+
+        __________________________________________ EX DE-COMPRESS
+        fs.createReadStream('input.txt.gz')
+           .pipe(zlib.createGunzip())
+           .pipe(fs.createWriteStream('input.txt'));
 
 
 
 
 
+------------------------------ GLOBAL OBJECTS / METHODS
+
+
+          __filename                        console.log( __filename );
+          __dirname                         console.log( __dirname );
+          t = setTimeout(cb, ms)         // call back function 'cb' after 'ms'
+                                            function printHello() { console.log( "Hello, World!"); }
+                                            setTimeout(printHello, 2000);
+
+          clearTimeout(t)                // to stop/cancel a setTimeout()
+          setInterval(cb, ms)            // loop calling 'cb' every 'ms'
+
+
+          console
+                                console.log       ([data][, ...])
+                                console.info      ([data][, ...])
+                                console.error     ([data][, ...])
+                                console.warn      ([data][, ...])
+                                console.dir       (obj[, options])
+                                console.time      (label)
+                                console.timeEnd   (label)
+                                console.trace     (message[, ...]) <--------------- stack-trace on stderr
+                                console.assert    (value[, message][, ...])
 
 
 
+          process
+                e v e n t s     exit         // ex   process.on('exit', function(code) { ...
+                                beforeExit
+
+                p r o p e r.    stdout         a Writable Stream to stdout.
+                                stderr         a Writable Stream to stderr.
+                                stdin          a Writable Stream to stdin.
+                                argv           usual array, where 1st el = 'node', 2nd = name of the JavaScript file
+                                execPath       absolute pathname of the executable that started the process.
+                                execArgv       the set of node-specific command line options from the executable that started the process.
+                                env            the user environment.
+                                exitCode       the process exit code
+                                version        A compiled-in property that exposes NODE_VERSION.
+                                versions       the version strings of node and its dependencies.
+                                config         the JavaScript representation of the configure options that were used to compile the current node executable (same as file "config.gypi" produced when running ./configure script)
+                                pid            The PID of the process.
+                                title          Getter/setter to set what is displayed in 'ps'.
+                                arch           What processor architecture you're running on: 'arm', 'ia32', or 'x64'.
+                                platform       What platform you're running on: 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'
+                                mainModule     Alternate way to retrieve require.main. The difference is that if the main module changes at runtime, require.main might still refer to
+                                              the original main module in modules that were required before the change occurred. Generally it's safe to assume that the two refer to the same module.
 
 
-
-
-
-
-
-
+                m e t h o d s   abort  ()                       emit an abort. causes node to exit and generate a core file.
+                                chdir (directory)              cd current working directory of the process or throws an exception if that fails.
+                                cwd ()                         returns current working directory of the process.
+                                exit ([code])                  Ends the process with the specified code. If omitted, exit uses the 'success' code 0.
+                                getgid ()                      the numerical group id (available on POSIX platforms (i.e. not Windows, Android))
+                                setgid (id)                    Set group id
+                                getuid ()                      the numerical id (available on POSIX platforms (i.e. not Windows, Android))
+                                setuid (id)                    Sets id
+                                getgroups ()                   Returns an array with the supplementary group IDs.
+                                setgroups (groups)             Sets the supplementary group IDs.
+                                initgroups (user, extra_group) Reads /etc/group and initializes the group access list, using all the groups of which the user is a member.
+                                kill (pid[, signal])           Send a signal to a process. strings like 'SIGINT' or 'SIGHUP'. If omitted, the signal will be 'SIGTERM'.
+                                memoryUsage ()                 Returns the memory usage in bytes.
+                                nextTick (callback)            Once the current event loop turn runs to completion, call the callback function.
+                                umask ([mask])                 Sets or reads the process's file umask
+                                uptime ()                      Number of seconds Node has been running.
+                                hrtime ()                      Returns the current high-resolution real time in a [seconds, nanoseconds] tuple Array.

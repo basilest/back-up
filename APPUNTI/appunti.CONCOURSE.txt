@@ -76,7 +76,7 @@
                                            (2)        - Volume    Management API ----> Volumes
 
 ---------------------------------------------------
-Concourse is distributed as a single concourse binary
+Concourse is distributed as a single concourse binary   (note: written in Go)
 
 Images are pulled from docker hub by default
 
@@ -174,7 +174,7 @@ Images are pulled from docker hub by default
 
                                     $ fly targets
                                       name                       url                                team              expiry
-                                      platform-common            https://ci.platform.aws.chdev.org  common            Wed, 23 Jun 2021 06:05:43 UTC
+                                      platform-common            https://ci.platform.aws.chdev.org  common            Wed, 23 Jun 2021 06:05:43 UTC    <----------- note the login token expiration time
                                       platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Wed, 23 Jun 2021 06:05:43 UTC
                                       tutorial                   http://127.0.0.1:8080              main              Sun, 30 Aug 2020 21:31:44 UTC
 
@@ -226,6 +226,98 @@ Images are pulled from docker hub by default
 
                  This will read ./ca.crt and save it into ~/.flyrc so I don't have to pass it on every login.
 
+
+                            ───────┬──────────────────────────────────────────────────────              ❯ fly targets
+                                   │ File: /Users/sbasile/.flyrc                                        name                       url                                team              expiry
+                            ───────┼──────────────────────────────────────────────────────              common                     https://ci.platform.aws.chdev.org  common            Thu, 25 May 2023 22:18:11 UTC
+                               1   │ targets:                                                           platform-common            https://ci.platform.aws.chdev.org  common            Sat, 06 May 2023 06:18:02 UTC
+                               2   │   common:                                                          platform-development       https://ci.platform.aws.chdev.org  team-celestial    Thu, 16 Feb 2023 18:03:06 UTC
+                               3   │     api: https://ci.platform.aws.chdev.org                         platform-team-aardvark     https://ci.platform.aws.chdev.org  team-aardvark     Thu, 25 May 2023 22:18:11 UTC
+                               4   │     team: common                                                   platform-team-celestial    https://ci.platform.aws.chdev.org  team-celestial    Thu, 16 Feb 2023 18:03:06 UTC
+                               5   │     token:                                                         platform-team-element      https://ci.platform.aws.chdev.org  team-element      Tue, 07 Mar 2023 21:50:31 UTC
+                               6   │       type: bearer                                                 platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Fri, 18 Nov 2022 09:58:34 UTC
+                               7   │       value: rM6FHwM79PjhhNgFf1+LS1Pwvimj3m9kAAAAAA                platform-team-tiny-rebels  https://ci.platform.aws.chdev.org  team-tiny-rebels  Wed, 05 Apr 2023 14:51:06 UTC
+                               8   │   platform-common:                                                 ps1                        http://localhost:8080              main              Thu, 09 Mar 2023 23:13:40 UTC
+                               9   │     api: https://ci.platform.aws.chdev.org                         sandbox-development        https://ci.sandbox.aws.chdev.org   development       Thu, 18 Aug 2022 21:38:19 UTC
+                              10   │     team: common                                                   tcc                        https://ci.platform.aws.chdev.org  team-element      Tue, 07 Mar 2023 21:50:31 UTC
+                              11   │     token:                                                         team-tiny-rebels           https://ci.platform.aws.chdev.org  team-tiny-rebels  Wed, 17 May 2023 09:53:54 UTC
+                              12   │       type: bearer                                                 team-toro-loco             https://ci.platform.aws.chdev.org  team-toro-loco    Wed, 17 May 2023 09:53:54 UTC
+                              13   │       value: v+hMrIcfCwrudLsst+wCEyG8rKga8VVkAAAAAA                tutorial                   http://localhost:8080              main              Tue, 23 Aug 2022 19:57:06 UTC
+                              14   │   platform-development:                                                   ________________________________________________________________________________________________________________
+                              15   │     api: https://ci.platform.aws.chdev.org                                IF I LOGIN FOR 1 TARGET AND I COPY OVER ITS NEW TOKEN TO THE OTHER TARGETS OF ci.platform.aws.chdev.org
+                              16   │     team: team-celestial                                                  I CAN SEE THAT A NEXT   > fly targets  REPORTS THEM AS NOT EXPIRED.
+                              17   │     token:                                                                ________________________________________________________________________________________________________________
+                              18   │       type: bearer
+                              19   │       value: cC+yMX9OJ/SVTBYqRmAtWId0v3/ab+5jAAAAAA
+                              20   │   platform-team-aardvark:                                         ❯ fly targets
+                              21   │     api: https://ci.platform.aws.chdev.org                        name                       url                                team              expiry
+                              22   │     team: team-aardvark                                           common                     https://ci.platform.aws.chdev.org  common            Thu, 25 May 2023 22:18:11 UTC
+                              23   │     token:                                                        platform-common            https://ci.platform.aws.chdev.org  common            Thu, 25 May 2023 22:18:11 UTC
+                              24   │       type: bearer                                                platform-development       https://ci.platform.aws.chdev.org  team-celestial    Thu, 25 May 2023 22:18:11 UTC
+                              25   │       value: rM6FHwM79PjhhNgFf1+LS1Pwvimj3m9kAAAAAA               platform-team-aardvark     https://ci.platform.aws.chdev.org  team-aardvark     Thu, 25 May 2023 22:18:11 UTC
+                              26   │   platform-team-celestial:                                        platform-team-celestial    https://ci.platform.aws.chdev.org  team-celestial    Thu, 25 May 2023 22:18:11 UTC
+                              27   │     api: https://ci.platform.aws.chdev.org                        platform-team-element      https://ci.platform.aws.chdev.org  team-element      Thu, 25 May 2023 22:18:11 UTC
+                              28   │     team: team-celestial                                          platform-team-thundercats  https://ci.platform.aws.chdev.org  team-thundercats  Thu, 25 May 2023 22:18:11 UTC
+                              29   │     token:                                                        platform-team-tiny-rebels  https://ci.platform.aws.chdev.org  team-tiny-rebels  Thu, 25 May 2023 22:18:11 UTC
+                              30   │       type: bearer                                                ps1                        http://localhost:8080              main              Thu, 09 Mar 2023 23:13:40 UTC
+                              31   │       value: cC+yMX9OJ/SVTBYqRmAtWId0v3/ab+5jAAAAAA               sandbox-development        https://ci.sandbox.aws.chdev.org   development       Thu, 25 May 2023 22:18:11 UTC
+                              32   │   platform-team-element:                                          tcc                        https://ci.platform.aws.chdev.org  team-element      Thu, 25 May 2023 22:18:11 UTC
+                              33   │     api: https://ci.platform.aws.chdev.org                        team-tiny-rebels           https://ci.platform.aws.chdev.org  team-tiny-rebels  Thu, 25 May 2023 22:18:11 UTC
+                              34   │     team: team-element                                            team-toro-loco             https://ci.platform.aws.chdev.org  team-toro-loco    Thu, 25 May 2023 22:18:11 UTC
+                              35   │     token:                                                        tutorial                   http://localhost:8080              main              Tue, 23 Aug 2022 19:57:06 UTC
+                              36   │       type: bearer
+                              37   │       value: TCKhMJQlfE9qrumAZNIMakoA82ansQdkAAAAAA
+                              38   │   platform-team-thundercats:
+                              39   │     api: https://ci.platform.aws.chdev.org
+                              40   │     team: team-thundercats
+                              41   │     token:
+                              42   │       type: bearer
+                              43   │       value: 8EqLfX8eSo/4TC4ZWNlfgz6qLORKV3djAAAAAA
+                              44   │   platform-team-tiny-rebels:
+                              45   │     api: https://ci.platform.aws.chdev.org
+                              46   │     team: team-tiny-rebels
+                              47   │     token:
+                              48   │       type: bearer
+                              49   │       value: qPd8G2oDEWENI/JO2ch02y6qbj3aii1kAAAAAA
+                              50   │   ps1:
+                              51   │     api: http://localhost:8080
+                              52   │     team: main
+                              53   │     token:
+                              54   │       type: bearer
+                              55   │       value: BWZ9j67pvwsMJkDBtBUcByBCeWgkaApkAAAAAA
+                              56   │   sandbox-development:
+                              57   │     api: https://ci.sandbox.aws.chdev.org
+                              58   │     team: development
+                              59   │     token:
+                              60   │       type: bearer
+                              61   │       value: 8yetVPrufBPjPBoLViZ5+JJRMHVLsf5iAAAAAA
+                              62   │   tcc:
+                              63   │     api: https://ci.platform.aws.chdev.org
+                              64   │     team: team-element
+                              65   │     token:
+                              66   │       type: bearer
+                              67   │       value: TCKhMJQlfE9qrumAZNIMakoA82ansQdkAAAAAA
+                              68   │   team-tiny-rebels:
+                              69   │     api: https://ci.platform.aws.chdev.org
+                              70   │     team: team-tiny-rebels
+                              71   │     token:
+                              72   │       type: bearer
+                              73   │       value: 1Gj/VLJN8IDSEbRznSkDoTavxgUypGRkAAAAAA
+                              74   │   team-toro-loco:
+                              75   │     api: https://ci.platform.aws.chdev.org
+                              76   │     team: team-toro-loco
+                              77   │     token:
+                              78   │       type: bearer
+                              79   │       value: 1Gj/VLJN8IDSEbRznSkDoTavxgUypGRkAAAAAA
+                              80   │   tutorial:
+                              81   │     api: http://localhost:8080
+                              82   │     team: main
+                              83   │     token:
+                              84   │       type: bearer
+                              85   │       value: lkn0OAu/ze2GREWVtoiif7j5IQUSMQVjAAAAAA
+
+
+
 -----------------------
          fly -t <target>  logout                  # I explicitly logout from a target, without waiting for the token to expiry in 1 day.
          fly              logout -a               # logout from all accounts
@@ -250,6 +342,7 @@ Images are pulled from docker hub by default
 -----------------------
          fly -t platform-common userinfo
 
+                                     $ fly -t platform-common userinfo|tr ',' '\n'
                                      $ fly -t platform-common userinfo|sed -e 's/,/\
                                        pipe quote>                /g'
 
@@ -848,7 +941,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
     ________________________________________________________  INPUTS / OUTPUTS
 
-         In/out are directories (artifacts)  that get passed between steps.
+         In/out are directories (called artifacts)  that get passed between steps (with their content)
 
 
                     --- a/hello-world.yml
@@ -880,9 +973,9 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                               repository: busybox
                             type: registry-image
                     +     outputs:
-                    +     - name: the-artifact                <-------------- I define 1 out (it will be an artifact [named "the-artifact"]
+                    +     - name: the-artifact                <-------------- I define 1 out (it will be a dir [named "the-artifact"]
                           platform: linux                                      mounted inside the container)
-                          run:                                                 The named artifact is kept, in case other tasks need it as an input.
+                          run:                                                 The named dir/artifact is kept, in case other tasks need it (as an input).
                             args:
                     -       - Hello world!
                     -       path: echo
@@ -937,10 +1030,10 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                               repository: busybox
                             type: registry-image
                           outputs:
-                          - name: the-artifact
-                          platform: linux
-                          run:
-                            args:
+                          - name: the-artifact                 <------- a dir(artifact) with this name ("the-artifact") will be created
+                          platform: linux                               and concourse will keep this dir/artifact available for any task using this name
+                          run:                                          (Concourse will look among the various artifacts and will mount the desired one
+                            args:                                        intto the task/container requiring it)
                     -       - -lF
                     -       path: ls
                     +       - -cx
@@ -956,7 +1049,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                     +         repository: busybox
                     +       type: registry-image
                     +     inputs:                                     <---- input
-                    +     - name: the-artifact
+                    +     - name: the-artifact            <---- Concouse will mount this dir
                     +     platform: linux
                     +     run:
                     +       args:
@@ -972,7 +1065,10 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
     ________________________________________________________ RESOURCES
 
-     To see what resources are available (in my Concourse / target):
+     Resources represent all external inputs to and outputs of jobs.
+     Each resource is a versioned artifact with an external source of truth (usually a github repo)
+
+     To see what resources are available out of the box (in my Concourse / target):
 
          fly -t tutorial workers --details
                     eede94fa529f  0  linux  none  none  running  2.4  2h13m  127.0.0.1:40385  http://127.0.0.1:44775  0  bosh-io-release, bosh-io-stemcell,
@@ -983,6 +1079,8 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                                                                                                                                      |
                                                                                                                                      |
                                                                                                                             resources available
+
+                                                                                                                            (note: git and s3 are already there)
     ________________________________________________________ RESOURCE VERSIONS
 
      When a new version is emitted by a resource, that is how Concourse knows to start triggering jobs.
@@ -992,19 +1090,20 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
               { "ref": "04194bfc880c457a5b00f07db78d0532620414cc" }
 
 
-    ________________________________________________________ RESOURCE ARE DOCK IMAGES (with 3 exe)
+
+    ________________________________________________________ RESOURCES ARE DOCKER IMAGES (with 3 exe)
 
      The 3 exe inside the image (representing the Resource) are:
 
-           /opt/resource/check - implicitly run when a job contains a
-                                             get step.
-                                 Its responsibility is to find new versions.
-
-           /opt/resource/in -    run in a get step.
-                                 Its input is a version (from a check or put step) and
+      |    /opt/resource/check - implicitly runs when a job contains a                             7 jobs:
+      |                                      get step.                                             8 - name: hello-world-job
+  get |                          Its responsibility is to find new versions.                       9   plan:
+      |                                                                                           10   # Add a get step referencing the resource
+      |    /opt/resource/in -    runs in a get step.                                              11   - get: repo   <------------------------------- a 'get'
+                                 Its input is a version (from a check or put step) and            12   - task: hello-world-task
                                  retrieves the files representing that version.
 
-           /opt/resource/out -   run in a put step.
+           /opt/resource/out -   runs in a put step.
                                  Generates a new version, (usually based on some input generated by another job step).
                                  This may mean sending something (ex.  commits to a git repo).
 
@@ -1020,7 +1119,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
             +resources:                       <--------  keyword
             +- name: repo                                Right after 'resources:' I add all the resources I need
             +  type: git                                 (here just 1: 'git'). The param to configure for each resource
-            +  source:                                                         are specified in the REAME of that resource
+            +  source:                                                         are specified in the README of that resource
             +    uri: https://github.com/concourse/examples.git                For git the 'source' with the repo's url.
             +
              jobs:
@@ -1031,21 +1130,37 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                - task: hello-world-task
                  config:
 
+    ________________________________________________________ get
+
+    The 'get' executes
+                check + in
+    where 'in' always produces an output/artifact (a dir) which is named by the get:
+
+             - get: repo     <------ will produce a dir 'repo'
+
+    the content of this dir, depends by the resource, so it must be seen the doc of that resource.
+    For a 'git' resource the dir is the clone of the repo
+
+    It's the common to see some other places down the line having that dir as an input:
+    ex.
+       inputs:
+          - name: repo
     ________________________________________________________ check_every
 
-     Concourse by default check resources every 1 min.
+     Concourse by default checks resources every 1 min.
 
      As in a pipeline there could be many resources, this could cause problems to the external services (ex. DDOS)
      In this situations a best way is to use weebhooks, which instruct the external system to call Concourse
      each time en event say it's time to do so (ex. a new commit to a Git repo).
 
-    ________________________________________________________ fly inspect
+    ________________________________________________________ fly inspect   (or alias 'hijack')
 
     Given every resource (which is an image running in a container) I can inspect
     that container from its url:
 
     ex:
             fly -t tutorial intercept -u http://localhost:8080/teams/main/pipelines/hello-world/resources/repo
+            fly -t tutorial hijack     "                            "
             bash-5.1#        <------ I'm inside the container (I can see the files ...)
 
     ________________________________________________________ custom resources
@@ -1067,12 +1182,878 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
 
 
-    A xatalog of resource types:  https://resource-types.concourse-ci.org/
+    Acxatalog of resource types:  https://resource-types.concourse-ci.org/
+
+    ________________________________________________________   VARS
+
+    A var xxx can be used with this notation:
+
+            (( xxx ))
+
+    Or the full syntax
+
+            (( source-name:secret-path.xxx ))
+                  |           |
+                  |           |
+                  |           |
+                  |         the secret-path is the path used
+          currently these   by the specific source-name
+          'source-name'     i.e. with vault
+          are defined            something like /aaaa/bbbb/cccc
+
+              - vault
+              - dummy
+              - ssm
+              - secretmanager (since v7.7.0)
+              - .      <---------- this is a special source name used only by the construct 'load_var:'
+                                   which requires a mandatory 'file:' arg to source a var from
+
+                                      - load_var: version                            <----  'version' is the var name
+                                        file: examples/pipelines/vars-file.yml       <----   whose content is defined sourcing this yml file
+                                      - put: img
+                                        params:
+                                          version: "((.:version.hello))-((.:version.number))"  <--------------- here use
+
+                                   'load_var:' has also 2 optional args
+                                           'format:'   with values   (json , yaml, yml, trim, raw)
+                                                                     to give the type of the file, which will then parsed
+                                                                     'trim' is the default and just loads the files, removing LEADing/TRAILing spaces
+                                                                     'raw' preserves all
+
+                                   'reveal:'  bool (i.e. true) to decide if when the var is printed in out it's redacted (default) or not
+
+
+    NOTE: values of vars are "interpolated" only when they are in a string context ex aaaaa-((xxx))-bbbb
+          otherwise they are real vars (like in programming)
+          ex
+                       foo: ((bar))
+          whatever ((bar)) is, it will become the value of foo.
+          This can be a value of any type and structure:
+          a boolean,
+          a simple string,
+          a multiline credential like a certificate,
+          or a complicated data structure like an array of objects.
+
+    ________________________________________________________   CH pipelines structure
+
+    https://github.com/companieshouse/ci-resource-type-release-tag         (copyed from https://github.com/EugenMayer/concourse-git-semver-tag-resource)
+                                                                           it contains the script to calculate the version
+
+                                                                           It's used listing this in the "Resource Types":
+
+                # Resource Types ---------------------------------------------------------------
+                resource_types:
+                - name: ci-resource-type-release-tag
+                  type: docker-image
+                  source:
+                    aws_access_key_id: ((aws-access-key-id))
+                    aws_secret_access_key: ((aws-secret-access-key))
+                    repository: ((docker-registry))/ci-resource-type-release-tag
+                    tag: latest
+
+
+               which will be called as:
+
+                        306 - name: release-tag
+                        307   type: ci-resource-type-release-tag <------------------
+                        308   icon: tag
+                        309   source:
+                        310     uri: git@github.com:companieshouse/api.ch.gov.uk.git
+                        311     branch: master
+                        312     private_key: ((github-ssh-key))
+                        313     tag_filter: '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'
+
+               and invoked as a normal 'get':
+
+                       107  - get: release-tag
+
+    ICONS:
+
+            Git:            github
+            Slack:          slack
+            Docker:         docker
+            Pull Request:   source-merge
+            S3:             bitbucket
+            Github Release: package-variant-closed
+            Release Tag:    tag
+            maven-resource: folder-zip
 
     ________________________________________________________
     ________________________________________________________
+        Usage:
+          fly [OPTIONS] <command>
+
+        Application Options:
+          -t, --target=              Concourse target name
+          -v, --version              Print the version of Fly and exit
+              --verbose              Print API requests and responses
+              --print-table-headers  Print table headers even for redirected output
+
+        Help Options:
+          -h, --help                 Show this help message
+
+        Available commands:
+
+      1      abort-build                Abort a build (aliases: ab)
+      2      active-users               List the active users since a date or for the past 2 months (aliases: au)
+      3      archive-pipeline           Archive a pipeline (aliases: ap)
+      4      builds                     List builds data (aliases: bs)
+      5      check-resource             Check a resource (aliases: cr)
+      6      check-resource-type        Check a resource-type (aliases: crt)
+      7      checklist                  Print a Checkfile of the given pipeline (aliases: cl)
+      8      clear-resource-cache       Clear cache of a resource (aliases: crc)
+      9      clear-task-cache           Clears cache from a task container (aliases: ctc)
+      10     clear-versions             Clear versions of a resource or resource type (aliases: cv)
+      11     completion                 generate shell completion code
+      12     containers                 Print the active containers (aliases: cs)
+      13     curl                       curl the api (aliases: c)
+      14     delete-target              Delete target (aliases: dtg)
+      15     destroy-pipeline           Destroy a pipeline (aliases: dp)
+      16     destroy-team               Destroy a team and delete all of its data (aliases: dt)
+      17     disable-resource-version   Disable a version of a resource (aliases: drv)
+      18     edit-target                Edit a target (aliases: etg)
+      19     enable-resource-version    Enable a version of a resource (aliases: erv)
+      20     execute                    Execute a one-off build using local bits (aliases: e)
+      21     expose-pipeline            Make a pipeline publicly viewable (aliases: ep)
+      22     format-pipeline            Format a pipeline config (aliases: fp)
+      23     get-pipeline               Get a pipeline's current configuration (aliases: gp)
+      24     get-team                   Show team configuration (aliases: gt)
+      25     help                       Print this help message
+      26     hide-pipeline              Hide a pipeline from the public (aliases: hp)
+      27     hijack                     Execute a command in a container (aliases: intercept, i)
+      28     jobs                       List the jobs in the pipelines (aliases: js)
+      29     land-worker                Land a worker (aliases: lw)
+      30     login                      Authenticate with the target (aliases: l)
+      31     logout                     Release authentication with the target (aliases: o)
+      32     order-instanced-pipelines  Orders instanced pipelines within an instance group (aliases: oip)
+      33     order-pipelines            Orders pipelines (aliases: op)
+      34     pause-job                  Pause a job (aliases: pj)
+      35     pause-pipeline             Pause a pipeline (aliases: pp)
+      36     paused-jobs                List the paused jobs in the pipelines (aliases: pjs)
+      37     paused-pipelines           List the configured paused pipelines (aliases: pps)
+      38     pin-resource               Pin a version to a resource (aliases: pr)
+      39     pipelines                  List the configured pipelines (aliases: ps)
+      40     prune-worker               Prune a stalled, landing, landed, or retiring worker (aliases: pw)
+      41     rename-pipeline            Rename a pipeline (aliases: rp)
+      42     rename-team                Rename a team (aliases: rt)
+      43     rerun-build                Rerun a build (aliases: rb)
+      44     resource-versions          List the versions of a resource (aliases: rvs)
+      45     resources                  List the resources in the pipeline (aliases: rs)
+      46     schedule-job               Request the scheduler to run for a job. Introduced as a recovery command for the v6.0 scheduler. (aliases: sj)
+      47     set-pipeline               Create or update a pipeline's configuration (aliases: sp)
+      48     set-team                   Create or modify a team to have the given credentials (aliases: st)
+      49     status                     Login status
+      50     sync                       Download and replace the current fly from the target (aliases: s)
+      51     targets                    List saved targets (aliases: ts)
+      52     teams                      List the configured teams (aliases: t)
+      53     trigger-job                Start a job in a pipeline (aliases: tj)
+      54     unpause-job                Unpause a job (aliases: uj)
+      55     unpause-pipeline           Un-pause a pipeline (aliases: up)
+      56     unpin-resource             Unpin a resource (aliases: ur)
+      57     userinfo                   User information
+      58     validate-pipeline          Validate a pipeline config (aliases: vp)
+      59     volumes                    List the active volumes (aliases: vs)
+      60     watch                      Stream a build's output (aliases: w)
+      61     workers                    List the registered workers (aliases: ws)
     ________________________________________________________
-    ________________________________________________________
+      1      abort-build                Abort a build (aliases: ab)
+
+           [abort-build command options]
+            -j, --job=PIPELINE/JOB    Name of a job to cancel
+                  -b, --build=              If job is specified: build number to cancel. If
+                                            job not specified: build id
+                      --team=               Name of the team to which the pipeline belongs,
+                                            if different from the target default
+
+      -------------------------------------
+      2      active-users               List the active users since a date or for the past 2 months (aliases: au)
+
+            [active-users command options]
+                      --since=           Start date range of returned users' last login,
+                                         defaults to 2 months from today'
+                      --json             Print command result as JSON
+
+      -------------------------------------
+      3      archive-pipeline           Archive a pipeline (aliases: ap)
+
+            [archive-pipeline command options]
+                  -p, --pipeline=        Pipeline to archive
+                  -a, --all              Archive all pipelines
+                  -n, --non-interactive  Skips interactions, uses default values
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      4      builds                     List builds data (aliases: bs)
+
+            [builds command options]
+                  -a, --all-teams           Show builds for the all teams that user has
+                                            access to
+                  -c, --count=              Number of builds you want to limit the return
+                                            to (default: 50)
+                      --current-team        Show builds for the currently targeted team
+                  -j, --job=PIPELINE/JOB    Name of a job to get builds for
+                      --json                Print command result as JSON
+                  -p, --pipeline=           Name of a pipeline to get builds for
+                  -n, --team=               Show builds for these teams
+                      --since=              Start of the range to filter builds
+          --until=              End of the range to filter builds
+
+      -------------------------------------
+      5      check-resource             Check a resource (aliases: cr)
+
+            [check-resource command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of a resource to check version
+                                                      for
+                  -f, --from=VERSION                  Version of the resource to check
+                                                      from, e.g. ref:abcd or
+                                                      path:thing-1.2.3.tgz
+                  -a, --async                         Return the check without waiting for
+                                                      its result
+                      --shallow                       Check the resource itself only
+                      --team=                         Name of the team to which the
+                                                      pipeline belongs, if different from
+                                                      the target default
+
+      -------------------------------------
+      6      check-resource-type        Check a resource-type (aliases: crt)
+
+            [check-resource-type command options]
+                  -r, --resource-type=PIPELINE/RESOURCE-TYPE    Name of a resource-type to
+                                                                check
+                  -f, --from=VERSION                            Version of the resource
+                                                                type to check from, e.g.
+                                                                digest:sha256@...
+                  -a, --async                                   Return the check without
+                                                                waiting for its result
+                      --shallow                                 Check the resource type
+                                                                itself only
+                      --team=                                   Name of the team to which
+                                                                the pipeline belongs, if
+                                                                different from the target
+                                                                default
+
+      -------------------------------------
+      7      checklist                  Print a Checkfile of the given pipeline (aliases: cl)
+
+            [checklist command options]
+                  -p, --pipeline=        The pipeline from which to generate the Checkfile
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      8      clear-resource-cache       Clear cache of a resource (aliases: crc)
+
+            [clear-resource-cache command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of a resource to clear cache
+                  -v, --version=VERSION               Version of the resource to check
+                                                      from, e.g. digest:sha256@..., in case
+                                                      a version is not specified the
+                                                      command will delete all the resource
+                                                      caches for that resource
+
+      -------------------------------------
+      9      clear-task-cache           Clears cache from a task container (aliases: ctc)
+
+            [clear-task-cache command options]
+                  -j, --job=             Job to clear cache from
+                  -s, --step=            Step name to clear cache from
+                  -c, --cache-path=      Cache directory to clear out
+                  -n, --non-interactive  Destroy the task cache(s) without confirmation
+
+      -------------------------------------
+      10     clear-versions             Clear versions of a resource or resource type (aliases: cv)
+
+            [clear-versions command options]
+                      --resource=PIPELINE/RESOURCE              Name of a resource to clear
+                                                                versions
+                      --resource-type=PIPELINE/RESOURCE-TYPE    Name of a resource type to
+                                                                clear versions
+
+      -------------------------------------
+      11     completion                 generate shell completion code
+
+            [completion command options]
+                      --shell=[bash|zsh|fish]
+
+      -------------------------------------
+      12     containers                 Print the active containers (aliases: cs)
+
+            [containers command options]
+                      --json             Print command result as JSON
+
+      -------------------------------------
+      13     curl                       curl the api (aliases: c)
+
+            [curl command options]
+                      --print-and-exit   Print curl command and exit
+
+            [curl command arguments]
+              PATH:                      Pass query params as normal curl path like
+                                         path?key=value
+              curl flags:                To pass flags to curl, pass a -- argument, so
+                                         that fly can distinguish them from its own flags
+
+      -------------------------------------
+      14     delete-target              Delete target (aliases: dtg)
+
+            [delete-target command options]
+                  -a, --all              Delete all targets
+
+      -------------------------------------
+      15     destroy-pipeline           Destroy a pipeline (aliases: dp)
+
+            [destroy-pipeline command options]
+                  -p, --pipeline=        Pipeline to destroy
+                  -n, --non-interactive  Destroy the pipeline without confirmation
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      16     destroy-team               Destroy a team and delete all of its data (aliases: dt)
+
+            [destroy-team command options]
+                  -n, --team-name=       The team to delete
+                      --non-interactive  Force apply configuration
+
+      -------------------------------------
+      17     disable-resource-version   Disable a version of a resource (aliases: drv)
+
+            [disable-resource-version command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of the resource
+                  -v, --version=KEY:VALUE             Version of the resource to disable.
+                                                      The given key value pair(s) has to be
+                                                      an exact match but not all fields are
+                                                      needed. In the case of multiple
+                                                      resource versions matched, it will
+                                                      disable the latest one.
+
+      -------------------------------------
+      18     edit-target                Edit a target (aliases: etg)
+
+            [edit-target command options]
+                      --target-name=     Update target name
+                  -u, --concourse-url=   Update concourse URL
+                  -n, --team-name=       Update team name
+
+      -------------------------------------
+      19     enable-resource-version    Enable a version of a resource (aliases: erv)
+
+            [enable-resource-version command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of the resource
+                  -v, --version=KEY:VALUE             Version of the resource to enable.
+                                                      The given key value pair(s) has to be
+                                                      an exact match but not all fields are
+                                                      needed. In the case of multiple
+                                                      resource versions matched, it will
+                                                      enable the latest one.
+
+      -------------------------------------
+      20     execute                    Execute a one-off build using local bits (aliases: e)
+
+            [execute command options]
+                  -c, --config=                        The task config to execute
+                  -p, --privileged                     Run the task with full privileges
+                      --include-ignored                Including .gitignored paths.
+                                                       Disregards .gitignore entries and
+                                                       uploads everything
+                  -i, --input=NAME=PATH                An input to provide to the task (can
+                                                       be specified multiple times)
+                  -m, --input-mapping=[NAME=STRING]    Map a resource to a different name
+                                                       as task input
+                  -j, --inputs-from=PIPELINE/JOB       A job to base the inputs on
+                  -o, --output=NAME=PATH               An output to fetch from the task
+                                                       (can be specified multiple times)
+                      --image=                         Image resource for the one-off build
+                      --tag=TAG                        A tag for a specific environment
+                                                       (can be specified multiple times)
+                  -v, --var=[NAME=STRING]              Specify a string value to set for a
+                                                       variable in the pipeline
+                  -y, --yaml-var=[NAME=YAML]           Specify a YAML value to set for a
+                                                       variable in the pipeline
+                  -l, --load-vars-from=                Variable flag that can be used for
+                                                       filling in template values in
+                                                       configuration from a YAML file
+
+      -------------------------------------
+      21     expose-pipeline            Make a pipeline publicly viewable (aliases: ep)
+
+            [expose-pipeline command options]
+                  -p, --pipeline=        Pipeline to expose
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      22     format-pipeline            Format a pipeline config (aliases: fp)
+
+            [format-pipeline command options]
+                  -c, --config=          Pipeline configuration file
+                  -w, --write            Do not print to stdout; overwrite the file in place
+
+      -------------------------------------
+      23     get-pipeline               Get a pipeline's current configuration (aliases: gp)
+
+            [get-pipeline command options]
+                  -p, --pipeline=        Get configuration of this pipeline
+                  -j, --json             Print config as json instead of yaml
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      24     get-team                   Show team configuration (aliases: gt)
+
+            [get-team command options]
+                  -n, --team-name=       Get configuration of this team
+                  -j, --json             Print command result as JSON
+
+      -------------------------------------
+      25     help                       Print this help message
+
+      -------------------------------------
+      26     hide-pipeline              Hide a pipeline from the public (aliases: hp)
+
+            [hide-pipeline command options]
+                  -p, --pipeline=        Pipeline to hide
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      27     hijack                     Execute a command in a container (aliases: intercept, i)
+
+            [hijack command options]
+                  -j, --job=PIPELINE/JOB        Name of a job to hijack
+                      --handle=                 Handle id of a job to hijack
+                  -c, --check=PIPELINE/CHECK    Name of a resource's checking container to
+                                                hijack
+                  -u, --url=                    URL for the build, job, or check container
+                                                to hijack
+                  -b, --build=                  Build number within the job, or global
+                                                build ID
+                  -s, --step=                   Name of step to hijack (e.g. build, unit,
+                                                resource name)
+                      --step-type=              Type of step to hijack (e.g. get, put, task)
+                  -a, --attempt=N[,N,...]       Attempt number of step to hijack.
+                      --team=                   Name of the team to which the container
+                                                belongs, if different from the target
+                                                default
+
+            [hijack command arguments]
+              command:                          The command to run in the container
+                                                (default: bash)
+
+      -------------------------------------
+      28     jobs                       List the jobs in the pipelines (aliases: js)
+
+            [jobs command options]
+                  -p, --pipeline=        Get jobs in this pipeline
+                      --json             Print command result as JSON
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      29     land-worker                Land a worker (aliases: lw)
+
+            [land-worker command options]
+                  -w, --worker=          Worker to land
+
+      -------------------------------------
+      30     login                      Authenticate with the target (aliases: l)
+
+            [login command options]
+                  -c, --concourse-url=   Concourse URL to authenticate with
+                  -k, --insecure         Skip verification of the endpoint's SSL certificate
+                  -u, --username=        Username for basic auth
+                  -p, --password=        Password for basic auth
+                  -n, --team-name=       Team to authenticate with
+                      --ca-cert=         Path to Concourse PEM-encoded CA certificate file.
+                      --client-cert=     Path to a PEM-encoded client certificate file.
+                      --client-key=      Path to a PEM-encoded client key file.
+                  -b, --open-browser     Open browser to the auth endpoint
+
+      -------------------------------------
+      31     logout                     Release authentication with the target (aliases: o)
+
+            [logout command options]
+                  -a, --all              Logout of all targets
+
+      -------------------------------------
+      32     order-instanced-pipelines  Orders instanced pipelines within an instance group (aliases: oip)
+
+            [order-instanced-pipelines command options]
+                  -g, --group=           Name of the instance group
+                  -p, --pipeline=        Instance vars identifying pipeline (can be
+                                         specified multiple times to provide relative
+                                         ordering)
+                      --team=            Name of the team to which the pipelines belong, if
+                                         different from the target default
+
+      -------------------------------------
+      33     order-pipelines            Orders pipelines (aliases: op)
+
+            [order-pipelines command options]
+                  -a, --alphabetical     Order all pipelines alphabetically
+                  -p, --pipeline=        Name of pipeline (can be specified multiple times
+                                         to provide relative ordering)
+                      --team=            Name of the team to which the pipelines belong, if
+                                         different from the target default
+
+      -------------------------------------
+      34     pause-job                  Pause a job (aliases: pj)
+
+            [pause-job command options]
+                  -j, --job=PIPELINE/JOB    Name of a job to pause
+                      --team=               Name of the team to which the job belongs, if
+                                            different from the target default
+
+      -------------------------------------
+      35     pause-pipeline             Pause a pipeline (aliases: pp)
+
+            [pause-pipeline command options]
+                  -p, --pipeline=        Pipeline to pause
+                  -a, --all              Pause all pipelines
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      36     paused-jobs                List the paused jobs in the pipelines (aliases: pjs)
+
+            [paused-jobs command options]
+                  -p, --pipeline=        Get jobs in this pipeline
+                      --json             Print command result as JSON
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      37     paused-pipelines           List the configured paused pipelines (aliases: pps)
+
+            [paused-pipelines command options]
+                  -a, --all              Show pipelines across all teams
+                      --json             Print command result as JSON
+
+      -------------------------------------
+      38     pin-resource               Pin a version to a resource (aliases: pr)
+
+            [pin-resource command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of the resource
+                  -v, --version=                      Version of the resource to pin. The
+                                                      given key value pair(s) has to be an
+                                                      exact match but not all fields are
+                                                      needed. In the case of multiple
+                                                      resource versions matched, it will
+                                                      pin the latest one.
+                  -c, --comment=                      Message to be saved to the pinned
+                                                      resource. Resource has to be pinned
+                                                      otherwise --version should be
+                                                      specified to pin the resource first.
+
+      -------------------------------------
+      39     pipelines                  List the configured pipelines (aliases: ps)
+
+            [pipelines command options]
+                  -a, --all               Show pipelines across all teams
+                      --include-archived  Show archived pipelines
+                      --json              Print command result as JSON
+
+      -------------------------------------
+      40     prune-worker               Prune a stalled, landing, landed, or retiring worker (aliases: pw)
+
+            [prune-worker command options]
+                  -w, --worker=          Worker to prune
+                  -a, --all-stalled      Prune all stalled workers
+
+      -------------------------------------
+      41     rename-pipeline            Rename a pipeline (aliases: rp)
+
+            [rename-pipeline command options]
+                  -o, --old-name=        Existing pipeline or instance group to rename
+                  -n, --new-name=        New name for the pipeline or instance group
+
+      -------------------------------------
+      42     rename-team                Rename a team (aliases: rt)
+
+            [rename-team command options]
+                  -o, --old-name=        Current team name
+                  -n, --new-name=        New team name
+
+      -------------------------------------
+      43     rerun-build                Rerun a build (aliases: rb)
+
+            [rerun-build command options]
+                  -j, --job=PIPELINE/JOB    Name of the job that you want to rerun a build
+                                            for
+                  -b, --build=              The number of the build to rerun
+                  -w, --watch               Start watching the rerun build output
+
+      -------------------------------------
+      44     resource-versions          List the versions of a resource (aliases: rvs)
+
+            [resource-versions command options]
+                  -c, --count=                        Number of versions you want to limit
+                                                      the return to (default: 50)
+                  -r, --resource=PIPELINE/RESOURCE    Name of a resource to get versions for
+                      --json                          Print command result as JSON
+                      --team=                         Name of the team to which the
+                                                      pipeline belongs, if different from
+                                                      the target default
+
+      -------------------------------------
+      45     resources                  List the resources in the pipeline (aliases: rs)
+
+            [resources command options]
+                  -p, --pipeline=        Get resources in this pipeline
+                      --json             Print command result as JSON
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      46     schedule-job               Request the scheduler to run for a job. Introduced as a recovery command for the v6.0 scheduler. (aliases: sj)
+
+            [schedule-job command options]
+                  -j, --job=PIPELINE/JOB    Name of a job to schedule
+
+      -------------------------------------
+      47     set-pipeline               Create or update a pipeline's configuration (aliases: sp)
+
+            [set-pipeline command options]
+                  -n, --non-interactive         Skips interactions, uses default values
+                      --no-color                Disable color output
+                  -d, --dry-run                 Run a set pipeline step but in dry-run mode
+                      --check-creds             Validate credential variables against
+                                                credential manager
+                  -p, --pipeline=               Pipeline to configure
+                  -c, --config=                 Pipeline configuration file, "-" stands for
+                                                stdin
+                  -v, --var=[NAME=STRING]       Specify a string value to set for a
+                                                variable in the pipeline
+                  -y, --yaml-var=[NAME=YAML]    Specify a YAML value to set for a variable
+                                                in the pipeline
+                  -l, --load-vars-from=         Variable flag that can be used for filling
+                                                in template values in configuration from a
+                                                YAML file
+                      --team=                   Name of the team to which the pipeline
+                                                belongs, if different from the target
+                                                default
+
+      -------------------------------------
+      48     set-team                   Create or modify a team to have the given credentials (aliases: st)
+
+            [set-team command options]
+                  -n, --team-name=                                          The team to
+                                                                            create or modify
+                      --non-interactive                                     Force apply
+                                                                            configuration
+
+                Authentication:
+                      --local-user=USERNAME                                 A whitelisted
+                                                                            local concourse
+                                                                            user. These are
+                                                                            the users
+                                                                            you've added at
+                                                                            web startup
+                                                                            with the
+                                                                            --add-local-use-
+
+                                                                            r flag.
+                  -c, --config=                                             Configuration
+                                                                            file for
+                                                                            specifying team
+                                                                            params
+
+                Authentication (Bitbucket Cloud):
+                      --bitbucket-cloud-user=USERNAME                       A whitelisted
+                                                                            Bitbucket Cloud
+                                                                            user
+                      --bitbucket-cloud-team=TEAM_NAME                      A whitelisted
+                                                                            Bitbucket Cloud
+                                                                            team
+
+                Authentication (CloudFoundry):
+                      --cf-user=USERNAME                                    A whitelisted
+                                                                            CloudFoundry
+                                                                            user
+                      --cf-org=ORG_NAME                                     A whitelisted
+                                                                            CloudFoundry org
+                      --cf-space=ORG_NAME:SPACE_NAME                        (Deprecated) A
+                                                                            whitelisted
+                                                                            CloudFoundry
+                                                                            space for users
+                                                                            with the
+                                                                            'developer' role
+                      --cf-space-with-any-role=ORG_NAME:SPACE_NAME          A whitelisted
+                                                                            CloudFoundry
+                                                                            space for users
+                                                                            with any role
+                      --cf-space-with-developer-role=ORG_NAME:SPACE_NAME    A whitelisted
+                                                                            CloudFoundry
+                                                                            space for users
+                                                                            with the
+                                                                            'developer' role
+                      --cf-space-with-auditor-role=ORG_NAME:SPACE_NAME      A whitelisted
+                                                                            CloudFoundry
+                                                                            space for users
+                                                                            with the
+                                                                            'auditor' role
+                      --cf-space-with-manager-role=ORG_NAME:SPACE_NAME      A whitelisted
+                                                                            CloudFoundry
+                                                                            space for users
+                                                                            with the
+                                                                            'manager' role
+                      --cf-space-guid=SPACE_GUID                            A whitelisted
+                                                                            CloudFoundry
+                                                                            space guid
+
+                Authentication (GitHub):
+                      --github-user=USERNAME                                A whitelisted
+                                                                            GitHub user
+                      --github-org=ORG_NAME                                 A whitelisted
+                                                                            GitHub org
+                      --github-team=ORG_NAME:TEAM_NAME                      A whitelisted
+                                                                            GitHub team
+
+                Authentication (GitLab):
+                      --gitlab-user=USERNAME                                A whitelisted
+                                                                            GitLab user
+                      --gitlab-group=GROUP_NAME                             A whitelisted
+                                                                            GitLab group
+
+                Authentication (LDAP):
+                      --ldap-user=USERNAME                                  A whitelisted
+                                                                            LDAP user
+                      --ldap-group=GROUP_NAME                               A whitelisted
+                                                                            LDAP group
+
+                Authentication (Microsoft):
+                      --microsoft-user=USERNAME                             A whitelisted
+                                                                            Microsoft user
+                      --microsoft-group=GROUP_NAME                          A whitelisted
+                                                                            Microsoft group
+
+                Authentication (OAuth2):
+                      --oauth-user=USERNAME                                 A whitelisted
+                                                                            OAuth2 user
+                      --oauth-group=GROUP_NAME                              A whitelisted
+                                                                            OAuth2 group
+
+                Authentication (OIDC):
+                      --oidc-user=USERNAME                                  A whitelisted
+                                                                            OIDC user
+                      --oidc-group=GROUP_NAME                               A whitelisted
+                                                                            OIDC group
+
+                Authentication (SAML):
+                      --saml-user=USERNAME                                  A whitelisted
+                                                                            SAML user
+                      --saml-group=GROUP_NAME                               A whitelisted
+                                                                            SAML group
+
+
+      -------------------------------------
+      49     status                     Login status
+
+      -------------------------------------
+      50     sync                       Download and replace the current fly from the target (aliases: s)
+
+            [sync command options]
+                  -f, --force            Sync even if versions already match.
+                  -c, --concourse-url=   Concourse URL to sync with
+                  -k, --insecure         Skip verification of the endpoint's SSL certificate
+                      --ca-cert=         Path to Concourse PEM-encoded CA certificate file.
+                      --client-cert=     Path to a PEM-encoded client certificate file.
+                      --client-key=      Path to a PEM-encoded client key file.
+
+      -------------------------------------
+      51     targets                    List saved targets (aliases: ts)
+
+      -------------------------------------
+      52     teams                      List the configured teams (aliases: t)
+
+            [teams command options]
+                      --json             Print command result as JSON
+                  -d, --details          Print authentication configuration
+
+      -------------------------------------
+      53     trigger-job                Start a job in a pipeline (aliases: tj)
+
+            [trigger-job command options]
+                  -j, --job=PIPELINE/JOB    Name of a job to trigger
+                  -w, --watch               Start watching the build output
+                      --team=               Name of the team to which the job belongs, if
+                                            different from the target default
+
+      -------------------------------------
+      54     unpause-job                Unpause a job (aliases: uj)
+
+            [unpause-job command options]
+                  -j, --job=PIPELINE/JOB    Name of a job to unpause
+                      --team=               Name of the team to which the job belongs, if
+                                            different from the target default
+
+      -------------------------------------
+      55     unpause-pipeline           Un-pause a pipeline (aliases: up)
+
+            [unpause-pipeline command options]
+                  -p, --pipeline=        Pipeline to unpause
+                  -a, --all              Unpause all pipelines
+                      --team=            Name of the team to which the pipeline belongs, if
+                                         different from the target default
+
+      -------------------------------------
+      56     unpin-resource             Unpin a resource (aliases: ur)
+
+            [unpin-resource command options]
+                  -r, --resource=PIPELINE/RESOURCE    Name of the resource
+
+      -------------------------------------
+      57     userinfo                   User information
+
+            [userinfo command options]
+                      --json             Print command result as JSON
+
+      -------------------------------------
+      58     validate-pipeline          Validate a pipeline config (aliases: vp)
+
+            [validate-pipeline command options]
+                  -c, --config=                 Pipeline configuration file
+                  -s, --strict                  Fail on warnings
+                  -o, --output                  Output templated pipeline to stdout
+                      --enable-across-step      Enable the experimental across step to be
+                                                used in jobs. The API is subject to change.
+                  -v, --var=[NAME=STRING]       Specify a string value to set for a
+                                                variable in the pipeline
+                  -y, --yaml-var=[NAME=YAML]    Specify a YAML value to set for a variable
+                                                in the pipeline
+                  -l, --load-vars-from=         Variable flag that can be used for filling
+                                                in template values in configuration from a
+                                                YAML file
+
+      -------------------------------------
+      59     volumes                    List the active volumes (aliases: vs)
+
+            [volumes command options]
+                  -d, --details          Print additional information for each volume
+                      --json             Print command result as JSON
+
+      -------------------------------------
+      60     watch                      Stream a build's output (aliases: w)
+
+            [watch command options]
+                  -j, --job=PIPELINE/JOB                Watches builds of the given job
+                  -b, --build=                          Watches a specific build
+                  -u, --url=                            URL for the build or job to watch
+                  -t, --timestamps                      Print with local timestamp
+                      --ignore-event-parsing-errors     Ignore event parsing errors
+                      --team=                           Name of the team to which the
+                                                        pipeline belongs, if different from
+                                                        the target default
+
+      -------------------------------------
+      61     workers                    List the registered workers (aliases: ws)
+
+                [workers command options]
+                      -d, --details          Print additional information for each worker
+                          --json             Print command result as JSON
+
+    -------------------------------------
     ________________________________________________________
     ________________________________________________________
     ________________________________________________________

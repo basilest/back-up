@@ -380,6 +380,9 @@ man zshall            <--- LONG  (~ 23000 lines, it contains all)
                                                                    |                                        or
                                                                    |                                           ~/.zshrc:   `bindkey -v' (set vi)
                                                                    |                                                       `bindkey -e' (set emacs)
+                                                                   |                                                       `bindkey \^U backward-kill-line   <---- ZSH by default is different from bash
+                                                                   |                                                                                               and a ^U deletes the whole line and not just the left part
+                                                                   |                                                                                               (anyhow a simple:  bindkey "\Cu"     can show what's currently mapped onto Ctrl-U)
                                                                    |
                                                                    |  2. BANG '!'              The usual (ex !!:1 .... !!:3-$   )
                                                                    |                           !!

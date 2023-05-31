@@ -233,6 +233,11 @@ aws s3api get-object --bucket shared-services.eu-west-2.configs.ch.gov.uk --vers
                         }
 
 
+                TO SEARCH A DOC IN ALL S3 BUCKETS (by matching in the name or date)
+-----------------
+
+for b in $(aws --profile dev s3 ls s3:// | awk '{print $3}'); do echo "----------------checking [$b]"; aws --profile dev s3api list-objects --bucket $b --query "Contents[?contains(LastModified, '2023-05-18')]"; done
+for b in $(aws --profile dev s3 ls s3:// | awk '{print $3}'); do echo "----------------checking [$b]"; aws --profile dev s3api list-objects --bucket $b --query "Contents;(LastModified, '2023-05-18')]" done
 ----------------------------------------------------------
 aws-cli Session Manager
 
@@ -977,6 +982,29 @@ _________________________________________________________ Interacting with S3  (
             }
         ]
     }
+_________________________________________________________ POLICY TO ENFORCE S3 TO MANAGE TLS > 1.2  (on a bucket named: "ch-document-api-chips-staging")
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "EnforceTLSv12orHigher",
+			"Effect": "Deny",
+			"Principal": {
+				"AWS": "*"
+			},
+			"Action": "s3:*",
+			"Resource": [
+				"arn:aws:s3:::ch-document-api-chips-staging/*",
+				"arn:aws:s3:::ch-document-api-chips-staging"
+			],
+			"Condition": {
+				"NumericLessThan": {
+					"s3:TlsVersion": "1.2"
+				}
+			}
+		}
+	]
+}
 _________________________________________________________ Key pairs
 
 
