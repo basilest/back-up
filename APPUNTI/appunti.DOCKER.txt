@@ -1,3 +1,67 @@
+i
+
+             # log docker to AWS ECR
+             ❯ aws --profile devevolpment  ecr get-login-password --region eu-west-2  | docker login --username AWS --password-stdin 169942020521.dkr.ecr.eu-west-2.amazonaws.com
+
+
+             # see ALL the list of repositories in ECR
+             ❯ aws ecr describe-repositories
+                                              it will give an ARRAY of these entries:
+
+                                                        ..
+                                                        {
+                                                            "repositoryArn": "arn:aws:ecr:eu-west-2:169942020521:repository/third-party-harness-oidc",
+                                                            "registryId": "169942020521",
+                                                            "repositoryName": "third-party-harness-oidc",
+                                                            "repositoryUri": "169942020521.dkr.ecr.eu-west-2.amazonaws.com/third-party-harness-oidc",
+                                                            "createdAt": "2021-08-20T11:33:17+01:00",
+                                                            "imageTagMutability": "MUTABLE",
+                                                            "imageScanningConfiguration": {
+                                                                "scanOnPush": true
+                                                            },
+                                                            "encryptionConfiguration": {
+                                                                "encryptionType": "AES256"
+                                                            }
+                                                        },
+                                                        ..
+
+
+             # GET info of 1 repo
+               ❯ aws --profile development ecr describe-images --repository-name maven-resource
+                {
+                    "imageDetails": [
+                        {
+                            "registryId": "169942020521",
+                            "repositoryName": "maven-resource",
+                            "imageDigest": "sha256:7bb4e0b305b4b6624ca3ae65f1c0fccb262537cb4a3484d11ff7fec202f3ae74",
+                            "imageTags": [
+                                "latest"            <-------- latest
+                            ],
+                            "imageSizeInBytes": 98167582,
+                            "imagePushedAt": "2019-04-18T10:46:38+01:00",
+                            "imageScanStatus": {
+                                "status": "COMPLETE",
+                                "description": "The scan was completed successfully."
+                            },
+                            "imageScanFindingsSummary": {
+                                "imageScanCompletedAt": "2019-11-27T12:05:53+00:00",
+                                "vulnerabilitySourceUpdatedAt": "2019-11-26T14:03:29+00:00",
+                                "findingSeverityCounts": {
+                                    "MEDIUM": 30,
+                                    "LOW": 7,
+                                    "HIGH": 6
+                                }
+                            },
+                            "imageManifestMediaType": "application/vnd.docker.distribution.manifest.v2+json"
+                        }
+                    ]
+                }
+
+
+             # pull the image
+             docker pull 169942020521.dkr.ecr.eu-west-2.amazonaws.com/maven-resource:latest
+                         registry                                    /repository    [:tag]
+
 --------------------------------------------------------------------------------------------------------------
 
     Usage:  docker [OPTIONS] COMMAND

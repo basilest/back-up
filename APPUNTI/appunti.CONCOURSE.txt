@@ -723,16 +723,16 @@ Images are pulled from docker hub by default
 
 
 
-         fly  --target  ps execute          --config  task1.yml
-         fly  --target  ps set-pipeline     --config  pipeline.yml  --pipeline   mypipe
-         fly  --target  ps jobs                                     --pipeline   mypipe
+         fly  --target  tutorial  execute          --config  task1.yml
+         fly  --target  tutorial  set-pipeline     --config  pipeline.yml  --pipeline   mypipe
+         fly  --target  tutorial  jobs                                     --pipeline   mypipe
 
 
 
-            fly -t       tutorial execute -c task_ubuntu_uname.yml
-            fly -t       tutorial e       -c task_ubuntu_uname.yml
+            fly -t  tutorial      execute -c task_ubuntu_uname.yml
+            fly -t  tutorial      e       -c task_ubuntu_uname.yml
 
-            fly -t       tutorial e -c inputs_required.yml -i some-important-input=.
+            fly -t  tutorial      e -c inputs_required.yml -i some-important-input=.
 
 
 
@@ -752,6 +752,22 @@ Images are pulled from docker hub by default
 
 
 ------------------------------- CONCOURSE CH
+
+A DEV-OPS PIPELINE TO ADD A TEAM TO CONCOURSE: https://github.com/companieshouse/ci-pipelines/pull/2243/files
+                        - pipelines/platform/team-randd/Placeholder:         This file is a placeholder until the first pipeline is added to this team.
+                                                                             On addition of the first pipeline, delete this file.
+
+                        - scripts/team-config/platform/team-randd/config:
+                                                                                roles:
+                                                                                - name: member
+                                                                                  ldap:
+                                                                                    groups: ["build-server-leaddevs"]
+                                                                                - name: pipeline-operator
+                                                                                  ldap:
+                                                                                    groups: ["build-server-leaddevs"]
+                                                                                - name: viewer
+                                                                                  ldap:
+                                                                                    groups: ["build-server-users"]
 
 
 sandbox
@@ -782,6 +798,7 @@ Development
                 fly -t platform-team-titans          login -n team-titans        -c https://ci.platform.aws.chdev.org/ -b
 
                 fly -t sandbox-development           login -n development        -c https://ci.sandbox.aws.chdev.org/ -b     for sandbox, there are no scrum teams so auth. is with "development" team:
+                                                                                                                             I log then with my LDAP credentials:  user: sbasile  (not full email address)
 
 
 
@@ -837,6 +854,11 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
     /api/v1/teams/development/pipelines/ci-marathon-deployer/resources/source-code/check/webhook?webhook_token=YTlkOTg2YjVhOThmNzQ2YmI4NTkyZGI4
 
 
+    CH token generator at:
+    https://github.com/companieshouse/ci-pipelines/blob/master/pipelines/platform/common/webhook-token-generator#L24
+
+    which just does:
+                  > date +%s | sha256sum | base64 | head -c 32
 
 
 
@@ -1033,7 +1055,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                           - name: the-artifact                 <------- a dir(artifact) with this name ("the-artifact") will be created
                           platform: linux                               and concourse will keep this dir/artifact available for any task using this name
                           run:                                          (Concourse will look among the various artifacts and will mount the desired one
-                            args:                                        intto the task/container requiring it)
+                            args:                                        into the task/container requiring it)
                     -       - -lF
                     -       path: ls
                     +       - -cx
@@ -1070,7 +1092,8 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
      To see what resources are available out of the box (in my Concourse / target):
 
-         fly -t tutorial workers --details
+         fly -t tutorial workers --details             --details | -d
+
                     eede94fa529f  0  linux  none  none  running  2.4  2h13m  127.0.0.1:40385  http://127.0.0.1:44775  0  bosh-io-release, bosh-io-stemcell,
                                                                                                                          cf, docker-image, git, github-release,
                                                                                                                          hg, mock, pool, registry-image, s3, semver,
@@ -1103,10 +1126,12 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                                  Its input is a version (from a check or put step) and            12   - task: hello-world-task
                                  retrieves the files representing that version.
 
-           /opt/resource/out -   runs in a put step.
-                                 Generates a new version, (usually based on some input generated by another job step).
+  put |    /opt/resource/out -   runs in a put step.
+      |                          Generates a new version, (usually based on some input generated by another job step).
                                  This may mean sending something (ex.  commits to a git repo).
 
+     Creating my own resource means to implement the above 3 scripts (ex. given here: https://concourse-ci.org/implementing-resource-types.html)
+     They receive args via stdin and produce output on stdout. They can emit & log anything on stderr.
 
 
      NOTE: if I want that Concourse captures anything (i.e. the new 'versions' of things) I must follow
@@ -1141,7 +1166,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
     the content of this dir, depends by the resource, so it must be seen the doc of that resource.
     For a 'git' resource the dir is the clone of the repo
 
-    It's the common to see some other places down the line having that dir as an input:
+    It's then common to see some other places down the line having that dir as an input:
     ex.
        inputs:
           - name: repo
@@ -1168,7 +1193,11 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
     Remember, a resource is a container image. So to pull in a new resource type you need to tell Concourse where
     to pull the image from.
     This is done by using the built-in
-                registry-image
+                registry-image     <-----  https://github.com/concourse/registry-image-resource   replaces
+                                           https://github.com/concourse/docker-image-resource
+                                           registry-image is written in pure Go and does not use the Docker daemon or CLI.
+                                                          This makes it safer (no need for privileged: true), more efficient,
+                                                          and less error-prone (now that we're using Go APIs and not parsing docker CLI output).
     resource.
     ex:
            resource_types:
@@ -1182,7 +1211,341 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
 
 
-    Acxatalog of resource types:  https://resource-types.concourse-ci.org/
+    A catalog of resource types:  https://resource-types.concourse-ci.org/
+
+    ________________________________________________________ RESOURCE SCHEMA
+
+    resources:
+      M    - name: new-name                                   id   (string)
+      M      type: git                                        name (string)
+      M      source: uri: "https://github.com/vito/booklit"   any config as it's res dependent and a black box for Concourse which will just pass it. For git is a uri: ....
+        O    old_name: current-name                           a string
+        O    icon: git                                        a string
+        O    version: ..                                      it's like an hard pin. If set, pinning on the UI will have no effect
+        O    check_every:  x | never                          x: default = 1m
+        O    check_timeout: x                                 x: dfwult: 1h
+        O    expose_build_created_by: bool                    bool: default: false
+        O    tags: [string]                                   default: []
+        O    public: bool                                     default false
+        O    webhook_token: string                            a string
+
+    ________________________________________________________ RESOURCE-TYPE SCHEMA
+
+    resource_types:
+      M      - name: ci-resource-type-release-tag                            name (string)  I can override the core ones (if I use the same name)
+      M        type: docker-image                                            a string. Anyhow being the resources images/containers, their type is usually 'docker-image' or 'registry-image'
+      M        source:                                                       can be anything, it's resource dependent amd for Concourse just a black-box config passed to the resource at runtime
+                 aws_access_key_id: ((aws-access-key-id))                    ex:
+                 aws_secret_access_key: ((aws-secret-access-key))               <----
+                 repository: ((docker-registry))/ci-resource-type-release-tag   <----
+                 tag: latest                                                    <----
+        O    params:  ..                                      Arbitrary config to pass when running the get
+        O    check_every:  x                                  x: default = 1m
+        O    tags: [string]                                   default: []
+        O    defaults:  config                                usual YAML block which is merged with the
+                                                                        'source: config'
+
+    ________________________________________________________ TASK SCHEMA
+
+      - config:
+      M        platform: linux                                             linux | darwin | windows       This determines the pool of workers that the task can run against.
+      M        image_resource:
+             M   type: docker-image              every time the TASK runs, a "check" is executed on this specified RESOURCE-TYPE to discover the latest version available.
+             M   source:
+                   aws_access_key_id: ((aws-access-key-id))
+                   aws_secret_access_key: ((aws-secret-access-key))
+                   repository: ((docker-registry))/ci-cdn-build
+                   tag: latest
+             O   params: config                  A map of arbitrary configuration to forward to the RESOURCE (nb. RESOURCE not TASK) (Refer to the resource type's documentation to see what it supports)
+             O   version:  id                    A specific version of the resource to fetch.  default:  latest
+        O      inputs:                           optional list of artifacts
+                 - name: source-code  M                 every artifact has a MANDATORY 'name' field and
+                   path:  dir         O                 an OPTIONAL 'path'. If 'path' is not specified a dir with the same 'name' value is looked for. (NB: Paths are relative to the working dir of the task)
+                   optional: boolean  O                 this 'optional' field specifies if this input can be missing for this TASK  (default 'false' = CANNOT MISS)
+                 - name: version
+        O      outputs:                          Same logic like 'inputs'.
+                 - name: artifacts    M                anyhow 'outputs' don't have the 3rd 'optional' field
+                   path:  dir         O
+      M        run:
+                 path: bash           M          the path of the executable to run (relative to the current dir or even absolute: /bin/bash) or even just the name (if found in $PATH) ex. "bash"
+                 args:                O
+                   - -ec
+                   - |
+                     make -C source-code dist version="$(< version/version)"
+                     cp source-code/*.zip artifacts
+                 dir:                O          dir (relative to current dir) used as temp dir when running the script
+                 user: string        O          Explicitly set the user to run as
+
+        O      params:                          A map of arbitrary configuration to forward to the TASK
+                  xxxxxx1: val1
+                  xxxxxx2: val2
+                  xxxxxx3: val3
+        O      caches: [cache]
+        O      rootfs_uri: string
+        O      container_limits:
+                  cpu:    number     O          The max CPU available to the task container, measured in shares.   0 means unlimited.
+                  memory: number     O          The max memory available to the task container, measured in bytes. 0 means unlimited.
+
+
+
+
+    ________________________________________________________ USING AN EXTERNAL FILE FOR A TASK: task.yml
+
+        . The syntax to use an external file when writing a task in a pipeline is this:
+
+           - task: hello-world-task
+             file: some_resource/test_task1.yml
+
+                    NB.1  the file test_task1.yml should be somewhere, so in some resource
+                          so a more complete example is
+                                resources:
+                                    - name: repo
+                                      type: git
+                                      source:
+                                         uri: https://github.com/sbasile-ch/TEST_CONCOURSE.git
+
+
+                                ....
+                                jobs:
+                                    ..
+                                     - task: hello-world-task
+                                       file: repo/test_task1.yml     <------ I'm using the resource 'repo' so the file test_task1.yml
+                                                                             is at the 1st level in the repo  https://github.com/sbasile-ch/TEST_CONCOURSE.git
+                    NB.2  'file' is indented like 'task'
+    ________________________________________________________ VARS INSIDE THE EXTERNAL FILE task.yml
+
+                                                                                params:
+                                                                                  varA: "val-a"   <--- I define some vars
+                                                                                  varB: "val-b"
+
+                                                                                run:
+                                                                                  path: bash
+                                                                                  args:
+                                                                                    - ec
+                                                                                    - |
+                                                                                      echo "aa is bb ${varA} ${varB}"  <--- I can use them
+
+
+    ________________________________________________________ PASSING PARAMS TO THE EXTERNAL FILE task.yml
+                                ....
+                                jobs:
+                                    ..
+                                     - task: hello-world-task
+                                       file: repo/test_task1.yml
+                                       params:
+                                           var1: "some-value-1"     <----- these 2 vars
+                                           var2: "some-value-2"            can be used in the file test_task1.yml
+                                                                           ex:
+                                                                                run:
+                                                                                  path: bash
+                                                                                  args:
+                                                                                    - ec
+                                                                                    - |
+                                                                                      echo "aa is bb ${var1} ${var2}"
+
+    ________________________________________________________ CONFIG VARS IN THE PIPELINE OVERRIDE SAME-NAME VAR IN test_task1.yml
+
+                                ....
+                                jobs:
+                                    ..
+                                     - task: hello-world-task
+                                       file: repo/test_task1.yml
+                                       params:
+                                           var1: "some-value-1"     <----- these 2 vars
+                                           var2: "some-value-2"            can be used in the file test_task1.yml
+                                            |                              ex:
+                                            |                                   params:
+                                           S T R O N G E R                        var1: "val-a"   <--- 'var1' same-name of the param in the pipeline
+                                                                                  varB: "val-b"        so the value will be  "some-value-1"
+                                                                                run:
+                                                                                  path: bash
+                                                                                  args:
+                                                                                    - ec
+                                                                                    - |
+                                                                                      echo "aa is bb ${var1} ${var2}"
+                    NB: this behaviour could be used as setting a var
+                        in the task.yml file which works as a DEFAULT value
+                        Anyhow each time the pipeline will specify a different value
+                        that will overrride the default.
+
+
+    ________________________________________________________ EXECUTE JUST A TASK (NOT ALL THE PIPELINE)
+
+                   I can upload to run in Concourse a file task ex:
+
+                                            ───────┬─────────────────────────────────────────────────
+                                                   │ File: TEST_CONCOURSE/test_task.bash.yml
+                                            ───────┼─────────────────────────────────────────────────
+                                               1   │ platform: linux
+                                               2   │
+                                               3   │ image_resource:
+                                               4   │   type: registry-image
+                                               5   │   source: {repository: golang}
+                                               6   │ params:
+                                               7   │   myvar: "basile2"
+                                               8   │   myvar2: "basile3"
+                                               9   │ outputs:
+                                              10   │   - name: test_param
+                                              11   │ run:
+                                              12   │   path: bash
+                                              13   │   args:
+                                              14   │     - -ec
+                                              15   │     - |
+                                              16   │       ls -lrta
+                                              17   │       pwd
+                                              18   │       echo "done"
+                                              19   │       echo "aa is bb ${myvar} ${myvar2}"
+                                              20   │       echo "aa is bb ${myvar}" > test_param/A.txt
+                                            ───────┴─────────────────────────────────────────────────
+
+              > fly -t tutorial execute -c TEST_CONCOURSE/test_task.bash.yml
+
+                                        executing build 18555 at http://localhost:8080/builds/18555
+                                        initializing
+                                        initializing check: image
+                                        selected worker: 4fc9b264751b
+                                        selected worker: 4fc9b264751b
+                                        INFO: found existing resource cache
+
+                                        selected worker: 4fc9b264751b
+                                        running bash -ec ls -lrta
+                                        pwd
+                                        echo "done"
+                                        echo "aa is bb ${myvar} ${myvar2}"
+                                        echo "aa is bb ${myvar}" > test_param/A.txt      <---------- NB. this is not accessible on my local. It could with option -o
+
+                                        total 12
+                                        drwxr-xr-x 2 root root 4096 Jun 29 22:04 test_param
+                                        drwxr-xr-x 3 root root 4096 Jun 29 22:04 ..
+                                        drwxr-xr-x 3 root root 4096 Jun 29 22:04 .
+                                        /tmp/build/e55deab7
+                                        done
+                                        aa is bb basile2 basile3
+                                        succeeded
+
+
+              > fly -t tutorial execute -c TEST_CONCOURSE/test_task.bash.yml -o test_param=test_param
+
+                                        executing build 18560 at http://localhost:8080/builds/18560
+                                        initializing
+                                        initializing check: image
+                                        selected worker: 4fc9b264751b
+                                        selected worker: 4fc9b264751b
+                                        INFO: found existing resource cache
+
+                                        selected worker: 4fc9b264751b
+                                        running bash -ec ls -lrta
+                                        pwd
+                                        echo "done"
+                                        echo "aa is bb ${myvar} ${myvar2}"
+                                        echo "aa is bb ${myvar}" > test_param/A.txt
+
+                                        total 12
+                                        drwxr-xr-x 2 root root 4096 Jun 29 22:06 test_param
+                                        drwxr-xr-x 3 root root 4096 Jun 29 22:06 ..
+                                        drwxr-xr-x 3 root root 4096 Jun 29 22:06 .
+                                        /tmp/build/e55deab7
+                                        done
+                                        aa is bb basile2 basile3
+                                        succeeded
+                                        downloading test_param   done   <------------------------ It's Downloading !!!!!!
+
+              >  bat test_param/A.txt  <--------   the file is Downloaded into my local dir 'test_param'
+                                    ───────┬───────────────────────────
+                                           │ File: test_param/A.txt
+                                    ───────┼───────────────────────────
+                                       1   │ aa is bb basile2
+                                    ───────┴───────────────────────────
+
+
+
+
+    ________________________________________________________ GRAB ENV VARS WHOSE VALUE I DON'T KNOW
+              - task: grab-info
+                config:
+                  platform: linux
+                  image_resource:
+                    type: registry-image
+                    source:  {repository: golang}
+                  run:
+                    path: sh
+                    args:
+                      - -exc
+                      - |
+                        echo "[${v1}] [${v2}] [${v3}]"         <------ I pass to this task which will dump them
+                  params:
+                      v1: ((aws-access-key-id))                <----------- 1. I want to know the value of these values
+                      v2: ((aws-secret-access-key))
+                      v3: ((docker-registry))
+    ________________________________________________________ RESOURCE PIN/UNPIN  ENABLE/ DISBALE  CLEAR CACHE
+
+             C H E C K
+            _______________________________
+            ❯ fly -t platform-team-aardvark check-resource --resource  abridged.accounts.web.ch.gov.uk/concourse-resources               --resource | -r
+                                            ^^^^^^^^^^^^^
+                id         name                 status     check_error
+                816307882  concourse-resources  succeeded
+
+            _______________________________
+            ❯ fly -t platform-team-aardvark check-resource -a --resource  abridged.accounts.web.ch.gov.uk/concourse-resources     -a --async    only start the proc
+                                            ^^^^^^^^^^^^^^^^^
+                id         name                 status   check_error
+                816310623  concourse-resources  started
+                                                ^^^^^^^
+
+            _______________________________
+            ❯ fly -t platform-team-aardvark check-resource --shallow --resource  abridged.accounts.web.ch.gov.uk/concourse-resources
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+                id         name                 status     check_error
+                816310638  concourse-resources  succeeded
+
+
+
+
+             P I N  /  U N P I N
+            _______________________________
+            ❯ fly -t platform-team-aardvark pin-resource --resource  abridged.accounts.web.ch.gov.uk/concourse-resources --version ref:1f028fc286f3b484a0aa72e579e7d1cbca9381af
+                                            ^^^^^^^^^^^^
+                pinned 'abridged.accounts.web.ch.gov.uk/concourse-resources' with version {"ref":"1f028fc286f3b484a0aa72e579e7d1cbca9381af"}
+
+            _______________________________
+            ❯ fly -t platform-team-aardvark pin-resource --resource  abridged.accounts.web.ch.gov.uk/concourse-resources --version ref:1f028fc286f3b484a0aa72e579e7d1cbca9381af --comment 'test this num'  <------    I add a comment visible on the UI
+                                            ^^^^^^^^^^^^                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+                pinned 'abridged.accounts.web.ch.gov.uk/concourse-resources' with version {"ref":"1f028fc286f3b484a0aa72e579e7d1cbca9381af"}
+                pin comment 'test this num' is saved
+
+            _______________________________
+            ❯ fly -t platform-team-aardvark unpin-resource --resource  abridged.accounts.web.ch.gov.uk/concourse-resources
+                                            ^^^^^^^^^^^^^^
+                unpinned 'abridged.accounts.web.ch.gov.uk/concourse-resources'
+
+
+
+
+             E N A B L E  /  D I S A B L E      (disable:  deselect the 'V' icon near the pin icon in the UI)
+            _______________________________
+            ❯ fly -t platform-team-aardvark disable-resource-version --resource  abridged.accounts.web.ch.gov.uk/concourse-resources --version ref:1f028fc286f3b484a0aa72e579e7d1cbca9381af
+                disabled 'abridged.accounts.web.ch.gov.uk/concourse-resources' with version {"ref":"1f028fc286f3b484a0aa72e579e7d1cbca9381af"}
+
+            _______________________________
+            ❯ fly -t platform-team-aardvark enable-resource-version --resource  abridged.accounts.web.ch.gov.uk/concourse-resources --version ref:1f028fc286f3b484a0aa72e579e7d1cbca9381af
+                enabled 'abridged.accounts.web.ch.gov.uk/concourse-resources' with version {"ref":"1f028fc286f3b484a0aa72e579e7d1cbca9381af"}
+
+
+
+             C L E A R  C A C H E
+            _______________________________
+            ❯ fly -t example clear-resource-cache -r my-pipeline/my-resource                    to clear  resource cache for whatever reason
+
+                                                                                                This will immediately invalidate all the caches related to that resource -
+                                                                                                they'll be garbage collected asynchronously and subsequent builds will run with empty caches.
+
+
+            ❯ fly -t example clear-resource-cache  -r my-pipeline/my-resource  -v ref:abcdef    I can also clear a particular version
+                                                                                                If -v is not specified, all caches for the given resource will be cleared.
+
+
+
 
     ________________________________________________________   VARS
 
@@ -1208,15 +1571,15 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
               - .      <---------- this is a special source name used only by the construct 'load_var:'
                                    which requires a mandatory 'file:' arg to source a var from
 
-                                      - load_var: version                            <----  'version' is the var name
-                                        file: examples/pipelines/vars-file.yml       <----   whose content is defined sourcing this yml file
+                                      - load_var: version                            <----  'version' is the var name whose content
+                                        file: examples/pipelines/vars-file.yml       <----   is defined sourcing this yml file
                                       - put: img
                                         params:
                                           version: "((.:version.hello))-((.:version.number))"  <--------------- here use
 
                                    'load_var:' has also 2 optional args
                                            'format:'   with values   (json , yaml, yml, trim, raw)
-                                                                     to give the type of the file, which will then parsed
+                                                                     to give the type of the file, which will then be parsed
                                                                      'trim' is the default and just loads the files, removing LEADing/TRAILing spaces
                                                                      'raw' preserves all
 
@@ -1234,12 +1597,15 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
           a multiline credential like a certificate,
           or a complicated data structure like an array of objects.
 
+          The above example of   "((.:version.hello))-((.:version.number))"  gives an idea
+
     ________________________________________________________   CH pipelines structure
 
     https://github.com/companieshouse/ci-resource-type-release-tag         (copyed from https://github.com/EugenMayer/concourse-git-semver-tag-resource)
                                                                            it contains the script to calculate the version
 
                                                                            It's used listing this in the "Resource Types":
+
 
                 # Resource Types ---------------------------------------------------------------
                 resource_types:
@@ -2054,37 +2420,5 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
                           --json             Print command result as JSON
 
     -------------------------------------
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
-    ________________________________________________________
     ________________________________________________________
     ________________________________________________________

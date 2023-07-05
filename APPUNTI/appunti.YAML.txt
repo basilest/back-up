@@ -133,6 +133,48 @@
   |
 
 
+      || ================================================================================================================
+      || A G A I N:
+      ||  SAME INDENTETION:    the fields of my 'structure' are identified just because they are indented with the same
+      ||                       num of spaces ((<Tab> NEVER allowed))
+      || ================================================================================================================
+
+      so a struct with a few fields (of any type each) is just those fields indented in the same way,
+      so the following is the same (because the fields in the struct can be in any order):
+
+                            5 groups:                                     |    1 groups:
+                            6 - name: all                                 |    2 - jobs:
+                            7   jobs:                                     |    3   - create-webhooks
+                            8     - create-webhooks                       |    4   - delete-webhooks
+                            9     - delete-webhooks                       |    5   - analyse-pull-request
+                           10     - analyse-pull-request                  |    6   - test-analyse
+                           11     - test-analyse                          |    7   - release
+                           12     - release                               |    8   name: all
+                           13 - name: pr                                  |    9 - jobs:
+                           14   jobs:                                     |   10   - analyse-pull-request
+                           15     - analyse-pull-request                  |   11   name: pr
+                           16 - name: build                               |   12 - jobs:
+                           17   jobs:                                     |   13   - test-analyse
+                           18     - test-analyse                          |   14   name: build
+                           19 - name: release                             |   15 - jobs:
+                           20   jobs:                                     |   16   - release
+                           21     - release                               |   17   name: release
+                           22 - name: webhooks                            |   18 - jobs:
+                           23   jobs:                                     |   19   - create-webhooks
+                           24     - create-webhooks                       |   20   - delete-webhooks
+                           25     - delete-webhooks                       |   21   name: webhooks
+
+          which is just an array of STRUCTS each defined as the fields:
+                        . name (string)
+                        . jobs (an array of strings)
+                   which can be in any order:
+                                 . name
+                                 . jobs
+
+                               or
+                                 . jobs
+                                 . name
+
 
   {{  }}            As the single { } means a list (see above)
                     the VALUE of a VAR is written as {{ var }}
@@ -152,8 +194,8 @@
 
 
   &xxx     add a mark-label named xxx (to then refer the item with *xxx)     like  C ( & / * )
-  *        refers a marked item
-           nb.1 << is the symbol to 'merge 1 hash into another'
+  *        refers a marked item   (i.e. *id001)  it takes the whole item
+  << *     << is the symbol to 'merge 1 hash into another' it can be used to take the whole item and change some fields.
 
            - step:  &id001                  # defines anchor label id001
                instrument:      Lasik 2000
@@ -223,6 +265,32 @@
                                 ________________________________________________________
 
 
+
+                   ANOTHER EXAMPLE:
+
+                    slack_notification: &slack_notification
+                      put: notify-slack
+                      params: &slack_params
+                        attachments_file: concourse-resources/templates/slack/failure-message.json
+                        channel: team-element-pipelines
+
+
+                    on_failure: *slack_notification
+                    on_success:
+                      <<: *slack_notification
+                      params:
+                        <<: *slack_params
+                        attachments_file: output-message/pr-analysis-message.json
+
+
+
+
+
+        AN ONLINE YAML PARSER: (https://yaml-online-parser.appspot.com/)  could be useful to see how the anchors are expanded
+
+
+
+
   ?        set
            # YAML has a set type, which looks like this:
            set:
@@ -238,4 +306,23 @@
 
 
 
+ yq       https://github.com/kislyuk/yq       relies on jq (I must have that installed)
+          https://github.com/mikefarah/yq     no dependencies  <-------------- this is what comes on the Mac with "brew install yq"
 
+
+          IT USES 99% THE SAME SYNTAX OF jq
+
+          the queries must be prepended by 'eval'
+
+          yq eval '........'
+
+          here some examples
+
+
+          cat file.yml | yq
+          yq -I 6               intdent by 6 spaces
+          yq -C                 colour on
+          yq -M                 colour off
+          yq -P                 pretty print
+
+          yq -P -I 6 eval '.resources[] | select(.name == "webhook-api")'

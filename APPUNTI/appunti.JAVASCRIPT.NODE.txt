@@ -246,7 +246,37 @@
                    or I can use
                               > npm ls
                  .  > npm -g ls    // to see the same by for globally installed modules
+                 .  global modules in Mac OS are in /usr/local/lib/node_modules  and not in home ~
 
+                    3 ways to know where is the "global" dir called 'prefix':
+
+                            > npm config get prefix
+                   1)         /usr/local
+
+
+                   2)       ❯ npm config get
+                            ; "builtin" config from /usr/local/lib/node_modules/npm/npmrc
+
+                            prefix = "/usr/local"
+
+                            ; node bin location = /usr/local/Cellar/node/20.2.0/bin/node
+                            ; node version = v20.2.0
+                            ; npm local prefix = /Users/sbasile/TEST/JS/cinema-tickets/cinema-tickets-javascript
+                            ; npm version = 9.6.6
+                            ; cwd = /Users/sbasile/TEST/JS/cinema-tickets/cinema-tickets-javascript
+                            ; HOME = /Users/sbasile
+                            ; Run `npm config ls -l` to show all defaults.
+
+
+                   3)       ❯ npm config ls -l | grep prefix <--------------------- this is the most verbose possible output. COOL
+
+                   node_modules will be "inside" that "prefix" dir
+                   ex. in Mac OS down 1 level: /usr/local/lib/node_modules
+                                                          ^^^
+                   4)  probably the best way is then
+                       > npm config ls -l | grep node_modules
+                         ; "builtin" config from /usr/local/lib/node_modules/npm/npmrc
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -------- UPDATE npm itself
 

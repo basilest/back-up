@@ -1,0 +1,27 @@
+
+
+
+             list all the files                fzf
+
+             apply a border                    fzf --border=rounded
+
+             apply colors                      fzf --color="bg:black,fg:yellow"
+
+             search in the history             history | fzf
+                                               fc -l 1 | fzf
+
+             preview                           fzf --preview 'less {}'
+                                               fzf --preview 'bat --color always {}'
+                                               fd | fzf --preview 'less {}'
+
+
+             select                            fzf -m                                      usually fzf returns the single selected line
+                                                                                           with -m I can 'mark' (with TAB) more lines so that
+                                                                                           on ENTER fzf will pass a multi line output
+
+             big outout                        cat ~/some-file | fzf                       for fuzzy-search in any big text info
+                                               ps -ef | fzf                                fzf is very useful
+
+             pass the selection                vi -o $(find -type f | fzf -m)
+             to some program
+

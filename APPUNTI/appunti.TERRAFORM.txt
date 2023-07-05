@@ -128,7 +128,7 @@
                                          # Block body
                                          <IDENTIFIER> = <EXPRESSION> # Argument
                                        }
-                                                        _________________________________________.
+                                                        _________________________________________
                                      example:          /                                         |
                                             provider "aws" {                                     |
              ~/.aws/credentials  ------->     profile    = "default"              # BLOCK 1      |
@@ -143,7 +143,7 @@
 
 
                                             The "name" is used to refer to this resource from elsewhere in the same Terraform module,
-                                            but has no significance outside of the module.
+                                            but has no meaning outside of the module.
                                             Remember a module is the set of .tf/tf.json files in a dir
 
 
@@ -152,6 +152,8 @@ terraform init                       the 1st command to run
                                        (telling also the version of each:
                                             ex:   provider.aws: version = "~> 2.22"
                                        )
+
+                                    note: it’s safe to run init multiple times (the command is idempotent).
 
 
 
@@ -170,6 +172,26 @@ terraform apply                     to apply changes   (I must type 'yes') so if
                                     the apply doesn't change
 
 terraform destroy
+
+
+❯ terraform graph                   shows the dependency in the DOT language description format.
+                                    digraph {
+                                            compound = "true"
+                                            newrank = "true"
+                                            subgraph "root" {
+                                                    "[root] aws_instance.example1 (expand)" [label = "aws_instance.example1", shape = "box"]
+                                                    "[root] aws_security_group.schiro45 (expand)" [label = "aws_security_group.schiro45", shape = "box"]
+                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"]" [label = "provider[\"registry.terraform.io/hashicorp/aws\"]", shape = "diamond"]
+                                                    "[root] aws_instance.example1 (expand)" -> "[root] aws_security_group.schiro45 (expand)"
+                                                    "[root] aws_security_group.schiro45 (expand)" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"]"
+                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)" -> "[root] aws_instance.example1 (expand)"
+                                                    "[root] root" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)"
+                                            }
+                                    }
+                                    I can copy paste this into something like: http://dreampuf.github.io/GraphvizOnline/
+                                    for visualisation
+
+
 
 
 PROVIDER "aws"
@@ -438,6 +460,15 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 
 -------------------------------------------------------------------
     4  Resource
+
+           Each 'provider' (i.e. aws)
+           has many possible 'resources' (i.e. ec2, s3, vpc, ...)
+           which I can use, and which are named as
+                    PROVIDER_XXX
+           ex
+                    aws_instance
+
+
                              resource "aws_instance" "ex" {      # note 'resource' is a keyword
                                 ami = "data.aws_ami.alx.id"
                                        ^^^^                     <----- note: I'm referencing/using a data source
@@ -724,27 +755,13 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
                       acl = each.value     <------- public_read / private
                  }          ^^^^^^^^^^
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
-    TERRAFORM STATE
--------------------------------------------------------------------
-    TERRAFORM STATE
--------------------------------------------------------------------
-    TERRAFORM STATE
 -------------------------------------------------------------------
