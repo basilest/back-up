@@ -2,7 +2,7 @@
 
 
          IAM   - (AWS) Identity and Access Management
-                    &
+                     &
          AWS STS - Security Token Service
 ______________________________________________
 
