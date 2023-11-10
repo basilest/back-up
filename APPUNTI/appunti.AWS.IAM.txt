@@ -2,6 +2,8 @@
 
 
          IAM   - (AWS) Identity and Access Management
+                     &
+         AWS STS - Security Token Service
 ______________________________________________
 
 
@@ -12,7 +14,27 @@ ______________________________________________
                         - is authenticatied   (log in)
                         - has authorisation   (has the rights on the resource)
 
+       o  F R E E     IAM & STS usage has no cost
 
+______________________________________________  WAYS TO USE
+
+       o  Console (Manually)
+
+       o  Cli
+
+       o  SDK of any supported language (Java, Python, ...)
+
+       o  API
+              ex.
+                https://iam.amazonaws.com/?Action=CreatePolicy
+                &PolicyDocument={"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"s3:ListAllMyBuckets",
+                "Resource":"arn:aws:s3:::*"},{"Effect":"Allow","Action":["s3:Get*","s3:List*"],"Resource":
+                ["arn:aws:s3:::EXAMPLE-BUCKET","arn:aws:s3:::EXAMPLE-BUCKET/*"]}]}
+                &PolicyName=S3-read-only-example-bucket
+                &Version=2010-05-08
+                &AUTHPARAMS
+
+______________________________________________
 the usual chain is:
 
 
@@ -42,15 +64,15 @@ the usual chain is:
 
 
 
-   o   IAM single user  (a user does not to be a person, it can be an application)
+   o   IAM single user  (a user does not need to be a person, it can be an application)
    o   IAM group  users   (all members of the group will have the same rights, the ones defined in that group)
-   o   rigths on the resources are fine grained, (I can decide WHO can access aresource
+   o   rigths on the resources are fine grained, (I can decide WHO can access a resource
                                                   I can decide WHAT (read/write/...) can be used of that resource)
        THESE RIGHST ARE CALLED IAM POLICIES
 
        defining a IAM-policy is defining who/what <----> resource
 
-   o   JSON is how the policies are defined.
+   o   JSON is th format of how the policies are defined.
 
    o   DENY is the default.  Any opened/granted right must be explicitly configured.
        (only exception is the root user, which we have seen should be never used)
@@ -78,7 +100,9 @@ the usual chain is:
                                 the code of the app or script between an init phase and the business part fo the app)
 
    o   Federating users.
-       If users are already authenticated via a corporate network, I can avoid to create IAM users for them.
+       It allows users with credentials with other providers (i.e. Facebook, Google, or a corporate private network)
+       to gain access to AWS resources.
+       I can avoid to create IAM users for them.
        Their identities can be federated into IAM, so that they have temp access/credentials.
 
        If the corporate network supports SAML 2.0 (Security Assertion Markup Language) it intercats via SSO (single sign in)
