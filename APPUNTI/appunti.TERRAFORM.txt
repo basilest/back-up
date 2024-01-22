@@ -21,7 +21,7 @@
            6 |      get                Download and install modules for the configuration
            7 |      graph              Create a visual graph of Terraform resources
            8 |      import             Import existing infrastructure into Terraform <==== very cool!!! It imports stuf in terraform STATE so that
-             |                                                                            it stop erroring that something exists
+             |                                                                            it stops erroring that something exists
            9 |      init               Initialize a Terraform working directory
           10 |      output             Read an output from a state file              <----- to dump state file
           11 |      plan               Generate and show an execution plan
