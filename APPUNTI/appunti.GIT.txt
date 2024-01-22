@@ -1428,12 +1428,25 @@ NOTATIONS:
   |
   |---------------------------------------------------------------
   |                                           - subtree is an alternative to submodules
-  |                                             and available from very old ver of Git.
+  |                                             and available from very old ver of Git (Git since May 2012 – v1.7.11 and above)
   |                                           - subtree does not add extra meta files (i.e. .gitmodule)
   |                                           - subtree does not require
   |
-  |  git subtree add  --prefix auto_ssh https://github.com/sbasile-ch/auto_ssh.git master --squash     (add that remote & that branch squashing the history as 1 single 'merge' commit)
+  |  git subtree add  --prefix     auto_ssh     https://github.com/sbasile-ch/auto_ssh.git   master --squash     (add that remote & that branch squashing the history as 1 single 'merge' commit)
+  |                                ^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ^^^^^
+  |                    it will create this dir          from this repo  ..... and ......     branch
+  |
+  |  git remote add -f auto-ssh-repo  https://github.com/sbasile-ch/auto_ssh.git                       (to add an alias 'auto-ssh-repo' for the remote: https://github.com/sbasile-ch/auto_ssh.git)
+  |                                                                                                    (so that all the commands (add, pull, push, ...) can be shortened: :w
+
+  |
+  |                                                                                                      git fetch auto-ssh-repo  master
+  |
   |  git subtree pull --prefix auto_ssh https://github.com/sbasile-ch/auto_ssh.git master --squash     (pull ....)
+  |  git subtree pull --prefix auto_ssh auto-ssh-repo                              master --squash     (pull ....)
+  |
+  |  git subtree push  --prefix=./auto_ssh   https://github.com/sbasile-ch/auto_ssh.git    master
+  |  git subtree push  --prefix=./auto_ssh   auto-ssh-repo                                 master
   |---------------------------------------------------------------
   |
   |                   _________________________________________

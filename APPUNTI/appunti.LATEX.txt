@@ -1,3 +1,32 @@
+   TEX       is a typesetting program by
+                       Donald Knuth,
+             originally designed for mathematical and scientific docs
+
+
+   LATEX     a more extensive macro set by
+                       Leslie Lamport
+
+   Today a LATEX doc uses a set of macros and packages developed by
+                       a multitude of others after Lamport’s work.
+
+
+
+
+Install on a Mac:    MacTeX    (MacTeX.pkg)
+                     https://www.tug.org/mactex/mactex-download.html
+                      (massive install package  5.2 GB in 2023
+                       which is the full version (recommended even for beginners)
+                       containing all the languages (Chinese ...)
+                       and the most used packages)
+
+
+                     Once installed (~ 10 min) the taken size is 8.5 GB
+
+
+
+
+
+
 SPACES                1 space = blanks | tabs
                       Several consecutive whitespace characters are treated as
                       1 “space".
@@ -69,6 +98,39 @@ Doc CLASSES OPTIONS    are separated by commas ,
                        openright, openany      chapters begin only on right pages or
                                                on the next available.
                                                not works with article as it does not know about chapters.
+
+ENVIRONMENTS           they are the parts within begin-end
+
+                                \begin{...}
+                                \end{...}
+                       they define the 'scope' where some settings apply
+
+                       RULE: the env 'document' must be the 1st & encapsulating all the others
+
+                                    \begin{document}
+                                      \begin{environment1}
+                                        \begin{environment2}
+                                        \end{environment2}
+                                      \end{environment1}
+                                    \end{document}
+
+
+PREAMBLE               It's the section OUT of any env,
+                       so before the \begin{document}
+                       It contains general settings (ex tile, author, ...)
+                       Ex:
+
+                       |    \documentclass{article}       |
+                       |    \title{My first document}     | P R E A M B L E
+                       |    \date{2013-09-01}             |
+                       |    \author{John Doe}             |
+
+                            \begin{document}
+                                \maketitle    <----- note: the command to create the tile is inside the
+                                                                  \begin{document}
+                                                           but the 'config values' ( \title( ..)
+                                                           are in the preamble
+
 
 PACKAGES               to enhance the capabilities of LateX
                        (ex. graphics, coloured text)

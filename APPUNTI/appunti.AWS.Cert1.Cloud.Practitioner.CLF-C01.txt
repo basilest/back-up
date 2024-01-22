@@ -192,7 +192,7 @@ Module 2: Compute in the Cloud
 
                                                      MESSAGING
                                                                               -  Thigtly coupled architecture: there is no bufffer between producer/consumer
-                                                                                                               they must work in sync. If the producre is busy/ broken, the consumer must wait
+                                                                                                               they must work in sync. If the producer is busy/ broken, the consumer must wait
                                                                                                                and cannot produce anymore. <---------   Single point of failure
                                                                               -  Loosely coupled architecture: SQS/SNS (Kafka)    SQS: Single Queue        Service
                                                                                                                                   SNS: Single Notification Service
@@ -217,7 +217,7 @@ Module 2: Compute in the Cloud
                                                                               -  contrary to EC2, serverless solutions mean that I cannot see/ access the underlyng infrastructure
                                                                               -  provisioning, scaling, high availability are taken care of
                                                                               -  Examples:
-                                                                                            . Lambdas: . a PutObject event is triggered ---> my λ is automatically spun up in a fully managed env (provisioned/ scaled/ high availabel)
+                                                                                            . Lambdas: . a PutObject event is triggered ---> my λ is automatically spun up in a fully managed env (provisioned/ scaled/ high available)
                                                                                                        .  n triggers ---> n λ
                                                                                                        .  usually for code which runs in < 15 min
 
@@ -321,9 +321,9 @@ Module 4: Networking
                                                                               The Gateways look only at the PERIMETER of my VPC.
 
                                                      (Network) Access Control List (ACL) - it's a virtual (stateless) FIREWALL in front of every SUBNET
-                                                                              ACLs perform stateless packet filtering (checking for both in/out 2 allow & denied lists:
-                                                                                         packet in:  check list allow and list deny
-                                                                                         packet out: check list allow and list deny
+                                                                              ACLs perform stateless packet filtering (checking for both in/out 2 list: "allow" & "deny"
+                                                                                         packet in:  check list "allow" and list "deny"
+                                                                                         packet out: check list "allow" and list "deny"
                                                                               )
                                                                               they remember nothing and check every packet.
                                                                                       . any AWS user(account) has a default ACL whose settings are to allow everything in/ out
@@ -522,7 +522,7 @@ Module 6: Security
 
                                                       User permissions and access
                                                                               - AWS Identity and Access Management (IAM)
-                                                                                     . AWS account root user:    Identity any user begins with, after creating an AWS account (mail address and password)
+                                                                                     . AWS account root user:    The Identity any user begins with, after creating an AWS account (mail address and password)
                                                                                                                  - root user is not for everyday tasks.  Instead, with that I create my first IAM user and assign it permissions to create other users.
                                                                                      . IAM users:                By default, when I create a new IAM user, it has NO permissions at all associated with it.
                                                                                                                  - I must grant the IAM user the necessary permissions (ex. create EC2 or S3)

@@ -37,6 +37,32 @@
                           3. open the browser at   http://localhost:8080
 
 
+------------------------------ nvm      (https://github.com/nvm-sh/nvm)
+    Node Version Manager
+
+    (like for perl or python) to run more version of node
+
+    install:
+             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+
+             it clones the nvm repository to ~/.nvm
+
+    use:
+             $ nvm use 16
+                                Now using node v16.9.1 (npm v7.21.1)
+             $ node -v
+                                v16.9.1
+             $ nvm use 14
+                                Now using node v14.18.0 (npm v6.14.15)
+             $ node -v
+                                v14.18.0
+             $ nvm install 12
+                                Now using node v12.22.6 (npm v6.14.5)
+             $ node -v
+                                v12.22.6
+  -------->  $ nvm use system              # to go back to the Mac's one
+
+
 ------------------------------ MODULES   (require / exports) old     vs     'import'  ECMAScript 6 (ES6)
 
     require()       it's the node keyword to specify which modules to import
@@ -278,6 +304,30 @@
                          ; "builtin" config from /usr/local/lib/node_modules/npm/npmrc
                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        -------- install --save   (OBSOLETE)
+
+    From npm 5.0.0, installed modules are added as a dependency by default, so the --save option is no longer needed.
+    The other save options still exist and are listed in the documentation for npm install.
+
+    Before version 5, NPM simply installed a package under node_modules by default.
+    When you were trying to install dependencies for your app/module, you would need to first install them,
+    and then add them (along with the appropriate version number) to the dependencies section of your package.json.
+
+    The --save option instructed NPM to include the package inside the dependencies section of your package.json automatically,
+    thus saving you an additional step.
+
+    In addition, there are the complementary options
+    --save-dev
+    --save-optional
+
+    which save the package under
+
+        devDependencies
+        optionalDependencies,
+
+    respectively. This is useful when installing development-only packages, like grunt or your testing library.
+
+
 -------- UPDATE npm itself
 
     npm install npm -g
@@ -365,7 +415,8 @@
          . npm istall   a            install module
          . npm unistall a            uninstall
          . npm init                  create module (package.json)
-         . npm update   a            update
+         . npm update   a            update        note: update is going to change the package-lock ONLY
+                                                         to have even package.json updated:    npm update a --save <---------------------
          . npm search   a            search package name in https://search.nodejs.org/
          . npm adduser               I can create my user on npm, providing my email address and a password
          . npm publish               I publish my module
@@ -741,3 +792,54 @@
                                 umask ([mask])                 Sets or reads the process's file umask
                                 uptime ()                      Number of seconds Node has been running.
                                 hrtime ()                      Returns the current high-resolution real time in a [seconds, nanoseconds] tuple Array.
+
+
+------------------------------ DEBUG
+        the
+            console.log(var_x)
+        doesn't show/expand  all nested fields in some complex variables.
+        to see them:
+
+               import util from 'util';
+
+               console.log ( util.inspect (var_x, { showHidden: true, depth: null } ));
+                             ^^^^^^^^^^^^         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
+node -e '......'
+node -p '......'
+node --stack-trace-limit=110 script.js
+node --watch    (in node 18 available but "experimental", to restart the server if a source code is modified)
+node --env-file (from node.20 replaces the need to have the dotenv lib to handle Env vars)
+
+
+2009
+Typescript (Microsoft)
+2015 -> ES6/ES2015 -> ECMAScript
+2016 -> ES7
+ES2023
+
+
+console.log(module)
+module.exports = { add, subtract }
+
+
+
+node inspect
+node --inspect
+node --inspect-brk
+console.table
+debugger (add breakpoint during execution)
+for typescript: prelaunch task
+
+
+jest / mocha / chai / vjest
+\
+
+
+1. node:assert
+2. tap
+3. chai / mocha     mocha -r ts-node/register 'src/**/*/*test.ts'
