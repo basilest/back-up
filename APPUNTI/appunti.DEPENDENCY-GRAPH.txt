@@ -1,0 +1,176 @@
+
+
+    BOM        Bill-Of-Materials                 ex to build a house,
+                                                 is the list of materials used
+
+    SBOM       Software-BOM                      details libraries & dependencies
+
+
+                       There are different formats
+                       but mainly these 2:
+
+                       - SPDX      used by GitHub          (for any repo I can export it (a json) from
+
+                                                                           Insights / Dependency graph
+
+                                                           I can also retrieve it via 'curl'
+                                                           ❯ curl -L \
+                                                                  -H "Accept: application/vnd.github+json" \
+                                                                  -H "Authorization: Bearer $MY_GITHUB_TOKEN" \
+                                                                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                                                                  https://api.github.com/repos/companieshouse/dissolution-web/dependency-graph/sbom
+
+
+                                                                  https:// api.github.com / repos /  OWNER / REPO / dependency-graph / sbom
+                                                                                                                    ^^^^^^^^^^^^^^^^   ^^^^
+                                   it's a json.
+                                         Example:
+
+                                           1   "sbom": {
+                                           2     "SPDXID": "SPDXRef-DOCUMENT",
+                                           3     "spdxVersion": "SPDX-2.3",
+                                           4     "creationInfo": {
+                                           5       "created": "2023-11-21T15:55:45Z",
+                                           6       "creators": [
+                                           7         "Tool: GitHub.com-Dependency-Graph"
+                                           8       ]
+                                           9     },
+                                          10     "name": "com.github.companieshouse/dissolution-web",
+                                          11     "dataLicense": "CC0-1.0",
+                                          12     "documentDescribes": [
+                                          13       "SPDXRef-com.github.companieshouse-dissolution-web"
+                                          14     ],
+                                          15     "documentNamespace": "https://github.com/companieshouse/dissolution-web/dependency_graph/sbom-efa59ecb15da673c",
+                                          16     "packages": [
+                                          17       {
+                                                      ..
+                                                      ..
+
+
+
+
+
+                         O W A S P
+                       - CycloneDX  widely adopted by SECURITY people (OWASP Open Worldwide Application Security Project)
+
+                                                           It has a command line util https://github.com/CycloneDX/cdxgen
+                                                                                                         ^^^^^^^^^ ^^^^^^
+                                                           > brew install cdxgen
+
+                                                           or also
+
+                                                           > npm install -g @cyclonedx/cdxgen     <---- this says this tool is written in Node  (requires Node.js >= 16)
+
+                                   -  cdxgen
+                                          o   ok, now that 'cdxgen' is installed I can produce  SBOM in 'CycloneDX' format (version 1.5)
+                                              ex. of usage (for a Node project)
+
+                                                         cdxgen -t node -o bom.json   <---- will produce a JSON (default)
+                                                         cdxgen -t node -o bom.xml    <---- will produce a XML
+                                                         cdxgen -t node               <---- I'll have a file 'bom.json'
+
+
+                                              for a Java project:  -t java
+
+                                              supported languages:  Java Node Go   +  C/C++ PHP Python Ruby Rust .Net Dart Haskell Elixir
+
+                                          o   --spec-version 1.4      to specify an output with that format instead of the currently latest 1.5 which
+                                                                      some softwares down the line (e.g. DependencyTrack) might not be able to understand
+
+                                          o   --required-only         to limit the output for production envs (not using the 'dev' dependencies
+                                                                      used when working locally)
+
+                                          o   --no-babel              to limit further the dependencies for Node.js projects
+                                                                      so in the end, for production-env reports of  Node projects:
+
+                                                                            --no-babel  --required-only
+
+                                          o   --server                to run it as a server (it listens to port " 9 0 9 0 "
+                                                                      on localhost:  http://127.0.0.1
+
+                                                                      I can specify different hosts and port:
+                                                                               --server-host
+                                                                               --server-port
+
+                                                                     curl "http://127.0.0.1:9090/health"      I can check the server's health
+                                                                     curl "http://127.0.0.1:9090/sbom         I can pass the repo
+                                                                                                                ex. I pass a LOCAL repo
+                                                                                                                  curl "http://127.0.0.1:9090/sbom?path=/Volumes/Work/sandbox/vulnerable-aws-koa-app&multiProject=true&type=js"
+                                                                                                                                                   ^^^^^                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                                                                                ex. I pass a GIT repo
+                                                                                                                  curl "http://127.0.0.1:9090/sbom?url=https://github.com/HooliCorp/vulnerable-aws-koa-app.git&multiProject=true&type=js"
+                                                                                                                                                   ^^^^^                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                                                                                              The above INLINE curls can be also explicit POST
+
+                                                                                                              curl -H "Content-Type: application/json" \
+                                                                                                                   http://localhost:9090/sbom -XPOST \
+                                                                                                                   -d $'{"url": "https://github.com/HooliCorp/vulnerable-aws-koa-app.git", "type": "nodejs", "multiProject": "true"}'
+
+
+                                   - cdx-verify   cdxi      are both also installed together with cdxgen
+
+                                                           . cdx-verify     this verifies an SBOM which was signed with private/public keys
+                                                           . cdxi           this is a REPL env which I can start to operate interactively
+                                                                            I can then create / modify / print / sort / .... SBOM with the commands of this REPL
+                                                                            I can see all the commands with
+                                                                                                         .help
+
+                                                                            The history of all the REPL commands is saved in:
+                                                                                   $HOME/.config/.cdxgen
+
+                                                                ❯ cdxi
+
+                                                                 ██████╗██████╗ ██╗  ██╗
+                                                                ██╔════╝██╔══██╗╚██╗██╔╝
+                                                                ██║     ██║  ██║ ╚███╔╝
+                                                                ██║     ██║  ██║ ██╔██╗
+                                                                ╚██████╗██████╔╝██╔╝ ██╗
+                                                                 ╚═════╝╚═════╝ ╚═╝  ╚═╝
+
+                                                                💭 Use .create <path> to create an SBOM for the given path.
+                                                                💭 Use .import <json> to import an existing SBOM.
+                                                                💭 Type .exit or press ctrl+d to close.
+                                                                cdx ↝ .help
+                                                                .appcompat_shims                    query the appcompat_shims category from the OS info
+                                                                .apt_sources                        query the apt_sources category from the OS info
+                                                                ..
+                                                                ..
+
+
+
+
+
+ https://dependency-track.rand.aws.chdev.org/dashboard
+      admin                 sbasile@companieshouse.gov.uk
+      kd16!SQzdrg0X         Password123
+
+API-KEY: odt_fS5fPm7Lwv9000kUDbAgcV12mG2nKAUe
+
+       Dependency Track:         It collects CycloneDX SBOM files
+                                 It listen on the endpoint
+                                         ..../api/v1/bom
+
+                                 ex:
+                                     curl  -X "POST" "https://dependency-track.rand.aws.chdev.org/api/v1/bom" \
+                                             -H 'Content-Type: application/json' \
+                                             -H 'X-API-Key: ....' \
+                                             -F "projectName=node" \
+                                             -F "bom=@bom.json"
+
+
+
+       specs:        the specs can be seen on this endpoint:
+
+                     .../api/swagger.json
+
+                     ex:
+                     https://dependency-track.rand.aws.chdev.org/api/swagger.json
+                                                                 ^^^^^^^^^^^^^^^^
+
+       tags:         to see the tags of a project 'java' version '21'
+                     I can do:
+
+                     curl -q -X GET https://.../api/v1/project \
+                             -H 'Content-Type: application/json' \
+                             -H 'X-API-Key: ....' | jq '.[] | select((.name=="java") and  (.version=="21") and (.tags != null)) | .tags[].name'

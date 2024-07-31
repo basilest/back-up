@@ -1,0 +1,92 @@
+
+ Even if I only need the redis-cli
+ I need to install all redis, which anyhow is just a few files:
+
+    brew install  redis
+
+ Here the files:
+    brew ls  redis
+
+            /usr/local/Cellar/redis/7.2.4/INSTALL_RECEIPT.json
+            /usr/local/Cellar/redis/7.2.4/bin/redis-check-rdb
+            /usr/local/Cellar/redis/7.2.4/bin/redis-server
+            /usr/local/Cellar/redis/7.2.4/bin/redis-cli   <---------------------- CLI
+            /usr/local/Cellar/redis/7.2.4/bin/redis-check-aof
+            /usr/local/Cellar/redis/7.2.4/bin/redis-sentinel
+            /usr/local/Cellar/redis/7.2.4/bin/redis-benchmark
+            /usr/local/Cellar/redis/7.2.4/.brew/redis.rb
+            /usr/local/Cellar/redis/7.2.4/README.md
+            /usr/local/Cellar/redis/7.2.4/homebrew.mxcl.redis.plist
+            /usr/local/Cellar/redis/7.2.4/COPYING
+            /usr/local/Cellar/redis/7.2.4/.bottle/etc/redis-sentinel.conf
+            /usr/local/Cellar/redis/7.2.4/.bottle/etc/redis.conf
+            /usr/local/Cellar/redis/7.2.4/homebrew.redis.service
+
+
+ redis-cli:
+
+ most common commands:
+
+ 1  SET key value: Set the string value of a key.
+ 2  GET key: Get the value of a key.
+ 3  DEL key: Delete a key.
+ 4  EXISTS key: Check if a key exists.
+ 5  KEYS pattern: Find all keys matching a specified pattern.
+ 6  FLUSHALL: Delete all keys from all databases.
+ 7  DBSIZE: Get the number of keys in the current database.
+ 8  TTL key: Get the time to live for a key.
+ 9  EXPIRE key seconds: Set a key's time to live in seconds.
+10  HSET key field value: Set the string value of a hash field.
+11  HGET key field: Get the value of a hash field.
+12  HMSET key field1 value1 field2 value2 ...: Set multiple hash fields to multiple values.
+13  HGETALL key: Get all fields and values of a hash.
+14  LPUSH key value1 [value2 ...]: Insert one or multiple values at the beginning of a list.
+15  RPUSH key value1 [value2 ...]: Insert one or multiple values at the end of a list.
+16  LPOP key: Remove and get the first element in a list.
+17  RPOP key: Remove and get the last element in a list.
+18  LRANGE key start stop: Get a range of elements from a list.
+19  SADD key member1 [member2 ...]: Add one or more members to a set.
+20  SMEMBERS key: Get all members of a set.
+21  SISMEMBER key member: Check if a member exists in a set.
+22  SREM key member1 [member2 ...]: Remove one or more members from a set.
+23  ZADD key score1 member1 [score2 member2 ...]: Add one or more members to a sorted set, or update its score if it already exists.
+24  ZRANGE key start stop [WITHSCORES]: Return a range of members in a sorted set, by index.
+25  ZSCORE key member: Get the score associated with a member in a sorted set.
+
+
+
+------------------------------ GET KEYS FROM OUR EC2
+
+   ssh -i ~/.ssh/chs-aard1.pem ec2-user@10.75.48.97
+
+   [ec2-user@redis1-aard1 ~]$ redis-cli
+
+   127.0.0.1:6379> GET L2CtIv6mtItE+Rse33D4gwMKjytT
+
+          "ibEuY2xpZW50LnNp......Njg3YzQ="
+   127.0.0.1:6379>
+
+
+   base64 --decode <<< 'ibEuY2xpZW50LnNp......Njg3YzQ='
+
+          .client.signature(063a95fa0f70bfc88cbaa09d7eefaf74115af3fc.idL2CtIv6mtItE+Rse33D4gwMKjytTlast_access^signin_infocompany_number01410230signed_inuser_profileemailjbrewer@companieshouse.gov.ukforenameid67ZeMsvAEgkBWs7tNKacdrKlJsWlocaleGB_enscope2https://api.companieshouse.gov.uk/company/01410230surnameaccess_tokenaccess_tokenV1JW1Eiw5nEIoXwbBkuDncjBucxYYVC-LDdsFC8SwfO2HN6xq3SUS1bLbsUCHBpslc6a0Fotf7-jfeeS-H03pRgexpires_inrefresh_tokenVMCzLfXYV-i1rFZ7PI81mhY7U5XsIB4vzJaiEUNhfdSEFA8YzkhODgLeaairKCpUfQYFbCYhtg-d2ydJy4oh9-wtoken_typeBeareradmin_permissions0.oauth2_nonceexpires^.hijackedpstall.zxs_key@f3e78938dfb763a18836c31fc7c53d1ddf2b9e0fb0fbd518e1e072c3f26687c4%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

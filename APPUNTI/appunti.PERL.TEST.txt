@@ -48,6 +48,17 @@
     //      another way to  run the xxx.t is through the command 'prove'
     //                   prove -I.... xxx.t             prove produces an output more short, parsing the TAP
     //
+    //           run in 2024 CH:
+    //               with no more vagrant a way is to run it inside a perl docker container.
+    //               Ex.:
+    //                   > docker images | grep -i account
+    //                      169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/account.ch.gov.uk
+    //
+    //                   > docker container run -it --rm --name account1 169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/account.ch.gov.uk bash
+    //                   > vi mytest.t    # a copy/paste of the test I want
+    //                   > PERL5LIB=local/lib/perl5 plenv exec perl -I ./local/lib/perl5 mytest.t
+    //
+    //
     ///////////////////////////////////////////////////////////
 
 

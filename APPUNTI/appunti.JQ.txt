@@ -10,9 +10,17 @@
                               jq -r ....   secure-mongo-db1.live.aws.internal
 
     jq '.[] | select(.location=="Stockholm")'  filter only entries with a field equal a value
+        .[] | select((.processedBarsVolume <= 5) and .processedBars > 0)       <-------------   'and' 'or'  (lowercase) are allowed
 
 
     jq '.[] | .login, .id'   to select only the fields I want (here 2 fields "login" "id")
+    jq '.[] | {login,  id}'  alternative notation (note that I omit the '.' on the fields)
+
 
 
     -c                       if I want the fields to be printed in 1 LINE instead of on each separate line
+
+    @uri                     jq -Rr @uri <<< "${QUERY_STRING}"
+                             jq has a good 'uri' filter.
+                             It can be used, for example,  in shell scripts to 'url-encode' some strings
+                             before passing them to a curl

@@ -2611,7 +2611,40 @@ if - is in place of a input file, means stdin
 
 
 --------------------------------------------------- /
---------------------------------------------------- /
+--------------------------------------------------- / download youtube video
+
+both the original(old)
+         youtube-dl
+and its fork
+         yt-dlp
+are based on Python
+anyhow while youtube-dl still supports Python 2,
+yt-dlp has more features but supports only Python 3
+
+ANYHOW they both usually download only video or audio
+and they use ffmpeg top mix them.
+So if I want a video + audio and that is not listed (
+     among the available audio/video formats with the -F:
+
+          youtube-dl  -F https://www.youtube.com/watch\?v\=Cs5vUfddkT8
+)
+If I want a particular format xx,
+the syntax is -f xx.
+To merge video format vv and audio format aa, use +,
+like -f vv+aa.
+To get both formats without merging, use ,, like -f vv,aa.
+
+NOTE: The first format must contain the video, "-f vv+aa"
+ex:
+            youtube-dl -f 299+140  https://www.youtube.com/watch\?v\=Cs5vUfddkT8
+            [youtube] Cs5vUfddkT8: Downloading webpage
+            [download] Destination: The Beatles - Birthday-Cs5vUfddkT8.f299.mp4   <------------ here video
+            [download] 100% of 52.85MiB in 13:49
+            [download] Destination: The Beatles - Birthday-Cs5vUfddkT8.f140.m4a   <------------ here audio
+            [download] 100% of 2.54MiB in 00:39
+            [ffmpeg] Merging formats into "The Beatles - Birthday-Cs5vUfddkT8.mp4" <------------- here ffmpeg/ merge
+            Deleting original file The Beatles - Birthday-Cs5vUfddkT8.f299.mp4 (pass -k to keep)
+            Deleting original file The Beatles - Birthday-Cs5vUfddkT8.f140.m4a (pass -k to keep)
 --------------------------------------------------- /tmp
     1. Capture video with Recordmydesktop (ogv format)
     2. convet ogv to gif (Use mplayer and imagemagik)
@@ -2687,6 +2720,21 @@ pdftk    input1.pdf input2.pdf input3.pdf cat output output.pdf
 pdfjam   input1.pdf input2.pdf input3.pdf        -o  output.pdf
 pdfunite input1.pdf input2.pdf input3.pdf            output.pdf
 
+---------------------------------------------------  exiftool
+   to see (and edit) the metadata of a PDF file
+
+   see:    exiftool  file.pdf
+
+   edit:    exiftool -Author=                                       #  remove Author
+                     -Title=                                        #     "   Title
+                     -ModifyDate=                                   #     "   Mode date
+                     -Creator="Vault Rendering Engine"              #  set
+                     -Producer="Rendering Engine"                   #  set
+                     -CreateDate="2021:09:27 17:53:55+01:00"        #  set
+                     -xmp:XMPToolkit= file.pdf;                     #  remove exiftool custom field (so there is no left over)
+
+            touch -mt 202110030911.04 file.pdf   <---- this set the modif. date of the file
+                                                       It's not a PDF metadata, but should be kept consistent
 
 --------------------------------------------------- xinput  &  xev
 

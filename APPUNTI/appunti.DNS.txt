@@ -212,6 +212,8 @@ fix:
 
 Each DOMAIN NAME has a DNS ZONE that links it to DNS servers
 
+                                   xxxxxxx.yyyyyyy.com        <------ called "DOMAIN NAME"     (improperly called hostname    [ actually the 'hosts' can be more than 1 for 1 DOMAIN NAME
+                                                                                                               or URL         [a URL is longer: a DOMAIN NAME + other parts (endpoints, params, ...)]
 DNS lookup or
 DNS resolution process        NAME -----> IP
 
@@ -223,7 +225,7 @@ DNS resolution process        NAME -----> IP
                                                                                  browser cache
                                                                                  internet service provider (ISP) cache
 
-                                     . N: send a DNS request to a network of 4 DNS servers:
+                                     . N: send a "DNS request" to a network of 4 DNS servers:
 
                                       |   1. DNS resolver or
                 so the only CACHE     |      recursive resolver   : it's the 1st server to be contacted.

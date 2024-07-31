@@ -46,7 +46,6 @@ HTTP   Hypertext Transfer Protocol
 
                                                                   . HTTP/1.1 adds "HTTP PIPELINING"  allowing clients to send multiple requests before
                                                                              waiting for each response.
-                                                                             (persistent) connections to be streamed rather than buffered.
 
                                                                   . HTTP/1.1 adds "BYTE SERVING", where a server transmits just the portion of a resource
                                                                              explicitly requested by a client.
@@ -89,7 +88,7 @@ HTTP   Hypertext Transfer Protocol
                                         . basic  access authentication
                                         . digest access authentication )
 
-           . identies RESOURCES with URLs  (Uniform Resource Locators)
+           . identifies RESOURCES with URLs  (Uniform Resource Locators)
 
 
             userinfo          host        port
@@ -107,7 +106,7 @@ MESSAGE FORMATS
          both requests
                        Client ---------> Server
 
-         than answers
+         and answers
                        Client <--------- Server
 
    have a general scruture like the following where Request and Answers can slightly change.
@@ -167,7 +166,7 @@ HTTP-header           Client and Server communicate via TCP messages
                                                                                  so the client can automatically retrieve it.
                                                                              500 Server Error (most common cause: server script syntax err)
 
-                NOTE:  A REQUEST message with ONLY this 1st line in accepted by the servers
+                NOTE:  A REQUEST message with ONLY this 1st line is accepted by the servers
                        to be backward compatible with versions < HTTP/1.0
 
                 REQUEST METHODS:
@@ -185,7 +184,7 @@ HTTP-header           Client and Server communicate via TCP messages
                             DELETE   delete that RESOURCE
 
                             OPTIONS  the server will answer with the Methods it supports for the sent URL.
-                                     (useful when I only need the metainfo in the header.
+                                     (useful when I only need the metainfo in the header)
 
                             CONNECT  .
 
@@ -482,6 +481,112 @@ HTTP is defined by RFCs
 7807    Problem Details for HTTP APIs.                                                                                     March     2016.(Status: PROPOSED STANDARD)
 7838    HTTP Alternative Services.                                                                                         April     2016.(Status: PROPOSED STANDARD)
 7840    A Routing Request Extension for the HTTP-Enabled Location Delivery (HELD) Protocol.                                May       2016.(Updates RFC5985, RFC6881) (Status: PROPOSED STANDARD)
+
+______________________________________
+COOKIES / LOCAL STORAGE / SESSION STORAGE
+
+
+                                   Cookies              Local Storage      Session Storage
+       ___________________________________________________________________________________
+
+        Capacity                    4 KB                 10 MB              5 MB
+
+        Browsers                    HTML4 / 5            HTML 5             HTML 5
+
+        Accessible from             Any window           Any window         SAME TAB <-------- only
+
+        Expires                     Manually set         Never              On TAB close <----
+
+        Storage Location            Browser & server     Browser ONLY       Browser ONLY
+
+        Sent with requests          YES                  NO                 NO
+
+
+
+COOKIES:
+           . ALL cookies of a domain are 1 single string
+           . The string is a ';'-separated list of key=val  (ex  cookie1=val1; cookie2=val2; ....; cookieN=valN'
+           . The cookies (that string) are sent for every REQUEST (-----> so if the size of the cookies is big every REQUEST can take longer)
+                                                    ^^^^^
+           . The cookie are set in the first place on the server and sent to the browser in the "Set-Cookie" header
+           . The browser stores the cookie and will send them back with every request.
+           . The cookies (that 1 string) is in JS:
+                              "document.cookie"
+
+                              A N Y H O W
+
+                              that string is bit special:
+                               - a READ (e.g. console.log(document.cookie)  or let s = document.cookie)
+                                 gives 1 single string. I can split by ';' to have the array of cookies:
+
+                                     document.cookie.split(';')
+
+                               - a WRITE can accept 1 cookie at a time and it doesn't overwrite the previous value but KEEPS ADDING
+                                 ex.
+                                     document.cookie = "aaa=val1"   <--- this sets the 1st cookie "aaa"
+                                     document.cookie = "bbb=val2"   <--- this doesn't overwrite "aaa", so actually console.log(document.cookie) will give "aaa=val1; bbb=val2"
+                                     document.cookie = "ccc=val3"   <--- console.log(document.cookie) will give "aaa=val1; bbb=val2; ccc=val3"
+           . when setting a cookie I can specify these attributes (which are the columns I see in the browser dev tools)
+                - path= absolute path. current path by default.         by default '/' root, so if I'm interacting with A.com
+                                                                        and the path is '/' then at every path
+                                                                                     A.com/video
+                                                                                     A.com/xx/yy
+                                                                                     ..
+                                                                        the cookie is sent
+                                                                        If instead I specify a path  ex  /video
+                                                                        then the cookie is sent only when I sent request to that path (or below /video/aa/bb/..)
+                - domain=sub.example.com current domain by default.     If I set a domain (example.com)
+                                                                        the cookie will be sent only when REQUESTING to that domain (and all its subdomains
+                                                                        ex. sub1.example.com)
+                                                                        but it will not be sent to other domains (ex. example.net)
+                - max-age= seconds  ex 60*60*24*30  30 days             The cookie will expire after this time from now
+                - expires= UTC date. end of current session by default  The cookie will expire at that time
+                - secure=true                                           only sent if we are on HTTPS
+                - same-site=Strict | Lax | None                         The cookie will not be sent (Strict) to a different domain.
+                                                                        Ex. If I was interacting with A.com (remmber the browser will sent the cookies
+                                                                            at every REQUEST to A.com) and there is a redirection to B.com (other site)
+                                                                            then the cookie will not be sent
+
+                                                                        SameSite=None: This value allows the cookie to be sent in cross-origin requests,
+                                                                                       such as when loading resources from a different domain in a web page.
+                                                                                       However, it requires that the cookie also be marked as Secure, (HTTPS only).
+                                                                                       This is typically used for cookies that are needed for authentication or
+                                                                                       session management across multiple sites.
+
+                                                                        SameSite=Strict: This value prevents the cookie from being sent in cross-origin requests,
+                                                                                       ensuring that it is only sent when the request originates from the same site
+                                                                                       as the one that set the cookie.
+
+                                                                        SameSite=Lax: This value is similar to Strict, but it allows some exceptions for certain types of
+                                                                                      cross-origin requests, such as when navigating to a link from an external site.
+                                                                                      It provides a balance between security and usability.
+                ex of setting
+                document.cookie = "aaa}=val1;path=/;max-age=3600;"
+                so when I write the cookie in document.cookie I ';'-separate the desired attributes
+
+                                var expirationDate = new Date();
+                                expirationDate.setDate(expirationDate.getDate() + 7);
+                                var expiresUTCString = expirationDate.toUTCString();
+                                document.cookie = "aaa=val; expires=" + expiresUTCString;
+
+                NOTE: a cookie is not just the key=value but it's actually like a JSON, an object with the above attributes
+                      so these 2 settings:
+                         document.cookie = "xxx=val5;path=/"
+                         document.cookie = "xxx=val5;path=/Users"
+
+                      create actually 2 distinct cookie both named "xxx" and with value "val5" but with
+                      a differnt path, so they are distinct
+
+           . DELETE a cookie  (I set its "expires" attribute in the past. The browser doesn't send expired cookies and it will remove them when the session expires)
+             ex
+                        var pastExpirationDate = new Date(0).toUTCString();
+                        document.cookie = "username=; expires=" + pastExpirationDate;
+
+                      NOTE:
+                         as I can have cookies with the same name, to delete a cookie exactly specify
+                         its attributes (ex. path)
+
+
 
 ______________________________________
 Revese HTTP Proxy  & Load Balancer    (Pound a free open source, not using hard disk)

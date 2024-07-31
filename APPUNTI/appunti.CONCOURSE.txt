@@ -677,6 +677,30 @@ Images are pulled from docker hub by default
                                         ip-10-50-17-250  173         linux     none  none  running  2.2      201d
 
 -----------------------
+'docker-image' or 'registry-image'
+                  ^^^^^^^^^^^^^^^^ <----- preferred for these reasons:
+
+            on the github page of registry-image:
+
+                This resource is intended as a replacement for the Docker Image resource.
+
+                    This resource is implemented in pure Go and does not use the Docker daemon or CLI.
+                    This makes it safer (no need for privileged: true), more efficient, and less error-prone
+                    (now that we're using Go APIs and not parsing docker CLI output).
+
+                    This resource has stronger test coverage.
+
+                    This resource does not and will never support building - only registry image pushing/pulling.
+                    Building should instead be done with something like the oci-build task
+                    (or anything that can produce OCI image tarballs).
+
+                    A goal of this resource is to stay as focused and simple as possible.
+                    The Docker Image resource grew way too large and complicated.
+                    There are simply too many ways to build and publish Docker images.
+                    It will be easier to support many smaller resources + tasks rather than one huge interface.
+
+
+-----------------------
 
 
 
@@ -910,7 +934,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
   18   │         args: ["Hello world!"]
 ───────┴──────────────────────────────────────────────────────────────────────────────────
 
-           each step runs in 1 container (job with 5 steps --> 5 containers)
+           each step(task) runs in 1 container (job with 5 steps --> 5 containers)
 
            Concourse containers are Linux (busybox images)
 
@@ -968,7 +992,7 @@ To un-pause it:              ./unpause-pipeline -t <concourse target>    -p <nam
 
     ________________________________________________________  INPUTS / OUTPUTS
 
-         In/out are directories (called artifacts)  that get passed between steps (with their content)
+         In/out are directories (called artifacts)  that get passed between steps(tasks) (with their content)
 
 
                     --- a/hello-world.yml

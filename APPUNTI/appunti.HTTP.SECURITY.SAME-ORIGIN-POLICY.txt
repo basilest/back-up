@@ -1,0 +1,43 @@
+Origins are determined by the combination of
+    . protocol (HTTP or HTTPS),
+    . domain   (ex example.com)
+    . port number    (if missing, then  80 is assumed for HTTP and 443 for HTTPS)
+
+
+If any of these three elements is different between two resources,
+they are considered to have different origins, and the same-origin policy applies.
+
+
+web browsers inhibt a script loaded from one origin
+
+    https://example.com
+
+to access resources from
+
+    https://anotherdomain.com
+
+
+
+
+
+CORS (Cross-Origin Resource Sharing) headers are set on the server of the resource being accessed to allow such interaction.
+
+
+
+
+
+Ex
+    a resource from
+    origin
+            https://example.com     (which means   https://example.com:443 )
+    cannot access for example
+            https://example.com:81
+
+
+
+The "same-origin policy" is then implemented in the browsers and cannot be relaxed via settings (ex Firefox)
+The only way to play with it, is via CORS.
+
+It's a very old feature, so even old browsers support it.
+Old browsers might not have support for CORS, so for old browsers the
+"same-origin policy" is even more strict and cannot be relaxed

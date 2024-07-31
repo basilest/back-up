@@ -528,8 +528,8 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
 
                      1   pip uninstall virtualenvwrapper
                      2   pip uninstall virtualenv
-                     3.  pip install virtualenv
-                     4.  pip install virtualenvwrapper
+                     3.  pip install virtualenv    # since a Mac/OS update (2024.05.10)they stopped working. It's now better to install them via brew      brew install virtualenv
+                     4.  pip install virtualenvwrapper        # brew install virtualenvwrapper
 
                          this will install a shell script (virtualenvwrapper.sh) somewhere
                          (on the Mac in 1 of these possible places:
