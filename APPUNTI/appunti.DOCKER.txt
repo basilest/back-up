@@ -1306,6 +1306,11 @@ DOCKER FILE:
 
                             ex.
                                    FROM alpine
+                          . "hadolint" is a good tool to validate a Dockerfile
+                                    brew install hadolint           # https://github.com/hadolint/hadolint
+
+                                    hadolint Dockerfile
+                                    hadolint --config /path/to/config.yaml Dockerfile   # the YAML file with the desired config (ex. to skip some errors)
 
        KEYWORDS
                      FROM  alpine                      the image to start from
@@ -1546,6 +1551,9 @@ DOCKER FILE:
     ------------------------
     ENV
                        It allows to define vars to be used throughout the Dockerfile, like in a shell script.
+                       Also, these vars are saved in the IMAGE. This means that they will be availbe in any container
+                       running that image (ex. in the container bash/sh I have them available)
+
                                 FROM busybox
                                 ENV FOO=/bar
                                 WORKDIR ${FOO}   # WORKDIR /bar
@@ -1605,7 +1613,10 @@ DOCKER FILE:
                                     - it resets ANY previous instructions/vars/args/....
 
     ------------------------
-    ARG                       They are like ENV, vars which can be used, and whose value can be overridden via command line (with --build-arg <varname>=<value>)
+    ARG                       They are used to add variables/flexibility to a Dockerfile.
+                              They are similar to ENV vars, but the difference is that ENV vars persist in the final IMAGE
+                              while ARG values live only during the build phase.
+                              Their values can be overridden via command line (with --build-arg <varname>=<value>)
 
                                            FROM busybox
                                             ARG user1

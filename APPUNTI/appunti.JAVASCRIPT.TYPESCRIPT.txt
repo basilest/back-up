@@ -1,0 +1,512 @@
+
+
+____________________________________ No Install
+
+
+            https://typescriptlang.org        # PLAYGROUND
+
+
+____________________________________ Install
+
+
+            1. I need node
+            2. I need npm & npx
+
+
+____________________________________ transpilr
+            typescript (*.ts files)
+            is transpiled into Javascript code
+            (*.js)
+
+            I can do the 2 steps separately:
+
+                1/2)    npx tsc          // compile xxx.ts ---> xxx.js
+                2/2)    node xxx.js      // run as usual js code with node directly      (this happens in production usually, as I run compiled code)
+
+            Or I can compile & run in 1 shot (useful when developing)
+
+                1/1)   npx ts-node xxx.ts              npx:       executes binary from npm package
+                                                       ts-node:   the binary utility that compiles & runs
+                                                                  (it skips the need of the separate build phase)
+
+            So usually to develop with typescript
+            I need:
+                        `typescript`   installed  locally or globally
+                        `ts-node`      installed  locally or globally
+                         (+ tsonfig.json)
+
+
+
+____________________________________ Compile a file f.ts
+
+
+            1. > npx --package typescript tsc   --outDir dist  f.ts
+                                          ^^^
+                                           type-script-compiler
+
+
+
+
+            to see all the options
+            > npx --package typescript tsc --help
+
+                                npm WARN exec The following package was not found and will be installed: typescript@5.1.6
+                                tsc: The TypeScript Compiler - Version 5.1.6
+
+                                COMMON COMMANDS
+
+                                  tsc
+                                  Compiles the current project (tsconfig.json in the working directory.)
+
+                                  tsc app.ts util.ts
+                                  Ignoring tsconfig.json, compiles the specified files with default compiler options.
+
+                                  tsc -b
+                                  Build a composite project in the working directory.
+
+                                  tsc --init
+                                  Creates a tsconfig.json with the recommended settings in the working directory.
+
+                                  tsc -p ./path/to/tsconfig.json
+                                  Compiles the TypeScript project located at the specified path.
+
+                                  tsc --help --all
+                                  An expanded version of this information, showing all possible compiler options
+
+                                  tsc --noEmit
+                                  tsc --target esnext
+                                  Compiles the current project, with additional settings.
+
+                                COMMAND LINE FLAGS
+
+                                --help, -h
+                                Print this message.
+
+                                --watch, -w
+                                Watch input files.
+
+                                --all
+                                Show all compiler options.
+
+                                --version, -v
+                                Print the compiler's version.
+
+                                --init
+                                Initializes a TypeScript project and creates a tsconfig.json file.
+
+                                --project, -p
+                                Compile the project given the path to its configuration file, or to a folder with a 'tsconfig.json'.
+
+                                --build, -b
+                                Build one or more projects and their dependencies, if out of date
+
+                                --showConfig
+                                Print the final configuration instead of building.
+
+                                COMMON COMPILER OPTIONS
+
+                                --pretty
+                                Enable color and formatting in TypeScript's output to make compiler errors easier to read.
+                                type: boolean
+                                default: true
+
+                                --declaration, -d
+                                Generate .d.ts files from TypeScript and JavaScript files in your project.
+                                type: boolean
+                                default: `false`, unless `composite` is set
+
+                                --declarationMap
+                                Create sourcemaps for d.ts files.
+                                type: boolean
+                                default: false
+
+                                --emitDeclarationOnly
+                                Only output d.ts files and not JavaScript files.
+                                type: boolean
+                                default: false
+
+          ---------------->     --sourceMap
+                                Create source map files for emitted JavaScript files.
+                                type: boolean
+                                default: false
+
+                                --target, -t
+                                Set the JavaScript language version for emitted JavaScript and include compatible library declarations.
+                                one of: es3, es5, es6/es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext
+                                default: es5
+
+                                --module, -m
+                                Specify what module code is generated.
+                                one of: none, commonjs, amd, umd, system, es6/es2015, es2020, es2022, esnext, node16, nodenext
+                                default: undefined
+
+                                --lib
+                                Specify a set of bundled library declaration files that describe the target runtime environment.
+                                one or more: es5, es6/es2015, es7/es2016, es2017, es2018, es2019, es2020, es2021, es2022, es2023, esnext, dom, dom.iterable, webworker, webworker.importscripts, webworker.iterable, scripthost, es2015.core, es2015.collection, es2015.generator, es2015.iterable, es2015.promise, es2015.proxy, es2015.reflect, es2015.symbol, es2015.symbol.wellknown, es2016.array.include, es2017.object, es2017.sharedmemory, es2017.string, es2017.intl, es2017.typedarrays, es2018.asyncgenerator, es2018.asynciterable/esnext.asynciterable, es2018.intl, es2018.promise, es2018.regexp, es2019.array, es2019.object, es2019.string, es2019.symbol/esnext.symbol, es2019.intl, es2020.bigint/esnext.bigint, es2020.date, es2020.promise, es2020.sharedmemory, es2020.string, es2020.symbol.wellknown, es2020.intl, es2020.number, es2021.promise/esnext.promise, es2021.string, es2021.weakref/esnext.weakref, es2021.intl, es2022.array, es2022.error, es2022.intl, es2022.object, es2022.sharedmemory, es2022.string/esnext.string, es2022.regexp, es2023.array/esnext.array, esnext.intl, decorators, decorators.legacy
+                                default: undefined
+
+                                --allowJs
+                                Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files.
+                                type: boolean
+                                default: false
+
+                                --checkJs
+                                Enable error reporting in type-checked JavaScript files.
+                                type: boolean
+                                default: false
+
+                                --jsx
+                                Specify what JSX code is generated.
+                                one of: preserve, react, react-native, react-jsx, react-jsxdev
+                                default: undefined
+
+                                --outFile
+                                Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output.
+
+          ---------------->     --outDir
+                                Specify an output folder for all emitted files.
+
+                                --removeComments
+                                Disable emitting comments.
+                                type: boolean
+                                default: false
+
+                                --noEmit
+                                Disable emitting files from a compilation.
+                                type: boolean
+                                default: false
+
+                                --strict
+                                Enable all strict type-checking options.
+                                type: boolean
+                                default: false
+
+                                --types
+                                Specify type package names to be included without being referenced in a source file.
+
+                                --esModuleInterop
+                                Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.
+                                type: boolean
+                                default: false
+
+                                You can learn about all of the compiler options at https://aka.ms/tsc
+
+                                npm notice
+                                npm notice New minor version of npm available! 9.6.6 -> 9.7.2
+                                npm notice Changelog: <https://github.com/npm/cli/releases/tag/v9.7.2>
+                                npm notice Run `npm install -g npm@9.7.2` to update!
+                                npm notice
+
+
+
+____________________________________ ADD TYPESCRIPT LOCALLY IN THE PROJ ( AS A npm DEPENDENCY)
+
+            1. npm init -y                                 # to create a package.json
+                                   1   │ {
+                                   2   │   "name": "typescript",
+                                   3   │   "version": "1.0.0",
+                                   4   │   "description": "",
+                                   5   │   "main": "index.js",
+                                   6   │   "scripts": {
+                                   7   │     "test": "echo \"Error: no test specified\" && exit 1"
+                                   8   │   },
+                                   9   │   "keywords": [],
+                                  10   │   "author": "",
+                                  11   │   "license": "ISC"
+                                  12   │ }
+
+
+
+            2. npm install typescript --save-dev           # to install (locally)  typescript as a dependency of my project
+                                   1   │ {
+                                   2   │   "name": "typescript",
+                                   3   │   "version": "1.0.0",
+                                   4   │   "description": "",
+                                   5   │   "main": "index.js",
+                                   6   │   "scripts": {
+                                   7   │     "test": "echo \"Error: no test specified\" && exit 1"
+                                   8   │   },
+                                   9   │   "keywords": [],
+                                  10   │   "author": "",
+                                  11   │   "license": "ISC",
+                                  12   │   "devDependencies": {                   <------------------
+                                  13   │     "typescript": "^5.1.6"               <------------------
+                                  14   │   }
+                                  15   │ }
+
+
+
+____________________________________ INSTRUCT npm TO USE COMMAND 'tsc'
+                                   1   │
+                                   2   │
+                                   3   │
+                                   4   │
+                                   5   │
+                                   6   │   "scripts": {
+                                   7   │     "tsc": "tsc"  <-------------
+                                   8   │   },
+
+
+                    this will allow to run a command like
+
+                    > npm run tsc --  ....
+
+
+
+____________________________________ CREATE A tsconfig.json
+
+
+                    > npm run tsc -- --init
+
+
+                    It will create a tsconfig.json like this
+{
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
+    /* Projects */
+    // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
+    // "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
+    // "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
+    // "disableSourceOfProjectReferenceRedirect": true,  /* Disable preferring source files instead of declaration files when referencing composite projects. */
+    // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
+    // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
+
+    /* Language and Environment */
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+    // "jsx": "preserve",                                /* Specify what JSX code is generated. */
+    // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
+    // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+    // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
+    // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
+    // "jsxImportSource": "",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
+    // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
+    // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
+    // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
+    // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
+
+    /* Modules */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+    // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
+    // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+    // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
+    // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+    // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
+    // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
+    // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
+    // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
+    // "resolvePackageJsonExports": true,                /* Use the package.json 'exports' field when resolving package imports. */
+    // "resolvePackageJsonImports": true,                /* Use the package.json 'imports' field when resolving imports. */
+    // "customConditions": [],                           /* Conditions to set in addition to the resolver-specific defaults when resolving imports. */
+    // "resolveJsonModule": true,                        /* Enable importing .json files. */
+    // "allowArbitraryExtensions": true,                 /* Enable importing files with any extension, provided a declaration file is present. */
+    // "noResolve": true,                                /* Disallow 'import's, 'require's or '<reference>'s from expanding the number of files TypeScript should add to a project. */
+
+    /* JavaScript Support */
+    // "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    // "checkJs": true,                                  /* Enable error reporting in type-checked JavaScript files. */
+    // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
+
+    /* Emit */
+    // "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    // "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
+    // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */
+    // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
+    // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
+    // "outDir": "./",                                   /* Specify an output folder for all emitted files. */
+    // "removeComments": true,                           /* Disable emitting comments. */
+    // "noEmit": true,                                   /* Disable emitting files from a compilation. */
+    // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
+    // "importsNotUsedAsValues": "remove",               /* Specify emit/checking behavior for imports that are only used for types. */
+    // "downlevelIteration": true,                       /* Emit more compliant, but verbose and less performant JavaScript for iteration. */
+    // "sourceRoot": "",                                 /* Specify the root path for debuggers to find the reference source code. */
+    // "mapRoot": "",                                    /* Specify the location where debugger should locate map files instead of generated locations. */
+    // "inlineSources": true,                            /* Include source code in the sourcemaps inside the emitted JavaScript. */
+    // "emitBOM": true,                                  /* Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files. */
+    // "newLine": "crlf",                                /* Set the newline character for emitting files. */
+    // "stripInternal": true,                            /* Disable emitting declarations that have '@internal' in their JSDoc comments. */
+    // "noEmitHelpers": true,                            /* Disable generating custom helper functions like '__extends' in compiled output. */
+    // "noEmitOnError": true,                            /* Disable emitting files if any type checking errors are reported. */
+    // "preserveConstEnums": true,                       /* Disable erasing 'const enum' declarations in generated code. */
+    // "declarationDir": "./",                           /* Specify the output directory for generated declaration files. */
+    // "preserveValueImports": true,                     /* Preserve unused imported values in the JavaScript output that would otherwise be removed. */
+
+    /* Interop Constraints */
+    // "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. */
+    // "verbatimModuleSyntax": true,                     /* Do not transform or elide any imports or exports not marked as type-only, ensuring they are written in the output file's format based on the 'module' setting. */
+    // "allowSyntheticDefaultImports": true,             /* Allow 'import x from y' when a module doesn't have a default export. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+
+    /* Type Checking */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+    // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
+    // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+    // "strictBindCallApply": true,                      /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
+    // "strictPropertyInitialization": true,             /* Check for class properties that are declared but not set in the constructor. */
+    // "noImplicitThis": true,                           /* Enable error reporting when 'this' is given the type 'any'. */
+    // "useUnknownInCatchVariables": true,               /* Default catch clause variables as 'unknown' instead of 'any'. */
+    // "alwaysStrict": true,                             /* Ensure 'use strict' is always emitted. */
+    // "noUnusedLocals": true,                           /* Enable error reporting when local variables aren't read. */
+    // "noUnusedParameters": true,                       /* Raise an error when a function parameter isn't read. */
+    // "exactOptionalPropertyTypes": true,               /* Interpret optional property types as written, rather than adding 'undefined'. */
+    // "noImplicitReturns": true,                        /* Enable error reporting for codepaths that do not explicitly return in a function. */
+    // "noFallthroughCasesInSwitch": true,               /* Enable error reporting for fallthrough cases in switch statements. */
+    // "noUncheckedIndexedAccess": true,                 /* Add 'undefined' to a type when accessed using an index. */
+    // "noImplicitOverride": true,                       /* Ensure overriding members in derived classes are marked with an override modifier. */
+    // "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type. */
+    // "allowUnusedLabels": true,                        /* Disable error reporting for unused labels. */
+    // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
+
+    /* Completeness */
+    // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
+    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+  }
+}
+
+
+
+             the
+                 "target": "es2016",
+             specifies which is the chosen output type for JAVASCRIPT
+
+             https://caniuse.com/ <----------- to know if a browser supports a specific feature of JS
+
+
+             tsconfig maps all the arguments what a command usually receives on the command line
+             ex
+               instead of
+                                --target es2016
+               I set that value in tsconfig.json
+               so the compilation becomes as easy as running just:
+
+                 > npm run tsc
+
+
+____________________________________ DEBUG
+
+
+      the dev tool in the browser allows to debug JS code.
+
+      Anyhow I have typescript as origin, so I'd like to see typescript code
+      in the debugger, rather the transpiled JS.
+
+      The way to have this is to uncomment:
+                 // "sourceMap": true,
+      in my tsconfig.json
+
+____________________________________ BUILT-IN TYPES
+
+        my_var: type
+                             where type:
+                                         . string
+                                         . number    (NB. there is ONLY 'number' (not integer, float, ...))
+                                         . boolean   {true, false}
+                                         . array     ex  let names: string[] = []   <--------  explicit
+                                                         let names: ['Dan', 'Jon', 'Mary']  <---- no nead of :string[], because the type is inferred
+
+                                         . undefined    (a var not init.)
+                                         . null         (a var init to a nul value)
+                                         . any
+                                         . void         (functions which have no return)
+                                                         function log (msg: string) : void { }
+
+
+____________________________________ INFERENCE
+        Not always I must specify the type.
+        It's redundant if it can be inferred.
+
+        ex
+                let name: string = 'Mary'   <---- redundant
+
+                let name = 'Mary'           <---- ok
+
+____________________________________ UNION
+
+        my_var: type1 | type2 | type3                         the pipe |, allows to list more possible types for the var
+
+        ex   let firstName: string | undefined | null;
+
+
+____________________________________ ENUM    (same of C)
+
+       enum ProductType {
+               Sports,        # val 0        # a set of named CONSTANTS
+               HomeGoods,     #     1
+               Groceries      #     2
+       }
+
+
+       let p = ProductType.Sports;           #  ex. of usage
+
+
+
+____________________________________ GENERICS
+
+            ____________________________________                                                     ____________________________________
+            GENERIC FUNCTIONS                                                                        GENERIC INTERFACES
+            ____________________________________                                                     ____________________________________
+
+            function identity<T>(arg: T): T {                                                        interface GenericIdentityFn<T> {
+                return arg;                                                                              (arg: T): T;
+            }                                                                                        }
+
+            let output1 = identity<string>("Hello, Generics!"); // Type is 'string'                  function identity<T>(arg: T): T {
+            let output2 = identity<number>(42); // Type is 'number'                                      return arg;
+                                                                                                     }
+
+                                                                                                     let myIdentity: GenericIdentityFn<number> = identity;
+
+
+            ____________________________________                                                     ____________________________________
+            GENERIC CLASSES                                                                          GENERIC CONSTRAINTS
+            ____________________________________                                                     ____________________________________
+
+            class GenericNumber<T> {                                                                 interface Lengthwise {
+                zeroValue: T;                                                                            length: number;
+                add: (x: T, y: T) => T;                                                              }
+            }
+                                                                                                     function loggingIdentity<T extends Lengthwise>(arg: T): T {
+            let myGenericNumber = new GenericNumber<number>();                                           console.log(arg.length); // Now we know it has a .length property, so no error
+            myGenericNumber.zeroValue = 0;                                                               return arg;
+            myGenericNumber.add = (x, y) => x + y;                                                   }
+
+                                                                                                     loggingIdentity({ length: 10, value: 3 });
+
+
+
+
+
+
+
+
+
+
+
+
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+____________________________________
+
+

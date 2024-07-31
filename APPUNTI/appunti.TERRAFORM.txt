@@ -2,6 +2,13 @@
 
              binary: $ terraform        it comes as a single zip (to put in a dir found by $PATH)
 
+             this is the 1st compnent of Terraform, the executable
+             Terraform is 4 components:
+
+                    1. the exe     (eg /usr/local/bin/terraform)
+                    2. the providers  (executable plugins which could extend the functionalities, ex 'aws')
+                    3. config files
+                    4. state file
 
 
              |  Usage: terraform [-version] [-help] <command> [args]
@@ -80,6 +87,65 @@
 
 
     terraform init
+                                           'init' will install the required providers:
+
+                                            ❯ ls -lrta
+                                                                total 8
+                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
+                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 10:56 .
+                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
+                                            ❯ terraform init
+
+                                                                Initializing the backend...
+
+                                                                Initializing provider plugins...
+                                                                - Finding latest version of hashicorp/aws...
+                                                                - Installing hashicorp/aws v5.42.0...
+                                                                - Installed hashicorp/aws v5.42.0 (signed by HashiCorp)
+                                                                 ...
+                                                                 ...
+                                            ❯ ls -lrta
+                                                                total 16
+                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
+                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
+                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 11:56 .terraform
+                                                                -rw-r--r--   1 sbasile  staff  1377 Mar 22 11:56 .terraform.lock.hcl
+                                                                drwxr-xr-x   5 sbasile  staff   160 Mar 22 11:56 .
+                                            ❯ cat .*.hcl
+                                                                # This file is maintained automatically by "terraform init".
+                                                                # Manual edits may be lost in future updates.
+
+                                                                provider "registry.terraform.io/hashicorp/aws" {
+                                                                  version = "5.42.0"
+                                                                  hashes = [
+                                                                    "h1:0lkSSlK45Qil9fO1kFy8RXVC/k6qfC4LDZIaCKnWcUc=",
+                                                                    "zh:0fb12bd56a3ad777b29f957c56dd2119776dbc01b6074458f597990e368c82de",
+                                                                    "zh:16e99c13bef6e3777f67c240c916f57c01c9c142254cfb2720e08281ff906447",
+                                                                    "zh:218268f5fe73bcb19e9a996f781ab66df0da9e333d1c60612e3c51ad28a5105f",
+                                                                    "zh:220b17f7053d11548f35136669687d30ef1f1036e15393275325fd2b9654c715",
+                                                                    "zh:2256cfd74988ce05eada76b42efffc6fe2bf4d60b61f57e4db4fcf65ced4c666",
+                                                                    "zh:52da19f531e0cb9828f73bca620e30264e63a494bd7f9ce826aabcf010d3a241",
+                                                                    "zh:56069ce08d720280ba39aaf2fdd40c4357ffb54262c80e4d39c4e540a38e76af",
+                                                                    "zh:82c81398e68324029167f813fbb7c54fa3d233e99fa05001d85cbce8bdd08bb3",
+                                                                    "zh:82d6eaa87f5ab318959064e6c89adc2baabaf70b13f2f7de866f62416de05352",
+                                                                    "zh:9b12af85486a96aedd8d7984b0ff811a4b42e3d88dad1a3fb4c0b580d04fa425",
+                                                                    "zh:ade8490cfdd8de8b9a82986588595b67e0ad1048d9e2d3a6f5164320179c2cd0",
+                                                                    "zh:b094ef56ae9bfffd586f46d4f7fb0097798738df758a8f3c51578ee163495c7e",
+                                                                    "zh:bd5e68e1e454bae0f8d73cff8448e814a35855a561c33b745e1b8b525fb06c9f",
+                                                                    "zh:c111c6a854bf121facca1642d528bfa80fb4214554ac6c33e4a59c86bc605b71",
+                                                                    "zh:e04df69a557adbcdf8efc77eb45be748f0acbe800ccede1e0895393c87722a0f",
+                                                                  ]
+                                                                }
+                                            ❯ find .terraform
+                                                                .terraform
+                                                                .terraform/providers
+                                                                .terraform/providers/registry.terraform.io
+                                                                .terraform/providers/registry.terraform.io/hashicorp
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64/terraform-provider-aws_v5.42.0_x5
+
 
     terraform plan -out  here.myplan
 
@@ -173,6 +239,12 @@ terraform apply                     to apply changes   (I must type 'yes') so if
 
 terraform destroy
 
+terraform fmt                       format & check for SYNTAX-only errors
+                                                -check       doesn't change the files, just Exit status will be 0 if all ok
+                                                -recursive   (goes on subdirs)
+terraform check
+terraform validate                  check for syntax & logic errors
+
 
 ❯ terraform graph                   shows the dependency in the DOT language description format.
                                     digraph {
@@ -228,16 +300,20 @@ TAINTED resources     Are the resources failed during the provisioning.
                       where there isn't written anything about DESTROYing)
 
 
-VARIABLES                 ________ 'variable' is a keyword
+
+VARIABLES
+                          ________ 'variable' is a keyword            variables stay in  file  ./terraform.tfvars  (or variables.tf)
                          /
                       variable "region" {
-                         type = string
-                         default = "us-east-1"                file  ./terraform.tfvars  (or variables.tf)
+                         type = string   <---------- if I submit an integer terraform will then trigger an error
+                         description = "......."      <--- for documentation
+                         default = "us-east-1"        <--- a default always useful.    If during exection terraform doesn't have a value for this var (no -var / TF_VAR_xxx/ default) it will prompt for a value
+                         sensitive = true | false             # if 'true' not shown in logs
                       }
 
                       ------------------------------
                       provider "aws" {
-                         region     = var.region       <--- usage
+                         region     = var.region       <--- usage   ('var' is a keyword)
                       }
 
                       ___________________
@@ -257,22 +333,26 @@ VARIABLES                 ________ 'variable' is a keyword
                       ___________________
 
 
-          - file terraform.tfvars      ex. region = "us-east-2"
-                 (default name)
+          - file terraform.tfvars      ex. region = "us-east-2"      files automatically sourced if present:  terraform.tfvars / terraform.tfvars.json
+                 (default name)                                                                             xxx.auto.tfvars     / xxx.auto.tfvars.json
+                                                                                                               ^^^^^^^^^^^           ^^^^^^^^^^^^^^^^   <--- files with these EXTENSIONS
 
           - Command-line flags         ex. terraform apply  -var 'region=us-east-2'
                                                             ^^^^
                                        ex. terraform apply  -var-file=dddd/dddd/fff.tf
                                                             ^^^^^^^^^
-                                                                    (when using not a default terraform.tfvars)
+                                                                    (when not using default terraform.tfvars | xxx.auto.tfvars)
 
           - ENV vars                   ex. TF_VAR_nnnnn   TF_VAR_ +  name of the ENV var
                                            (ex. TF_VAR_HOME)
 
           - PRECEDENCE OF VARS:
-                               ENV / file / command-line
-                            (less              (more
-                            important)          important)
+
+                            (less              ENV
+                            important)         terraform.tfvars | terraform.tfvars.json
+                                               xxx.auto.tfvars  | xxx.auto.tfvars.json
+                            (more              -var-file
+                            important)         -var
 
           - UI on apply                running 'apply' with missing variables, they will be asked interactively.
 
@@ -281,10 +361,10 @@ VARIABLES                 ________ 'variable' is a keyword
 
 
           LIST VARs                    variable "cidrs" { default = [] }     # implicit assign.  ex   cidrs = [ "10.0.0.0/16", "10.1.0.0/16" ]
-                                       variable "cidrs" { type = list }      # explicit
+                                       variable "cidrs" { type = list }      # explicit      /  list(string)  / list(number) / list(bool) / ...
 
 
-          MAP VARs                     hash (like a normal json with '=' instead of ':')
+          MAP VARs                     hash (like a normal json with '=' instead of ':')      /  map(string)  / map(number) / map(bool) / ...
                                        variable "amis" {                                resource "aws_instance" "example" {
                                           type = "map"                                    ami        = var.amis[var.region]
                                           default = {                                     inst_type  = "t2.micro" ^^^^^^^^
@@ -420,15 +500,38 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 
 
 
+------------------------------------------------------------------- main  K E Y W O R D S
+    1  variable   "aws_access_key"    {
+    2  provider   "aws"               {
+    3  data       "aws_ami" "alx"     {
+    4  resource   "aws_instance" "ex" {
+    5  output     "aws_public_ip"     {
 -------------------------------------------------------------------
-    1  variables
-                             variable "aws_access_key" {}        # note 'variable' is a keyword
-                             variable "aws_secret_key" {}       ___________________.
-                                                                                   |
-                             variable "aws_region" {                               |
-                                     default = "us-east-1"                         |
-                             }                                                     |
-                                                                                   |
+
+
+
+
+
+
+
+    1  variables   these are vars passed as INPUT to the script
+                   'variables' is a misleading name and should be called 'inputs'
+                   because ALL 'variables' must have a value passed with input configs
+                   via one of manu ways ( ENV terraform.tfvars | terraform.tfvars.json xxx.auto.tfvars  | xxx.auto.tfvars.json -var-file -var)
+                   and if at execution time terraform doesn't have values for all the vars it asks those values at prompt
+
+                   The real variables, in the normal sense of programming languages,
+                   or internal vars which I can freely define and use across my terraform code
+                   are then the  'locals'
+                                                                                                                __________ locals are "variable" that I define INSIDE my script.
+                                                                                                               /          ^^^^^^^^   They don't come from outside
+                             variable "aws_access_key" {}        # note 'variable' is a keyword              locals {                           I can refer to them as local.instance_prefix
+                             variable "aws_secret_key" {}       ___________________.                              instance_prefix = "globo"                            ^^^^^
+                                                                                   |                              common_tags = {                          EVEN 'locals' & 'local' are keywords
+                             variable "aws_region" {                               |                                      company = "Some Name LTD"
+                                     default = "us-east-1"                         |                                      region = var.aws_region
+                             }                                                     |                              }
+                                                                                   |                         }        # locals can stay in any file, but usually they are put in a "locals.tf"
 -------------------------------------------------------------------                |
     2  providers/plugins                                                           |
                              provider "aws" {                                      |
@@ -442,7 +545,9 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
              . to use a certain provider/plugin  I must set its parameters
 
 -------------------------------------------------------------------
-    3  Data source
+    3  Data source                                               They are 'views' on a PROVIDER, I can 'query' data out from a provider
+                                                                 they are then READ-ONLY data <---------
+
                              data "aws_ami" "alx"  {             # note 'data' is a keyword
                                 most_recent = true
                                 owners = ["amazon"]
@@ -484,12 +589,22 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
            }                 \./__________________ here used
 -------------------------------------------------------------------
     5  Output
+                       'output' is like an echo or printf
+                       is a way to dump formatted output
+                       output stay usually in a file called 'output.tf'
+
                              output "aws_public_ip" {            # note 'output' is a keyword
-                                value =
-                                "aws_instance.ex.public_dns"
+                                value = "https://${aws_instance.ex.public_dns}"   <---- output, like here, can be like a common shell echo "....${}.."
+                                description = ....                                      where I can interpolate strings & vars
+                                sensitive = true | false
                              }
 
+                       with 'output' I can log values OUT of terraform (in the logs)
+                       but also to pass values from 1 module to another
 
+               Interestingly 'outputs' are stored in the state file
+               and can be seen an tome just running
+               > terraform output
 
 -------------------------------------------------------------------
     TERRAFORM STATE      (./terraform.tfstate)
@@ -500,6 +615,19 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
                          . Remote (AWS / Azure/ NFS/ Terraform Cloud)
          . the format is JSON  (do not edit)
          . It can be 'Locked' by Terraform while an operation is ongoing
+
+           > terraform state list         # show all resources inside the json file and their addresses (ids)
+                                            ex. ❯ terraform state list
+                                                data.aws_ssm_parameter.amzn2_linux
+                                                aws_instance.nginx1
+                                                aws_internet_gateway.app
+                                                aws_route_table.app
+                                                aws_route_table_association.app_subnet1
+                                                aws_security_group.nginx_sg
+                                                aws_subnet.public_su
+
+           > terraform show address       # show a specific resource (like git show)
+           > terraform rm   address       # remove 1 resource from the state file
 
 
     . Workspaces:  every Workspace has its own separate STATE file.
@@ -546,7 +674,7 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
     TERRAFORM SYNTAX
            HashiCorp    configuration language
 
-           - makes what with just JSON / YAML isn't possible
+           - makes what isn't possible with just JSON / YAML
            - supports conditionals / functions / reusable templates
 
 
@@ -576,16 +704,19 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
                     list   = ["beans" "peases"]                                    # used then as list[2]
                     map    = { name = "Ned",  age = 42,  loves_tacos = true }      # used then as map["age"]
 
+                    any    = ex. list(any)  when I'm general
+                    null   = ex of usage of a default
 
-           - REFERENCES
-                    var.taco_day
-                    aws_instance.taco_truck.name
-                    local.taco_toppings.cheese
-                    module.taco_hut.loactions
 
-                    INTERPOLATION     taco_name = "neds-${var.taco_day}
-
-                    * -->  aws_subnet.subnet[*].id   <----- the * in an array returns a list of all the entries
+           - REFERENCES  (usual dot '.' notation)                                 variable "aws_instance_types" {
+                    var.taco_day                                                       type = map (string)
+                    aws_instance.taco_truck.name                                       description= " ... "
+                    local.taco_toppings.cheese                                         default = {
+                    module.taco_hut.loactions                                            small = "t3.micro"   <--- ex. I can refer to 'map' types in 2 ways:
+                                                                                         medium = "m4.large"                      var.aws_instance_types.small
+                    INTERPOLATION     taco_name = "neds-${var.taco_day}                  .....                                                          ^^^^^^
+                                                                                                                                  var.aws_instance_types["small"]
+                    * -->  aws_subnet.subnet[*].id   <----- the * in an array returns a list of all the entries                                         ^^^^^^^^^
                                              ^
 
 
@@ -598,7 +729,7 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 
              Provisioners can anyhow be
                  - Local   the provisioner runs on the local computer
-                 - Remote  the provisione  runs on the target host
+                 - Remote  the provisioner runs on the target host
 
 
              ex. the "file" provisioner
@@ -689,7 +820,7 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
     TERRAFORM CONSOLE     (to test)
 
               $ terraform console               # if I run in a dir with terraform config files, it will source them first
-                                                  this can give errors if the "providers" listed there where downloaded already
+                                                  this can give errors if the "providers" listed there were downloaded already
                                                   so I can just do a
                                                              $ terraform init
                                                   to pull them.
@@ -765,3 +896,7 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 -------------------------------------------------------------------
 -------------------------------------------------------------------
 -------------------------------------------------------------------
+Terraform - Getting Started                  By Ned Bellavance   4h 36m
+Terraform Deep Dive                          By Ned Bellavance   3h 50m
+Managing Infrastructure with Terraform       path               18h 34m
+HashiCorp Certified: Terraform Associate                        11h 44m

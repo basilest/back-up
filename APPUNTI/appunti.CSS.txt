@@ -95,6 +95,44 @@
                   Internal   <style> ..... </style>
                   Inline     with attribute style=
                               <h1 style="color:blue;margin-left:30px;">This is a heading.</h1>
+ REFERENCING RESOURCES
+                  If I have a CDN with a file like
+
+                      app/assets/stylesheets/views/search.css         (hosted as https://example.com/app/assets/stylesheets/views/search.css)
+                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                  which internally is addressing another resource:
+
+                      background-image: url(/images/search/search-button.png);
+
+                  the resource is there specified as a RELATIVE path (not a full URL http://host/.....)
+                  It means that the browser interprets the path relative to the ROOT OF THE CURRENT DOMAIN (https://example.com/)
+                  Therefore, the browser fetches the image from https://example.com/images/search/search-button.png.
+
+                  ROOT OF THE CURRENT DOMAIN = it's always the host part only
+                                               It means that if I create a CDN with a prefix /cidev
+                                                            https://d29ujl8n7pu7k5.cloudfront.net/cidev
+                                                                                                 ^^^^^^
+                                               so that my CSS is hosted at
+                                                            https://d29ujl8n7pu7k5.cloudfront.net/cidev/app/assets/stylesheets/views/search.css)
+
+                                               the browser will still try to fetch
+                                                            https://d29ujl8n7pu7k5.cloudfront.net/images/search/search-button.png     (<------ without /cidev)
+
+                                               This might be changed via he <base> HTML tag:
+                                               <!DOCTYPE html>
+                                                    <html>
+                                                    <head>
+                                                        <base href="https://d29ujl8n7pu7k5.cloudfront.net/cidev/">
+                                                        <link rel="stylesheet" type="text/css" href="app/assets/stylesheets/views/search.css">
+                                                    </head>
+                                                    <body>
+                                                        <!-- Your HTML content -->
+                                                    </body>
+                                                    </html>
+
+                                               even if this is affecting ALL relative URLs
+
 
 
  PRIORITY         The FINAL style applied to an ELEMENT depends by the CASCADE chain.
@@ -396,14 +434,26 @@
  COUNTERS         .
 
 
+----------------------------------------------------------------
+SCSS (Sassy CSS) is a preprocessor scripting language that is a superset of CSS.
 
+     This means that all valid CSS is also valid SCSS,
+     but SCSS offers additional features:
 
+    Variables: I can define variables to store reusable values such as colors, font sizes, or spacing.
+    Operators: SCSS includes mathematical operators that allow to perform calculations within my stylesheets.
+    Mixins: Mixins are reusable blocks of styles that can be included within other styles, similar to functions in programming languages.
 
+    Nesting: it allows to nest CSS rules within one another, which can help to make my stylesheets more organized and easier to read.
+    Inheritance: SCSS supports inheritance, allowing to share styles between selectors.
+    Partials and Importing: SCSS allows to break stylesheets into smaller files called partials and
+            then import them into one main SCSS file, which can make managing large projects more manageable.
 
+Once written a SCSS code, it needs to be compiled into regular CSS before it can be used on a website.
+This can be done using a build tool like Sass.
+The resulting CSS file can then be linked to your HTML documents like any other stylesheet.
 
-
-
-
-
+ Sass (Syntactically Awesome Style Sheets) is the precursor to SCSS,
+ and it comes in two syntaxes: Sass (indented syntax) and SCSS (Sassy CSS syntax).
 
 

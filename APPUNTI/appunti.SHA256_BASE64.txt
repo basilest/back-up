@@ -293,25 +293,3 @@ perl -e 'use Digest::SHA qw(sha256_hex sha256_base64);
                 $b64_digest .= '=';
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

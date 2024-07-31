@@ -2171,6 +2171,23 @@ available git commands in '/usr/lib/git-core'
 159  write-tree               :
 -------------------------------------------------- GITHUB API
 
+ The following 3 are all possible alternatives:
+
+             1  curl -u sbasile-ch:$MY_GITHUB_TOKEN  https://api.github.com/....
+
+             2  curl \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Authorization: Bearer $MY_GITHUB_TOKEN"\   <----- Bearer
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  https://api.github.com/....
+
+             3  curl \
+                  curl -H "Authorization: Token $MY_GITHUB_TOKEN" <----- Token
+                  https://api.github.com/....
+
+
+
+
 curl -u sbasile-ch:$MY_GITHUB_TOKEN  https://api.github.com/
                                         {
                                           "current_user_url": "https://api.github.com/user",
@@ -2304,5 +2321,62 @@ ____________________ MANAGE PAGINATION
                             which in simple terms is just the same URL changing the page=...
 
 
+____________________ SEE LANGUAGES OF A REPO
+
+  curl -H "Authorization: Token $MY_GITHUB_TOKEN" https://api.github.com/repos/companieshouse/ch.gov.uk/languages
+                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+____________________ GET THE SBOM
+
+  curl -H "Authorization: Token $MY_GITHUB_TOKEN" https://api.github.com/repos/companieshouse/ch.gov.uk/dependency-graph/sbom
+                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+____________________ SEARCH CODE WITHIN A REPO   (note the rate limit is 10/min)
+
+  e: search '<svg':
+  urlencoding: %3Csvg
+  curl -H "Authorization: Token $MY_GITHUB_TOKEN" https://api.github.com/search/code?q=%3Csvg+repo:companieshouse/ch.gov.uk
+                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+____________________ A SCRIPT
+ex of sript which retrieves all the repos of a user/org and | or can search a string there:
+
+              |   #!/usr/bin/env bash
+              |
+              |   GITHUB_API='https://api.github.com'
+              |   GITHUB_TOKEN="${MY_GITHUB_TOKEN}"
+              |   ORG='companieshouse'
+              |   PER_PAGE=100
+              |   ENDPOINT_REPOS="orgs/${ORG}/repos?per_page=${PER_PAGE}"
+              |   ENDPOINT_SEARCH_CODE="search/code?q="
+              |
+              |   RATE_LIMIT_SEARCH_CODE=10
+              |   SLEEP_BETWEEN_SEARCH_CODE=$(( 60/RATE_LIMIT_SEARCH_CODE + 1 ))
+              |
+              |   QUERY_STRING='<svg'
+              |   QUERY_STRING=$( jq -Rr @uri <<< "${QUERY_STRING}" )
+              |   echo "${QUERY_STRING}"
+              |
+              |   FILES='repos.'
+              |   page=1
+              |   while : ; do
+              |       printf "Page: ${page}\n"
+              |       out_file="${FILES}${page}"
+              |       curl -H "Authorization: Token ${GITHUB_TOKEN}"  "${GITHUB_API}/${ENDPOINT_REPOS}&page=${page}" | jq '.[].html_url' | sort > "${out_file}"
+              |       repos_got=$( wc -l < "${out_file}" )
+              |       [[ $repos_got -lt $PER_PAGE ]] && break || true
+              |       page=$((page+1))
+              |   done
+              |
+              |   cat ${FILES}* | egrep -vi 'prototype|archive' | sort -u > "${FILES}all"
+              |
+              |   while read -u 9 r; do
+              |       echo "--------[$r]";
+              |       r=$( sed 's|.*github.com/||;s/["]//g;' <<< "$r" )
+              |       #echo curl -H "Authorization: Token ${GITHUB_TOKEN}"  "${GITHUB_API}/${ENDPOINT_SEARCH_CODE}${QUERY_STRING}+repo:$r" 2>/dev/null
+              |       search_found=$( curl -H "Authorization: Token ${GITHUB_TOKEN}"  "${GITHUB_API}/${ENDPOINT_SEARCH_CODE}${QUERY_STRING}+repo:$r" 2>/dev/null | jq '.total_count' )
+              |       [[ $search_found -gt 0 ]] && echo "$r"
+              |       sleep $SLEEP_BETWEEN_SEARCH_CODE
+              |   done 9< "${FILES}all"

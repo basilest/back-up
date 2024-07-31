@@ -1,0 +1,270 @@
+
+
+export CODE_ANALYSIS_HOST_URL=http://code-analysis.platform.aws.chdev.org:9000
+export CODE_ANALYSIS_LOGIN=sbasile
+export CODE_ANALYSIS_PASSWORD=xxxxxx
+
+
+
+
+mvn sonar:sonar                                                              # to trigger the analyse on the co branch
+mvn sonar:sonar -P sonar-pr-analysis                                         # to trigger the analyse of a PR
+mvn sonar:sonar -D sonar.branch.name=BI-9259/fix-sonar-regex-issues          # I checkout the branch and then I run this, so it will analyse the branch
+
+
+REST API:
+
+ THE DOC IS AT :  ..... + /web_api/
+		ex: https://code-analysis.platform.aws.chdev.org/web_api/api/measures
+                                                        ^^^^^^^^^^^^^^^^^^^^^
+
+SONARQUBE_URL='https://code-analysis.platform.aws.chdev.org'; SONARQUBE_USER='sbasile'; SONARQUBE_PASS='C.......3'
+
+
+      curl -k -q -u "${SONARQUBE_USER}:${SONARQUBE_PASS}" "${SONARQUBE_URL}"/api/projects/search\?ps=500    | jq '.' | vi -          # ps is "page size" from 0 to 500 (max) defualt:100
+      curl -k -q -u "${SONARQUBE_USER}:${SONARQUBE_PASS}" "${SONARQUBE_URL}"/api/projects/search\?ps=50&p=2 | jq '.' | vi -          # p num of page I want
+
+   1 {
+   2   "paging": {
+   3     "pageIndex": 1,
+   4     "pageSize": 500,  <--- num proj per page
+   5     "total": 302.  <------ num of total projects ==> 302 < 500 ==> 1 page only
+   6   },
+   7   "components": [
+   8     {
+   9       "key": "uk.gov.companieshouse:3pa-register-admin-web",
+  10       "name": "3pa-register-admin-web",
+  11       "qualifier": "TRK",
+  12       "visibility": "public",
+  13       "lastAnalysisDate": "2022-07-14T09:50:09+0100",
+  14       "revision": "ae6fe83ad6c9eb9b6d0afc06112fb19df49e6951"
+
+	curl -k -q -u "${SONARQUBE_USER}:${SONARQUBE_PASS}" "${SONARQUBE_URL}"/api/projects/search\?ps=50\&q=certificates            # q qulifier. It matches any key/name containing that
+  1 {
+  2   "paging": {
+  3     "pageIndex": 1,
+  4     "pageSize": 50,
+  5     "total": 2
+  6   },
+  7   "components": [
+  8     {
+  9       "key": "uk.gov.companieshouse:certificates.orders.api.ch.gov.uk",
+ 10       "name": "certificates.orders.api.ch.gov.uk",
+ 11       "qualifier": "TRK",
+ 12       "visibility": "public",
+ 13       "lastAnalysisDate": "2024-05-20T12:54:02+0100",
+ 14       "revision": "ce5f50a3eee68495a46b7dcd0e7cbe26933a0c59"
+ 15     },
+ 16     {
+ 17       "key": "certificates.orders.web.ch.gov.uk",
+ 18       "name": "certificates.orders.web.ch.gov.uk",
+ 19       "qualifier": "TRK",
+ 20       "visibility": "public",
+ 21       "lastAnalysisDate": "2024-05-21T12:50:07+0100",
+ 22       "revision": "ca14cece7c82e4f87e0faa07cc851c1966c1bf02"
+ 23     }
+ 24   ]
+ 25 }
+
+	curl -k -q -u "${SONARQUBE_USER}:${SONARQUBE_PASS}" "${SONARQUBE_URL}"/api/projects/search\?q=certified-copies.o
+  1 {
+  2   "paging": {
+  3     "pageIndex": 1,
+  4     "pageSize": 100,
+  5     "total": 1
+  6   },
+  7   "components": [
+  8     {
+  9       "key": "uk.gov.companieshouse:certified-copies.orders.api.ch.gov.uk",
+ 10       "name": "certified-copies.orders.api.ch.gov.uk",
+ 11       "qualifier": "TRK",
+ 12       "visibility": "public",
+ 13       "lastAnalysisDate": "2024-06-10T09:39:19+0100",
+ 14       "revision": "a0530af39336ed984d817e5b40af948ba956e812"
+ 15     }
+ 16   ]
+ 17 }
+
+   curl -k -q -u "${SONARQUBE_USER}:${SONARQUBE_PASS}" "${SONARQUBE_URL}"/api/measures/component\?component=uk.gov.companieshouse:disqualified-officers-search-consumer\&metricKeys=vulnerabilities,bugs,code_smells,coverage | jq '.'
+                                                                                       ^^^^^^^^^  -------- comp-KEY----------------------------------------------------  ^^^^^^^^^
+     1  {
+     2    "component": {
+     3      "key": "uk.gov.companieshouse:disqualified-officers-search-consumer",
+     4      "name": "disqualified-officers-search-consumer",
+     5      "description": "Disqualified officers search consumer",
+     6      "qualifier": "TRK",
+     7      "measures": [
+     8        {
+     9          "metric": "coverage",
+    10          "value": "0.0",
+    11          "bestValue": false
+    12        },
+    13        {
+    14          "metric": "bugs",
+    15          "value": "0",
+    16          "bestValue": true
+    17        },
+    18        {
+    19          "metric": "code_smells",
+    20          "value": "63",
+    21          "bestValue": false
+    22        },
+    23        {
+    24          "metric": "vulnerabilities",
+    25          "value": "0",
+    26          "bestValue": true
+    27        }
+    28      ]
+    29    }
+    30  }
+
+   NOTE: in the above the "metricKey" has a value in the range of
+         /api/metrics/search
+         which has the usual pagination:
+                                - ps (page size: max:500, default:100)
+                                - p  (page wanted)
+         ex. with the 138 current metric keys, I can see them all with:
+
+           curl -k -q -u "${SONARQUBE_TOKEN}:" "${SONARQUBE_URL}"/api/metrics/search\?ps=500 | jq -r '.metrics[].key' | sort | nl
+
+                     1  alert_status
+                     2  blocker_violations
+                     3  branch_coverage
+                     4  bugs                   <---------------------------
+                     5  burned_budget
+                     6  business_value
+                     7  class_complexity
+                     8  classes
+                     9  code_smells                   <---------------------------
+                    10  cognitive_complexity
+                    11  comment_lines
+                    12  comment_lines_data
+                    13  comment_lines_density
+                    14  complexity
+                    15  complexity_in_classes
+                    16  complexity_in_functions
+                    17  conditions_to_cover
+                    18  confirmed_issues
+                    19  coverage                   <---------------------------
+                    20  critical_severity_vulns
+                    21  critical_violations
+                    22  development_cost
+                    23  directories
+                    24  duplicated_blocks
+                    25  duplicated_files
+                    26  duplicated_lines
+                    27  duplicated_lines_density
+                    28  duplications_data
+                    29  effort_to_reach_maintainability_rating_a
+                    30  executable_lines_data
+                    31  false_positive_issues
+                    32  file_complexity
+                    33  file_complexity_distribution
+                    34  files
+                    35  function_complexity
+                    36  function_complexity_distribution
+                    37  functions
+                    38  generated_lines
+                    39  generated_ncloc
+                    40  high_severity_vulns
+                    41  info_violations
+                    42  inherited_risk_score
+                    43  last_change_on_maintainability_rating
+                    44  last_change_on_releasability_rating
+                    45  last_change_on_reliability_rating
+                    46  last_change_on_security_rating
+                    47  last_change_on_security_review_rating
+                    48  last_commit_date
+                    49  leak_projects
+                    50  line_coverage
+                    51  lines
+                    52  lines_to_cover
+                    53  low_severity_vulns
+                    54  maintainability_rating_effort
+                    55  major_violations
+                    56  medium_severity_vulns
+                    57  minor_violations
+                    58  ncloc
+                    59  ncloc_data
+                    60  ncloc_language_distribution
+                    61  new_blocker_violations
+                    62  new_branch_coverage
+                    63  new_bugs
+                    64  new_code_smells
+                    65  new_conditions_to_cover
+                    66  new_coverage
+                    67  new_critical_violations
+                    68  new_development_cost
+                    69  new_duplicated_blocks
+                    70  new_duplicated_lines
+                    71  new_duplicated_lines_density
+                    72  new_info_violations
+                    73  new_line_coverage
+                    74  new_lines
+                    75  new_lines_to_cover
+                    76  new_maintainability_rating
+                    77  new_major_violations
+                    78  new_minor_violations
+                    79  new_reliability_rating
+                    80  new_reliability_remediation_effort
+                    81  new_security_hotspots
+                    82  new_security_hotspots_reviewed
+                    83  new_security_hotspots_reviewed_status
+                    84  new_security_hotspots_to_review_status
+                    85  new_security_rating
+                    86  new_security_remediation_effort
+                    87  new_security_review_rating
+                    88  new_sqale_debt_ratio
+                    89  new_technical_debt
+                    90  new_uncovered_conditions
+                    91  new_uncovered_lines
+                    92  new_violations
+                    93  new_vulnerabilities
+                    94  open_issues
+                    95  projects
+                    96  public_api
+                    97  public_documented_api_density
+                    98  public_undocumented_api
+                    99  quality_gate_details
+                   100  quality_profiles
+                   101  releasability_effort
+                   102  releasability_rating
+                   103  reliability_rating
+                   104  reliability_rating_effort
+                   105  reliability_remediation_effort
+                   106  reopened_issues
+                   107  report
+                   108  security_hotspots
+                   109  security_hotspots_reviewed
+                   110  security_hotspots_reviewed_status
+                   111  security_hotspots_to_review_status
+                   112  security_rating
+                   113  security_rating_effort
+                   114  security_remediation_effort
+                   115  security_review_rating
+                   116  security_review_rating_effort
+                   117  skipped_tests
+                   118  sqale_debt_ratio
+                   119  sqale_index
+                   120  sqale_rating
+                   121  statements
+                   122  team_size
+                   123  test_errors
+                   124  test_execution_time
+                   125  test_failures
+                   126  test_success_density
+                   127  tests
+                   128  total_dependencies
+                   129  total_vulnerabilities
+                   130  unanalyzed_c
+                   131  unanalyzed_cpp
+                   132  uncovered_conditions
+                   133  uncovered_lines
+                   134  violations
+                   135  vulnerabilities                   <---------------------------
+                   136  vulnerable_component_ratio
+                   137  vulnerable_dependencies
+                   138  wont_fix_issues
+
+
+

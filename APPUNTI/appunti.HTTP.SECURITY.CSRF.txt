@@ -1,0 +1,19 @@
+ Cross-Site Request Forgery (CSRF)
+
+    https://owasp.org/www-community/attacks/csrf
+
+
+    For most sites,
+    browser REQUESTS
+    automatically include any credentials associated with the site, such as
+      . the user’s session cookie,
+      . IP address,
+      . Windows domain credentials
+      . ..
+
+
+
+    FACTS
+             -  all cookies, even the secret ones, are submitted with every REQUEST    --> All authentication tokens will be submitted
+             -  HTTPS by itself does nothing to defend against CSRF.
+                However, HTTPS should be considered a prerequisite for any preventative measures to be trustworthy.
