@@ -612,6 +612,12 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
 
                         env_ansible.2.6.2
                         ===================
+	________________________________________ penv
+
+	1. python3 -m venv /Users/sbasile/PYTHON_ENVS/PENV
+	2. source  /Users/sbasile/PYTHON_ENVS/PENV/bin/activate
+	3. python3 -m pip install .....                                  # ex. python3 -m pip install pandas
+	________________________________________ 
 
 pip list
             Package         Version
