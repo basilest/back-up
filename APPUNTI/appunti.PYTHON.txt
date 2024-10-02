@@ -1,4 +1,5 @@
 
+source ~/.sdkman/bin/sdkman-init.sh
 interpreter:
 tiv@stiv-GP60-2PE:~$ python
 Python 2.7.8 (default, Oct 20 2014, 15:05:19)
@@ -511,7 +512,56 @@ pip:       modules (external) are usually managed by 'pip' which recursively mea
                    curl https://bootstrap.pypa.io/get-pip.py | python             #old
 
                    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py | python     #new
+              ---------------------------------
 
+                                        ╰─ pip3.12  install virtualenv
+                                        Collecting virtualenv
+                                          Downloading virtualenv-20.26.5-py3-none-any.whl.metadata (4.5 kB)
+                                        Collecting distlib<1,>=0.3.7 (from virtualenv)
+                                          Downloading distlib-0.3.8-py2.py3-none-any.whl.metadata (5.1 kB)
+                                        Collecting filelock<4,>=3.12.2 (from virtualenv)
+                                          Downloading filelock-3.16.1-py3-none-any.whl.metadata (2.9 kB)
+                                        Collecting platformdirs<5,>=3.9.1 (from virtualenv)
+                                          Downloading platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+                                        Downloading virtualenv-20.26.5-py3-none-any.whl (6.0 MB)
+                                           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.0/6.0 MB 1.4 MB/s eta 0:00:00
+                                        Downloading distlib-0.3.8-py2.py3-none-any.whl (468 kB)
+                                        Downloading filelock-3.16.1-py3-none-any.whl (16 kB)
+                                        Downloading platformdirs-4.3.6-py3-none-any.whl (18 kB)
+                                        Installing collected packages: distlib, platformdirs, filelock, virtualenv
+                                        Successfully installed distlib-0.3.8 filelock-3.16.1 platformdirs-4.3.6 virtualenv-20.26.5
+
+
+                                        ╰─ pip3.12  install virtualenvwrapper
+                                        Collecting virtualenvwrapper
+                                          Using cached virtualenvwrapper-6.1.0-py3-none-any.whl.metadata (5.1 kB)
+                                        Requirement already satisfied: virtualenv in /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages (from virtualenvwrapper) (20.26.5)
+                                        Collecting virtualenv-clone (from virtualenvwrapper)
+                                          Using cached virtualenv_clone-0.5.7-py3-none-any.whl.metadata (2.7 kB)
+                                        Collecting stevedore (from virtualenvwrapper)
+                                          Downloading stevedore-5.3.0-py3-none-any.whl.metadata (2.3 kB)
+                                        Collecting pbr>=2.0.0 (from stevedore->virtualenvwrapper)
+                                          Downloading pbr-6.1.0-py2.py3-none-any.whl.metadata (3.4 kB)
+                                        Requirement already satisfied: distlib<1,>=0.3.7 in /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages (from virtualenv->virtualenvwrapper) (0.3.8)
+                                        Requirement already satisfied: filelock<4,>=3.12.2 in /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages (from virtualenv->virtualenvwrapper) (3.16.1)
+                                        Requirement already satisfied: platformdirs<5,>=3.9.1 in /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages (from virtualenv->virtualenvwrapper) (4.3.6)
+                                        Using cached virtualenvwrapper-6.1.0-py3-none-any.whl (22 kB)
+                                        Downloading stevedore-5.3.0-py3-none-any.whl (49 kB)
+                                        Using cached virtualenv_clone-0.5.7-py3-none-any.whl (6.6 kB)
+                                        Downloading pbr-6.1.0-py2.py3-none-any.whl (108 kB)
+                                        Installing collected packages: virtualenv-clone, pbr, stevedore, virtualenvwrapper
+                                        Successfully installed pbr-6.1.0 stevedore-5.3.0 virtualenv-clone-0.5.7 virtualenvwrapper-6.1.0
+
+                    ╰─ pip3.12  install yawsso
+                    Collecting yawsso
+                      Downloading yawsso-1.2.0-py3-none-any.whl.metadata (10 kB)
+                    Downloading yawsso-1.2.0-py3-none-any.whl (16 kB)
+                    Installing collected packages: yawsso
+                    Successfully installed yawsso-1.2.0
+
+
+                    ╰─ which yawsso
+                    /Library/Frameworks/Python.framework/Versions/3.12/bin/yawsso
 
 
 

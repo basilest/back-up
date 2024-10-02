@@ -155,7 +155,7 @@ INCLUDE                To split a big project in more files
                                               the range of subsequent \include
                                               to only these listed files
 
-\usepackage{syntonly}  to only check consistency fo the doc (pre-processing) without
+\usepackage{syntonly}  to only check consistency for the doc (pre-processing) without
 \syntaxonly            a complete compilation (no .dvi is generated).
                        To save time. When ready comment out the 2' line
 

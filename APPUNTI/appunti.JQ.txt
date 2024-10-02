@@ -9,6 +9,11 @@
                               jq    ....  "secure-mongo-db1.live.aws.internal"
                               jq -r ....   secure-mongo-db1.live.aws.internal
 
+
+
+    -c               compact output. It prints as 1 line. Very usefull when pipeing
+
+
     jq '.[] | select(.location=="Stockholm")'  filter only entries with a field equal a value
         .[] | select((.processedBarsVolume <= 5) and .processedBars > 0)       <-------------   'and' 'or'  (lowercase) are allowed
 
