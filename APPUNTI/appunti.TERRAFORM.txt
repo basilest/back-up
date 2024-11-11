@@ -6,9 +6,18 @@
              Terraform is 4 components:
 
                     1. the exe     (eg /usr/local/bin/terraform)
+                           - terraform is an exacutable (written in go). 1 single file with no other libraries to put around
+
                     2. the providers  (executable plugins which could extend the functionalities, ex 'aws')
+                           - terraform providers/plugins: they extend/implement the different features of terraform
+
                     3. config files
+                           - terraform files (.cfg) they contain the variables/configuration to deploy
+
                     4. state file
+                           - terraform state: it contains the current state of my target
+
+-------------------------------------------------------------------
 
 
              |  Usage: terraform [-version] [-help] <command> [args]
@@ -49,7 +58,15 @@
              |      state              Advanced state management
 
 
+-------------------------------------------------------------------
   chtf                               Terraform version switcher   (brew install yleisradio/terraforms/chtf)
+
+                                     for bash/zsh add this in the profile files:
+
+                                                if [[ -f /opt/homebrew/share/chtf/chtf.sh ]]; then      <------ this path can change
+                                                    source /opt/homebrew/share/chtf/chtf.sh
+                                                fi
+
                                      to install/switch multiple Terraform versions (since 0.6.6) at the same time,
                                      [chtf installs the specified version automatically if needed].
 
@@ -82,364 +99,19 @@
 
                                                          ╰─ which terraform
                                                          /usr/local/Caskroom/terraform-0.11.8/0.11.8/terraform
-
-
-
-
-    terraform init
-                                           'init' will install the required providers:
-
-                                            ❯ ls -lrta
-                                                                total 8
-                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
-                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 10:56 .
-                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
-                                            ❯ terraform init
-
-                                                                Initializing the backend...
-
-                                                                Initializing provider plugins...
-                                                                - Finding latest version of hashicorp/aws...
-                                                                - Installing hashicorp/aws v5.42.0...
-                                                                - Installed hashicorp/aws v5.42.0 (signed by HashiCorp)
-                                                                 ...
-                                                                 ...
-                                            ❯ ls -lrta
-                                                                total 16
-                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
-                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
-                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 11:56 .terraform
-                                                                -rw-r--r--   1 sbasile  staff  1377 Mar 22 11:56 .terraform.lock.hcl
-                                                                drwxr-xr-x   5 sbasile  staff   160 Mar 22 11:56 .
-                                            ❯ cat .*.hcl
-                                                                # This file is maintained automatically by "terraform init".
-                                                                # Manual edits may be lost in future updates.
-
-                                                                provider "registry.terraform.io/hashicorp/aws" {
-                                                                  version = "5.42.0"
-                                                                  hashes = [
-                                                                    "h1:0lkSSlK45Qil9fO1kFy8RXVC/k6qfC4LDZIaCKnWcUc=",
-                                                                    "zh:0fb12bd56a3ad777b29f957c56dd2119776dbc01b6074458f597990e368c82de",
-                                                                    "zh:16e99c13bef6e3777f67c240c916f57c01c9c142254cfb2720e08281ff906447",
-                                                                    "zh:218268f5fe73bcb19e9a996f781ab66df0da9e333d1c60612e3c51ad28a5105f",
-                                                                    "zh:220b17f7053d11548f35136669687d30ef1f1036e15393275325fd2b9654c715",
-                                                                    "zh:2256cfd74988ce05eada76b42efffc6fe2bf4d60b61f57e4db4fcf65ced4c666",
-                                                                    "zh:52da19f531e0cb9828f73bca620e30264e63a494bd7f9ce826aabcf010d3a241",
-                                                                    "zh:56069ce08d720280ba39aaf2fdd40c4357ffb54262c80e4d39c4e540a38e76af",
-                                                                    "zh:82c81398e68324029167f813fbb7c54fa3d233e99fa05001d85cbce8bdd08bb3",
-                                                                    "zh:82d6eaa87f5ab318959064e6c89adc2baabaf70b13f2f7de866f62416de05352",
-                                                                    "zh:9b12af85486a96aedd8d7984b0ff811a4b42e3d88dad1a3fb4c0b580d04fa425",
-                                                                    "zh:ade8490cfdd8de8b9a82986588595b67e0ad1048d9e2d3a6f5164320179c2cd0",
-                                                                    "zh:b094ef56ae9bfffd586f46d4f7fb0097798738df758a8f3c51578ee163495c7e",
-                                                                    "zh:bd5e68e1e454bae0f8d73cff8448e814a35855a561c33b745e1b8b525fb06c9f",
-                                                                    "zh:c111c6a854bf121facca1642d528bfa80fb4214554ac6c33e4a59c86bc605b71",
-                                                                    "zh:e04df69a557adbcdf8efc77eb45be748f0acbe800ccede1e0895393c87722a0f",
-                                                                  ]
-                                                                }
-                                            ❯ find .terraform
-                                                                .terraform
-                                                                .terraform/providers
-                                                                .terraform/providers/registry.terraform.io
-                                                                .terraform/providers/registry.terraform.io/hashicorp
-                                                                .terraform/providers/registry.terraform.io/hashicorp/aws
-                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0
-                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64
-                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64/terraform-provider-aws_v5.42.0_x5
-
-
-    terraform plan -out  here.myplan
-
-    terraform apply here.myplan
-
-    terraform destroy                            # will destroy all the 'resources'
-
---------------------------------------
-          AUTOMATING Infrastructure Deployment
-
-              . Provisioning Resources
-              . Planning Updates
-              . Using Source Control (GIT)
-              . Reusing TEMPLATES
---------------------------------------
-
-  execution plan
-  Infrastructure as code             high-level configuration syntax
-  graph                              Terraform builds a graph of all your resources
-                                     This means that when running 'terraform apply'
-                                     terraform takes care of usual problem of finding the
-
-                                             1. dependencies between resources
-                                             2. order to execute
-
-
-  automate changes                   avoiding many possible human errors.
-
-
-  Configuration files                extension: *.tf   (or .tf.json when using JSON)
-                                     structure: tree of modules.
-                                                A root module, where evaluation begins,
-                                                Child modules created when one module calls another.
-
-                                          - module: ALL .tf/.tf.json files in a dir
-                                          - a ROOT module: all .tf/.tf.json files in the CURRENT dir
-
-                                          SIMPLEST CONFIG: 1 .tf file in cur dir
-
-                                     format: its own configuration language (default)  or JSON.
-                                             (Infrastructure as code: the proprietary language
-                                                                      is then more powerful than JSON)
-                                     format specs:
-
-                                       <BLOCK TYPE> "<BLOCK LABEL>"... "<BLOCK LABEL>" {    like     int i  <--"TYPE" & "name" var
-                                         # Block body
-                                         <IDENTIFIER> = <EXPRESSION> # Argument
-                                       }
-                                                        _________________________________________
-                                     example:          /                                         |
-                                            provider "aws" {                                     |
-             ~/.aws/credentials  ------->     profile    = "default"              # BLOCK 1      |
-                                              region     = "us-east-1"                           |
-                                            }                                                    |
-                                                        ____ format xxx _ nnnn  (xxx name of provider)
-                                                       /
-                                            resource "aws_instance" "example" {   # BLOCK 2
-                                              ami           = "ami-2757f631"
-                                              instance_type = "t2.micro"
-                                            }
-
-
-                                            The "name" is used to refer to this resource from elsewhere in the same Terraform module,
-                                            but has no meaning outside of the module.
-                                            Remember a module is the set of .tf/tf.json files in a dir
-
-
-terraform init                       the 1st command to run
-                                     . will automatically download and install all the required providers.
-                                       (telling also the version of each:
-                                            ex:   provider.aws: version = "~> 2.22"
-                                       )
-
-                                    note: it’s safe to run init multiple times (the command is idempotent).
-
-
-
-
-
-terraform.tfstate                   This state file is extremely important;
-                                    it keeps track of the IDs of created resources so that
-                                    Terraform knows.
-                                    This file must be saved and distributed to anyone who might run Terraform.
-
-
-terraform show                      to see current state.
-
-
-terraform apply                     to apply changes   (I must type 'yes') so if I don't type yes
-                                    the apply doesn't change
-
-terraform destroy
-
-terraform fmt                       format & check for SYNTAX-only errors
-                                                -check       doesn't change the files, just Exit status will be 0 if all ok
-                                                -recursive   (goes on subdirs)
-terraform check
-terraform validate                  check for syntax & logic errors
-
-
-❯ terraform graph                   shows the dependency in the DOT language description format.
-                                    digraph {
-                                            compound = "true"
-                                            newrank = "true"
-                                            subgraph "root" {
-                                                    "[root] aws_instance.example1 (expand)" [label = "aws_instance.example1", shape = "box"]
-                                                    "[root] aws_security_group.schiro45 (expand)" [label = "aws_security_group.schiro45", shape = "box"]
-                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"]" [label = "provider[\"registry.terraform.io/hashicorp/aws\"]", shape = "diamond"]
-                                                    "[root] aws_instance.example1 (expand)" -> "[root] aws_security_group.schiro45 (expand)"
-                                                    "[root] aws_security_group.schiro45 (expand)" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"]"
-                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)" -> "[root] aws_instance.example1 (expand)"
-                                                    "[root] root" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)"
-                                            }
-                                    }
-                                    I can copy paste this into something like: http://dreampuf.github.io/GraphvizOnline/
-                                    for visualisation
-
-
-
-
-PROVIDER "aws"
-                      . ~/.aws/credentials          stores the profiles
-
-                      . aws cli                     (needs Python)
-
-                      . aws configure
-
-
-Provisioners
-                      resource "aws_instance" "example" {
-                          ami           = "ami-b374d5a5"
-                          instance_type = "t2.micro"
-
-                          provisioner "local-exec" {   # local-exec  is the provisioner to run cmds on local host
-                            command = "echo ${aws_instance.example.public_ip} > ip_address.txt"
-                          }
-                      }
-
-
-                      Provisioners are mainly run when a resource is CREATED.
-                      They are not a replacement for configuration management
-                      and are instead just meant as a way to bootstrap a server.
-
-                      Other Provisioners are run when a resource is DESTROYED
-                      to clean up.
-
-
-
-TAINTED resources     Are the resources failed during the provisioning.
-                      Terraform detroys/removes these resources
-                      but it doesn't rollback (as it will be against the PLAN
-                      where there isn't written anything about DESTROYing)
-
-
-
-VARIABLES
-                          ________ 'variable' is a keyword            variables stay in  file  ./terraform.tfvars  (or variables.tf)
-                         /
-                      variable "region" {
-                         type = string   <---------- if I submit an integer terraform will then trigger an error
-                         description = "......."      <--- for documentation
-                         default = "us-east-1"        <--- a default always useful.    If during exection terraform doesn't have a value for this var (no -var / TF_VAR_xxx/ default) it will prompt for a value
-                         sensitive = true | false             # if 'true' not shown in logs
-                      }
-
-                      ------------------------------
-                      provider "aws" {
-                         region     = var.region       <--- usage   ('var' is a keyword)
-                      }
-
-                      ___________________
-                                 note then that a var definition has
-                                   an optional "type"
-                                   an optional "default"
-
-                                 ex:
-                                      variable "cidr" {
-                                          type = map(string)   <--- a map of strings
-                                          default = {
-                                                development = "10/0.0.0/16"
-                                                staging     = "10.1.0.0/16"
-                                                live        = "10.2.0.0/16"
-                                          }
-                                      }
-                      ___________________
-
-
-          - file terraform.tfvars      ex. region = "us-east-2"      files automatically sourced if present:  terraform.tfvars / terraform.tfvars.json
-                 (default name)                                                                             xxx.auto.tfvars     / xxx.auto.tfvars.json
-                                                                                                               ^^^^^^^^^^^           ^^^^^^^^^^^^^^^^   <--- files with these EXTENSIONS
-
-          - Command-line flags         ex. terraform apply  -var 'region=us-east-2'
-                                                            ^^^^
-                                       ex. terraform apply  -var-file=dddd/dddd/fff.tf
-                                                            ^^^^^^^^^
-                                                                    (when not using default terraform.tfvars | xxx.auto.tfvars)
-
-          - ENV vars                   ex. TF_VAR_nnnnn   TF_VAR_ +  name of the ENV var
-                                           (ex. TF_VAR_HOME)
-
-          - PRECEDENCE OF VARS:
-
-                            (less              ENV
-                            important)         terraform.tfvars | terraform.tfvars.json
-                                               xxx.auto.tfvars  | xxx.auto.tfvars.json
-                            (more              -var-file
-                            important)         -var
-
-          - UI on apply                running 'apply' with missing variables, they will be asked interactively.
-
-                                       Only supported for STRING variables.
-                                       LIST and MAP vars must be populated via one of the other mechanisms.
-
-
-
-
-          Primitive type:            Collection (all SAME TYPES)           Strictural (MIXED TYPES)
-                   . String                 . List                              . Tuple
-                   . number                 . Map                               . Object
-                   . bool                   . Set
-                   . any   ex. list(any)
-                   . null  ex for default
-
-
-
-
-
-          LIST VARs                    variable "cidrs" { default = [] }     # implicit assign.  ex   cidrs = [ "10.0.0.0/16", "10.1.0.0/16" ]
-                                       variable "cidrs" { type = list }      # explicit      /  list(string)  / list(number) / list(bool) / ...
-
-
-          MAP VARs                     hash (like a normal json with '=' instead of ':')      /  map(string)  / map(number) / map(bool) / ...
-                                       variable "amis" {                                resource "aws_instance" "example" {
-                                          type = "map"                                    ami        = var.amis[var.region]
-                                          default = {                                     inst_type  = "t2.micro" ^^^^^^^^
-                                            "us-east-1" = "ami-b374d5a5"                }
-                                            "us-west-2" = "ami-4b32be2b"
-                                          }
-                                       }
-
-                                      I can use MAP also on the command line style:
-                                      ex.    terraform apply -var 'amis={ us-east-1 = "foo", us-west-2 = "bar" }'
-
-
-
-
-          OUTPUT VARs                  I can decide what to log (OUTPUT vars) of the hundreds I have.
-                                       These values are logged when running "terraform apply"
-
-                                       They can also be QUERIED with the command
-
-                                       "terraform output"
-
-                                       they are defined in the shape:
-
-                                                    ______ "output" is a keyword
-                                                   /
-                                                output "ip" {
-                                                  value = aws_eip.ip.public_ip     # also "value" is expected.
-                                                }                                    which is usually in the 'interpolation' format
-                                                                                     being a value known at runtime
-
-
-
-
-
-Terraform Cloud           Is the commercial solution to store my 'Terraform state' file in a remote space (called "backend")
-                          shared with other team's members. (to do, versioning, audit, peer review....)
-
-
-                          terraform {                                        when running  "terraform init"
-                                  backend "remote" {                ----->   and answering "yes"
-                                    organization = "Cloud-Org"               the state is copied to Terraform Cloud
-
-                                    workspaces {                             "terraform apply"  will check (like git pull)
-                                      name = "Dev-QA"                        the remote and if there is nothing to do
-                                    }                                        will output
-                                  }                                              No changes. Infrastructure is up-to-date.
-                                }
-                                                                             REMOVING THE "backend" BLOCK FROM THE CONFIG FILE
-                                                                             AND RUNNING "terraform init" IT WILL BE
-                                                                             MOVED BACK LOCALLY FROM Terraform Cloud
-
-
-
-
-
-
-
-
-
 -------------------------------------------------------------------
 
       PROVISION INFRASTRUCTURE THROUGH CODE
+
+                      execution plan
+                      Infrastructure as code             high-level configuration syntax
+                      graph                              Terraform builds a graph of all your resources
+                                                         This means that when running 'terraform apply'
+                                                         terraform takes care of usual problem of finding the
+
+                                                                 1. dependencies between resources
+                                                                 2. order to execute
+
 
                        - benefit:
                                  . predictable envs
@@ -499,176 +171,11 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
                                            - PULL ways: the target pulls down from me the configuration
                                              (ex. an agent on a server pulls down the configuration on a regular basis)
 -------------------------------------------------------------------
+    1st RULE OF TERRAFORM
 
+           manage always with Terraform
 
-   4 componenets of terraform
-
-       - terraform is an exacutable (written in go). 1 single file with no other libraries to put around
-
-       - terraform files (.cfg) they contain the variables/configuration to deploy
-
-       - terraform providers/plugins: they extend/implement the different features of terraform
-
-       - terraform state: it contains the current state of my target
-
-
-
-------------------------------------------------------------------- main  K E Y W O R D S
-    1  variable   "aws_access_key"    {
-    2  provider   "aws"               {
-    3  data       "aws_ami" "alx"     {
-    4  resource   "aws_instance" "ex" {
-    5  output     "aws_public_ip"     {
--------------------------------------------------------------------
-
-
-
-
-
-
-
-    1  variables   these are vars passed as INPUT to the script
-                   'variables' is a misleading name and should be called 'inputs'
-                   because ALL 'variables' must have a value passed with input configs
-                   via one of manu ways ( ENV terraform.tfvars | terraform.tfvars.json xxx.auto.tfvars  | xxx.auto.tfvars.json -var-file -var)
-                   and if at execution time terraform doesn't have values for all the vars it asks those values at prompt
-
-                   The real variables, in the normal sense of programming languages,
-                   or internal vars which I can freely define and use across my terraform code
-                   are then the  'locals'
-                                                                                                                __________ locals are "variable" that I define INSIDE my script.
-                                                                                                               /          ^^^^^^^^   They don't come from outside
-                             variable "aws_access_key" {}        # note 'variable' is a keyword              locals {                           I can refer to them as local.instance_prefix
-                             variable "aws_secret_key" {}       ___________________.                              instance_prefix = "globo"                            ^^^^^
-                                                                                   |                              common_tags = {                          EVEN 'locals' & 'local' are keywords
-                             variable "aws_region" {                               |                                      company = "Some Name LTD"
-                                     default = "us-east-1"                         |                                      region = var.aws_region
-                             }                                                     |                              }
-                                                                                   |                         }        # locals can stay in any file, but usually they are put in a "locals.tf"
--------------------------------------------------------------------                |
-    2  providers/plugins       they are the plugins I can use.                     |
-                               they are open source and written in Go              |
-                                                                                   |
-                             provider "aws" {                                      |
-                                   access_key = "var.access_key"   <---------I use them here    # note 'var.' is a keyword
-                                   access_key = "var.secret_key"
-                                   region = "var.aws_region"
-                             }
-
-
-             . here I'm using the provider/plugin "aws"
-             . to use a certain provider/plugin  I must set its parameters
-             . providers use semantyc versioning:  major . minor . patch
-             . I can have more than 1 version for the same provider
-               (ex more AWS, to control different regions with a different version if needed)
-               so I can define ALIASES for providers
-
-file: providers.tf   <------ this is the standard file where I can configure my required/ used providers
-
-    provider "aws" {
-       alias = "west"
-       ...
-    }                               H E R E   H O W   A   R E S O U R C E   C A N    S P E C I F Y   I T S   U S E D   P R O V I D E R :
-
-                                    resource "aws_instance"  "web_server" {
-                                        provider = aws.west
-                                        ....
-                                    }
-
-
--------------------------------------------------------------------
-    3  Data source                                               They are 'views' on a PROVIDER, I can 'query' data out from a provider
-                                                                 they are then READ-ONLY data <---------
-
-                             data "aws_ami" "alx"  {             # note 'data' is a keyword
-                                most_recent = true
-                                owners = ["amazon"]
-                                filter  {
-                                         name = "name"
-                                         values = ["amzn-ami-hvm*"]
-                                }
-
-                                filter  {
-                                         name = "virtualization-type"
-                                         values = ["hvm"]
-                                }
-                             }
-
-
--------------------------------------------------------------------
-    4  Resource
-
-           Each 'provider' (i.e. aws)
-           has many possible 'resources' (i.e. ec2, s3, vpc, ...)
-           which I can use, and which are named as
-                    PROVIDER_XXX
-           ex
-                    aws_instance
-
-
-                             resource "aws_instance" "ex" {      # note 'resource' is a keyword
-                                ami = "data.aws_ami.alx.id"
-                                       ^^^^                     <----- note: I'm referencing/using a data source
-                                instance_type = "t2.micro"                   'data.' is a keyword
-                             }
-
-           resource "aws_vpc"   "vpc"  {      <-----------.
-             ....                                         |
-           }                                              |
-           resource "aws_route_table"  "rtb"  {           |
-               vpc_id = aws_vpc.vpc.id                    |
-                        ^^^^^^^ ^^^                       |
-           }                 \./__________________ here used
-
-    ---------------------------------
-    RESOURCE ARGUMENTS (bultin types)
-
-    ____________________________________________________
-    count                                                # to parameterize a bunch of resources
-                 resource "aws_instance"  "tacos" {
-                      count = 2
-
-                      tags {
-                           Name = "customer-${count.index}"   <---- I'll have 2 resources customer-0  / customer-1
-                      }                       ^^^^^
-                 }
-    ____________________________________________________
-    depends_on                                           # to help to create a dependency graph
-                 resource "aws_instance"  "tacos" {
-
-                      ....
-                      depends_on = [aws_iam_role_policy.allow_s3]
-                 }    ^^^^^^^^^^
-    ____________________________________________________
-    for_each                                             # to loop through a map
-                 resource "aws_instance"  "tacos" {
-                      for_each = {
-                           food = "public_read"
-                           cash = "private"
-                      }
-                      bucket = "${each.key}-${var.bucket_suffix}"
-                                 ^^^^^^^^^ <--------------------------- food / cash
-                      acl = each.value     <------- public_read / private
-                 }          ^^^^^^^^^^
--------------------------------------------------------------------
-    5  Output
-                       'output' is like an echo or printf
-                       is a way to dump formatted output
-                       output stay usually in a file called 'output.tf'
-
-                             output "aws_public_ip" {            # note 'output' is a keyword
-                                value = "https://${aws_instance.ex.public_dns}"   <---- output, like here, can be like a common shell echo "....${}.."
-                                description = ....                                      where I can interpolate strings & vars
-                                sensitive = true | false
-                             }
-
-                       with 'output' I can log values OUT of terraform (in the logs)
-                       but also to pass values from 1 module to another
-
-               Interestingly 'outputs' are stored in the state file
-               and can be seen anytime just running
-               > terraform output
-
+           (never change manually)
 -------------------------------------------------------------------
     "terraform {"             the terraform-block
                                 terraform {
@@ -699,8 +206,17 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                                                                 }
                                                            }
 
+
 -------------------------------------------------------------------
     TERRAFORM STATE      (./terraform.tfstate)
+
+
+        terraform.tfstate                   This state file is extremely important;
+                                            it keeps track of the IDs of created resources so that
+                                            Terraform knows.
+                                            This file must be saved and distributed to anyone who might run Terraform.
+
+
 
          . a file which stores the state ('resource' mappings and metadata)
          . this file can be local or remote:
@@ -776,29 +292,6 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                                                                                                               "project"      = "Globomantics-load2"
                                                                                                           }
                                                                                                       }
-
--------------------------------------------------------------------
-    1st RULE OF TERRAFORM
-
-           manage always with Terraform
-
-           (never change manually)
--------------------------------------------------------------------
-    TERRAFORM PLANNING
-
-           1. Inspect state file
-           2. Dependency graph
-           3. Addition / Updates / Deletions
-           4. Parallel execution
-           5. Save the plan
--------------------------------------------------------------------
-    Ex. Deploy a VPC
-
-           resource "aws_vpc"                     "vpc"  {}
-           resource "aws_internet_gateway"        "igw"  {}
-           resource "aws_subnet"                  "subnet1"  {}
-           resource "aws_route_table"             "rtb"  {}
-           resource "aws_route_table_association" "rta-subnet1"  {}
 -------------------------------------------------------------------
     TERRAFORM SYNTAX
            HashiCorp    configuration language
@@ -807,8 +300,45 @@ file: providers.tf   <------ this is the standard file where I can configure my 
            - supports conditionals / functions / reusable templates
 
 
+  Configuration files                extension: *.tf   (or .tf.json when using JSON)
+                                     structure: tree of modules.
+                                                A root module, where evaluation begins,
+                                                Child modules created when one module calls another.
+
+                                          - module: ALL .tf/.tf.json files in a dir
+                                          - a ROOT module: all .tf/.tf.json files in the CURRENT dir
+
+                                          SIMPLEST CONFIG: 1 .tf file in cur dir
+
+                                     format: its own configuration language (default)  or JSON.
+                                             (Infrastructure as code: the proprietary language
+                                                                      is then more powerful than JSON)
+                                     format specs:
            - BLOCKS
                         . basic:            type    label1    label2          ex resource "aws_vpc"  "vpc"  {}
+
+
+                                       <BLOCK TYPE> "<BLOCK LABEL>"... "<BLOCK LABEL>" {    like     int i  <--"TYPE" & "name" var
+                                         # Block body
+                                         <IDENTIFIER> = <EXPRESSION> # Argument
+                                       }
+                                                        _________________________________________
+                                     example:          /                                         |
+                                            provider "aws" {                                     |
+             ~/.aws/credentials  ------->     profile    = "default"              # BLOCK 1      |
+                                              region     = "us-east-1"                           |
+                                            }                                                    |
+                                                        ____ format xxx _ nnnn  (xxx name of provider)
+                                                       /
+                                            resource "aws_instance" "example" {   # BLOCK 2
+                                              ami           = "ami-2757f631"
+                                              instance_type = "t2.micro"
+                                            }
+
+
+                                            The "name" is used to refer to this resource from elsewhere in the same Terraform module,
+                                            but has no meaning outside of the module.
+                                            Remember a module is the set of .tf/tf.json files in a dir
 
            - KEY VALUE PAIRS (inside the BLOCKS)
                         .  resource "aws_vpc"  "vpc"  {
@@ -848,13 +378,289 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                     * -->  aws_subnet.subnet[*].id   <----- the * in an array returns a list of all the entries                                         ^^^^^^^^^
                                              ^
 
+------------------------------------------------------------------- main  K E Y W O R D S
+    1  variable   "aws_access_key"    {
+    2  provider   "aws"               {
+    3  data       "aws_ami" "alx"     {
+    4  resource   "aws_instance" "ex" {
+    5  output     "aws_public_ip"     {
+-------------------------------------------------------------------
+    1  variables   these are vars passed as INPUT to the script
+                   'variables' is a misleading name and should be called 'inputs'
+                   because ALL 'variables' must have a value passed with input configs
+                   via one of many ways ( ENV terraform.tfvars | terraform.tfvars.json xxx.auto.tfvars  | xxx.auto.tfvars.json -var-file -var)
+                   and if at execution time terraform doesn't have values for all the vars it asks those values at prompt
+
+                   The real variables, in the normal sense of programming languages,
+                   or internal vars which I can freely define and use across my terraform code
+                   are then the  'locals'
+                                                                                                                __________ locals are "variable" that I define INSIDE my script.
+                                                                                                               /          ^^^^^^^^   They don't come from outside
+                             variable "aws_access_key" {}        # note 'variable' is a keyword              locals {                           I can refer to them as local.instance_prefix
+                             variable "aws_secret_key" {}       _______________________________                   instance_prefix = "globo"                            ^^^^^
+                                                                                                                  common_tags = {                          EVEN 'locals' & 'local' are keywords
+                             variable "aws_region" {                                                                      company = "Some Name LTD"
+                                     default = "us-east-1"                                                                region = var.aws_region
+                             }                                                                                    }
+                                                                                                             }        # locals can stay in any file, but usually they are put in a "locals.tf"
+
+
+                          ________ 'variable' is a keyword            variables stay in  file  ./terraform.tfvars  (or variables.tf)
+                         /
+                      variable "region" {
+                         type = string   <---------- if I submit an integer terraform will then trigger an error
+                         description = "......."      <--- for documentation
+                         default = "us-east-1"        <--- a default always useful.    If during exection terraform doesn't have a value for this var (no -var / TF_VAR_xxx/ default) it will prompt for a value
+                         sensitive = true | false             # if 'true' not shown in logs
+                      }
+
+                      ------------------------------
+                      provider "aws" {
+                         region     = var.region       <--- usage   ('var' is a keyword)
+                      }
+
+                      ___________________
+                                 note then that a var definition has
+                                   an optional "type"
+                                   an optional "default"
+
+                                 ex:
+                                      variable "cidr" {
+                                          type = map(string)   <--- a map of strings
+                                          default = {
+                                                development = "10/0.0.0/16"
+                                                staging     = "10.1.0.0/16"
+                                                live        = "10.2.0.0/16"
+                                          }
+                                      }
+                      ___________________
+
+
+          - file terraform.tfvars      ex. region = "us-east-2"      files automatically sourced if present:  terraform.tfvars / terraform.tfvars.json
+                 (default name)                                                                                xxx.auto.tfvars  / xxx.auto.tfvars.json
+                                                                                                                   ^^^^^^^^^^^        ^^^^^^^^^^^^^^^^   <--- files with these EXTENSIONS
+
+          - Command-line flags         ex. terraform apply  -var 'region=us-east-2'
+                                                            ^^^^
+                                       ex. terraform apply  -var-file=dddd/dddd/fff.tf
+                                                            ^^^^^^^^^
+                                                                    (when not using default terraform.tfvars | xxx.auto.tfvars)
+
+          - ENV vars                   ex. TF_VAR_nnnnn   TF_VAR_ +  name of the ENV var
+                                           (ex. TF_VAR_HOME)
+
+          - PRECEDENCE OF VARS:
+
+                            (  -               ENV
+                            important)         terraform.tfvars | terraform.tfvars.json
+                                                xxx.auto.tfvars |  xxx.auto.tfvars.json
+                            (  +               -var-file
+                            important)         -var
+
+          - UI on apply                running 'apply' with missing variables, they will be asked interactively.
+
+                                       Only supported for STRING variables.
+                                       LIST and MAP vars must be populated via one of the other mechanisms.
+
+
+
+
+          Primitive type:            Collection (all SAME TYPES)           Strictural (MIXED TYPES)
+                   . String                 . List                              . Tuple
+                   . number                 . Map                               . Object
+                   . bool                   . Set
+                   . any   ex. list(any)
+                   . null  ex for default
+
+
+
+
+
+          LIST VARs                    variable "cidrs" { default = [] }     # implicit assign.  ex   cidrs = [ "10.0.0.0/16", "10.1.0.0/16" ]
+                                       variable "cidrs" { type = list }      # explicit      /  list(string)  / list(number) / list(bool) / ...
+
+
+          MAP VARs                     hash (like a normal json with '=' instead of ':')      /  map(string)  / map(number) / map(bool) / ...
+                                       variable "amis" {                                resource "aws_instance" "example" {
+                                          type = "map"                                    ami        = var.amis[var.region]
+                                          default = {                                     inst_type  = "t2.micro" ^^^^^^^^
+                                            "us-east-1" = "ami-b374d5a5"                }
+                                            "us-west-2" = "ami-4b32be2b"
+                                          }
+                                       }
+
+                                      I can use MAP also on the command line style:
+                                      ex.    terraform apply -var 'amis={ us-east-1 = "foo", us-west-2 = "bar" }'
+
+
+
+
+          OUTPUT VARs                  I can decide what to log (OUTPUT vars) of the hundreds I have.
+                                       These values are logged when running "terraform apply"
+
+                                       They can also be QUERIED with the command
+
+                                       "terraform output"
+
+                                       they are defined in the shape:
+
+                                                    ______ "output" is a keyword
+                                                   /
+                                                output "ip" {
+                                                  value = aws_eip.ip.public_ip     # also "value" is expected.
+                                                }                                    which is usually in the 'interpolation' format
+                                                                                     being a value known at runtime
+
+
 
 -------------------------------------------------------------------
+    2  providers/plugins       they are the plugins I can use.
+                               they are open source and written in Go
+
+                             provider "aws" {
+                                   access_key = "var.access_key"   <---------I use variables here    # note 'var.' is a keyword
+                                   access_key = "var.secret_key"
+                                   region = "var.aws_region"
+                             }
+
+
+             . here I'm using the provider/plugin "aws"
+             . to use a certain provider/plugin  I must set its parameters
+             . providers use semantyc versioning:  major . minor . patch
+             . I can have more than 1 version for the same provider
+               (ex more AWS, to control different regions with a different version if needed)
+               so I can define ALIASES for providers
+
+file: providers.tf   <------ this is the standard file where I can configure my required/ used providers
+
+    provider "aws" {
+       alias = "west"
+       ...
+    }                               H E R E   H O W   A   R E S O U R C E   C A N    S P E C I F Y   I T S   U S E D   P R O V I D E R :
+
+                                    resource "aws_instance"  "web_server" {
+                                        provider = aws.west
+                                        ....
+                                    }
+
+-------------------------------------------------------------------
+    3  Data source                                               They are 'views' on a PROVIDER, I can 'query' data out from a provider
+                                                                 they are then READ-ONLY data <---------
+
+                             data "aws_ami" "alx"  {             # note 'data' is a keyword
+                                most_recent = true
+                                owners = ["amazon"]
+                                filter  {
+                                         name = "name"
+                                         values = ["amzn-ami-hvm*"]
+                                }
+
+                                filter  {
+                                         name = "virtualization-type"
+                                         values = ["hvm"]
+                                }
+                             }
+
+
+-------------------------------------------------------------------
+    4  Resource
+
+           Each 'provider' (i.e. aws)
+           has many possible 'resources' (i.e. ec2, s3, vpc, ...)
+           which I can use, and which are named as
+                    PROVIDER_XXX
+           ex
+                    aws_instance
+
+
+                             resource "aws_instance" "ex" {      # note 'resource' is a keyword
+                                ami = "data.aws_ami.alx.id"
+                                       ^^^^                     <----- note: I'm referencing/using a data source
+                                instance_type = "t2.micro"                   'data.' is a keyword
+                             }
+
+           resource "aws_vpc"   "vpc"  {      <-----------.
+             ....                                         |
+           }                                              |
+           resource "aws_route_table"  "rtb"  {           |
+               vpc_id = aws_vpc.vpc.id                    |
+                        ^^^^^^^ ^^^                       |
+           }                 \./__________________ here used
+
+    ---------------------------------
+    TAINTED resources     Are the resources failed during the provisioning.
+                          Terraform detroys/removes these resources
+                          but it doesn't rollback (as it will be against the PLAN
+                          where there isn't written anything about DESTROYing)
+
+
+
+    ---------------------------------
+    RESOURCE ARGUMENTS (bultin types)
+
+    ____________________________________________________
+    count                                                # to parameterize a bunch of resources
+                 resource "aws_instance"  "tacos" {
+                      count = 2
+
+                      tags {
+                           Name = "customer-${count.index}"   <---- I'll have 2 resources customer-0  / customer-1    NOTE: start from '0'
+                      }                       ^^^^^
+                 }
+
+                           aws_instance.tacos[1].name      I refer to the 2nd instance
+                           aws_instance.tacos[*].name      I get ALL ('*')
+    ____________________________________________________
+    depends_on                                           # to help to create a dependency graph
+                 resource "aws_instance"  "tacos" {
+
+                      ....
+                      depends_on = [aws_iam_role_policy.allow_s3]
+                 }    ^^^^^^^^^^
+    ____________________________________________________
+    for_each                                             # to loop through a map
+                 resource "aws_instance"  "tacos" {
+                      for_each = {
+                           food = "public_read"
+                           cash = "private"
+                      }
+                      bucket = "${each.key}-${var.bucket_suffix}"
+                                 ^^^^^^^^^ <--------------------------- food / cash
+                      acl = each.value     <------- public_read / private
+                 }          ^^^^^^^^^^
+-------------------------------------------------------------------
+    5  Output
+                       'output' is like an echo or printf
+                       is a way to dump formatted output
+                       output stay usually in a file called 'output.tf'
+
+                             output "aws_public_ip" {            # note 'output' is a keyword
+                                value = "https://${aws_instance.ex.public_dns}"   <---- output, like here, can be like a common shell echo "....${}.."
+                                description = ....                                      where I can interpolate strings & vars
+                                sensitive = true | false
+                             }
+
+                       with 'output' I can log values OUT of terraform (in the logs)
+                       but also to pass values from 1 module to another
+
+               Interestingly 'outputs' are stored in the state file
+               and can be seen anytime just running
+               > terraform output
+
+--------------------------------------
     PROVISIONERS
 
              HashiCorp doesn't like them and hope they are used as last resort.
              Ex if provisioning an EC2, terraform doesn't know the internal status
              so it must fully trust the whole block.
+
+                      Provisioners are mainly run when a resource is CREATED.
+                      They are not a replacement for configuration management
+                      and are instead just meant as a way to bootstrap a server.
+
+                      Other Provisioners are run when a resource is DESTROYED
+                      to clean up.
+
 
              Provisioners can anyhow be
                  - Local   the provisioner runs on the local computer
@@ -891,20 +697,196 @@ file: providers.tf   <------ this is the standard file where I can configure my 
 
 
 
-             ex. the "remote-exec" provisioner   (to run local cmd)
-
-             provisioner "local-exec" {
+             ex. the "remote-exec" provisioner   (to run local cmd)                          resource "aws_instance" "example" {
+                                                                                                 ami           = "ami-b374d5a5"
+             provisioner "local-exec" {                                                          instance_type = "t2.micro"
                      scripts = ["list", "of", "local", "scripts"]
-             }
-
-             provisioner "local-exec" {
-                     inline = ["sudo yum install ....",
+             }                                                                                   provisioner "local-exec" {   # run cmds on local host
+                                                                                                   command = "echo ${aws_instance.example.public_ip} > ip_address.txt"
+             provisioner "local-exec" {                                                          }
+                     inline = ["sudo yum install ....",                                      }
                                "sudo cp .....",
                                 sudo yum ......
                                 ...
                                 }
              }
 
+
+
+-------------------------------------------------------------------
+    terraform init
+                                     the 1st command to run
+                                     . will automatically download and install all the required providers.
+                                       (telling also the version of each:
+                                            ex:   provider.aws: version = "~> 2.22"
+                                       )
+
+                                    note: it’s safe to run init multiple times (the command is idempotent).
+
+
+
+                                            ❯ ls -lrta
+                                                                total 8
+                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
+                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 10:56 .
+                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
+                                            ❯ terraform init
+
+                                                                Initializing the backend...
+
+                                                                Initializing provider plugins...
+                                                                - Finding latest version of hashicorp/aws...
+                                                                - Installing hashicorp/aws v5.42.0...
+                                                                - Installed hashicorp/aws v5.42.0 (signed by HashiCorp)
+                                                                 ...
+                                                                 ...
+                                            ❯ ls -lrta
+                                                                total 16
+                                                                drwxr-xr-x  16 sbasile  staff   512 Mar 22 10:55 ..
+                                                                -rw-r--r--   1 sbasile  staff  3653 Mar 22 10:56 main.tf
+                                                                drwxr-xr-x   3 sbasile  staff    96 Mar 22 11:56 .terraform
+                                                                -rw-r--r--   1 sbasile  staff  1377 Mar 22 11:56 .terraform.lock.hcl
+                                                                drwxr-xr-x   5 sbasile  staff   160 Mar 22 11:56 .
+                                            ❯ cat .*.hcl
+                                                                # This file is maintained automatically by "terraform init".
+                                                                # Manual edits may be lost in future updates.
+
+                                                                provider "registry.terraform.io/hashicorp/aws" {
+                                                                  version = "5.42.0"
+                                                                  hashes = [
+                                                                    "h1:0lkSSlK45Qil9fO1kFy8RXVC/k6qfC4LDZIaCKnWcUc=",
+                                                                    "zh:0fb12bd56a3ad777b29f957c56dd2119776dbc01b6074458f597990e368c82de",
+                                                                    "zh:16e99c13bef6e3777f67c240c916f57c01c9c142254cfb2720e08281ff906447",
+                                                                    "zh:218268f5fe73bcb19e9a996f781ab66df0da9e333d1c60612e3c51ad28a5105f",
+                                                                    "zh:220b17f7053d11548f35136669687d30ef1f1036e15393275325fd2b9654c715",
+                                                                    "zh:2256cfd74988ce05eada76b42efffc6fe2bf4d60b61f57e4db4fcf65ced4c666",
+                                                                    "zh:52da19f531e0cb9828f73bca620e30264e63a494bd7f9ce826aabcf010d3a241",
+                                                                    "zh:56069ce08d720280ba39aaf2fdd40c4357ffb54262c80e4d39c4e540a38e76af",
+                                                                    "zh:82c81398e68324029167f813fbb7c54fa3d233e99fa05001d85cbce8bdd08bb3",
+                                                                    "zh:82d6eaa87f5ab318959064e6c89adc2baabaf70b13f2f7de866f62416de05352",
+                                                                    "zh:9b12af85486a96aedd8d7984b0ff811a4b42e3d88dad1a3fb4c0b580d04fa425",
+                                                                    "zh:ade8490cfdd8de8b9a82986588595b67e0ad1048d9e2d3a6f5164320179c2cd0",
+                                                                    "zh:b094ef56ae9bfffd586f46d4f7fb0097798738df758a8f3c51578ee163495c7e",
+                                                                    "zh:bd5e68e1e454bae0f8d73cff8448e814a35855a561c33b745e1b8b525fb06c9f",
+                                                                    "zh:c111c6a854bf121facca1642d528bfa80fb4214554ac6c33e4a59c86bc605b71",
+                                                                    "zh:e04df69a557adbcdf8efc77eb45be748f0acbe800ccede1e0895393c87722a0f",
+                                                                  ]
+                                                                }
+                                            ❯ find .terraform
+                                                                .terraform
+                                                                .terraform/providers
+                                                                .terraform/providers/registry.terraform.io
+                                                                .terraform/providers/registry.terraform.io/hashicorp
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64
+                                                                .terraform/providers/registry.terraform.io/hashicorp/aws/5.42.0/darwin_amd64/terraform-provider-aws_v5.42.0_x5
+
+    terraform show                      to see current state.
+
+
+    terraform plan -out  here.myplan
+
+    terraform apply                     to apply changes   (I must type 'yes') so if I don't type 'yes' the apply doesn't change
+    terraform apply here.myplan
+
+    terraform destroy                            # will destroy all the 'resources'
+
+
+    terraform console                            # if I run in a dir with terraform config files, it will source them first
+                                                  this can give errors if the "providers" listed there were downloaded already
+                                                  so I can just do a
+                                                             $ terraform init
+                                                  to pull them.
+                    ╰─ terraform console
+                    > min(4,6,89)
+                    4
+                    > lower("TACOS")
+                    tacos
+                    > 5 + 3
+                    8
+                    >
+
+
+                    ╰─ cat test.tf
+                    variable "region" {
+                       default = "us-east-1"
+                    }
+
+                    ╰─ terraform console -var-file="test.tf"
+                    > var.region
+                    us-east-1
+                    >
+
+    terraform fmt                  format & check for SYNTAX-only errors
+                                                    -check       doesn't change the files, just Exit status will be 0 if all ok
+                                                    -recursive   (goes on subdirs)
+    terraform check
+    terraform validate             check for syntax & logic errors
+
+
+    terraform graph                shows the dependency in the DOT language description format.
+                                    digraph {
+                                            compound = "true"
+                                            newrank = "true"
+                                            subgraph "root" {
+                                                    "[root] aws_instance.example1 (expand)" [label = "aws_instance.example1", shape = "box"]
+                                                    "[root] aws_security_group.schiro45 (expand)" [label = "aws_security_group.schiro45", shape = "box"]
+                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"]" [label = "provider[\"registry.terraform.io/hashicorp/aws\"]", shape = "diamond"]
+                                                    "[root] aws_instance.example1 (expand)" -> "[root] aws_security_group.schiro45 (expand)"
+                                                    "[root] aws_security_group.schiro45 (expand)" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"]"
+                                                    "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)" -> "[root] aws_instance.example1 (expand)"
+                                                    "[root] root" -> "[root] provider[\"registry.terraform.io/hashicorp/aws\"] (close)"
+                                            }
+                                    }
+                                    I can copy paste this into something like: http://dreampuf.github.io/GraphvizOnline/
+                                    for visualisation
+
+
+
+
+-------------------------------------------------------------------
+
+Terraform Cloud           Is the commercial solution to store my 'Terraform state' file in a remote space (called "backend")
+                          shared with other team's members. (to do, versioning, audit, peer review....)
+
+
+                          terraform {                                        when running  "terraform init"
+                                  backend "remote" {                ----->   and answering "yes"
+                                    organization = "Cloud-Org"               the state is copied to Terraform Cloud
+
+                                    workspaces {                             "terraform apply"  will check (like git pull)
+                                      name = "Dev-QA"                        the remote and if there is nothing to do
+                                    }                                        will output
+                                  }                                              No changes. Infrastructure is up-to-date.
+                                }
+                                                                             REMOVING THE "backend" BLOCK FROM THE CONFIG FILE
+                                                                             AND RUNNING "terraform init" IT WILL BE
+                                                                             MOVED BACK LOCALLY FROM Terraform Cloud
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------
+    Ex. Deploy a VPC
+
+           resource "aws_vpc"                     "vpc"  {}
+           resource "aws_internet_gateway"        "igw"  {}
+           resource "aws_subnet"                  "subnet1"  {}
+           resource "aws_route_table"             "rtb"  {}
+           resource "aws_route_table_association" "rta-subnet1"  {}
+-------------------------------------------------------------------
+    PATH EXPRESSION
+         . ${path.root}          ROOT     module            ex.  ... source = "${path.root}/${each.value}"
+         . ${path.module}        CURRENT    "
+         . ${path.cwd}           CURRENT working dir
+-------------------------------------------------------------------
 -------------------------------------------------------------------
     TERRAFORM FUNCTIONS
 
@@ -942,37 +924,6 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                }
 
                ami = lookup (var.amis, "us-east-1", "error")
-
-
-
--------------------------------------------------------------------
-    TERRAFORM CONSOLE     (to test)
-
-              $ terraform console               # if I run in a dir with terraform config files, it will source them first
-                                                  this can give errors if the "providers" listed there were downloaded already
-                                                  so I can just do a
-                                                             $ terraform init
-                                                  to pull them.
-                    ╰─ terraform console
-                    > min(4,6,89)
-                    4
-                    > lower("TACOS")
-                    tacos
-                    > 5 + 3
-                    8
-                    >
-
-
-
-                    ╰─ cat test.tf
-                    variable "region" {
-                       default = "us-east-1"
-                    }
-
-                    ╰─ terraform console -var-file="test.tf"
-                    > var.region
-                    us-east-1
-                    >
 
 
 
@@ -1023,15 +974,6 @@ destroy
              7  aws_vpc.app: Destruction complete after 1s
 
     Destroy complete! Resources: 7 destroyed.
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
--------------------------------------------------------------------
 -------------------------------------------------------------------
 Terraform - Getting Started                  By Ned Bellavance   4h 36m
 Terraform Deep Dive                          By Ned Bellavance   3h 50m
