@@ -334,6 +334,31 @@
     npm install -g npm@8.19.2
 
 
+-------- INSTALL A "LOCAL" MODULE
+
+    If I want to use a module which is in a local folder (/path/to/some/local/module) on my laptop
+    within a certain project I can do this:
+
+    1. npm install  /path/to/some/local/module
+    2. this will add a path within package.json
+       Example:
+                              16   │   "dependencies": {
+                              17   │     "@companieshouse/ch-node-utils": "file:../ch-node-utils",
+
+    3. even the node-modules will just contain a symlink:
+
+                                    node_modules
+                                    │           ....
+                                    ├── @companieshouse
+                                    │   ├── ch-node-utils -> ../../../ch-node-utils
+    4. If I change ch-node-utils I must remember to compile it (ex. in typescript)
+                   cd ...../ch-node-utils
+                   npx tsc
+                   # I don't need anything else, ex. I don't need to run
+                     npm uninstall @companieshouse/ch-node-utils;
+                     npm i /Users/sbasile/docker-chs-development/repositories/ch-node-utils
+
+
 -------- package.json
 
          . it's the metadata of my project.
