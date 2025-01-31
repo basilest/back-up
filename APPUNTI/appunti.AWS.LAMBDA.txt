@@ -1,0 +1,144 @@
+Ex with Node.js
+
+    1. I have my code in ~/some_dir/index.ts
+
+    2. the code is using the AWS language-SDK  (ex.
+
+        .----------------------------------------------------------------------
+        | import { fromIni } from "@aws-sdk/credential-provider-ini";
+        |
+        | export const handler = async (): Promise<void> => {   <------ this is the standard entry point / main
+        |                                                               It's the expected const "handler"
+        '----------------------------------------------------------------------
+
+
+    3. I compile as usual:
+       npx tsc            ---> I'll have the compilation in ./dist/..
+
+    4. I package with the dependencies
+
+        npm install --only=prod                # install only required dependencies
+        cd dist
+        zip -r ../lambda-function.zip *        # add dist
+        cd ../node_modules
+        zip -r ../lambda-function.zip *        # add node_modules dependencies
+
+
+
+    5. I create the lambda f. in AWS
+
+        aws lambda create-function \
+                    --function-name fetchECSImages \
+                    --zip-file fileb://lambda-function.zip \
+                    --environment Variables="{AWS_PROFILE=your-aws-profile,AWS_REGION=your-region}"
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+                    --handler index.handler \
+                    --runtime nodejs18.x \
+                    --role arn:aws:iam::your-account-id:role/your-lambda-execution-role
+                                        ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                        AWS account ID         In this case the role
+                                        159841060712           needs permissions to access
+                                 Account ID: 1598-4106-0712       . ECS and
+                                    this is not mine              . CloudWatch logs.
+                                    but it's for ex.
+                                      "Development"
+                                 I can see this in the AWS console
+                                 from the very first page (before logging in)
+                                 or once logged in in the top-right corner
+                                 or just selecting any lamba-function
+                                 where I can see a valid ARN example:
+                           arn:aws:lambda:eu-west-2:159841060712:function:csi-marathon-deployer
+
+                            ===================================================================================================================
+                            1/2) To create a role:
+                                                  aws iam create-role --role-name lambda-execution-role \       <----- the name I want
+                                                                      --assume-role-policy-document file://lambda-policy.json
+
+                                                      where the lambda-policy.json is a json like this:            T H I S     I S      T H E     R E S P O N S E
+                                                            ───────┬──────────────────────────────                ───────┬──────────────────────────────────────────────
+                                                                   │ File: lambda-policy.json                            │ File: lambda-policy.response.json
+                                                            ───────┼──────────────────────────────                ───────┼──────────────────────────────────────────────
+                                                               1   │ {                                               1   │ {
+                                                               2   │   "Version": "2012-10-17",                      2   │     "Role": {
+                                                               3   │   "Statement": [                                3   │         "Path": "/",
+                                                               4   │     {                                           4   │         "RoleName": "lambda-execution-role",
+                                                               5   │       "Effect": "Allow",                        5   │         "RoleId": "AROASPEKVOGURLPBHNJRE",
+                                                               6   │       "Principal": {                            6   │         "Arn": "arn:aws:iam::169942020521:role/lambda-execution-role",  <------ I have the ARN
+                                                               7   │         "Service": "lambda.amazonaws.com"       7   │         "CreateDate": "2025-01-31T13:05:30+00:00",
+                                                               8   │       },                                        8   │         "AssumeRolePolicyDocument": {
+                                                               9   │       "Action": "sts:AssumeRole"                9   │             "Version": "2012-10-17",
+                                                              10   │     }                                          10   │             "Statement": [
+                                                              11   │   ]                                            11   │                 {
+                                                              12   │ }                                              12   │                     "Effect": "Allow",
+                                                            ───────┴──────────────────────────────                  13   │                     "Principal": {
+                                                                                                                    14   │                         "Service": "lambda.amazonaws.com"
+                                                                                                                    15   │                     },
+                                                                                                                    16   │                     "Action": "sts:AssumeRole"
+                                                                                                                    17   │                 }
+                                                                                                                    18   │             ]
+                                                                                                                    19   │         }
+                                                                                                                    20   │     }
+                                                                                                                    21   │ }
+                                                                                                                    22   │
+                                                                                                                  ───────┴──────────────────────────────────────────────
+
+
+                            2/2) Attach the necessary policies to the role:
+                                 For example, I can attach the AWS-managed-policy "AWSLambdaBasicExecutionRole" which provides basic Lambda execution permissions.
+
+                                                aws iam attach-role-policy \
+                                                    --role-name lambda-execution-role \
+                                                    --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+                                 Anyhow vrify which policies are already assigned by AWS as usually when I create a role (at 1./2)
+                                 The following Policies are already attached
+                                             . AWSLambdaBasicExecutionRole
+                                             . AWSLambdaVPCAccessExecutionRole
+                                             . get_param_read
+
+                            ===================================================================================================================
+
+
+    6. Update anything (ex add or amend any ENV var)
+
+        aws lambda update-function-configuration \
+                    --function-name fetchECSImages \
+                    --environment Variables="{AWS_PROFILE=your-aws-profile,AWS_REGION=your-region}"
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+
+
+    7. trigger a manual execution
+
+        aws lambda invoke --function-name fetchECSImages output.txt
+                                                         ^^^^^^^^^^
+                                                          both in this local file & CloudWatch
+
+
+
+
+    8. Deploy U P D A T E S
+
+        I create my new zip like at 4.
+        then I upload it:
+
+            aws lambda update-function-code --function-name fetchECSImages --zip-file fileb://lambda-function.zip
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

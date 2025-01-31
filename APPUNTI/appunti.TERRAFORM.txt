@@ -59,6 +59,52 @@
 
 
 -------------------------------------------------------------------
+  brew install terraform   <--------- NO !   this doesn't install the latest version but it installs 1.5.1 (when the latest
+                                             might be 1.10.1) because it's when Terraform decided (Aug 10 2023)
+                                             to switch the licence from
+                                                "Mozilla Public License v2.0 (MPL 2.0)"
+                                             to
+                                               "Business Source License (BUSL)"
+                                             abd brew doesn't accept BUSL.
+
+  brew tap hashicorp/tap               |
+  brew install hashicorp/tap/terraform |     this would bypass brew rule
+                                             but anyhow the best way is to use a version switcher like
+                                             tfenv or chtf
+
+-------------------------------------------------------------------
+  tfenv                              To Manage more terraform versions (like chtf but more common)
+
+             . brew install tfenv
+             . tfenv install <version>
+                                         ex:
+                                               tfenv install 1.5.0
+                                               tfenv install 1.3.9
+             . tfenv use <version>
+             . tfenv list
+             . tfenv uninstall <version>
+             . .terraform-version              this is a cool feature.
+                                               If a specify a version in this "hidden" file
+                                               then when I enter that dir (which presumably is the "root" of a terraform project)
+                                               tfenv will automatically switch on that specific version
+                                               ex:
+                                                   echo "1.5.0" > .terraform-version
+       NOTE:
+             the binary is always the same
+                 > which terraform
+                   /opt/homebrew/bin/terraform
+             but it's a link to where tfenv puts the installed versions:
+
+                   ls -l /opt/homebrew/bin/terraform
+                         /opt/homebrew/bin/terraform -> ../Cellar/tfenv/3.0.0/bin/terraform
+
+                   ╰─ ls -l /opt/homebrew/bin/../Cellar/tfenv/3.0.0/versions/
+                        total 0
+                        drwxr-xr-x  4 sbasile  admin  128  9 Dec 19:45 1.10.1
+                        drwxr-xr-x  3 sbasile  admin   96  9 Dec 19:44 1.5.7
+
+
+-------------------------------------------------------------------
   chtf                               Terraform version switcher   (brew install yleisradio/terraforms/chtf)
 
                                      for bash/zsh add this in the profile files:
@@ -72,7 +118,7 @@
 
                                      chtf                 with no args shows all the versions
                                      chtf -V --version
-                                     chtf system          switch to OS versio
+                                     chtf system          switch to OS version
 
 
 
@@ -381,8 +427,8 @@
 ------------------------------------------------------------------- main  K E Y W O R D S
     1  variable   "aws_access_key"    {
     2  provider   "aws"               {
-    3  data       "aws_ami" "alx"     {
-    4  resource   "aws_instance" "ex" {
+    3  data       "aws_ami" "alx"     {   THEY ARE BLOCKS USED TO GATHER/COLLECT INFO THAT I CAN THEN REFERENCE (THEY ARE USED AT RUNTIME NOT SAVED IN THE STATE)
+    4  resource   "aws_instance" "ex" {   THEY ARE THE INFRASTRUCTURE COMPONENTS CREATED BY MY TERRAFORM SCRIPT
     5  output     "aws_public_ip"     {
 -------------------------------------------------------------------
     1  variables   these are vars passed as INPUT to the script
@@ -544,8 +590,7 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                                     }
 
 -------------------------------------------------------------------
-    3  Data source                                               They are 'views' on a PROVIDER, I can 'query' data out from a provider
-                                                                 they are then READ-ONLY data <---------
+    3  Data source       THEY ARE BLOCKS USED TO GATHER/COLLECT INFO THAT I CAN THEN REFERENCE (THEY ARE USED AT RUNTIME NOT SAVED IN THE STATE)
 
                              data "aws_ami" "alx"  {             # note 'data' is a keyword
                                 most_recent = true
@@ -562,8 +607,17 @@ file: providers.tf   <------ this is the standard file where I can configure my 
                              }
 
 
+
 -------------------------------------------------------------------
-    4  Resource
+    4  Resource          THEY ARE THE INFRASTRUCTURE COMPONENTS CREATED BY MY TERRAFORM SCRIPT
+                         If the infrastr. is already deployed (meaning I have a state file)
+                         I can see the list of resources used as:
+
+                                         terraform state list
+                         Otherwise, if I'm missing the state file, just
+                                         grep -rw "resource" /path/to/terraform/directory/*.tf
+                         Or
+                                         terraform plan
 
            Each 'provider' (i.e. aws)
            has many possible 'resources' (i.e. ec2, s3, vpc, ...)
@@ -874,6 +928,34 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
 
 
 -------------------------------------------------------------------
+Terraform language
+
+          Code style:
+                       1.  run "terraform fmt" &
+                               "terraform validate"
+                       2.  run linter  (ex. (third party) TFLint -->  https://github.com/terraform-linters/tflint)
+                       3.  use under_score_s  (for long_name_words)
+                       4.  for every var:
+                                 "type"        = ....
+                                 "description" = ....
+                                 "default"     = ....  <---- only if var is OPTIONAL
+                                 "sensitive"   = true/false <--- remember that sensitive vars are saved as plain text in the STATE file
+                                 validation {
+                                 }
+
+                                 example:
+
+                                    variable "web_instance_count" {
+                                      type        = number
+                                      description = "Number of web instances to deploy. (at least 2)."
+
+                                      validation {
+                                        condition     = var.web_instance_count > 1
+                                        error_message = "This application requires at least two web instances."
+                                      }
+                                    }
+                       5.  indentation: 2 spaces for each nesting level
+-------------------------------------------------------------------
     Ex. Deploy a VPC
 
            resource "aws_vpc"                     "vpc"  {}
@@ -886,7 +968,6 @@ Terraform Cloud           Is the commercial solution to store my 'Terraform stat
          . ${path.root}          ROOT     module            ex.  ... source = "${path.root}/${each.value}"
          . ${path.module}        CURRENT    "
          . ${path.cwd}           CURRENT working dir
--------------------------------------------------------------------
 -------------------------------------------------------------------
     TERRAFORM FUNCTIONS
 

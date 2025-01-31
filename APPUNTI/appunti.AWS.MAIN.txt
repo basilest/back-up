@@ -1,0 +1,590 @@
+
+
+    ____________________________________________________________________________________
+    IAM ROLE      Unlike an "IAM user" (which is associated with a single person),
+                  an IAM role is intended to be assumable by anyone or any service that needs it.
+
+                  - temporary credentials for accessing AWS resources (ex EC2, lambda, ... or even users from other AWS accounts)
+                    they include
+
+                        1. an access KEY ID
+
+                        2. a SECRET access key
+
+                        3. a session TOKEN.
+
+                    These credentials are valid for a specified duration.
+
+                  - I can attach POLICIES (JSON documents) to define what actions the ROLE allows or denies on which resources.
+
+
+            HOW THEY WORK:
+                 1. I create a Role defining what it can do
+                 2. a resource/service/user assumes the role
+                           ex. calling the "AssumeRole" API call or
+                               via configuration (e.g., an EC2 instance profile automatically attached to an instance).
+
+    ____________________________________________________________________________________
+    1/3 SECURITY GROUP   control network traffic  for 1 "resource"     (stateful)
+    2/3-ACL A            control network traffic  for 1 "subnet"       (stateless)
+    2/3-ACL B            for S3  (control
+
+    3/3 POLICIES         they are like chmod in unix
+
+    ____________________________________________________________________________________
+    1/3 SECURITY GROUP
+
+         .----------------------------------------------------------------------------------------------------------
+         | LEVEL:   NETWORK(TRAFFIC)
+         | CONTROL: RESOURCE
+         | AIM:     They add a low level or granular level of the NETWORK traffic which can enter / exit a RESOURCE
+         '----------------------------------------------------------------------------------------------------------
+
+    A security group is a VIRTUAL FIREWALL used to control inbound and outbound traffic to resources like
+    EC2, load balancers, ...  within a Virtual Private Cloud (VPC).
+    It is associated with network interfaces and acts as a
+    set of rules that define the allowed network traffic for the associated resource.
+
+    In short, Security groups can be associated with many AWS resources that interact within a Virtual Private Cloud (VPC):
+                      - EC2
+                      - Lambda (if they are configured to run in a VPC)
+                      - (E-A-...)LB
+                      - Amazon RDS
+                      - EKS
+                      - EFS
+                      - Aurora
+                      - ElasticCache
+                      - Redshift
+                      - ...
+
+                Key features:
+
+                    Rules are Based on IP and Port: I can specify rules using:
+                        Protocol: For example, TCP, UDP, ICMP.
+                        Port range: Which port numbers are allowed (e.g., port 80 for HTTP, port 443 for HTTPS).
+                        Source/destination IP range: I can allow traffic from specific IP addresses or ranges, such as a specific CIDR block or another security group.
+
+                    No Application Layer Filtering: Security groups operate at the network layer (OSI Layer 3/ IP) and
+                                                    don't provide application-level filtering (e.g., HTTP request filtering).
+                                                    For more advanced filtering, I may need to use other services like AWS WAF.
+
+                    Inbound & Outbound:
+                        Inbound  rules: Define the allowed incoming traffic to a resource (e.g., allowing HTTP requests on port 80 or SSH on port 22).
+                        Outbound rules: Define the allowed outgoing traffic from the resource (e.g., allowing traffic to reach a specific port or destination).
+
+                    Stateful: if an inbound request is allowed, the response traffic is automatically allowed,
+                              (regardless of outbound rules).
+                              This makes it easier to manage traffic flows, as the security group remembers the connection.
+
+                    Default Security Group: Every VPC comes with a default security group
+                                            that
+                                                - allows all outbound traffic               | <====================    K E Y
+                                                - denies all inbound traffic.               | <====================          T A K E W A Y
+
+                    Associated with Network Interfaces: When I launch an EC2 instance,
+                                                        a security group is associated with its network interface (ENI), and
+                                                        it controls the traffic that is allowed to and from the instance.
+                                                        REFER TO **NOTE ON WHY ALWAYS EC2** TO UNDERSTAND WHY ALWAYS "aws ec2...."
+
+                    Multiple Security Groups: I can assign multiple security groups to a single instance, and
+                                              all the rules from those security groups are aggregated.
+
+
+      Example:
+                            1.  create a security group named "MySecurityGroup":
+         aws ec2 create-security-group --group-name MySecurityGroup --description "Allow HTTP and SSH access"   <----- this will give me the security group id (ex sg-xxxxxxx)
+
+
+                            2.  Add an inbound rule to allow HTTP traffic on port 80.
+                                The --protocol is set to tcp, the --port is 80, and the --cidr 0.0.0.0/0
+                                allows traffic from all IP addresses (i.e., public access):
+         aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+
+                            3.  Allow inbound traffic (SSH)
+         aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 22 --cidr <my-ip>/32
+
+
+                            4.  Allow all outbound traffic  (note this is not required as by default all is allowed)
+         aws ec2 authorize-security-group-egress --group-id sg-xxxxxxxx --protocol all --port all --cidr 0.0.0.0/0
+
+
+                            5.  attach to a specific EC2 (ex i-xxxxxxxxxxxxxxxxx)
+         aws ec2 modify-instance-attribute --instance-id i-xxxxxxxxxxxxxxxxx --groups sg-xxxxxxxx
+
+
+
+      NOTE:
+             The previous example associates a security group to an EC2.
+             Only the last 5th command associates to an actual EC2 instance (i-xxxx....) anyhow
+             all the other previous "general" 4th commands still use "aws ec2 ...."
+
+             This is because Security Groups in AWS are primarily associated with network interfaces (ENIs).
+
+             They're created and managed under EC2, because EC2 is responsible for managing networking interfaces
+             (ENIs, or Elastic Network Interfaces).
+
+             So regardless of whether the final resource is an EC2 instance, Lambda, RDS database, ....
+             the security group itself is created using the "aws ec2" command.
+
+             The previous 4 command will always be the same:
+                            aws ec2 create-security-group            --group-name MySecurityGroup --description "Security group for Lambda/RDS/EC2"
+                            aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 80 --cidr 0.0.0.0/0
+                            aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 22 --cidr <your-ip>/32
+                            aws ec2 authorize-security-group-egress  --group-id sg-xxxxxxxx --protocol all --port all --cidr 0.0.0.0/0
+
+             while the last (attaching) may change:
+
+              EC2:      aws ec2    modify-instance-attribute     --instance-id            i-xxxxxxxxxxxxxxxxx --groups sg-xxxxxxxx
+              Lambda:   aws lambda update-function-configuration --function-name          myLambdaFunction    --vpc-config SubnetIds=subnet-xxxxxxxx,SecurityGroupIds=sg-xxxxxxxx
+              RDS:      aws rds    modify-db-instance            --db-instance-identifier mydbinstance        --vpc-security-group-ids sg-xxxxxxxx
+
+    REFER TO **NOTE ON WHY ALWAYS EC2** TO UNDERSTAND WHY ALWAYS "aws ec2...."
+    ____________________________________________________________________________________
+    CONVENTION
+                                0.0.0.0/0   (all IPs)
+    ____________________________________________________________________________________
+
+    ----------------------
+    NOTE ON WHY ALWAYS EC2
+    ----------------------
+                                in AWS CLI, commands related to
+                                    VPC,
+                                    Network ACLs,
+                                    Security Groups,
+                                    and other network components
+                                are part of the ec2 namespace  (meaning "aws ec2 .....")
+                                This is because VPCs, subnets, network ACLs, and security groups are all components
+                                of the broader Amazon EC2 (Elastic Compute Cloud) service, which includes networking and
+                                infrastructure-related services.
+
+    ____________________________________________________________________________________
+    2/3 Access Control Lists
+
+         .----------------------------------------------------------------------------------------------------------
+         | LEVEL:   NETWORK(TRAFFIC)
+         | CONTROL: RESOURCE
+         | AIM:     They act as an additional layer of defense, supplementing the security provided by security groups.
+         |          They work at an upper layer (subnet vs single resource)
+         '----------------------------------------------------------------------------------------------------------
+                    (ACLs) are a set of rules used to control access to resources within AWS services.
+                    They define which users or systems have permissions to access specific AWS resources and what actions they can perform.
+
+
+    1. S3 ACL:
+
+                    ACLs in S3 use a set of predefined permissions:
+
+                    READ:         Allows to list the objects in a bucket or read an object.
+                    WRITE:        Allows to upload or delete objects from a bucket.
+                    FULL_CONTROL: Grants both READ and WRITE
+                    READ_ACP:     Grants to read  the bucket’s ACL.
+                    WRITE_ACP:    Grants to write the bucket’s ACL.
+
+                  Examples:               1. Grant Public Read Access to an S3 Object
+                            aws s3api put-object-acl  --bucket my-bucket-name  --key "path/to/my-object.jpg"  --acl public-read
+                                      ^^^^^^^^^^^^^^                                                                ^^^^^^^^^^^
+
+                                          2. Grant Full Control to a Specific AWS Account
+                            aws s3api put-object-acl  --bucket my-bucket-name  --key "path/to/my-object.jpg"  --grant-full-control "id=canonical-id-of-account"
+                                      ^^^^^^^^^^^^^^                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                          3. Check the ACL of an S3 Object
+                            aws s3api get-object-acl  --bucket my-bucket-name --key "path/to/my-object.jpg"
+                                      ^^^^^^^^^^^^^^
+
+                                          5.  Granting Specific Permissions (Read and Write)
+                            aws s3api put-object-acl  --bucket my-bucket-name  --key "path/to/my-object.jpg"  --grant-read "id=canonical-id-of-account"  --grant-write "id=canonical-id-of-account"
+                                      ^^^^^^^^^^^^^^                                                          ^^^^^^^^^^^^                               ^^^^^^^^^^^^^
+
+
+    2. VPC Network ACLs (VPC NACLs):
+
+                    ACLs are often used for controlling access at the resource or subnet level,
+                    whereas Security Groups are used to control access to individual instances (like EC2).
+
+                    They act as a stateless firewall at the subnet level.
+                    They control inbound and outbound traffic to and from resources in a VPC subnet.
+
+                        Default NACL: Every VPC comes with a default NACL that
+                              . allows all inbound & outbound traffic.            | <====================    K E Y    T A K E W A Y
+
+                        Rules: NACLs consist of a set of rules that allow or deny traffic.
+                                    (rules are numbered to determine priority).
+                                    Each rule is evaluated in order, and once a match is found, it’s applied
+
+                        Stateless:  meaning that the rules don’t automatically apply to the return traffic.
+                                    This is different from Security Groups which are stateful, meaning that if an inbound request is allowed,
+                                    the corresponding outbound traffic is automatically allowed.
+
+                  Examples:               1. Create a Network ACL (in the VPC vpc-xxx...)
+
+                            aws ec2 create-network-acl --vpc-id vpc-xxxxxxxx       <---- it will retun a acl-xxxxxxxx
+                                    ^^^^^^^^^^^^^^^^^^
+
+                                          2. Add Inbound and Outbound Rules
+                            aws ec2 create-network-acl-entry  --network-acl-id acl-xxxxxxxx  --rule-number 100  --protocol tcp  --port-range "80"  --cidr-block 0.0.0.0/0  --egress false  --rule-action allow
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                          3. Deny SSH (port 22) inbound traffic
+                            aws ec2 create-network-acl-entry  --network-acl-id acl-xxxxxxxx  --rule-number 200  --protocol tcp  --port-range "22"  --cidr-block 0.0.0.0/0  --egress false  --rule-action deny
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                          4. Allow all outbound traffic (e.g. allow all outbound traffic)
+                            aws ec2 create-network-acl-entry --network-acl-id acl-xxxxxxxx  --rule-number 100  --protocol all  --port-range "0-65535"  --cidr-block 0.0.0.0/0  --egress true  --rule-action allow
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                          5. Associate the NACL with a Subnet
+                            aws ec2 associate-network-acl  --network-acl-id acl-xxxxxxxx  --subnet-id subnet-xxxxxxxx
+                                    ^^^^^^^^^^^^^^^^^^^^^
+
+                                          6. List Network ACL Entries (to check result)
+                            aws ec2 describe-network-acl-entries --network-acl-id acl-xxxxxxxx
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                                          7. Delete a Rule
+                            aws ec2 delete-network-acl-entry  --network-acl-id acl-xxxxxxxx  --rule-number 100  --egress false
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+    REFER TO **NOTE ON WHY ALWAYS EC2** TO UNDERSTAND WHY ALWAYS "aws ec2...."
+    ____________________________________________________________________________________
+    3/3 POLICIES      # they are like chmod in unix
+         .----------------------------------------------------------------------------------------------------------
+         | LEVEL:   APPLICATION
+         | CONTROL: RESOURCE
+         | AIM:     They are used for Identity and Access Management (IAM) and define permissions at the application or user level.
+         |          They do not handle network traffic but instead manage who (user, service, role) can perform specific actions on AWS resources
+         '----------------------------------------------------------------------------------------------------------
+                  JSON Format and consist of elements such as
+                        Version:     Specifies the policy language version (usually "2012-10-17").
+                        Statement:   The main section of the policy, containing:
+                            Effect:      Indicates whether the policy allows (Allow) or denies (Deny) the specified action.
+                            Action:      Specifies the actions that are allowed or denied (e.g., s3:PutObject).
+                            Resource:    Defines which AWS resources the policy applies to (e.g., specific S3 buckets).
+                            Condition    (optional): Adds conditions for when the policy is effective (e.g., based on IP address, date/time, or user identity).
+                  Example:
+                                {                                                                       {
+                                    "Version": "2012-10-17",                                              "Version": "2012-10-17",
+                                    "Statement": [                                                        "Id": "PutObjectPolicy",
+                                        {                                                                 "Statement": [
+                                            "Effect": "Allow",                                              {
+                                            "Action": [                                                       "Sid": "DenyObjectsThatAreNotSSES3",
+                                                "s3:GetBucketLocation",                                       "Effect": "Deny",
+                                                "s3:ListAllMyBuckets",                                        "Principal": "*",
+                                                "s3:ListBucket",                                              "Action": "s3:PutObject",
+                                                "s3:GetBucketAcl",                                            "Resource": "arn:aws:s3:::amzn-s3-demo-bucket/*",
+                                                "s3:GetBucketPolicy",                                         "Condition": {
+                                                "s3:GetBucketCORS",                                             "StringNotEquals": {
+                                                "s3:GetBucketTagging",                                            "s3:x-amz-server-side-encryption": "AES256"
+                                                "s3:GetBucketVersioning",                                       }
+                                                "s3:GetBucketWebsite",                                        }
+                                                "s3:GetLifecycleConfiguration",                             }
+                                                "s3:GetReplicationConfiguration",                          ]
+                                                "s3:ListBucketMultipartUploads",                        }
+                                                "s3:GetObject",
+                                                "s3:GetObjectAcl",
+                                                "s3:GetObjectTagging",
+                                                "s3:GetObjectTorrent",
+                                                "s3:ListMultipartUploadParts"
+                                            ],
+                                            "Resource": "*"     <-----  the policy applies to all S3 resources in the account
+                                        }
+                                    ]
+                                }
+
+                  1. MANAGED (Policies)   pre-defined policies created and managed by AWS
+                                          Ex. the policy above (to just have read access to S3 buckets)
+                                          is equivalent to the MANAGED Policy: "AmazonS3ReadOnlyAccess"
+
+                                          I can attach it via:
+
+                                          - Dasboard:
+                                                   - I find the role I want
+                                                   - On the "Permisions" tab I click "Attach policies"
+                                                   - I search for "AmazonS3ReadOnlyAccess"
+                                                   - I click on "Attach policy"
+
+                                          - CLI
+                                                   - aws iam attach-role-policy --role-name MyRoleName --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+                                                             ^^^^^^^^^^^^^^^^^^
+
+                                          - Terraform
+                                                   resource "aws_iam_role_policy_attachment" "example" {
+                                                      role       = "MyRoleName"
+                                                      policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+                                                   }
+
+                  2. INLINE (Policies)    I create/embed directly within a specific role.
+                                          Unlike managed policies, inline policies are unique to the role and cannot be reused (by other roles).
+                                          Example:
+                                                        {
+                                                            "Version": "2012-10-17",
+                                                            "Statement": [
+                                                                {
+                                                                    "Effect": "Allow",
+                                                                    "Action": [
+                                                                        "s3:ListBucket"
+                                                                    ],
+                                                                    "Resource": "arn:aws:s3:::my-example-bucket"     <---- the bucket itself
+                                                                },
+                                                                {
+                                                                    "Effect": "Allow",
+                                                                    "Action": [
+                                                                        "s3:GetObject"
+                                                                    ],
+                                                                    "Resource": "arn:aws:s3:::my-example-bucket/*"     <---- all the objects within the bucket
+                                                                }
+                                                            ]
+                                                        }
+                                          I can attach it via:
+
+                                          - Dasboard:
+                                                   - I find the role I want
+                                                   - On the "Permisions" tab I click "Add inline policy".
+                                                   - Edit the JSON
+
+                                          - CLI
+                                                   - aws iam put-role-policy --role-name YourRoleName --policy-name MyInlinePolicy --policy-document file://policy.json
+                                                             ^^^^^^^^^^^^^^^
+                  3. IDENTITY-BASED  vs RESOURCE-BASED (Policies)
+                                          - IDENTITY-BASED are attached to users, groups, or roles, defining what actions they can perform on specified resources.
+                                          - RESOURCE-BASED are attached to AWS resources (e.g., S3 buckets or SNS topics) and specify who
+                                                           (e.g., users or accounts) can access the resource and what actions they can perform.
+
+
+                                            //------------------ IDENTITY BASED                                //------------------ RESOURCE BASED
+                                            {                                                                  {
+                                                "Version": "2012-10-17",                                           "Version": "2012-10-17",
+                                                "Statement": [                                                     "Statement": [
+                                                    {                                                                  {
+                                                        "Effect": "Allow",                                                 "Effect": "Allow",
+                                                        "Action": [                                                        "Principal": {   <-----   Principal: Specifies who can (here root).
+                                                            "s3:ListBucket",                                                   "AWS": "arn:aws:iam::123456789012:root"
+                                                            "s3:GetObject"                                                 },
+                                                        ],                                                                 "Action": "s3:GetObject",
+                                                        "Resource": [                                                      "Resource": "arn:aws:s3:::my-example-bucket/*"
+                                                            "arn:aws:s3:::my-example-bucket",                          }
+                                                            "arn:aws:s3:::my-example-bucket/*"                     ]
+                                                        ]                                                      }
+                                                    }
+                                                ]
+                                            }
+
+                  4. PERMISSIONS BOUNDARIES (Policies)
+                                          do not grant permissions by themselves.
+                                          They only limit the maximum permissions that identity-based policies can grant.
+                                          If the identity-based policy grants a permission that the permissions boundary does not allow, the action is denied.
+                                          Example:
+                                                        {
+                                                            "Version": "2012-10-17",
+                                                            "Statement": [
+                                                                {
+                                                                    "Effect": "Allow",
+                                                                    "Action": [
+                                                                        "s3:Get*",
+                                                                        "s3:List*",
+                                                                        "ec2:Describe*"
+                                                                    ],
+                                                                    "Resource": "*"     <----- the policy applies to all resources
+                                                                }
+                                                            ]
+                                                        }
+                                          I can attach it via:
+
+                                          - Dasboard:
+                                                   - I find the user or role I want
+                                                   - set the permissions boundary in the "Permissions" tab.
+
+                                          - CLI
+                                                   - aws iam create-policy --policy-name ReadOnlyPermissionsBoundary --policy-document file://permissions-boundary-policy.json
+                                                             ^^^^^^^^^^^^^
+                                                   If I attach to a USER
+                                                   - aws iam put-user-permissions-boundary --user-name YourUserName --permissions-boundary arn:aws:iam::123456789012:policy/ReadOnlyPermissionsBoundary
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                                 -----------------------------------------------------------
+                                                                                                                                                 the ARN of my permissions boundary policy.
+                                                   If I attach to a ROLE
+                                                   - aws iam put-role-permissions-boundary --role-name YourRoleName --permissions-boundary arn:aws:iam::123456789012:policy/ReadOnlyPermissionsBoundary
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+                                          - Terraform
+
+                                                resource "aws_iam_policy" "permissions_boundary" {
+                                                  name        = "ReadOnlyPermissionsBoundary"
+                                                  description = "Permissions boundary allowing read-only access to S3 and EC2."
+                                                  policy      = jsonencode({
+                                                    Version = "2012-10-17"
+                                                    Statement = [
+                                                      {
+                                                        Effect = "Allow"
+                                                        Action = [
+                                                          "s3:Get*",
+                                                          "s3:List*",
+                                                          "ec2:Describe*"
+                                                        ]
+                                                        Resource = "*"
+                                                      }
+                                                    ]
+                                                  })
+                                                }
+
+                                                    //------------------ ATTACH TO A ROLE                           //------------------ ATTACH TO A USER
+                                                    resource "aws_iam_role" "example_role" {                        resource "aws_iam_user" "example_user" {
+                                                      name               = "example-role"                             name = "example-user"
+                                                      assume_role_policy = jsonencode({
+                                                        Version = "2012-10-17"                                        permissions_boundary = aws_iam_policy.permissions_boundary.arn
+                                                        Statement = [                                               }
+                                                          {
+                                                            Effect = "Allow"
+                                                            Principal = {
+                                                              Service = "ec2.amazonaws.com"  # Replace with relevant service
+                                                            }
+                                                            Action = "sts:AssumeRole"
+                                                          }
+                                                        ]
+                                                      })
+
+                                                      permissions_boundary = aws_iam_policy.permissions_boundary.arn
+                                                    }
+
+                  4. SESSION (Policies)
+                                          Session policies do not extend permissions.
+                                          They only narrow or limit existing permissions.
+                                          Typically used with AWS services like AWS STS (Security Token Service) "aws sts assume-role"
+                                          Example:
+                                                    aws sts assume-role \
+                                                      --role-arn arn:aws:iam::123456789012:role/MyRoleName \
+                                                      --role-session-name MySessionName \
+                                                      --policy '{
+                                                        "Version": "2012-10-17",
+                                                        "Statement": [
+                                                          {
+                                                            "Effect": "Allow",
+                                                            "Action": [
+                                                              "s3:ListBucket",
+                                                              "s3:GetObject"
+                                                            ],
+                                                            "Resource": [
+                                                              "arn:aws:s3:::*",
+                                                              "arn:aws:s3:::*/*"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }'
+
+    ____________________________________________________________________________________
+    LOAD BALANCER
+                          There can be of different types.
+                          Network Load Balancers (NLB) for example operate at Layer 4
+                          making routing decisions based on IP data only.
+
+                          Application Load Balancers (ALB) on the other hand operate at layer 7
+                          (application layer), allowing it to make routing decisions based on the content of the request.
+                          or can be configured for Path-Based Routing:
+
+                                - Requests to "/api" could be routed to one set of EC2 instances or containers.
+                                - Requests to "/static" could be routed to a different set.
+
+                  1. The ALB continuously performs health checks on all registered targets
+                  2. If an instance fails a health check (based on criteria I configure, such as response time or HTTP status code), the ALB stops routing traffic to that instance.
+                  3. The ALB spreads incoming traffic among healthy instances using a load-balancing algorithm. By defaultt "round-robin"
+                  4. If there are no healthy instances available in that target group, the ALB may respond with a 503 Service Unavailable error unless fallback mechanisms are configured.
+
+                            LISTENER / Routing Rules:
+                                             Each listener rule on an ALB points to a specific target group,
+                                             ensuring that traffic meeting certain conditions is forwarded to the appropriate backend resources.
+                            TARGET GROUPS
+                                             They are the set of resources to which the Load Balancer routes the traffic.
+                                             I can configure the LB to route to specific set according to different kind of criteria
+                                                ex. Instance IDs
+                                                    IP addresses
+                                                    paths
+                                                    ports
+                                                    ...
+
+        1. Create Target Groups:
+            # Create target group for Product Service
+                    aws elbv2 create-target-group  --name ProductServiceTG  --protocol HTTP  --port 80  --vpc-id <your-vpc-id>  --health-check-path "/health"  --target-type instance
+                              ^^^^^^^^^^^^^^^^^^^
+
+            # Create target group for Cart Service
+                    aws elbv2 create-target-group --name CartServiceTG  --protocol HTTP  --port 80  --vpc-id <your-vpc-id>  --health-check-path "/health"  --target-type instance
+                              ^^^^^^^^^^^^^^^^^^^
+
+        2. Create the Application Load Balancer (ALB):
+                    aws elbv2 create-load-balancer  --name MyAppALB  --subnets <subnet-1-id> <subnet-2-id>  --security-groups <security-group-id>  --scheme internet-facing  --type application  --ip-address-type ipv4
+                              ^^^^^^^^^^^^^^^^^^^^
+
+        3. Get the ARN of the Target Groups:
+                    aws elbv2 describe-target-groups --names ProductServiceTG CartServiceTG
+                              ^^^^^^^^^^^^^^^^^^^^^^
+
+        4. Create Listener and Configure Path-Based Routing
+                    aws elbv2 describe-load-balancers --names MyAppALB
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+
+                    aws elbv2 create-listener \
+                              ^^^^^^^^^^^^^^^
+                      --load-balancer-arn <alb-arn> \
+                      --protocol HTTP \
+                      --port 80 \
+                      --default-actions Type=fixed-response,FixedResponseConfig={MessageBody="404 Not Found",StatusCode="404",ContentType="text/plain"}
+
+        5. Get the ARN of the newly created listener:
+                    aws elbv2 describe-listeners --load-balancer-arn <alb-arn>
+                              ^^^^^^^^^^^^^^^^^^
+
+
+        6. Add Path-Based Routing Rules
+            # Add a rule for /products path
+                    aws elbv2 create-rule  --listener-arn <listener-arn>  --conditions Field=path-pattern,Values='/products/*'  --priority 1  --actions Type=forward,TargetGroupArn=<product-service-tg-arn>
+                              ^^^^^^^^^^^
+
+            # Add a rule for /cart path
+                    aws elbv2 create-rule  --listener-arn <listener-arn>  --conditions Field=path-pattern,Values='/cart/*'  --priority 2  --actions Type=forward,TargetGroupArn=<cart-service-tg-arn>
+                              ^^^^^^^^^^^
+
+        7. Verifying the Configuration
+            # Check the status of the ALB and its listeners:
+
+                    aws elbv2 describe-load-balancers --names MyAppALB
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                    aws elbv2 describe-listeners      --load-balancer-arn <alb-arn>
+                              ^^^^^^^^^^^^^^^^^^
+
+            # Verify target registration:
+
+                    aws elbv2 describe-target-health --target-group-arn <product-service-tg-arn>
+                              ^^^^^^^^^^^^^^^^^^^^^^
+                    aws elbv2 describe-target-health --target-group-arn <cart-service-tg-arn>
+                              ^^^^^^^^^^^^^^^^^^^^^^
+    ____________________________________________________________________________________
+
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+    ____________________________________________________________________________________
+

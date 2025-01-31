@@ -700,6 +700,12 @@ Images are pulled from docker hub by default
                     It will be easier to support many smaller resources + tasks rather than one huge interface.
 
 
+----------------------- validate-pipeline
+
+  The 1st thing to do after having written a pipeline is to validate it (this can find errors)
+
+            fly -t 2dev validate-pipeline  -c pipelines/ssplatform/team-development/services-dashboard-web
+            looks good
 -----------------------
 
 

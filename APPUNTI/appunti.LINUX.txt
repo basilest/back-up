@@ -2056,6 +2056,7 @@ __  find
                          find ./test -not -name "*.php"
                          find ./test -name 'abc*' ! -name '*.php'
                          find . -name "*.tmpl" -o -name '*.json'
+                         find . -type d \( -name "node_modules" -o -name ".git" \) -prune -o -type f -name "*.ts" -print   # find all files .ts excluding those 2 dirs
 
         -perm 0664         to search based on permissions (here find anything with chmod 0664)
 
