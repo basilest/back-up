@@ -18,9 +18,9 @@ write my own built-in and keep into the running shell
  $#              NUMBER of args
  $*              string with ALL args (seen as a single word)
                  more exactly  "$*" is the IFS expansion of all positional parameters, $1 $2 $3 ....
- $@              same as $* but each arg is quoted
+ $@              same as $* but each arg is quoted (See clobbering-NOTE below)
                  more exactly it is an array-like construct of all positional parameters, {$1, $2, $3 ...}
-
+                 (See clobbering-NOTE below)
  $?              EXIT STATUS of most recent foreground pipeline
 
  $$              PID of the current shell (not subshell).
@@ -53,6 +53,34 @@ ${#array[@]}          idem
                   arr=( $(ls) )   Save ls output as an array of files
                   ${arr[@]:s:n}   Retrieve n elements starting at index s
 
+
+===============================
+clobbering-NOTE:
+===============================
+    Both $* and $@ refer to all the positional parameters passed (to a Bash script or function).
+
+        $* treats all the arguments as a single word.
+
+        $@ treats each argument as a separate word — but only if quoted properly.
+
+    The “Clobbering” Problem
+
+    ./myscript.sh "one arg" "two words" "three"
+
+
+    1. "$*" (quoted)     Expands to a single string: "one arg two words three"       Good if I want to treat all arguments as one string (rare).
+    2. "$@" (quoted)     Expands to: "one arg" "two words" "three"                   Preserves the original argument boundaries — this is usually what I want.
+    3. $* (unquoted)     Expands to:      one arg two words three                    Splits on spaces, so "one arg" becomes two separate words. This is the "clobbering" — it breaks apart arguments that had spaces in them.
+    4. $@ (unquoted)     Also expands to: one arg two words three                    Same "clobbering" problem
+
+    Rule of Thumb ✅ Use "$@" when I want to preserve arguments exactly as passed.
+
+        for arg in "$@"; do
+            echo "$arg"
+        done
+
+    🚫 Avoid using unquoted $@ or $* unless I explicitly want splitting, which is rarely the case.
+===============================
 -----------------------------------------------
 OPTIONS
 -----------------------------------------------
