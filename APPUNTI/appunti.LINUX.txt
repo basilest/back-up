@@ -2623,7 +2623,7 @@ anyhow while youtube-dl still supports Python 2,
 yt-dlp has more features but supports only Python 3
 
 ANYHOW they both usually download only video or audio
-and they use ffmpeg top mix them.
+and they use ffmpeg to mix them.
 So if I want a video + audio and that is not listed (
      among the available audio/video formats with the -F:
 

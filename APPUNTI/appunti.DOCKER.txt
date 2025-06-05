@@ -2683,4 +2683,115 @@ DOCKER COMPOSE
                                                             $ docker logs <container_id>
 
 
+-----------------------------------------DOCKER CONTEXT
+     This is like the perl/python/node virtual envs
+     It allows to switch from 1 env (ex. local) to another (ex. remote)
+     The cool stuff is that even though I'm running docker locally
+     if I switch to a remote context, then ALL the commands I normally execute (ex.
+         docker pull
+         docker ps
+         docker image rm ..
+         docker container ls ..
+         docker compose up -d
+     are executed in the context (ex remotely on an EC2)
+     So for example if I spin up an EC2 in an AWS account Innovation
+     and I want to pull an image from an ECR of another AWS account shared-services
+     then I coulnd't do it from the EC2, while if I drive from my local docker
+     which is loggedn in in shared-services then a docker pull in the context
+     of EC2-AWS-innovation will pull the image over there
+
+
+     - docker context ls
+
+            NAME            DESCRIPTION                               DOCKER ENDPOINT
+            default *       Current DOCKER_HOST based configuration   unix:///var/run/docker.sock
+            desktop-linux   Docker Desktop                            unix:///Users/sbasile/.docker/run/docker.sock
+
+
+           ---------------------------------
+           SET UP A EC2-ubuntu with DOCKER       (Amazon-Linux is don't officially supported by docker
+                                                  and it errored, so using ubuntu)
+              1. Create a EC2 ubuntu
+                             - with SSH-port22 open from everywhere 0.0.0.0/0
+                             - Internet In/Out
+                             - pem key (ex. "linux.server.micro.docker.context.pem"
+
+              2. ssh -i ~/Downloads/linux.server.micro.docker.context.pem ubuntu@ec2-35-178-170-51.eu-west-2.compute.amazonaws.com
+                                                                          ^^^^^^
+                                                                             |
+                                                                             not ec2-user
+              3. Install docker
+                            - curl -fsSL https://get.docker.com | sh
+                            - sudo usermod -aG docker $USER
+           ---------------------------------
+       CREATE THE CONTEXT (on the MAC)
+     - docker context create aws-server --docker "host=ssh://ubuntu@ec2-35-178-170-51.eu-west-2.compute.amazonaws.com"
+
+       CHECK  & SWITCH AMONG THE CONTEXTS
+     - docker context ls
+
+            NAME            DESCRIPTION                               DOCKER ENDPOINT
+        ===>aws-server                                                ssh://ubuntu@ec2-35-178-170-51.eu-west-2.compute.amazonaws.com
+            default *       Current DOCKER_HOST based configuration   unix:///var/run/docker.sock
+            desktop-linux   Docker Desktop                            unix:///Users/sbasile/.docker/run/docker.sock
+     - docker context use aws-server   (<--- enter EC2 context. ALL COMMANDS (ex. docker ps) will be on the EC2)
+     - docker context use default      (switches back to system)
+
+     EXAMPLE RUN docker compose REMOTELY FROM A LOCAL FILE
+     - docker compose up -d                  (the dockert-compose.yml  is in the current local dir, but the effdect is top run it remotely)
+
+     UPLOAD LOCAL code files to EC2
+     - rsync -avz . ubuntu@ec2-35-178-170-51.eu-west-2.compute.amazonaws.com:/home/ubuntu/app/web-app
+
+       this will recursevly (-a) resync/upload all the current dir content to EC2/home/ubuntu/app/web-app
+
+            -a  archive    (recursive and keep timestamp/metadata)
+            -v  verbose
+            -z  compress (save bandwith)
+
+              example of script to upload & run a Node.js app to EC2
+              ______________________________________________________
+              |  #!/bin/bash
+              |
+              |  REMOTE_USER=ubuntu
+              |  REMOTE_HOST=ec2-35-178-170-51.eu-west-2.compute.amazonaws.com
+              |  REMOTE_APP_DIR=/home/ubuntu/app/web-app
+              |  DOCKER_IMAGE_NAME=ch-web-app
+              |  REMOTE_PORT=80
+              |  LOCAL_PORT=3000
+              |
+              |  echo "Syncing code to EC2..."
+              |  rsync -avz . "$REMOTE_USER@$REMOTE_HOST:$REMOTE_APP_DIR"
+              |
+              |  echo "SSHing into EC2 and deploying in dev mode..."
+              |  ssh "$REMOTE_USER@$REMOTE_HOST" << EOF
+              |    set -e
+              |    cd "$REMOTE_APP_DIR"
+              |    echo "Building Docker image (dev)..."
+              |    docker build -f Dockerfile -t "$DOCKER_IMAGE_NAME" .
+              |
+              |    echo "Removing old container (if exists)..."
+              |    docker rm -f $DOCKER_IMAGE_NAME || true
+              |
+              |    echo "Running container with code mount and nodemon..."
+              |    docker run -d --name "$DOCKER_IMAGE_NAME" -v "$REMOTE_APP_DIR":/usr/src/app -p $REMOTE_PORT:$LOCAL_PORT "$DOCKER_IMAGE_NAME"
+              |    echo "Nodemon dev environment running at port $REMOTE_PORT"
+              |  EOF
+              ______________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
