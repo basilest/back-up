@@ -1,3 +1,11 @@
+------------------------------------------------------ copy to the clipboard
+if the clipboard support is on:
+    vim --version | grep clipboard
+then I can select some text (ex. mouse or 'v' ...)
+then
+      "+y
+now it's in the system's clipboard.
+
 ------------------------------------------------------ vimdiff excluding spaces / blanks
         set diffopt+=iwhite       <---- in ~/.vimrc
                                         or from command line:   vimdiff -c 'set diffopt+=iwhite' ...
