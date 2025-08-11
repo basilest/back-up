@@ -5,6 +5,8 @@
     3. I keep the 1st line while in all the others I change "pick" into "squash"
     4. I save
     5. It opens another vi, where I can write the squash commit message
+    6. git push --force
+                ^^^^^^^
 -------------------------------------------------
            updates in Git 2.23
 
