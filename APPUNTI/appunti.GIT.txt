@@ -1,4 +1,11 @@
 -------------------------------------------------
+
+    1. git rebase -i @~3      to squash 3 commits into 1
+    2. It opens vi
+    3. I keep the 1st line while in all the others I change "pick" into "squash"
+    4. I save
+    5. It opens another vi, where I can write the squash commit message
+-------------------------------------------------
            updates in Git 2.23
 
              - solution to
